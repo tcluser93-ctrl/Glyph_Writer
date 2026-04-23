@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.blueapps.egyptianwriter.databinding.FragmentEditBinding;
 import com.blueapps.egyptianwriter.editor.document.EditorViewModel;
-import com.blueapps.egyptianwriter.issuecenter.IssueCenter;
 
 public class EditFragment extends Fragment {
 
@@ -42,7 +41,7 @@ public class EditFragment extends Fragment {
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable editable) {
-                if (!IssueCenter.ISSUE_CENTER.isFatalIssue())
+                if (viewModel.isNoIssue())
                     viewModel.getFileMaster().setMdc(editText.getText().toString());
             }
 
@@ -63,7 +62,7 @@ public class EditFragment extends Fragment {
         super.onDestroyView();
         binding = null;
 
-        if (!IssueCenter.ISSUE_CENTER.isFatalIssue())
+        if (viewModel.isNoIssue())
             viewModel.getFileMaster().setMdc(editText.getText().toString());
     }
 }

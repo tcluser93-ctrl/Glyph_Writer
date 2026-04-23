@@ -11,9 +11,12 @@ import android.view.View;
 import android.widget.PopupWindow;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import com.blueapps.egyptianwriter.R;
 import com.blueapps.egyptianwriter.databinding.IssuePopupBinding;
+import com.blueapps.egyptianwriter.editor.document.EditorViewModel;
 
 import java.util.ArrayList;
 
@@ -67,7 +70,10 @@ public class Issue {
     }
 
     public void show(){
-        IssueCenter.ISSUE_CENTER.setFatalIssue(true);
+        if (context instanceof ViewModelStoreOwner){
+            EditorViewModel viewModel = new ViewModelProvider((ViewModelStoreOwner) context).get(EditorViewModel.class);
+            viewModel.setNoIssue(false);
+        }
         popupWindow.showAtLocation(binding.getRoot(), Gravity.NO_GRAVITY, 0,0); // Displays popup above the anchor view.
     }
 
