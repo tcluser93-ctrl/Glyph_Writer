@@ -118,14 +118,16 @@ public class DocumentEditorActivity extends AppCompatActivity implements ImageBu
             finish();
         });
         buttonMode.setOnClickListener(view -> {
-            if (viewModel.getMode()){
-                viewModel.setMode(MODE_WRITE);
-                buttonMode.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.edit_note));
-                expandableLayout.expand(true);
-            } else {
-                viewModel.setMode(MODE_READ);
-                buttonMode.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.opened_book));
-                expandableLayout.collapse(true);
+            if (viewModel.isNoIssue()) {
+                if (viewModel.getMode()) {
+                    viewModel.setMode(MODE_WRITE);
+                    buttonMode.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.edit_note));
+                    expandableLayout.expand(true);
+                } else {
+                    viewModel.setMode(MODE_READ);
+                    buttonMode.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.opened_book));
+                    expandableLayout.collapse(true);
+                }
             }
         });
 
@@ -135,7 +137,7 @@ public class DocumentEditorActivity extends AppCompatActivity implements ImageBu
             expandableLayout.expand(false);
         }
 
-        viewModel.setFileMaster(new FileMaster(this, filename));
+        viewModel.setFileMaster(new FileMaster(this, root, filename));
         viewModel.getFileMaster().addFileListener(new FileListener() {
             @Override
             public void onGlyphXChanged(Document GlyphX) {
