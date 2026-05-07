@@ -6,6 +6,14 @@
 
 An android app for viewing, creating and exporting ancient egyptian hieroglyphs.
 For the manual check out the [wiki](https://github.com/ThothDroid/Egyptian_Writer/wiki).
+
+## Installation
+There are two ways to install the Egyptian Writer app:
+- download and install the [Egyptian_Writer.apk](/Egyptian_Writer.apk) file from this repository
+- Install from [Google Play](https://play.google.com/store/apps/details?id=com.blueapps.egyptianwriter)
+
+> [!NOTE]
+> I will soon upload the app on *FDroid* and *APKPure*
 \
 \
 This app uses libraries I created:
@@ -15,14 +23,6 @@ This app uses libraries I created:
 - [SignProvider-Library](https://github.com/ThothDroid/SignProvider)
 
 For other libraries used see [`LicenseCompatibility.md`](/LicenseCompatibility.md).
-
-## Installation
-There are two ways to install the Egyptian Writer app:
-- download and install the [Egyptian_Writer.apk](/Egyptian_Writer.apk) file from this repository
-- Install from [Google Play](https://play.google.com/store/apps/details?id=com.blueapps.egyptianwriter)
-
-> [!NOTE]
-> I will soon upload the app on *FDroid* and *APKPure*
 
 ## Version Catalog
 ### 10.01.2025@0.0.1
