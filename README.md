@@ -6,15 +6,6 @@
 
 An android app for viewing, creating and exporting ancient egyptian hieroglyphs.
 For the manual check out the [wiki](https://github.com/ThothDroid/Egyptian_Writer/wiki).
-\
-\
-This app uses libraries I created:
-- [MAAT-Library](https://github.com/ThothDroid/MAAT)
-- [THOTH-Library](https://github.com/ThothDroid/THOTH)
-- [GlyphConverter-Library](https://github.com/ThothDroid/GlyphConverter)
-- [SignProvider-Library](https://github.com/ThothDroid/SignProvider)
-
-For other libraries used see [`LicenseCompatibility.md`](/LicenseCompatibility.md).
 
 ## Installation
 There are two ways to install the Egyptian Writer app:
@@ -23,6 +14,23 @@ There are two ways to install the Egyptian Writer app:
 
 > [!NOTE]
 > I will soon upload the app on *FDroid* and *APKPure*
+
+## Contribution
+There are several ways to contribute to this App.
+- If you like this app, consider **leaving a review on Google Play** or **give this repository a star**
+- If you speak a language **Go to [Crowdin](https://crowdin.com/project/egyptian-writer) and translate this App**
+- You can also **make tutorials** for example on Youtube or you can **enhance the documentation and the [wiki](https://github.com/ThothDroid/Egyptian_Writer/wiki)**
+- And of course you can **give feedback** and **fork this repository**
+
+\
+\
+**This app uses libraries I created:**
+- [MAAT-Library](https://github.com/ThothDroid/MAAT)
+- [THOTH-Library](https://github.com/ThothDroid/THOTH)
+- [GlyphConverter-Library](https://github.com/ThothDroid/GlyphConverter)
+- [SignProvider-Library](https://github.com/ThothDroid/SignProvider)
+
+For other libraries used see [`LicenseCompatibility.md`](/LicenseCompatibility.md).
 
 ## Version Catalog
 ### 10.01.2025@0.0.1
