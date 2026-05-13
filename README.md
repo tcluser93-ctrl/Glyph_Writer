@@ -1,4 +1,4 @@
-[![GitHub Repo stars](https://img.shields.io/github/stars/ThothDroid/Egyptian_Writer?style=for-the-badge)](https://github.com/ThothDroid/Egyptian_Writer) [![GitHub License](https://img.shields.io/github/license/ThothDroid/Egyptian_Writer?style=for-the-badge&logo=gnu&color=yellow)](https://github.com/ThothDroid/Egyptian_Writer?tab=GPL-3.0-1-ov-file) \
+[![GitHub Repo stars](https://img.shields.io/github/stars/ThothDroid/Egyptian_Writer?style=for-the-badge&logo=github)](https://github.com/ThothDroid/Egyptian_Writer) [![GitHub License](https://img.shields.io/github/license/ThothDroid/Egyptian_Writer?style=for-the-badge&logo=gnu&color=yellow)](https://github.com/ThothDroid/Egyptian_Writer?tab=GPL-3.0-1-ov-file) \
 [![Crowdin](https://badges.crowdin.net/egyptian-writer/localized.svg)](https://crowdin.com/project/egyptian-writer) [![Static wiki Badge](https://img.shields.io/badge/Egyptian%20Writer-WIKI-blue?style=flat&logo=gitbook&logoColor=white)](https://github.com/ThothDroid/Egyptian_Writer/wiki) \
 \
 [<img height="50" src="/GetItOnGooglePlay_Badge_Web_color_English.svg"/>](https://play.google.com/store/apps/details?id=com.blueapps.egyptianwriter)
