@@ -4,7 +4,7 @@
 
 # Egyptian Writer
 
-An android app for viewing, creating and exporting ancient egyptian hieroglyphs.
+An android app for viewing, creating and exporting ancient Egyptian hieroglyphs.
 For the manual check out the [wiki](https://github.com/ThothDroid/Egyptian_Writer/wiki).
 
 ## Installation
@@ -19,7 +19,7 @@ There are two ways to install the Egyptian Writer app:
 There are several ways to contribute to this App.
 - If you like this app, consider **leaving a review on Google Play** or **give this repository a star**
 - If you speak a language **Go to [Crowdin](https://crowdin.com/project/egyptian-writer) and translate this App**
-- You can also **make tutorials** for example on Youtube or you can **enhance the documentation and the [wiki](https://github.com/ThothDroid/Egyptian_Writer/wiki)**
+- You can also **make tutorials** for example on YouTube or you can **enhance the documentation and the [wiki](https://github.com/ThothDroid/Egyptian_Writer/wiki)**
 - And of course you can **give feedback** and **fork this repository**
 
 \
