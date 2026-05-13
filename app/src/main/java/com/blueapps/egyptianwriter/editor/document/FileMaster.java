@@ -48,6 +48,7 @@ public class FileMaster {
     private Document glyphX;
     private String content;
     private Document rootDocument;
+    private Document settings;
 
     private String mdc = "";
 
@@ -148,6 +149,16 @@ public class FileMaster {
                                 }
                             }
                         }
+
+                        NodeList settingsNotes = rootDocument.getElementsByTagName(TAG_NAME_SETTINGS);
+                        if (settingsNotes.getLength() > 0){
+                            Node settingsNode = settingsNotes.item(0);
+
+                            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+                            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+                            settings = docBuilder.newDocument();
+                            settings.appendChild(settings.adoptNode(settingsNode));
+                        }
                     }
                 }
             }
@@ -210,6 +221,14 @@ public class FileMaster {
 
     public String getContent() {
         return content;
+    }
+
+    public Document getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Document settings) {
+        this.settings = settings;
     }
 
     public Document getRootDocument() {

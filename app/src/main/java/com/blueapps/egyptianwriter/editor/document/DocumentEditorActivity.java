@@ -153,6 +153,7 @@ public class DocumentEditorActivity extends AppCompatActivity implements ImageBu
 
             }
         });
+        propertiesManager.extractData(this);
 
         try {
             thothView.setGlyphXText(viewModel.getFileMaster().getGlyphX());
