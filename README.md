@@ -5,7 +5,7 @@
 [![Crowdin](https://badges.crowdin.net/egyptian-writer/localized.svg)](https://crowdin.com/project/egyptian-writer)
 [![Static wiki Badge](https://img.shields.io/badge/Egyptian%20Writer-WIKI-yellow?style=flat&logo=gitbook&logoColor=white)](https://github.com/ThothDroid/Egyptian_Writer/wiki) 
 [![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/ThothDroid/Egyptian_Writer?color=blue)](https://github.com/ThothDroid/Egyptian_Writer) 
-[![GitHub Release](https://img.shields.io/github/v/release/ThothDroid/Egyptian_Writer&color=%23F05032)](https://github.com/ThothDroid/Egyptian_Writer)\
+[![GitHub Release](https://img.shields.io/github/v/release/ThothDroid/Egyptian_Writer?color=%23F05032)](https://github.com/ThothDroid/Egyptian_Writer)\
 \
 [<img height="50" src="/GetItOnGooglePlay_Badge_Web_color_English.svg"/>](https://play.google.com/store/apps/details?id=com.blueapps.egyptianwriter)
 
