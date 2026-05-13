@@ -152,6 +152,11 @@ public class DocumentEditorActivity extends AppCompatActivity implements ImageBu
             public void onMdCChanged(String mdc) {
 
             }
+
+            @Override
+            public void onSettingsChanged(Document settings){
+
+            }
         });
         propertiesManager.extractData(this);
 

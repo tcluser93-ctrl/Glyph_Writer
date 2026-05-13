@@ -229,6 +229,17 @@ public class FileMaster {
 
     public void setSettings(Document settings) {
         this.settings = settings;
+
+        // Inform listeners
+        for (FileListener listener: listeners){
+            listener.onSettingsChanged(this.settings);
+        }
+
+        String test = DocumentToString(settings);
+
+        // Apply changes to file
+        applyContentToDocument();
+        new Thread(new FileChanger(file, rootDocument)).start();
     }
 
     public Document getRootDocument() {
@@ -300,6 +311,16 @@ public class FileMaster {
             Element rootElement = rootDocument.createElement(ROOT_TAG_DOCUMENT);
 
             // children
+            // Settings
+            Node settingsNode;
+            if (this.settings.hasChildNodes()){
+                Element oldSettings = getSettings().getDocumentElement();
+                settingsNode = rootDocument.adoptNode(oldSettings.cloneNode(true));
+            } else {
+                settingsNode = rootDocument.createElement(TAG_NAME_SETTINGS);
+            }
+            rootElement.appendChild(settingsNode);
+
             // MdC
             Element mdc = rootDocument.createElement(TAG_NAME_MDC);
             Text mdcNode = rootDocument.createTextNode(this.mdc);

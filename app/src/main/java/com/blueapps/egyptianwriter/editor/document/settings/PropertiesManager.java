@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
 import com.blueapps.egyptianwriter.editor.document.EditorViewModel;
+import com.blueapps.egyptianwriter.editor.document.FileMaster;
 import com.blueapps.maat.ValuePair;
 
 import org.w3c.dom.Attr;
@@ -24,7 +25,12 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 public class PropertiesManager extends ViewModel {
 
@@ -45,7 +51,6 @@ public class PropertiesManager extends ViewModel {
     public static final HashMap<String, Integer> VERTICAL_ORIENTATION_MAP = new HashMap<>();
     public static final HashMap<String, Integer> WRITING_LAYOUT_MAP = new HashMap<>();
     public static final HashMap<String, Integer> WRITING_DIRECTION_MAP = new HashMap<>();
-
     static {
         VERTICAL_ORIENTATION_MAP.put("TOP", 0);
         VERTICAL_ORIENTATION_MAP.put("MIDDLE", 1);
@@ -57,6 +62,7 @@ public class PropertiesManager extends ViewModel {
         WRITING_DIRECTION_MAP.put("LTR", 0);
         WRITING_DIRECTION_MAP.put("RTL", 1);
     }
+
     // Keys
     public static final String KEY_TEXT_SIZE = "textSize";
     public static final String KEY_VERTICAL_ORIENTATION = "verticalOrientation";
@@ -98,7 +104,41 @@ public class PropertiesManager extends ViewModel {
                     extractFromHashMap(items);
                 }
             }
+        } else {
+            saveSettings();
         }
+    }
+
+    public void saveSettings(){
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+            //root elements
+            Document settingsDocument = docBuilder.newDocument();
+            Element rootElement = settingsDocument.createElement(TAG_NAME_SETTINGS);
+
+            HashMap<String, String> map = createHashMap();
+            for (Map.Entry<String, String> entry: map.entrySet()){
+                String key = entry.getKey();
+                String value = entry.getValue();
+
+                Element element = settingsDocument.createElement(TAG_NAME_ITEM);
+                element.setAttribute(ATTR_TYPE, key);
+                Text text = settingsDocument.createTextNode(value);
+                element.appendChild(text);
+                rootElement.appendChild(element);
+            }
+
+            settingsDocument.appendChild(rootElement);
+            FileMaster fileMaster = editorViewModel.getFileMaster();
+            fileMaster.setSettings(settingsDocument);
+
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+            // TODO: Error handling
+        }
+
     }
 
     private static String getValue(Element element) {
@@ -120,6 +160,7 @@ public class PropertiesManager extends ViewModel {
 
     public void setTextSize(int textSize){
         this.textSize.postValue(textSize);
+        saveSettings();
     }
 
     public int increaseTextSize(){
@@ -144,6 +185,8 @@ public class PropertiesManager extends ViewModel {
 
     public void setWritingLayout(int writingLayout){
         this.writingLayout.postValue(writingLayout);
+        // postValue delayed -> old value used for saving
+        saveSettings();
     }
 
     public LiveData<Integer> getVerticalOrientation() {
@@ -152,6 +195,7 @@ public class PropertiesManager extends ViewModel {
 
     public void setVerticalOrientation(int verticalOrientation){
         this.verticalOrientation.postValue(verticalOrientation);
+        saveSettings();
     }
 
     public LiveData<Integer> getWritingDirection() {
@@ -160,8 +204,29 @@ public class PropertiesManager extends ViewModel {
 
     public void setWritingDirection(int writingDirection){
         this.writingDirection.postValue(writingDirection);
+        saveSettings();
     }
 
+    private HashMap<String, String> createHashMap(){
+        HashMap<String, String> map = new HashMap<>();
+
+        // TextSize
+        map.put(KEY_TEXT_SIZE, textSize.getValue().toString());
+
+        // VerticalOrientation
+        String verticalOrientationValue = enumToInt(verticalOrientation.getValue(), VERTICAL_ORIENTATION_MAP);
+        if (verticalOrientationValue != null) map.put(KEY_VERTICAL_ORIENTATION, verticalOrientationValue);
+
+        // WritingDirection
+        String writingDirectionValue = enumToInt(writingDirection.getValue(), WRITING_DIRECTION_MAP);
+        if (writingDirectionValue != null) map.put(KEY_WRITING_DIRECTION, writingDirectionValue);
+
+        // WritingLayout
+        String writingLayoutValue = enumToInt(writingLayout.getValue(), WRITING_LAYOUT_MAP);
+        if (writingLayoutValue != null) map.put(KEY_WRITING_LAYOUT, writingLayoutValue);
+
+        return map;
+    }
 
     private void extractFromHashMap(@NonNull HashMap<String, String> map){
 
@@ -211,6 +276,15 @@ public class PropertiesManager extends ViewModel {
             return I;
         }
         return -1;
+    }
+
+    private static String enumToInt(int i, HashMap<String, Integer> enumMap){
+        for (Map.Entry<String, Integer> entry : enumMap.entrySet()) {
+            if (Objects.equals(i, entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
 }
