@@ -35,7 +35,7 @@ There are several ways to contribute to this App.
 - You can also **make tutorials** for example on YouTube or you can **enhance the documentation and the [wiki](https://github.com/ThothDroid/Egyptian_Writer/wiki)**
 - **give Feedback**, for example via email: [website.tutorials@gmx.de](mailto:website.tutorials@gmx.de) _Maybe I don't answer directly, but I still appreciate your feedback._
 - **fork this repository**, I am open to changes
-- The *most important thing* is to **spread the influence of the app**. If you know someone, how would benefit from this, send him a message!<br>Here are the download links:<br>
+- The *most important thing* is to **spread the influence of the app**. If you know someone, how would benefit from this, send him a message!<br>Here are the download links:<br><br>
 *Google Play:* `https://play.google.com/store/apps/details?id=com.blueapps.egyptianwriter`<br>
 *Simple, Reliable APK Download:* `https://github.com/ThothDroid/Egyptian_Writer/releases/latest/download/Egyptian_Writer.apk`
 
