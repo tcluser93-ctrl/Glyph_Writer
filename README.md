@@ -13,6 +13,7 @@
 
 An android app for viewing, creating and exporting ancient Egyptian hieroglyphs. \
 For the manual check out the [wiki](https://github.com/ThothDroid/Egyptian_Writer/wiki).
+
 \
 
 [<img height="400" src="https://github.com/ThothDroid/Egyptian_Writer/wiki/images/screenshots/Screenshot_Smartphone27.png">](https://github.com/ThothDroid/Egyptian_Writer/wiki/images/screenshots/Screenshot_Smartphone27.png)
