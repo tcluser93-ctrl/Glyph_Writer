@@ -52,7 +52,7 @@ This is the first release of the Egyptian Writer android app.
 - A navigationDrawer added 
 - SignList Page added
 - About the App Page added 
-- Migrated to [SignProvider-Library](https://github.com/cristmasbox/SignProvider)
+- Migrated to [SignProvider-Library](https://github.com/ThothDroid/SignProvider)
 - Gradle Project upgrade 
 - dependencies update
 ### latest Version
