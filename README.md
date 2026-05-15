@@ -8,6 +8,7 @@
 [![GitHub Release](https://img.shields.io/github/v/release/ThothDroid/Egyptian_Writer?color=%23F05032)](https://github.com/ThothDroid/Egyptian_Writer/releases/latest)\
 \
 [<img height="50" src="/GetItOnGooglePlay_Badge_Web_color_English.svg"/>](https://play.google.com/store/apps/details?id=com.blueapps.egyptianwriter)
+[<img height="50" src="/Download Android APK Badge.svg"/>](https://github.com/ThothDroid/Egyptian_Writer/releases/latest/download/Egyptian_Writer.apk)
 
 # Egyptian Writer
 
@@ -33,7 +34,10 @@ There are several ways to contribute to this App.
 - If you also speak a different language than English, **go to [Crowdin](https://crowdin.com/project/egyptian-writer) and translate this App**
 - You can also **make tutorials** for example on YouTube or you can **enhance the documentation and the [wiki](https://github.com/ThothDroid/Egyptian_Writer/wiki)**
 - **give Feedback**, for example via email: [website.tutorials@gmx.de](mailto:website.tutorials@gmx.de) _Maybe I don't answer directly, but I still appreciate your feedback._
-- And of course you can **fork this repository**
+- **fork this repository**, I am open to changes
+- The *most important thing* is to **spread the influence of the app**. If you know someone, how would benefit from this, send him a message!<br>Here are the download links:<br>
+*Google Play:* `https://play.google.com/store/apps/details?id=com.blueapps.egyptianwriter`<br>
+*Simple, Reliable APK Download:* `https://github.com/ThothDroid/Egyptian_Writer/releases/latest/download/Egyptian_Writer.apk`
 
 \
 \
