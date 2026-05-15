@@ -5,18 +5,23 @@
 [![Crowdin](https://badges.crowdin.net/egyptian-writer/localized.svg)](https://crowdin.com/project/egyptian-writer)
 [![Static wiki Badge](https://img.shields.io/badge/Egyptian%20Writer-WIKI-yellow?style=flat&logo=gitbook&logoColor=white)](https://github.com/ThothDroid/Egyptian_Writer/wiki) 
 [![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/ThothDroid/Egyptian_Writer?color=blue)](https://github.com/ThothDroid/Egyptian_Writer) 
-[![GitHub Release](https://img.shields.io/github/v/release/ThothDroid/Egyptian_Writer?color=%23F05032)](https://github.com/ThothDroid/Egyptian_Writer)\
+[![GitHub Release](https://img.shields.io/github/v/release/ThothDroid/Egyptian_Writer?color=%23F05032)](https://github.com/ThothDroid/Egyptian_Writer/releases/latest)\
 \
 [<img height="50" src="/GetItOnGooglePlay_Badge_Web_color_English.svg"/>](https://play.google.com/store/apps/details?id=com.blueapps.egyptianwriter)
 
 # Egyptian Writer
 
 An android app for viewing, creating and exporting ancient Egyptian hieroglyphs. \
-For the manual check out the [wiki](https://github.com/ThothDroid/Egyptian_Writer/wiki).
+For the manual check out the [wiki](https://github.com/ThothDroid/Egyptian_Writer/wiki). \
+
+[<img height="400" src="https://github.com/ThothDroid/Egyptian_Writer/wiki/images/screenshots/Screenshot_Smartphone27.png">](https://github.com/ThothDroid/Egyptian_Writer/wiki/images/screenshots/Screenshot_Smartphone27.png)
+[<img height="400" src="https://github.com/ThothDroid/Egyptian_Writer/wiki/images/screenshots/Screenshot_Smartphone29.png">](https://github.com/ThothDroid/Egyptian_Writer/wiki/images/screenshots/Screenshot_Smartphone29.png)
+[<img height="400" src="https://github.com/ThothDroid/Egyptian_Writer/wiki/images/screenshots/Screenshot_Smartphone30.png">](https://github.com/ThothDroid/Egyptian_Writer/wiki/images/screenshots/Screenshot_Smartphone30.png)
+[<img height="400" src="https://github.com/ThothDroid/Egyptian_Writer/wiki/images/screenshots/Screenshot_Smartphone26.png">](https://github.com/ThothDroid/Egyptian_Writer/wiki/images/screenshots/Screenshot_Smartphone26.png)
 
 ## Installation
 There are two ways to install the Egyptian Writer app:
-- download and install the [Egyptian_Writer.apk](/Egyptian_Writer.apk) file from this repository
+- download and install the latest [Egyptian_Writer.apk](/releases/downloads/latest/Egyptian_Writer.apk) file from this repository
 - Install from [Google Play](https://play.google.com/store/apps/details?id=com.blueapps.egyptianwriter)
 
 > [!NOTE]
@@ -25,9 +30,10 @@ There are two ways to install the Egyptian Writer app:
 ## Contribution
 There are several ways to contribute to this App.
 - If you like this app, consider **leaving a review on Google Play** or **give this repository a star**
-- If you speak a language **Go to [Crowdin](https://crowdin.com/project/egyptian-writer) and translate this App**
+- If you also speak a different language than English, **go to [Crowdin](https://crowdin.com/project/egyptian-writer) and translate this App**
 - You can also **make tutorials** for example on YouTube or you can **enhance the documentation and the [wiki](https://github.com/ThothDroid/Egyptian_Writer/wiki)**
-- And of course you can **give feedback** and **fork this repository**
+- **give Feedback**, for example via email: [website.tutorials@gmx.de](mailto:website.tutorials@gmx.de) _Maybe I don't answer directly, but I still appreciate your feedback._
+- And of course you can **fork this repository**
 
 \
 \
