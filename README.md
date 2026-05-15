@@ -21,7 +21,7 @@ For the manual check out the [wiki](https://github.com/ThothDroid/Egyptian_Write
 
 ## Installation
 There are two ways to install the Egyptian Writer app:
-- download and install the latest [Egyptian_Writer.apk](/releases/downloads/latest/Egyptian_Writer.apk) file from this repository
+- download and install the latest [Egyptian_Writer.apk](https://github.com/ThothDroid/Egyptian_Writer/releases/downloads/latest/Egyptian_Writer.apk) file from this repository
 - Install from [Google Play](https://play.google.com/store/apps/details?id=com.blueapps.egyptianwriter)
 
 > [!NOTE]
