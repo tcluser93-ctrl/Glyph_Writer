@@ -8,8 +8,8 @@
 [![GitHub Release](https://img.shields.io/github/v/release/ThothDroid/Egyptian_Writer?color=%23F05032)](https://github.com/ThothDroid/Egyptian_Writer/releases/latest)\
 \
 [<img height="50" src="/GetItOnGooglePlay_Badge_Web_color_English.svg"/>](https://play.google.com/store/apps/details?id=com.blueapps.egyptianwriter)
-[<img height="50" src="/Download Android APK Badge.svg"/>](https://github.com/ThothDroid/Egyptian_Writer/releases/latest/download/Egyptian_Writer.apk)
 [<img height="50" src="/GetItOnFDroid_Badge.svg"/>](https://f-droid.org/de/packages/com.blueapps.egyptianwriter)
+[<img height="50" src="/Download Android APK Badge.svg"/>](https://github.com/ThothDroid/Egyptian_Writer/releases/latest/download/Egyptian_Writer.apk)
 
 # Egyptian Writer
 
