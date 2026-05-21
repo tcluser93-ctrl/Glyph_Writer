@@ -1,5 +1,6 @@
 [![GitHub Repo stars](https://img.shields.io/github/stars/ThothDroid/Egyptian_Writer?style=for-the-badge&logo=github&color=yellowgreen)](https://github.com/ThothDroid/Egyptian_Writer) 
 [![GitHub License](https://img.shields.io/github/license/ThothDroid/Egyptian_Writer?style=for-the-badge&logo=gnu&color=yellow)](https://github.com/ThothDroid/Egyptian_Writer?tab=GPL-3.0-1-ov-file) 
+[![F-Droid Version](https://img.shields.io/f-droid/v/com.blueapps.egyptianwriter?style=for-the-badge&logo=fdroid)](https://f-droid.org/en/packages/com.blueapps.egyptianwriter)
 [![GitHub forks](https://img.shields.io/github/forks/ThothDroid/Egyptian_Writer?style=for-the-badge&logo=git&logoColor=white&color=%23F05032)](https://github.com/ThothDroid/Egyptian_Writer) 
 \
 [![Crowdin](https://badges.crowdin.net/egyptian-writer/localized.svg)](https://crowdin.com/project/egyptian-writer)
