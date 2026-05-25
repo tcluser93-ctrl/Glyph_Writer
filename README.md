@@ -23,19 +23,20 @@ For the manual check out the [wiki](https://github.com/ThothDroid/Egyptian_Write
 [<img height="400" src="https://github.com/ThothDroid/Egyptian_Writer/wiki/images/screenshots/Screenshot_Smartphone26.png">](https://github.com/ThothDroid/Egyptian_Writer/wiki/images/screenshots/Screenshot_Smartphone26.png)
 
 ## Installation
-There are two ways to install the Egyptian Writer app:
+There are three ways to install the Egyptian Writer app:
 - download and install the latest [Egyptian_Writer.apk](https://github.com/ThothDroid/Egyptian_Writer/releases/latest/download/Egyptian_Writer.apk) file from the latest release.
 - Install from [Google Play](https://play.google.com/store/apps/details?id=com.blueapps.egyptianwriter)
+- Install from [FDroid](https://f-droid.org/en/packages/com.blueapps.egyptianwriter)
 
 > [!NOTE]
-> I will soon upload the app on *FDroid* and *APKPure*
+> I will soon upload the app on *APKPure*
 
 ## Contribution
 There are several ways to contribute to this App.
-- If you like this app, consider **leaving a review on Google Play** or **give this repository a star**
-- If you also speak a different language than English, **go to [Crowdin](https://crowdin.com/project/egyptian-writer) and translate this App**
-- You can also **make tutorials** for example on YouTube or you can **enhance the documentation and the [wiki](https://github.com/ThothDroid/Egyptian_Writer/wiki)**
-- **give Feedback**, for example via email: [website.tutorials@gmx.de](mailto:website.tutorials@gmx.de) _Maybe I don't answer directly, but I still appreciate your feedback._
+- ⭐️ If you like this app, consider **leaving a review on Google Play** or **give this repository a star**
+- 🇩🇪 If you also speak a different language than English, **go to [Crowdin](https://crowdin.com/project/egyptian-writer) and translate this App**
+- 📖 You can also **make tutorials** for example on YouTube or you can **enhance the documentation and the [wiki](https://github.com/ThothDroid/Egyptian_Writer/wiki)**
+- 📧 **give Feedback**, for example via email: [website.tutorials@gmx.de](mailto:website.tutorials@gmx.de) _Maybe I don't answer directly, but I still appreciate your feedback._
 - **fork this repository**, I am open to changes
 - The *most important thing* is to **spread the influence of the app**. If you know someone, how would benefit from this, send him a message!<br>Here are the download links:<br><br>
 Google Play: `https://play.google.com/store/apps/details?id=com.blueapps.egyptianwriter`<br>
