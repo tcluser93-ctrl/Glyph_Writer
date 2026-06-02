@@ -40,6 +40,8 @@ There are several ways to contribute to this App.
 - ✏️ **fork this repository**, I am open to changes
 - 🗣👤 The *most important thing* is to **spread the influence of the app**. If you know someone, how would benefit from this, send him a message!<br>Here are the download links:<br><br>
 Google Play: `https://play.google.com/store/apps/details?id=com.blueapps.egyptianwriter`<br>
+FDroid:
+https://f-droid.org/de/packages/com.blueapps.egyptianwriter
 Simple, Reliable APK Download: `https://github.com/ThothDroid/Egyptian_Writer/releases/latest/download/Egyptian_Writer.apk`
 
 \
