@@ -10,6 +10,7 @@
 \
 [<img height="50" src="/GetItOnGooglePlay_Badge_Web_color_English.svg"/>](https://play.google.com/store/apps/details?id=com.blueapps.egyptianwriter)
 [<img height="50" src="/GetItOnFDroid_Badge.svg"/>](https://f-droid.org/de/packages/com.blueapps.egyptianwriter)
+[<img height="50" src="/Custom_GetItOnAPKPure_Badge_color_English.svg"/>](https://apkpure.com/egyptian-writer/com.blueapps.egyptianwriter/)
 [<img height="50" src="/Download Android APK Badge.svg"/>](https://github.com/ThothDroid/Egyptian_Writer/releases/latest/download/Egyptian_Writer.apk)
 
 # Egyptian Writer
@@ -23,13 +24,11 @@ For the manual check out the [wiki](https://github.com/ThothDroid/Egyptian_Write
 [<img height="400" src="https://github.com/ThothDroid/Egyptian_Writer/wiki/images/screenshots/Screenshot_Smartphone26.png">](https://github.com/ThothDroid/Egyptian_Writer/wiki/images/screenshots/Screenshot_Smartphone26.png)
 
 ## Installation
-There are three ways to install the Egyptian Writer app:
+There are four ways to install the Egyptian Writer app:
 - download and install the latest [Egyptian_Writer.apk](https://github.com/ThothDroid/Egyptian_Writer/releases/latest/download/Egyptian_Writer.apk) file from the latest release.
 - Install from [Google Play](https://play.google.com/store/apps/details?id=com.blueapps.egyptianwriter)
 - Install from [FDroid](https://f-droid.org/en/packages/com.blueapps.egyptianwriter)
-
-> [!NOTE]
-> I will soon upload the app on *APKPure*
+- Install from [APKPure](https://apkpure.com/egyptian-writer/com.blueapps.egyptianwriter/)
 
 ## Contribution
 There are several ways to contribute to this App.
