@@ -48,6 +48,11 @@ Made by Alex Korovyansky, No license provided
 Uses the `Apache Software License, Version 2.0` \
 (see [GitHub.com](https://github.com/cachapa/ExpandableLayout))
 
+### `dev.misono.breaklinelayout.BreakLineLayout`
+
+Made by Douglas Tian, No license provided
+[Link to repository:](https://github.com/zerozhiqin/AutoBreakLineLayout/)
+
 ### `junit`
 
 Uses the `Eclipse Public License - v 2.0` \
