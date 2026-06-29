@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -32,6 +33,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    kotlinOptions {
+        jvmTarget = "11"
+    }
     buildFeatures {
         viewBinding = true
     }
@@ -55,15 +59,24 @@ dependencies {
     implementation(libs.zoomlayout)
     implementation(libs.autobreaklinelayout)
 
-    //implementation(libs.thoth)
+    // THOTH: replace broken local path — use version catalog entry (JitPack tag 2.0.4)
+    // If JitPack build is not yet triggered, place THOTH_16.02.2026@2.0.4.aar in app/libs/
+    // and uncomment the line below instead:
+    // implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar"))))
+    implementation(libs.thoth)
     implementation(libs.maat)
-    implementation(files("../../THOTExpampleApp/thoth/build/outputs/aar/thoth-debug.aar"))
 
     implementation(libs.glyphconverter)
     implementation(libs.expandable.layout)
     implementation(libs.recyclerview)
     implementation(libs.fragment)
     implementation(libs.viewpager2)
+
+    // Bliss data layer
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    annotationProcessor(libs.room.compiler)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

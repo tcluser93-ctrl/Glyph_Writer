@@ -1,0 +1,3 @@
+# Place THOTH_16.02.2026@2.0.4.aar here if JitPack resolution fails.
+# Download from: https://raw.githubusercontent.com/ThothDroid/THOTH/2.0.4/THOTH_16.02.2026%402.0.4.aar
+# Then in app/build.gradle.kts comment out libs.thoth and uncomment the fileTree line.
