@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bliss translator tab label (accessibility / content description) -->
+    <string name="bliss_tab_label">Bliss Translator</string>
+
+    <!-- BlissTranslateFragment UI strings -->
+    <string name="bliss_hint_input">Scrivi testo da tradurre…</string>
+    <string name="bliss_btn_translate">Traduci</string>
+    <string name="bliss_btn_clear">Cancella</string>
+    <string name="bliss_loading">Caricamento dizionario…</string>
+    <string name="bliss_no_results">Nessun risultato. Prova con altre parole.</string>
+    <string name="bliss_coverage">Copertura: %1$d%%</string>
+    <string name="bliss_lang_label">Lingua:</string>
+    <string name="bliss_unknown_word">Simbolo non trovato</string>
+    <string name="bliss_exact">esatto</string>
+    <string name="bliss_lemma">lemma</string>
+    <string name="bliss_ngram">frase</string>
+    <string name="bliss_fallback">categoria</string>
+    <string name="bliss_unknown">sconosciuto</string>
+</resources>

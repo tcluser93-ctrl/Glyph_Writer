@@ -128,19 +128,19 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0">
 
-                <com.blueapps.thoth.ThothView
-                    android:id="@+id/glyphXView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="40sp"
-                    app:altText="Km.t m in.t hapi"
-                    app:altTextColor="@color/d_textColor"
-                    app:altTextSize="20sp"
-                    app:backgroundColor="#fff"
-                    app:primarySignColor="@color/d_textColorPrimary"
-                    app:showAltText="true"
-                    app:verticalOrientation="middle"
-                    app:writingLayout="lines" />
+            <com.blueapps.thoth.ThothView
+                android:id="@+id/glyphXView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="40sp"
+                app:altText="Km.t m in.t hapi"
+                app:altTextColor="@color/d_textColor"
+                app:altTextSize="20sp"
+                app:backgroundColor="#fff"
+                app:primarySignColor="@color/d_textColorPrimary"
+                app:showAltText="true"
+                app:verticalOrientation="middle"
+                app:writingLayout="lines" />
 
         </com.otaliastudios.zoom.ZoomLayout>
 
@@ -170,6 +170,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
 
+                <!-- Tab bar: Write | Settings | Bliss -->
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/constraintLayout"
                     android:layout_width="0dp"
@@ -183,6 +184,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="0.0">
 
+                    <!-- Tab 0: Write -->
                     <com.blueapps.egyptianwriter.CheckableImageButton
                         android:id="@+id/button_write"
                         style="@style/imageBarItem"
@@ -202,6 +204,7 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:srcCompat="@drawable/edit_square" />
 
+                    <!-- Tab 1: Settings -->
                     <com.blueapps.egyptianwriter.CheckableImageButton
                         android:id="@+id/button_settings"
                         style="@style/imageBarItem"
@@ -219,6 +222,26 @@
                         app:layout_constraintStart_toEndOf="@+id/button_write"
                         app:layout_constraintTop_toTopOf="parent"
                         app:srcCompat="@drawable/page_info" />
+
+                    <!-- Tab 2: Bliss translator -->
+                    <com.blueapps.egyptianwriter.CheckableImageButton
+                        android:id="@+id/button_bliss"
+                        style="@style/imageBarItem"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="4dp"
+                        android:layout_weight="1"
+                        android:checked="false"
+                        android:contentDescription="@string/bliss_tab_label"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toEndOf="@+id/button_settings"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/translate" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
