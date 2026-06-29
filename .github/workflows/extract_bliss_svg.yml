@@ -1,0 +1,81 @@
+name: Extract Bliss SVG assets
+
+on:
+  workflow_dispatch:          # trigger manuale da Actions tab
+
+jobs:
+  extract-and-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write          # necessario per il commit finale
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Extract bliss_svg_id.zip
+        run: |
+          ZIP="app/src/main/assets/bliss/svg/bliss_svg_id.zip"
+          OUT="app/src/main/assets/bliss/svg"
+
+          if [ ! -f "$ZIP" ]; then
+            echo "❌  ZIP non trovato: $ZIP"
+            exit 1
+          fi
+
+          echo "📦  Estrazione ZIP..."
+          python3 - <<'PYEOF'
+          import zipfile, os, sys
+
+          zip_path = "app/src/main/assets/bliss/svg/bliss_svg_id.zip"
+          out_dir  = "app/src/main/assets/bliss/svg"
+
+          extracted = 0
+          with zipfile.ZipFile(zip_path) as z:
+              for member in z.namelist():
+                  basename = os.path.basename(member)
+                  if not basename.endswith(".svg"):
+                      continue
+                  dest = os.path.join(out_dir, basename)
+                  with z.open(member) as src, open(dest, "wb") as dst:
+                      dst.write(src.read())
+                  extracted += 1
+
+          print(f"✅  Estratti {extracted} file SVG in {out_dir}/")
+          sys.exit(0 if extracted > 0 else 1)
+          PYEOF
+
+      - name: Remove ZIP files
+        run: |
+          rm -f app/src/main/assets/bliss/svg/bliss_svg_id.zip
+          rm -f app/src/main/assets/bliss/svg/bliss_svg.zip
+          rm -f app/src/main/assets/bliss/svg/readme
+          echo "🗑️  ZIP rimossi"
+
+      - name: Count extracted SVGs
+        id: count
+        run: |
+          N=$(find app/src/main/assets/bliss/svg -name '*.svg' | wc -l)
+          echo "count=$N" >> "$GITHUB_OUTPUT"
+          echo "📊  SVG presenti: $N"
+
+      - name: Commit SVG files
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add app/src/main/assets/bliss/svg/
+          # Verifica che ci siano file da committare
+          if git diff --cached --quiet; then
+            echo "ℹ️  Nessuna modifica da committare (SVG già presenti?)"
+          else
+            git commit -m "assets: extract bliss_svg_id.zip → ${{ steps.count.outputs.count }} SVG (BCI-AV 2025-02-15)"
+            git push
+            echo "✅  Commit e push completati"
+          fi
