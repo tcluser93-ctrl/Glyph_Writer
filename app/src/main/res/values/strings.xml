@@ -65,4 +65,19 @@
     <string name="content_description_writing_direction_rtl">right-to-left layout</string>
     <string name="error_broken_document_title">broken document</string>
     <string name="error_broken_document_text">This document is broken. If you imported it from outside the app, please try importing it again. If the problem continues or if you did not import the document, please restart the app and check for updates.</string>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- BLISS TRANSLATOR — string resources                 -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <string name="menu_item_bliss_translator">Bliss Translator</string>
+    <string name="bliss_hint_input">Scrivi una frase in italiano…</string>
+    <string name="bliss_btn_translate">Traduci</string>
+    <string name="bliss_btn_clear">Cancella</string>
+    <string name="bliss_btn_copy">Copia</string>
+    <string name="bliss_label_symbols">SIMBOLI BLISS</string>
+    <string name="bliss_label_results">RISULTATI LOOKUP</string>
+    <string name="bliss_empty_hint">Scrivi una frase e premi Traduci per vedere i simboli Bliss</string>
+    <string name="bliss_symbol_desc">Simbolo Bliss</string>
+    <string name="bliss_copy_success">BCI-AV IDs copiati negli appunti</string>
+    <string name="bliss_no_match">Nessun simbolo trovato per: %s</string>
 </resources>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/l_backgroundDarker"
+    app:strokeWidth="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="10dp">
+
+        <!-- Placeholder simbolo BCI (56x56) -->
+        <ImageView
+            android:id="@+id/item_bliss_symbol_img"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@drawable/shape_bliss_placeholder"
+            android:contentDescription="@string/bliss_symbol_desc"
+            android:scaleType="fitCenter"
+            android:padding="6dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
+
+        <!-- Parola italiana -->
+        <TextView
+            android:id="@+id/item_bliss_word"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@color/l_textColor"
+            app:layout_constraintEnd_toStartOf="@id/item_bliss_pos_badge"
+            app:layout_constraintStart_toEndOf="@id/item_bliss_symbol_img"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="mangiare" />
+
+        <!-- Traduzioni secondarie EN / DE -->
+        <TextView
+            android:id="@+id/item_bliss_translations"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="2dp"
+            android:textSize="12sp"
+            android:textColor="@color/l_textColor"
+            android:alpha="0.6"
+            android:ellipsize="end"
+            android:maxLines="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/item_bliss_symbol_img"
+            app:layout_constraintTop_toBottomOf="@id/item_bliss_word"
+            tools:text="to eat · essen" />
+
+        <!-- Badge POS -->
+        <TextView
+            android:id="@+id/item_bliss_pos_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shape_bliss_pos_badge"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:textSize="10sp"
+            android:textColor="@color/l_textColorPrimary"
+            app:layout_constraintEnd_toStartOf="@id/item_bliss_bci_id"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginEnd="6dp"
+            tools:text="VERB" />
+
+        <!-- BCI-AV ID numerico -->
+        <TextView
+            android:id="@+id/item_bliss_bci_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="11sp"
+            android:textColor="@color/l_colorPrimaryDark"
+            android:fontFamily="monospace"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="BCI·12345" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

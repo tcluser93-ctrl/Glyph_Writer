@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/l_windowBackground">
+
+    <!-- [A] INPUT TESTO -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/bliss_input_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:hint="@string/bliss_hint_input"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/bliss_input_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top|start"
+            android:inputType="textMultiLine|textCapSentences"
+            android:minLines="3"
+            android:maxLines="6"
+            android:imeOptions="actionDone"
+            tools:text="Voglio mangiare la mela" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- [B] TOOLBAR AZIONI -->
+    <LinearLayout
+        android:id="@+id/bliss_action_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="8dp"
+        android:gravity="end"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bliss_input_layout">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/bliss_btn_clear"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bliss_btn_clear"
+            android:contentDescription="@string/bliss_btn_clear" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/bliss_btn_copy"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/bliss_btn_copy"
+            android:contentDescription="@string/bliss_btn_copy" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/bliss_btn_translate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/bliss_btn_translate"
+            android:contentDescription="@string/bliss_btn_translate" />
+    </LinearLayout>
+
+    <!-- [C] LABEL SIMBOLI -->
+    <TextView
+        android:id="@+id/bliss_label_symbols"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="4dp"
+        android:text="@string/bliss_label_symbols"
+        android:textSize="12sp"
+        android:textColor="@color/l_textColor"
+        android:alpha="0.6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bliss_action_bar" />
+
+    <!-- [C] STRISCIA SIMBOLI -->
+    <HorizontalScrollView
+        android:id="@+id/bliss_symbol_scroll"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp"
+        android:scrollbars="none"
+        android:minHeight="96dp"
+        android:background="@color/l_backgroundDark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bliss_label_symbols">
+
+        <LinearLayout
+            android:id="@+id/bliss_symbol_row"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="4dp" />
+    </HorizontalScrollView>
+
+    <!-- Divider -->
+    <View
+        android:id="@+id/bliss_divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="16dp"
+        android:background="@color/l_backgroundDarker"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bliss_symbol_scroll" />
+
+    <!-- [D] LABEL RISULTATI -->
+    <TextView
+        android:id="@+id/bliss_label_results"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="8dp"
+        android:text="@string/bliss_label_results"
+        android:textSize="12sp"
+        android:textColor="@color/l_textColor"
+        android:alpha="0.6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bliss_divider" />
+
+    <!-- [D] EMPTY STATE -->
+    <LinearLayout
+        android:id="@+id/bliss_empty_state"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bliss_label_results"
+        tools:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bliss_empty_hint"
+            android:textSize="14sp"
+            android:textColor="@color/l_textColor"
+            android:alpha="0.5"
+            android:gravity="center" />
+    </LinearLayout>
+
+    <!-- [D] RECYCLER RISULTATI -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/bliss_recycler"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bliss_label_results"
+        tools:listitem="@layout/item_bliss_result" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

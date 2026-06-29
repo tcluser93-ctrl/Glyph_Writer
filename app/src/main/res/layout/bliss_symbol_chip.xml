@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="6dp"
+    android:background="@drawable/selector_bliss_chip"
+    android:clickable="true"
+    android:focusable="true"
+    android:minWidth="72dp">
+
+    <ImageView
+        android:id="@+id/chip_bliss_image"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@drawable/shape_bliss_placeholder"
+        android:scaleType="fitCenter"
+        android:padding="4dp"
+        android:contentDescription="@string/bliss_symbol_desc"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/chip_bliss_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:maxWidth="80dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textSize="11sp"
+        android:textColor="@color/l_textColor"
+        android:gravity="center"
+        tools:text="mangiare" />
+
+</LinearLayout>
