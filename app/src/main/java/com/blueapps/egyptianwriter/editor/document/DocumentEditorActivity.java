@@ -26,12 +26,13 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.blueapps.egyptianwriter.CheckableImageButton;
 import com.blueapps.egyptianwriter.R;
+import com.blueapps.egyptianwriter.bliss.BlissTranslateFragment;
+import com.blueapps.egyptianwriter.bliss.BlissViewModel;
 import com.blueapps.egyptianwriter.dashboard.documents.DocumentFragment;
 import com.blueapps.egyptianwriter.databinding.ActivityDocumentEditorBinding;
 import com.blueapps.egyptianwriter.editor.document.edit.EditFragment;
 import com.blueapps.egyptianwriter.editor.document.settings.PropertiesFragment;
 import com.blueapps.egyptianwriter.editor.document.settings.PropertiesManager;
-//import com.blueapps.thoth.ThothListener;
 import com.blueapps.thoth.ThothListener;
 import com.blueapps.thoth.ThothView;
 import com.otaliastudios.zoom.ZoomLayout;
@@ -46,6 +47,7 @@ public class DocumentEditorActivity extends AppCompatActivity implements ImageBu
     private static final String TAG = "DocumentEditorActivity";
 
     private EditorViewModel viewModel;
+    private BlissViewModel blissViewModel;
     private PropertiesManager propertiesManager;
 
     private DisplayMetrics displayMetrics;
@@ -65,6 +67,7 @@ public class DocumentEditorActivity extends AppCompatActivity implements ImageBu
     private FragmentContainerView containerView;
     private CheckableImageButton buttonWrite;
     private CheckableImageButton buttonSettings;
+    private CheckableImageButton buttonBliss;
     private ZoomLayout zoomLayout;
 
     @Override
@@ -75,17 +78,15 @@ public class DocumentEditorActivity extends AppCompatActivity implements ImageBu
         binding = ActivityDocumentEditorBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
-        // Optimize for software keyboard on android 15+
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
-            Insets navInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+            Insets imeInsets  = insets.getInsets(WindowInsetsCompat.Type.ime());
+            Insets navInsets  = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
 
-            int topInset = Math.max(navInsets.top, systemBars.top);
+            int topInset    = Math.max(navInsets.top, systemBars.top);
             int bottomInset = Math.max(imeInsets.bottom, navInsets.bottom);
 
             root.setPadding(navInsets.left, topInset, navInsets.right, bottomInset);
-
             return insets;
         });
 
@@ -94,38 +95,40 @@ public class DocumentEditorActivity extends AppCompatActivity implements ImageBu
         String name = intent.getStringExtra(DocumentFragment.KEY_NAME);
         filename = intent.getStringExtra(DocumentFragment.KEY_FILE_NAME);
 
-        // get ViewModel
-        viewModel = new ViewModelProvider(this).get(EditorViewModel.class);
-        propertiesManager = new ViewModelProvider(this).get(PropertiesManager.class);
+        // get ViewModels
+        viewModel        = new ViewModelProvider(this).get(EditorViewModel.class);
+        propertiesManager= new ViewModelProvider(this).get(PropertiesManager.class);
+        blissViewModel   = new ViewModelProvider(this).get(BlissViewModel.class);
 
-        // Set names for Views
-        root = binding.getRoot();
-        documentTitle = binding.documentTitle;
-        buttonBack = binding.buttonBack;
-        buttonMode = binding.buttonMode;
-        thothView = binding.glyphXView;
+        // Bind views
+        root             = binding.getRoot();
+        documentTitle    = binding.documentTitle;
+        buttonBack       = binding.buttonBack;
+        buttonMode       = binding.buttonMode;
+        thothView        = binding.glyphXView;
         expandableLayout = binding.editorExpandLayout;
-        background = binding.editorContainer;
-        containerView = binding.editFragmentContainer;
-        buttonWrite = binding.buttonWrite;
-        buttonSettings = binding.buttonSettings;
-        zoomLayout = binding.zoom;
+        background       = binding.editorContainer;
+        containerView    = binding.editFragmentContainer;
+        buttonWrite      = binding.buttonWrite;
+        buttonSettings   = binding.buttonSettings;
+        buttonBliss      = binding.buttonBliss;   // added in layout
+        zoomLayout       = binding.zoom;
 
-        displayMetrics = getResources().getDisplayMetrics();
+        displayMetrics   = getResources().getDisplayMetrics();
 
         documentTitle.setText(name);
-        buttonBack.setOnClickListener(view -> {
-            finish();
-        });
+        buttonBack.setOnClickListener(view -> finish());
         buttonMode.setOnClickListener(view -> {
             if (viewModel.isNoIssue()) {
                 if (viewModel.getMode()) {
                     viewModel.setMode(MODE_WRITE);
-                    buttonMode.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.edit_note));
+                    buttonMode.setImageDrawable(
+                        AppCompatResources.getDrawable(this, R.drawable.edit_note));
                     expandableLayout.expand(true);
                 } else {
                     viewModel.setMode(MODE_READ);
-                    buttonMode.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.opened_book));
+                    buttonMode.setImageDrawable(
+                        AppCompatResources.getDrawable(this, R.drawable.opened_book));
                     expandableLayout.collapse(true);
                 }
             }
@@ -141,106 +144,108 @@ public class DocumentEditorActivity extends AppCompatActivity implements ImageBu
         viewModel.getFileMaster().addFileListener(new FileListener() {
             @Override
             public void onGlyphXChanged(Document GlyphX) {
-                try {
-                    thothView.setGlyphXText(GlyphX);
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
+                try { thothView.setGlyphXText(GlyphX); } catch (Exception e) { e.printStackTrace(); }
             }
-
-            @Override
-            public void onMdCChanged(String mdc) {
-
-            }
-
-            @Override
-            public void onSettingsChanged(Document settings){
-
-            }
+            @Override public void onMdCChanged(String mdc) {}
+            @Override public void onSettingsChanged(Document settings) {}
         });
         propertiesManager.extractData(this);
 
         try {
             thothView.setGlyphXText(viewModel.getFileMaster().getGlyphX());
-        } catch (Exception e){
-            e.printStackTrace();
-            // TODO: Error handling
-        }
+        } catch (Exception e) { e.printStackTrace(); }
         thothView.setAltText(viewModel.getFileMaster().getMdc());
 
+        // ── Bliss ViewModel observer → ThothView ─────────────────────────────
+        // When BlissTranslateFragment posts a GlyphX Document, forward it to
+        // ThothView immediately so the rendered output updates in real time.
+        blissViewModel.getGlyphXDocument().observe(this, doc -> {
+            if (doc != null) {
+                try { thothView.setGlyphXText(doc); } catch (Exception e) { e.printStackTrace(); }
+            }
+        });
+
+        // ── Fragment setup ────────────────────────────────────────────────────
         fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(containerView.getId(), new EditFragment());
         transaction.commit();
 
         background.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-            // Set up height of EditText
             int height = background.getHeight();
-
-            ConstraintLayout.LayoutParams lp = (ConstraintLayout.LayoutParams) expandableLayout.getLayoutParams();
+            ConstraintLayout.LayoutParams lp =
+                (ConstraintLayout.LayoutParams) expandableLayout.getLayoutParams();
             lp.height = (int) (height * 0.5);
             expandableLayout.setLayoutParams(lp);
         });
 
+        // ── Tab buttons: 0=Write 1=Settings 2=Bliss ──────────────────────────
         ImageButtonGroup imageButtonGroup = new ImageButtonGroup();
         imageButtonGroup.addImageButton(buttonWrite);
         imageButtonGroup.addImageButton(buttonSettings);
+        imageButtonGroup.addImageButton(buttonBliss);
         imageButtonGroup.addImageButtonListener(this);
 
-        // Update ThothView
-        propertiesManager.getTextSize().observe(this, integer -> thothView.setTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, integer, displayMetrics)));
-        propertiesManager.getWritingLayout().observe(this, integer -> thothView.setWritingLayout(integer));
-        propertiesManager.getVerticalOrientation().observe(this, integer -> thothView.setVerticalOrientation(integer));
-        propertiesManager.getWritingDirection().observe(this, integer -> thothView.setWritingDirection(integer));
+        // ThothView properties observers
+        propertiesManager.getTextSize().observe(this, integer ->
+            thothView.setTextSize((int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP, integer, displayMetrics)));
+        propertiesManager.getWritingLayout().observe(this,
+            integer -> thothView.setWritingLayout(integer));
+        propertiesManager.getVerticalOrientation().observe(this,
+            integer -> thothView.setVerticalOrientation(integer));
+        propertiesManager.getWritingDirection().observe(this,
+            integer -> thothView.setWritingDirection(integer));
 
-        // init ThothView
-        thothView.setSignPadding(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, displayMetrics));
-        thothView.setLayoutSignPadding(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, displayMetrics));
-        thothView.setInterLinePadding(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, displayMetrics));
+        // ThothView padding init
+        thothView.setSignPadding(
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, displayMetrics));
+        thothView.setLayoutSignPadding(
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, displayMetrics));
+        thothView.setInterLinePadding(
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, displayMetrics));
         thothView.setThothListener(this);
-
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //thothView.cancelRender();
         binding = null;
     }
+
+    // ── ImageButtonGroup callback (tab switch) ────────────────────────────────
 
     @Override
     public void OnPositionChanges(int position) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-
-        switch (position){
+        switch (position) {
             case 0:
                 transaction.replace(containerView.getId(), new EditFragment());
                 break;
             case 1:
                 transaction.replace(containerView.getId(), new PropertiesFragment());
+                break;
+            case 2:
+                // Bliss translator tab — detect language from device locale,
+                // fall back to Italian (primary target language).
+                String lang = getResources().getConfiguration()
+                    .getLocales().get(0).getLanguage();
+                if (!com.blueapps.egyptianwriter.bliss.BlissLookup.SUPPORTED_LANGS
+                        .contains(lang)) {
+                    lang = "it";
+                }
+                transaction.replace(
+                    containerView.getId(),
+                    BlissTranslateFragment.Companion.newInstance(lang));
+                break;
         }
-
         transaction.commit();
     }
 
-    // ThothListener
-    @Override
-    public void OnRenderStart() {
-        Log.d(TAG, "Render started!");
-    }
+    // ── ThothListener ────────────────────────────────────────────────────────
 
-    @Override
-    public void OnRender(float v, int i, int i1) {
-        Log.d(TAG, "Rendering: " + v + "% [" + i + "/" + i1 + "]");
-    }
-
-    @Override
-    public void OnRenderCancel() {
-        Log.d(TAG, "Render canceled!");
-    }
-
-    @Override
-    public void OnRenderFinished() {
-        Log.d(TAG, "Render finished!");
-    }
+    @Override public void OnRenderStart()                { Log.d(TAG, "Render started!"); }
+    @Override public void OnRender(float v, int i, int i1){ Log.d(TAG, "Rendering: " + v + "% [" + i + "/" + i1 + "]"); }
+    @Override public void OnRenderCancel()               { Log.d(TAG, "Render canceled!"); }
+    @Override public void OnRenderFinished()             { Log.d(TAG, "Render finished!"); }
 }

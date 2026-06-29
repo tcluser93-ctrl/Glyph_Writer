@@ -36,8 +36,16 @@ class BlissLookup private constructor(private val context: Context) {
     /** surface word → BCI-AV ID  (language-specific) */
     val lexicon: Map<String, Int> get() = _lexicon
 
-    /** lemma → BCI-AV ID  (language-specific) */
+    /** lemma → BCI-AV ID  (language-specific, plain key = lemma lowercase) */
     val lemmaIndex: Map<String, Int> get() = _lemmaIndex
+
+    /**
+     * POS-aware lemma index: key = "lemma|POS" (e.g. "camminare|V").
+     * Falls back to plain [lemmaIndex] if POS is unknown.
+     * POS values in CSV: N=noun, V=verb, A=adjective, R=adverb, P=pronoun,
+     * D=determiner, C=conjunction, I=interjection, X=other.
+     */
+    val lemmaPoSIndex: Map<String, Int> get() = _lemmaPoSIndex
 
     /** language-specific n-gram phrases → BCI-AV ID */
     val ngramIndex: Map<String, Int> get() = _ngramIndex
@@ -48,11 +56,12 @@ class BlissLookup private constructor(private val context: Context) {
 
     // ── private mutable backing fields ──────────────────────────────────────
 
-    private var _names      = emptyMap<Int, String>()
-    private var _synsets    = emptyMap<Int, Long>()
-    private var _lexicon    = emptyMap<String, Int>()
-    private var _lemmaIndex = emptyMap<String, Int>()
-    private var _ngramIndex = emptyMap<String, Int>()
+    private var _names        = emptyMap<Int, String>()
+    private var _synsets      = emptyMap<Int, Long>()
+    private var _lexicon      = emptyMap<String, Int>()
+    private var _lemmaIndex   = emptyMap<String, Int>()
+    private var _lemmaPoSIndex= emptyMap<String, Int>()
+    private var _ngramIndex   = emptyMap<String, Int>()
 
     // ── loading ──────────────────────────────────────────────────────────────
 
@@ -64,15 +73,18 @@ class BlissLookup private constructor(private val context: Context) {
         val lang = normaliseLang(langCode)
         Log.i(TAG, "Loading Bliss assets for lang=$lang")
 
-        _names      = loadNames()
-        _synsets    = loadSynsets()
-        _lexicon    = loadLexicon(lang)
-        _lemmaIndex = loadLemmas(lang)
-        _ngramIndex = loadNgrams(lang)
+        _names       = loadNames()
+        _synsets     = loadSynsets()
+        _lexicon     = loadLexicon(lang)
+        val (plain, pos) = loadLemmas(lang)
+        _lemmaIndex   = plain
+        _lemmaPoSIndex= pos
+        _ngramIndex  = loadNgrams(lang)
 
         isReady = true
         Log.i(TAG, "Bliss assets loaded: names=${_names.size}, lexicon=${_lexicon.size}, " +
-                "lemmas=${_lemmaIndex.size}, ngrams=${_ngramIndex.size}")
+                "lemmas=${_lemmaIndex.size}, lemmas+POS=${_lemmaPoSIndex.size}, " +
+                "ngrams=${_ngramIndex.size}")
     }
 
     /**
@@ -102,7 +114,17 @@ class BlissLookup private constructor(private val context: Context) {
 
     fun lookupSurface(word: String): Int? = _lexicon[word.lowercase(Locale.ROOT)]
 
+    /** Plain lemma lookup (POS-agnostic). */
     fun lookupLemma(lemma: String): Int? = _lemmaIndex[lemma.lowercase(Locale.ROOT)]
+
+    /**
+     * POS-aware lemma lookup. [pos] is one of: N V A R P D C I X.
+     * Falls back to plain [lookupLemma] when POS key is absent.
+     */
+    fun lookupLemmaPos(lemma: String, pos: String): Int? {
+        val key = "${lemma.lowercase(Locale.ROOT)}|${pos.uppercase(Locale.ROOT)}"
+        return _lemmaPoSIndex[key] ?: _lemmaIndex[lemma.lowercase(Locale.ROOT)]
+    }
 
     fun lookupNgram(phrase: String): Int? = _ngramIndex[phrase.lowercase(Locale.ROOT)]
 
@@ -119,52 +141,68 @@ class BlissLookup private constructor(private val context: Context) {
     // ── private asset readers ─────────────────────────────────────────────────
 
     private fun loadNames(): Map<Int, String> {
-        val map = HashMap<Int, String>(6000)
-        readJsonObject("bliss/bci_names.json").run {
+        val map = HashMap<Int, String>(6500)
+        readJsonObjectOrNull("bliss/bci_names.json")?.run {
             keys().forEach { key ->
                 map[key.toIntOrNull() ?: return@forEach] = getString(key)
             }
-        }
+        } ?: Log.w(TAG, "bci_names.json not found — names will be empty")
         return map
     }
 
     private fun loadSynsets(): Map<Int, Long> {
-        val map = HashMap<Int, Long>(5200)
-        readJsonObject("bliss/bci_blissnet.json").run {
+        val map = HashMap<Int, Long>(5500)
+        readJsonObjectOrNull("bliss/bci_blissnet.json")?.run {
             keys().forEach { key ->
                 val id = key.toIntOrNull() ?: return@forEach
                 map[id] = getLong(key)
             }
-        }
+        } ?: Log.w(TAG, "bci_blissnet.json not found — synsets will be empty")
         return map
     }
 
     private fun loadLexicon(lang: String): Map<String, Int> {
-        val map = HashMap<String, Int>(12000)
-        readJsonObject("bliss/bci_lexicon_$lang.json").run {
+        val map = HashMap<String, Int>(14000)
+        readJsonObjectOrNull("bliss/bci_lexicon_$lang.json")?.run {
             keys().forEach { key ->
                 map[key.lowercase(Locale.ROOT)] = getInt(key)
             }
-        }
+        } ?: Log.w(TAG, "bci_lexicon_$lang.json not found — lexicon will be empty")
         return map
     }
 
-    private fun loadLemmas(lang: String): Map<String, Int> {
-        val map = HashMap<String, Int>(12000)
-        readCsv("bliss/lemmas_$lang.csv").forEach { cols ->
+    /**
+     * Returns a pair: (plain lemma→id map, "lemma|POS"→id map).
+     * CSV format: lemma,POS,bci_av_id  (header line starting with '#' is skipped)
+     */
+    private fun loadLemmas(lang: String): Pair<Map<String, Int>, Map<String, Int>> {
+        val plain = HashMap<String, Int>(14000)
+        val pos   = HashMap<String, Int>(14000)
+        val assetPath = "bliss/lemmas_$lang.csv"
+        if (!assetExists(assetPath)) {
+            Log.w(TAG, "$assetPath not found — lemma index will be empty")
+            return plain to pos
+        }
+        readCsv(assetPath).forEach { cols ->
             if (cols.size >= 3) {
-                val lemma = cols[0].lowercase(Locale.ROOT)
-                val id    = cols[2].toIntOrNull() ?: return@forEach
-                // lower-POS key gives room for POS-aware lookup later
-                map[lemma] = id
+                val lemma  = cols[0].lowercase(Locale.ROOT)
+                val posTag = cols[1].uppercase(Locale.ROOT)
+                val id     = cols[2].toIntOrNull() ?: return@forEach
+                plain[lemma] = id
+                pos["$lemma|$posTag"] = id
             }
         }
-        return map
+        return plain to pos
     }
 
     private fun loadNgrams(lang: String): Map<String, Int> {
-        val map = HashMap<String, Int>(500)
-        readCsv("bliss/ngrams_multilang.csv").forEach { cols ->
+        val map = HashMap<String, Int>(600)
+        val assetPath = "bliss/ngrams_multilang.csv"
+        if (!assetExists(assetPath)) {
+            Log.w(TAG, "$assetPath not found — ngram index will be empty")
+            return map
+        }
+        readCsv(assetPath).forEach { cols ->
             if (cols.size >= 3 && cols[0] == lang) {
                 val phrase = cols[1].lowercase(Locale.ROOT)
                 val id     = cols[2].toIntOrNull() ?: return@forEach
@@ -176,11 +214,18 @@ class BlissLookup private constructor(private val context: Context) {
 
     // ── asset I/O ─────────────────────────────────────────────────────────────
 
-    private fun readJsonObject(assetPath: String): JSONObject {
+    private fun assetExists(path: String): Boolean = try {
+        context.assets.open(path).close(); true
+    } catch (_: Exception) { false }
+
+    private fun readJsonObjectOrNull(assetPath: String): JSONObject? = try {
         val text = context.assets.open(assetPath).use { stream ->
             BufferedReader(InputStreamReader(stream, Charsets.UTF_8)).readText()
         }
-        return JSONObject(text)
+        JSONObject(text)
+    } catch (e: Exception) {
+        Log.w(TAG, "Cannot read $assetPath: ${e.message}")
+        null
     }
 
     private fun readCsv(assetPath: String): List<List<String>> {

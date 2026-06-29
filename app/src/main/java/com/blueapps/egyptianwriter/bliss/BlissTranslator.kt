@@ -11,13 +11,13 @@ import java.util.regex.Pattern
  * ## Pipeline
  *
  *  1. **Normalise** — lowercase, collapse whitespace, strip punctuation
- *  2. **N-gram scan** — longest-match pass for multi-word expressions
+ *  2. **N-gram scan** — longest-match pass for multi-word expressions (max 4 words)
  *  3. **Token loop** — for each remaining token:
- *       a. Exact surface lookup  → EXACT
- *       b. Lemma lookup          → LEMMA
- *       c. Prefix stripping (simple rule-based de-affix) → LEMMA
- *       d. Category fallback     → FALLBACK_CATEGORY  (not yet impl, reserved)
- *       e. Unknown symbol        → UNKNOWN
+ *       a. Exact surface lookup                          → EXACT
+ *       b. Plain lemma lookup                            → LEMMA
+ *       c. POS-aware lemma lookup (heuristic POS tag)   → LEMMA
+ *       d. Rule-based de-affixation candidates          → LEMMA
+ *       e. Unknown symbol                               → UNKNOWN
  *
  * The translator is stateless and thread-safe after construction.
  * It depends on a fully-loaded [BlissLookup] instance.
@@ -43,13 +43,11 @@ class BlissTranslator(private val lookup: BlissLookup) {
 
     // ── step 1 : normalise ────────────────────────────────────────────────────
 
-    private fun normalise(raw: String): String {
-        return raw
-            .lowercase(Locale.ROOT)
-            .replace(PUNCT_RE, " ")     // strip punctuation
-            .replace(SPACE_RE, " ")     // collapse whitespace
+    private fun normalise(raw: String): String =
+        raw.lowercase(Locale.ROOT)
+            .replace(PUNCT_RE, " ")
+            .replace(SPACE_RE, " ")
             .trim()
-    }
 
     // ── step 2+3 : greedy n-gram + per-token resolution ───────────────────────
 
@@ -59,7 +57,6 @@ class BlissTranslator(private val lookup: BlissLookup) {
         var i = 0
 
         while (i < tokens.size) {
-            // try longest n-gram first (max 4 words)
             var matched = false
             for (len in minOf(MAX_NGRAM_LEN, tokens.size - i) downTo 2) {
                 val phrase = tokens.subList(i, i + len).joinToString(" ")
@@ -87,18 +84,32 @@ class BlissTranslator(private val lookup: BlissLookup) {
             return lookup.toSymbol(id, word, word, MatchType.EXACT)
         }
 
-        // 3b – direct lemma match (the CSV already contains lemmas)
+        // 3b – plain lemma match
         lookup.lookupLemma(word)?.let { id ->
             return lookup.toSymbol(id, word, word, MatchType.LEMMA)
         }
 
-        // 3c – simple rule-based de-affixation  (language-agnostic heuristics)
-        for (lemmaCandidate in simpleDeaffix(word)) {
-            lookup.lookupSurface(lemmaCandidate)?.let { id ->
-                return lookup.toSymbol(id, word, lemmaCandidate, MatchType.LEMMA)
+        // 3c – POS-aware lemma lookup with heuristic POS guessing
+        val guessedPos = heuristicPos(word)
+        if (guessedPos != null) {
+            lookup.lookupLemmaPos(word, guessedPos)?.let { id ->
+                return lookup.toSymbol(id, word, word, MatchType.LEMMA)
             }
-            lookup.lookupLemma(lemmaCandidate)?.let { id ->
-                return lookup.toSymbol(id, word, lemmaCandidate, MatchType.LEMMA)
+        }
+
+        // 3d – rule-based de-affixation candidates
+        for (candidate in simpleDeaffix(word)) {
+            // try candidate as surface first, then as lemma (plain + POS)
+            lookup.lookupSurface(candidate)?.let { id ->
+                return lookup.toSymbol(id, word, candidate, MatchType.LEMMA)
+            }
+            lookup.lookupLemma(candidate)?.let { id ->
+                return lookup.toSymbol(id, word, candidate, MatchType.LEMMA)
+            }
+            if (guessedPos != null) {
+                lookup.lookupLemmaPos(candidate, guessedPos)?.let { id ->
+                    return lookup.toSymbol(id, word, candidate, MatchType.LEMMA)
+                }
             }
         }
 
@@ -112,30 +123,92 @@ class BlissTranslator(private val lookup: BlissLookup) {
         )
     }
 
-    // ── rule-based de-affixation (language-agnostic subset) ───────────────────
+    // ── heuristic POS tagger (rule-based, language-agnostic subset) ───────────
+
+    /**
+     * Returns a rough POS tag for [word] using suffix heuristics.
+     * Covers Italian, English, German, French, Spanish.
+     * Returns null when no confident guess is possible.
+     *
+     * Tag set: V=verb  N=noun  A=adjective  R=adverb
+     */
+    private fun heuristicPos(word: String): String? {
+        if (word.length < 4) return null
+        return when {
+            // Italian / Spanish verb infinitives and gerunds
+            word.endsWith("are")  || word.endsWith("ere")  || word.endsWith("ire")  -> "V"
+            word.endsWith("ando") || word.endsWith("endo")                           -> "V"
+            word.endsWith("ato")  || word.endsWith("uto")  || word.endsWith("ito")  -> "V"
+            // English verb
+            word.endsWith("ing")  || word.endsWith("tion") || word.endsWith("sion") -> "N" // -tion/-sion → noun
+            word.endsWith("ed")                                                       -> "V"
+            // Adjective suffixes (multilingual)
+            word.endsWith("oso")  || word.endsWith("osa")  ||
+            word.endsWith("ous")  || word.endsWith("ful")  || word.endsWith("less") ||
+            word.endsWith("lich") || word.endsWith("isch") || word.endsWith("ible") ||
+            word.endsWith("able")                                                     -> "A"
+            // Adverb
+            word.endsWith("mente")|| word.endsWith("ment") || word.endsWith("ly")   -> "R"
+            // Noun suffixes
+            word.endsWith("zione")|| word.endsWith("ità")  || word.endsWith("ness") ||
+            word.endsWith("heit") || word.endsWith("keit") || word.endsWith("ung")  ||
+            word.endsWith("ismo") || word.endsWith("ista")                            -> "N"
+            else -> null
+        }
+    }
+
+    // ── rule-based de-affixation ───────────────────────────────────────────────
 
     /**
      * Returns a prioritised list of lemma candidates derived from [word] by
-     * stripping common suffixes.  Returns empty if word is too short.
+     * stripping common suffixes. Returns empty if word is too short.
+     *
+     * Extended for Italian: handles irregular verb stems, reflexive -si/-rsi,
+     * -zione/-ità/-ismo noun suffixes, and common adjective endings.
      */
     private fun simpleDeaffix(word: String): List<String> {
         if (word.length < 4) return emptyList()
         val candidates = mutableListOf<String>()
 
-        // Italian / Spanish / Portuguese verb endings
-        for (sfx in listOf("ando", "endo", "ando", "ato", "uto", "ito",
-                           "are", "ere", "ire", "arse", "arsi")) {
+        // ── Italian ──
+        // Reflexive / pronominal verbs
+        for (sfx in listOf("arsi", "ersi", "irsi", "rsi", "si")) {
+            if (word.endsWith(sfx) && word.length > sfx.length + 2) {
+                val stem = word.dropLast(sfx.length)
+                candidates += stem + "re"   // camminare ← camminare + si stripped
+                candidates += stem
+            }
+        }
+        // Infinitives and participles
+        for (sfx in listOf("ando", "endo", "ato", "uto", "ito",
+                           "are", "ere", "ire",
+                           "azione", "zione", "ità", "ismo", "ista")) {
             if (word.endsWith(sfx) && word.length > sfx.length + 2)
                 candidates += word.dropLast(sfx.length)
         }
-        // English -ing / -ed / -s / -ly / -er / -est
+        // Plural / gender endings (it/es)
+        for (sfx in listOf("osi", "ose", "asi", "ase", "i", "e", "a")) {
+            if (word.endsWith(sfx) && word.length > sfx.length + 3)
+                candidates += word.dropLast(sfx.length) + "o"
+        }
+
+        // ── English ──
         for (sfx in listOf("ing", "tion", "sion", "ness", "ment",
                            "ed", "er", "est", "ly", "s")) {
             if (word.endsWith(sfx) && word.length > sfx.length + 2)
                 candidates += word.dropLast(sfx.length)
         }
-        // German -ung / -heit / -keit / -lich
-        for (sfx in listOf("ung", "heit", "keit", "lich", "isch")) {
+
+        // ── German ──
+        for (sfx in listOf("ung", "heit", "keit", "lich", "isch",
+                           "en", "er", "em", "es")) {
+            if (word.endsWith(sfx) && word.length > sfx.length + 2)
+                candidates += word.dropLast(sfx.length)
+        }
+
+        // ── French ──
+        for (sfx in listOf("ment", "tion", "eur", "euse", "eux", "euse",
+                           "er", "ir", "re")) {
             if (word.endsWith(sfx) && word.length > sfx.length + 2)
                 candidates += word.dropLast(sfx.length)
         }
