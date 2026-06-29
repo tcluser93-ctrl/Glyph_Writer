@@ -1,0 +1,3867 @@
+word,lang,pos,bci_id,symbol_name
+%,pt,NOUN,8484,"percent,percentage,%"
+0,pt,NOUN,8496,"zero_(digit),0"
+1,pt,NOUN,8497,"one_(digit),1"
+2,pt,NOUN,8498,"two_(digit),2"
+3,pt,NOUN,8499,"three_(digit),3"
+4,pt,NOUN,8500,"four_(digit),4"
+5,pt,NOUN,8501,"five_(digit),5"
+6,pt,NOUN,8502,"six_(digit),6"
+7,pt,NOUN,8503,"seven_(digit),7"
+8,pt,NOUN,8504,"eight_(digit),8"
+9,pt,NOUN,8505,"nine_(digit),9"
+a,pt,OTHER,12321,"a,an,any"
+a,pt,OTHER,17700,the
+a dormir,pt,ADJ,12589,asleep
+a ela,pt,OTHER,14707,"her,hers"
+a elas,pt,OTHER,14707,"her,hers"
+a menos que,pt,PREP,17981,unless
+a noite passada,pt,NOUN,15174,last_night
+a própria,pt,OTHER,16949,"she,her,herself"
+a seguir,pt,ADJ,15714,next
+a semana passada,pt,NOUN,15175,last_week
+a si mesmos,pt,OTHER,17713,"they,them,themselves-(persons)"
+ab,pt,NOUN,12599,Av_(Hebrew_month)
+abdómen,pt,NOUN,17265,"stomach,abdomen,belly"
+abelha,pt,NOUN,12651,"bee,bumblebee,hoverfly"
+abertura,pt,NOUN,12658,"beginning,start"
+abertura,pt,NOUN,15923,opening
+abeto,pt,NOUN,14116,"evergreen_tree,spruce,fir,fir_tree"
+aborrecido,pt,ADJ,24827,"boring,dull,depressing"
+aborto,pt,NOUN,12323,abortion_(induced)
+aborto espontâneo,pt,NOUN,15477,"miscarriage,abortion_(spontaneous)"
+abraão,pt,NOUN,21066,Abraham
+abraçar,pt,VERB,14909,"hug,cuddle,embrace-(to)"
+abre-latas,pt,NOUN,22396,can_opener
+abrigo,pt,NOUN,16955,"shelter,refuge"
+abril,pt,NOUN,12410,April
+abrir,pt,ADJ,15921,open
+abrir,pt,VERB,15922,open-(to)
+abstinência,pt,NOUN,12326,"celibacy,chastity,abstinence"
+abstinência,pt,NOUN,21308,abstention
+abuso de crianças,pt,NOUN,13167,child_abuse
+abuso sexual,pt,NOUN,16766,"sexual_abuse,sexual_assault,sexual_violence"
+abutre,pt,NOUN,18024,vulture
+abóbora,pt,NOUN,17244,"squash,pumpkin"
+acalefa,pt,NOUN,23124,jellyfish
+acampamento,pt,NOUN,13112,camp
+acariciar,pt,VERB,17443,stroke-(to)
+acerca,pt,PREP,12324,"about,concerning,in_relation_to,of,on"
+acessórios,pt,NOUN,12328,accessory
+acidente,pt,NOUN,12329,"accident,chance_event"
+acidente,pt,NOUN,23801,accident
+acidente de automóvel,pt,NOUN,13438,"crash_(car),car_crash"
+acne,pt,NOUN,12332,acne
+aconselhar,pt,VERB,12346,"advise,counsel,recommend-(to)"
+acontecer,pt,VERB,14674,"happen,occur-(to)"
+acontecimento,pt,NOUN,14114,"event,happening,occasion"
+acordar,pt,ADJ,12601,awake
+acordar,pt,VERB,23703,wake_up-(to)
+acordeão,pt,NOUN,23802,accordion
+acordo,pt,NOUN,12354,agreement
+acordo,pt,NOUN,24006,agreement_(spoken)
+acordo,pt,NOUN,24007,"agreement_(written),contract"
+acrobata,pt,NOUN,24001,acrobat
+actividade,pt,NOUN,12335,"activity,male_gender_(in_combinations)"
+activo,pt,ADJ,12336,"active,actively"
+actual,pt,ADJ,13624,current
+actualidades,pt,NOUN,13625,current_events
+actuar,pt,VERB,23609,perform-(to)
+acupunctureólogo,pt,NOUN,21605,acupuncturist
+acção,pt,NOUN,12334,"action,act,deed"
+adar,pt,NOUN,12337,Adar
+adeus,pt,PREP,14454,"goodbye,farewell"
+adeus,pt,NOUN,24457,Good_day_(bye)
+adicionar,pt,VERB,12338,"add,gain-(to)"
+adivinhar,pt,VERB,14651,"guess,estimate-(to)"
+adolescente,pt,NOUN,17516,"teenager,adolescent,youth"
+adorável,pt,ADJ,15398,lovable
+adulto,pt,ADJ,12342,"adult,mature"
+advento,pt,NOUN,24004,Advent
+advogado,pt,NOUN,23135,lawyer
+adão,pt,NOUN,21063,Adam
+aegir,pt,NOUN,22821,Aegir
+aerodeslizador,pt,NOUN,22085,hovercraft
+aeroporto,pt,NOUN,12358,airport
+afeganistão,pt,NOUN,25008,Afghanistan
+afiado,pt,ADJ,16943,sharp_(knife)
+afogar,pt,VERB,21348,drown-(to)
+agarrador,pt,NOUN,22567,"reaching_aid,grabber"
+agenda,pt,NOUN,15734,"notebook,writing_book"
+agitar,pt,VERB,16934,"shake,jiggle-(to)"
+agora,pt,ADV,15736,now
+agosto,pt,NOUN,12595,August
+agradecer,pt,VERB,17532,thank-(to)
+agricultor,pt,NOUN,14152,farmer
+agulha,pt,NOUN,15704,hypodermic_needle
+aipo,pt,NOUN,13140,celery
+aipo,pt,NOUN,23833,"celeriac,celery"
+ajoelhar,pt,VERB,15158,kneel-(to)
+ajuda,pt,NOUN,14704,"help,aid,assistance,support"
+ajudar,pt,VERB,14705,"help,aid,assist,serve,support-(to)"
+alavanca de direcção,pt,NOUN,23549,joystick
+alcançar,pt,VERB,24401,achieve-(to)
+alce,pt,NOUN,15652,"moose,elk"
+alemanha,pt,NOUN,25414,Germany
+alergia,pt,NOUN,24407,"allergy,hypersensitivity"
+alface,pt,NOUN,15200,"lettuce,leafy_vegetable"
+alfinete,pt,NOUN,16181,pin
+algodão em rama,pt,NOUN,23048,cotton
+alguns,pt,ADJ,17207,"some,any"
+alguém,pt,NOUN,12399,"anyone,anybody,somebody,someone"
+alho,pt,NOUN,14423,garlic
+alho porro bravo,pt,NOUN,24476,leek
+ali,pt,ADV,17707,there
+alicates,pt,NOUN,16205,"pliers,tongs,tweezer(s),pincer(s)_(pair_of)"
+alimentar,pt,VERB,14162,feed-(to)
+alma,pt,NOUN,21045,soul
+almofada,pt,NOUN,16177,"pillow,cushion"
+almoço,pt,NOUN,15405,"lunch,dinner"
+almôndega,pt,NOUN,15445,meatball
+alpana,pt,NOUN,12365,"alpana,rangoli_(decoration)"
+altar,pt,NOUN,21368,altar
+alto,pt,ADJ,14711,"high,tall"
+altura,pt,NOUN,24909,"height,tallness"
+alugar,pt,NOUN,24731,rent
+alugar,pt,VERB,24732,"rent,lease,let-(to)"
+alugar,pt,VERB,24733,"rent,lease,hire,charter-(to)"
+alunagem,pt,VERB,25108,land_(rocket)-(to)
+alá,pt,NOUN,21035,Allah
+aléu,pt,NOUN,17235,sport_stick
+amanhã,pt,NOUN,17750,tomorrow
+amanhã á noite,pt,NOUN,17751,tomorrow_night
+amar,pt,VERB,15400,love-(to)
+amarelo,pt,NOUN,18291,yellow_(bci)
+amarelo,pt,NOUN,18292,yellow_(ckb)
+amargo,pt,ADJ,12848,bitter
+amarrotar,pt,VERB,13616,"crush,squeeze-(to)"
+ambiente,pt,NOUN,13942,environment
+ambos,pt,OTHER,12879,both
+ambulância,pt,NOUN,12369,ambulance
+ameixa,pt,NOUN,16208,"plum,drupe"
+ameixa seca,pt,NOUN,24225,prune
+amenorreia,pt,NOUN,12370,amenorrhea
+amigo,pt,NOUN,14401,friend
+amolgadela,pt,NOUN,24420,"bruise,dent"
+amor,pt,NOUN,15399,"love,affection"
+amor cristão,pt,NOUN,21304,Christian_love
+amperímetro,pt,NOUN,25258,ammeter
+amén,pt,PREP,21312,amen
+américa do norte,pt,NOUN,22607,North_America
+américa do sul,pt,NOUN,22608,South_America
+ananás,pt,NOUN,16182,pineapple
+anca,pt,NOUN,14713,hip
+ancinho,pt,NOUN,16461,rake
+andar,pt,NOUN,12403,"apartment,flat,unit"
+andar,pt,VERB,18031,"walk,go-(to)"
+andar,pt,NOUN,23022,apartment_block
+andar com um veículo,pt,VERB,16509,ride-(to)
+andar de avião,pt,VERB,21834,"go_by_airplane,fly-(to)"
+andar de bicicleta,pt,VERB,21832,"cycle,ride_a_bike-(to)"
+andar em bicos dos pés,pt,VERB,17733,tiptoe-(to)
+andarilho,pt,NOUN,18032,"walker,walking_aid_(2)"
+andebol,pt,NOUN,14669,handball_(activity)
+andebol,pt,NOUN,20589,handball_(sport)
+anel,pt,NOUN,16675,ring
+anel,pt,NOUN,25488,ring_(finger)
+anfíbios,pt,NOUN,12371,amphibian
+animais,pt,NOUN,12378,"animal,beast"
+animais de água,pt,NOUN,12389,animal_(water)
+animais domésticos,pt,NOUN,12382,domestic_animal
+animais protegidos,pt,NOUN,12385,animal_(protected)
+animal,pt,NOUN,17764,"toy_animal,stuffed_animal"
+animal de estimação,pt,NOUN,16168,pet
+animal selvagem,pt,NOUN,12390,animal_(wild)
+aniversário,pt,NOUN,12392,anniversary
+anjo,pt,NOUN,20570,angel_(2)
+anjo,pt,NOUN,20571,angel_(1)
+ano,pt,NOUN,18289,year
+ano luz,pt,NOUN,22634,light_year
+ano seguinte,pt,NOUN,15716,next_year
+ansiedade,pt,NOUN,12397,anxiety
+ansioso,pt,ADJ,12398,"anxious,anxiously"
+antena,pt,NOUN,24602,"aerial,antenna"
+antepassada,pt,NOUN,21326,foremother
+antepassado,pt,NOUN,21325,forefather
+antepassado,pt,NOUN,21327,ancestor
+antes,pt,ADV,12352,"ago,then_(past)"
+antipatizar com,pt,VERB,13692,dislike-(to)
+antropologia,pt,NOUN,21548,anthropology
+antártica,pt,NOUN,22603,Antarctic
+anunciar,pt,VERB,21337,"proclaim,announce-(to)"
+anémona do mar,pt,NOUN,23653,sea_anemone
+anúncio,pt,NOUN,21338,"proclamation,announcement"
+apagar,pt,VERB,23468,delete_(computer)-(to)
+apaixonado,pt,ADJ,24815,in_love
+apanhar,pt,VERB,13131,"catch,grab-(to)"
+apanhar,pt,VERB,23200,"capture,catch,seize-(to)"
+apanhar,pt,VERB,24709,pick-(to)
+aparecer,pt,VERB,21079,appear-(to)
+aparelhagem,pt,NOUN,16471,"CD_player,record_player,stereo"
+aparelho de audição,pt,NOUN,14693,hearing_aid
+aparelho intra-uterino,pt,NOUN,14963,"intrauterine_device,IUD"
+aparição,pt,NOUN,21078,"appearance,manifestation"
+aparição,pt,NOUN,21300,"vision,apparition"
+aperfeiçoar,pt,VERB,14931,improve-(to)
+aperitivo,pt,NOUN,22118,"appetizer,starter,entree"
+apetitoso,pt,ADJ,20526,"tasty,good,appetizing"
+aplausos,pt,NOUN,25013,"applause,clapping"
+apontar,pt,VERB,16213,"point,indicate-(to)"
+apoplexia,pt,NOUN,12593,attack_(of_illness)
+apostar,pt,VERB,24414,bet-(to)
+apostar,pt,NOUN,24415,betting
+apostar,pt,NOUN,24452,gamble
+apostar,pt,VERB,24453,gamble-(to)
+apostar,pt,NOUN,24454,gambler
+aprender,pt,VERB,15184,learn-(to)
+aprender,pt,VERB,24294,study-(to)
+aprovar,pt,VERB,12408,approve-(to)
+aproximação,pt,NOUN,12407,approach
+apóstolo,pt,NOUN,21059,apostle
+aquecedor de água,pt,NOUN,22587,electric_kettle
+aquecer,pt,VERB,14697,heat-(to)
+aqueles,pt,OTHER,17723,those
+aqui,pt,ADV,14708,here
+aquilo,pt,NOUN,17697,that_(there)
+aquilo,pt,NOUN,24309,that_(conj)
+aquário,pt,NOUN,22647,Aquarius_(in_zodiac)
+ar,pt,NOUN,12356,"air,atmosphere"
+arame,pt,NOUN,18265,"wire,cable"
+arando,pt,NOUN,13433,cranberry
+aranha,pt,NOUN,17229,spider
+arbusto,pt,NOUN,13092,"bush,shrub"
+arca frigorífica,pt,NOUN,23514,freezer
+arco,pt,NOUN,23818,bow_(musical_instrument)
+arco,pt,NOUN,23819,bow_and_string_(musical)
+arco,pt,NOUN,24037,bow
+arco e flecha,pt,NOUN,21855,bow_and_arrow
+arco íris,pt,NOUN,23933,rainbow
+ardente,pt,ADJ,12924,burning
+areia,pt,NOUN,16715,sand
+argumento,pt,NOUN,12414,"argument,dispute,quarrel"
+arma,pt,NOUN,25213,weapon
+armadilha,pt,NOUN,25199,trap
+armadura,pt,NOUN,21622,suit_of_armour
+armação com rodas,pt,NOUN,17250,stander
+armação com rodas,pt,NOUN,21820,stander_(wheeled)
+armário,pt,NOUN,13162,"chest_of_drawers,bureau,dresser"
+arqueologia,pt,NOUN,21554,archeology
+arqueólogo,pt,NOUN,21570,archeologist
+arquitecto,pt,NOUN,12412,architect
+arranha céus,pt,NOUN,23215,skyscraper
+arreios,pt,NOUN,24143,harness
+arreliar,pt,VERB,17515,tease-(to)
+arrepender-se,pt,VERB,16477,regret-(to)
+arroz,pt,NOUN,16505,rice
+arroz simples,pt,NOUN,22136,rice_noodle
+arrumar,pt,VERB,16440,"put,locate,place-(to)"
+artes,pt,NOUN,12581,art
+artes marciais,pt,NOUN,21838,martial_arts
+articulação,pt,NOUN,14973,joint
+as,pt,OTHER,17700,the
+asas,pt,NOUN,18259,wing(s)
+ascensor,pt,NOUN,14881,"hoist,lift"
+ascensor de cadeira,pt,NOUN,24050,chairlift
+aspirador,pt,NOUN,22391,vacuum_cleaner
+assaltar,pt,VERB,23637,rob-(to)
+assassinar,pt,VERB,15148,"kill,murder-(to)"
+assassinar,pt,VERB,25123,murder-(to)
+assento,pt,NOUN,16165,"seat,sitting_(sitting_person)"
+assento de sanita,pt,NOUN,24770,"toilet_chair,commode_chair"
+assinar,pt,VERB,21537,sign-(to)
+assinatura,pt,NOUN,16979,signature
+assinatura em carimbo,pt,NOUN,16980,signature_stamp
+assistente,pt,NOUN,13359,clerk
+assistente social,pt,NOUN,17201,social_worker
+assobiar,pt,VERB,12925,"burp,belch-(to)"
+assobiar,pt,VERB,18241,whistle-(to)
+associação,pt,NOUN,13380,"combination,connection"
+assustador,pt,ADJ,25192,"thrilling,scary"
+assédio sexual,pt,NOUN,16930,sexual_harassment
+astrologia,pt,NOUN,22636,astrology
+astronauta,pt,NOUN,12590,"astronaut,cosmonaut"
+astronomia,pt,NOUN,21542,astronomy
+astrónomo,pt,NOUN,21560,astronomer
+atar,pt,VERB,24311,"tie,bind_together,lash-(to)"
+atento,pt,ADJ,18046,"watchful,alert"
+atenção,pt,NOUN,12594,attention
+aterragem,pt,NOUN,15171,"landing,airplane_landing"
+aterragem,pt,NOUN,25109,landing_(rocket)
+aterragem,pt,VERB,25402,land_(airplane)-(to)
+aterrorizar,pt,VERB,17527,terrorize-(to)
+aterrorizar-se,pt,ADJ,17525,terrified
+ateísmo,pt,NOUN,21301,atheism
+atirar,pt,VERB,17725,throw-(to)
+atletismo,pt,NOUN,21628,athletics
+atravessar,pt,VERB,13614,cross-(to)
+atravessar para o outro lado,pt,PREP,12333,across
+através,pt,PREP,17724,through
+atrever-se,pt,VERB,23466,dare-(to)
+atrás de,pt,PREP,12348,"after,behind"
+até,pt,PREP,17982,"until,till,to"
+até logo?,pt,PREP,16748,see_you_again
+atómo,pt,NOUN,12592,atom
+audiólogo,pt,NOUN,21593,audiologist
+aula de ciências,pt,NOUN,23167,physics_(class)
+aula de geografia,pt,NOUN,23094,geography_(class)
+aula de história,pt,NOUN,23112,history_(class)
+aula de leitura,pt,NOUN,23187,reading_(class)
+aula de leitura,pt,NOUN,23188,reading_lesson
+aula de línguas,pt,NOUN,23131,language_(class)
+aula de química,pt,NOUN,23040,chemistry_(class)
+aumentar,pt,VERB,14936,"increase,enlarge-(to)"
+auscultadores,pt,NOUN,13899,"earphones,headphones"
+austrália,pt,NOUN,22605,Australia
+auto controlo,pt,NOUN,16754,self-control
+autocarro,pt,NOUN,13089,"bus,coach"
+automato,pt,NOUN,23639,robot_doll
+automato,pt,NOUN,25158,robot
+auxiliar,pt,NOUN,14706,"helper,aide,assistant,personal_assistant"
+auxílio financeiro,pt,VERB,17469,support-(to)
+avaliar,pt,VERB,13947,evaluate-(to)
+avançar,pt,VERB,12343,"advance,go-(to)"
+aventura,pt,NOUN,25006,adventure
+aversão,pt,NOUN,13691,dislike
+avestruz,pt,NOUN,15937,ostrich
+avisar,pt,VERB,25210,warn-(to)
+avião,pt,NOUN,12357,"airplane,aeroplane,plane"
+avião a jacto,pt,NOUN,14970,"jet,jet_plane"
+avó,pt,NOUN,14629,"grandmother,grandma,granny"
+avó,pt,NOUN,14630,grandmother_(maternal)
+avó,pt,NOUN,14631,grandmother_(paternal)
+avós,pt,NOUN,14632,grandparent
+avô,pt,NOUN,14626,"grandfather,granddad,grandpa"
+avô,pt,NOUN,14627,grandfather_(maternal)
+avô,pt,NOUN,14628,grandfather_(paternal)
+azeitona,pt,NOUN,15917,olive
+azul,pt,NOUN,12864,blue_(bci)
+azul,pt,NOUN,12865,blue_(ckb)
+aço,pt,NOUN,17258,steel
+açor,pt,NOUN,14686,"hawk,eagle"
+açúcar,pt,NOUN,17453,"sugar,sweetener"
+babar-se,pt,VERB,24433,dribble-(to)
+babete,pt,NOUN,12833,bib
+bacalhau,pt,NOUN,23044,"cod,codfish"
+bacia,pt,NOUN,16992,"bath,washing"
+bacia,pt,NOUN,24511,"sink,basin"
+bacio,pt,NOUN,24717,"potty,chamber_pot,bedpan"
+badmington,pt,NOUN,12617,badminton_(activity)
+badmington,pt,NOUN,20588,badminton_(sport)
+baga azul,pt,NOUN,12866,blueberry
+bagageira,pt,NOUN,24613,"boot,trunk,roof_box,luggage_compartment"
+bagagem,pt,NOUN,12618,"baggage,bag,luggage,suitcase"
+bago,pt,NOUN,12666,berry
+bago negro,pt,NOUN,23417,blackberry
+bailado,pt,NOUN,23414,ballet
+baixar,pt,VERB,24688,lower-(to)
+baixo,pt,ADJ,15401,"low,short"
+baixo,pt,NOUN,24918,"lowness,shortness_(height)"
+balança,pt,NOUN,22643,Libra_(in_zodiac)
+balança para pesar materiais,pt,NOUN,16729,scales
+balança para pesar materiais,pt,NOUN,23197,scale_(weighing)
+balançar,pt,VERB,17486,"swing,sway,rock-(to)"
+balde,pt,NOUN,15953,"pail,bucket"
+balde do lixo,pt,NOUN,14421,"garbage_can,rubbish_bin,trash_can"
+balder,pt,NOUN,22817,Balder
+baleia,pt,NOUN,18227,whale
+balonismo,pt,NOUN,22108,ballooning
+balouçar,pt,NOUN,17485,swing
+balouço,pt,NOUN,16751,"seesaw,teeter-totter,teeter_board"
+balão,pt,NOUN,12622,balloon
+balão,pt,NOUN,22107,balloon_(hot_air)
+banana,pt,NOUN,12623,banana
+banco,pt,NOUN,12626,bank
+banco,pt,NOUN,12665,"bench,pew"
+bandas sonoras,pt,NOUN,24422,"bump,press,pressing"
+bandeira,pt,NOUN,14193,flag
+bandeja,pt,NOUN,17773,tray
+bangladesh,pt,NOUN,24607,Bangladesh
+banheira,pt,NOUN,24809,"bathtub,bath,tub"
+banho de bolas,pt,NOUN,23413,ball_pool
+banho de vapor,pt,NOUN,17257,steam_bath
+baptismo,pt,NOUN,21103,sacrament_of_baptism
+bar,pt,NOUN,12627,"bar,pub"
+bar,pt,NOUN,13369,club
+bar,pt,NOUN,24446,fan_club
+bar mitzvah,pt,NOUN,21112,bar_mitzvah_(Hebrew)
+barato,pt,ADJ,23039,"cheap,inexpensive"
+barba,pt,NOUN,12644,beard
+barbear,pt,VERB,16945,shave_(beard)-(to)
+barbear,pt,VERB,24263,shave-(to)
+barbearia,pt,NOUN,12629,"barbershop,beauty_shop"
+barbeiro,pt,NOUN,12628,"barber,hairdresser"
+barco,pt,NOUN,12869,"boat,ship"
+barco a motor,pt,NOUN,22074,motorboat
+barco a motor com cabine,pt,NOUN,22074,motorboat
+barco a pedal,pt,NOUN,22088,"paddle_boat,pedal_boat,water_bike,pedalo"
+barco a remos,pt,NOUN,22076,rowing_boat
+barco a vapor,pt,NOUN,22084,steamship
+barco de borracha,pt,NOUN,22086,"rubber_boat,dinghy"
+barco de rio,pt,NOUN,22072,"barge,river_boat"
+barco de transporte através de rio ou canal,pt,NOUN,22083,ferry
+barco do piloto,pt,NOUN,22079,pilot_boat
+barco rebocador,pt,NOUN,22080,"towboat,tugboat"
+barco salva vidas,pt,NOUN,22078,lifeboat
+barco viquingue,pt,NOUN,22829,Viking_ship
+barco à vela,pt,NOUN,20520,"sailboat,sailing_boat,yacht"
+barra de chocolate,pt,NOUN,22373,chocolate_bar
+barra de gelado,pt,NOUN,22370,ice_cream_(bar)
+barrar,pt,VERB,17239,spread_(cover_with_spread)-(to)
+barreira contraceptiva,pt,NOUN,12631,barrier_(contraceptive)
+barrilha,pt,NOUN,15142,Kali
+barulho,pt,ADJ,15397,"loud,noisy"
+barulho,pt,NOUN,24922,noise_(loud)
+base,pt,NOUN,12881,"bottom,base"
+base,pt,NOUN,13097,"buttocks,bottom,bum,rear,ass"
+base,pt,NOUN,25408,"bottom,bottom_of_a_thing"
+base do exército,pt,NOUN,12633,base_camp
+basebol,pt,NOUN,12632,baseball_(activity)
+basebol,pt,NOUN,20584,baseball_(sport)
+basquetebol,pt,NOUN,12634,basketball_(activity)
+basquetebol,pt,NOUN,20585,basketball_(sport)
+batata,pt,NOUN,16230,potato
+batata doce,pt,NOUN,17480,"sweet_potato,yam"
+batatas fritas,pt,NOUN,24657,"French_fries,chips"
+batedeira,pt,NOUN,22392,"mixer,blender"
+batedor de ovos,pt,NOUN,22563,"whisk,beater"
+batelão,pt,NOUN,22081,pushboat
+bater,pt,VERB,25105,"knock,tap-(to)"
+bater palmas,pt,VERB,25012,"applaud,clap-(to)"
+batido,pt,NOUN,15470,milkshake
+batom para os lábios,pt,NOUN,15219,lipstick
+baunilha,pt,NOUN,22314,vanilla
+baunilha,pt,NOUN,22316,vanilla_(liquid)
+baunilha em pó,pt,NOUN,22315,vanilla_(powder)
+beber,pt,VERB,13882,drink-(to)
+bebida,pt,NOUN,13881,"drink,beverage"
+bebida de chocolate,pt,NOUN,20772,chocolate_drink
+bebida não alcoólica,pt,NOUN,17202,"soda_pop,pop,soft_drink"
+bebidas alcoólicas,pt,NOUN,12359,"alcoholic_drink,alcoholic_beverage,liquor"
+bebé,pt,NOUN,12603,"baby,infant"
+bebé prematuro,pt,NOUN,16243,premature_birth
+beijar,pt,VERB,15153,kiss-(to)
+beijo,pt,NOUN,15152,kiss
+belarus,pt,NOUN,25020,Belarus
+bem vindo,pt,PREP,18223,welcome
+bengala,pt,NOUN,13119,"cane,stick,walking_stick"
+bens alimentares,pt,NOUN,14457,"goods,contents"
+benzer,pt,VERB,25268,bless-(to)
+beterraba,pt,NOUN,12654,"beet,beetroot"
+betão,pt,NOUN,13397,"concrete,cement"
+bexiga,pt,NOUN,12853,bladder
+biberão,pt,NOUN,24409,"baby_bottle,feeding_bottle"
+biberão,pt,NOUN,24418,"bottle_nipple,teat"
+biblioteca,pt,NOUN,15201,library_(building)
+bibliotecário,pt,NOUN,23568,librarian
+bicicleta,pt,NOUN,12834,bicycle
+bicicleta de montanha,pt,NOUN,21817,mountain_bike
+bicicleta de montanha,pt,NOUN,21818,"ATB,all-terrain_bike"
+bicicleta de transporte de materiais,pt,NOUN,21814,handcycle
+bicicleta para cadeira de rodas,pt,NOUN,21819,wheelchair_bike
+bicicleta reclinada,pt,NOUN,21815,recumbent_bicycle
+bife,pt,NOUN,25176,steak
+bilhete,pt,NOUN,17729,"ticket,pass"
+bilhete de identidade,pt,NOUN,25088,identity_card
+binóculos,pt,NOUN,25984,"binoculars,field_glass"
+biologia,pt,NOUN,21546,biology
+biologia,pt,NOUN,23030,biology_(class)
+bioquímica,pt,NOUN,21545,biochemistry
+bioquímico,pt,NOUN,21563,biochemist
+biscoito,pt,NOUN,13409,"cookie,biscuit"
+biscoitos,pt,NOUN,22591,"cookie_jar,biscuit_tin"
+bispo,pt,NOUN,21056,bishop
+biólogo,pt,NOUN,21564,biologist
+blocos,pt,NOUN,12860,"block,brick"
+boa noite,pt,NOUN,24463,Good_night_(bye)
+boa noite,pt,NOUN,24464,Good_night_(hello)
+boa tardinha,pt,NOUN,24459,Good_evening_(bye)
+boa tardinha,pt,NOUN,24460,Good_evening_(hello)
+boca,pt,NOUN,15666,mouth
+bocejar,pt,VERB,18288,yawn-(to)
+bochecha,pt,NOUN,13156,cheek
+boi,pt,NOUN,15951,ox
+bola,pt,NOUN,12621,ball
+bola de comida,pt,NOUN,14378,food_ball
+bola de neve,pt,NOUN,17194,snowball
+bola de râguebi,pt,NOUN,21807,"rugby_ball,football_(N.A.)"
+bola do rato,pt,NOUN,23691,trackball
+bolbo,pt,NOUN,15920,bulb_(plant)
+bolbo,pt,NOUN,18006,"onion,vegetable_(bulb)"
+bolha,pt,NOUN,12916,bubble
+bolo,pt,NOUN,13106,"cake,bread_with_sugar"
+bolo,pt,NOUN,22121,decorated_cake
+bolo,pt,NOUN,22123,"cupcake,fancy_cake,pastry"
+bolo de aniversário,pt,NOUN,13106,"cake,bread_with_sugar"
+bolo de aniversário,pt,NOUN,22121,decorated_cake
+bolo de aniversário,pt,NOUN,22123,"cupcake,fancy_cake,pastry"
+bolo pequeno,pt,NOUN,13409,"cookie,biscuit"
+bolo pequeno,pt,NOUN,16683,"roll,bun"
+bolo pequeno,pt,NOUN,20769,bun_(food)
+bolo redondo chato e muito fofo,pt,NOUN,22122,"muffin,bun_(sweet)"
+bolsa,pt,NOUN,14668,"handbag,shopping_bag,carrier_bag"
+bolso,pt,NOUN,16209,pocket
+bom,pt,ADJ,14463,"good,well,fine,ok,okay,all_right"
+bom,pt,ADJ,15653,"moral,good,right,morally_right"
+bom dia,pt,NOUN,24461,Good_morning_(bye)
+bom dia,pt,NOUN,24462,Good_morning_(hello)
+bomba,pt,NOUN,24036,"bomb,explosive"
+bomba de água,pt,NOUN,25146,pump
+bombeiro,pt,NOUN,14184,"firefighter,fireman"
+bondade,pt,NOUN,14456,goodness
+boneca,pt,NOUN,13862,doll
+boneca,pt,NOUN,23582,man_doll_(e.g._Ken)
+boneca,pt,NOUN,23714,woman_doll_(e.g._Barbie)
+boneco de neve,pt,NOUN,17196,snowman
+boné com pála,pt,NOUN,21623,cap
+borboleta,pt,NOUN,13096,"butterfly,moth"
+borbulha,pt,NOUN,16180,"pimple,blemish"
+borda,pt,NOUN,13907,edge
+botas de borracha,pt,NOUN,12876,boot
+botas de esqui,pt,NOUN,16999,ski_boot(s)
+botânica,pt,NOUN,21547,botany
+botânico,pt,NOUN,21565,botanist
+botão,pt,NOUN,13098,"button,gripper,snap"
+botão de alarme,pt,NOUN,25253,alarm
+bovinos,pt,NOUN,12379,"animal_(bovine,ovine),bovid,bovine"
+bowling,pt,NOUN,12885,bowling_(activity)
+bowling,pt,NOUN,20587,bowling_(sport)
+bowling na relva,pt,NOUN,22835,"lawn_bowling,bowls_(sport)"
+bradar,pt,VERB,18290,"yell,scream-(to)"
+brama,pt,NOUN,12892,Brahma
+branco,pt,ADJ,18242,white
+braquial,pt,NOUN,12891,"bracha,berakah,prayer_(small)"
+brasil,pt,NOUN,25024,Brazil
+braço,pt,NOUN,12577,arm
+brevemente,pt,ADV,17212,soon
+brilhante,pt,NOUN,25453,glitter
+brilhar,pt,VERB,16956,"shine,beam-(to)"
+brilhar,pt,VERB,22387,shine-(to)
+brincar,pt,VERB,16200,play-(to)
+brincos,pt,NOUN,25447,earring
+brinquedo,pt,NOUN,17763,toy
+brinquedo,pt,NOUN,23689,toy_(in_combinations)
+brinquedos,pt,NOUN,23708,water_toy
+brinquedos de praia,pt,NOUN,23645,sand_toy
+broca e braço para furar,pt,NOUN,25048,drill
+broche,pt,NOUN,25436,brooch
+brontossauro,pt,NOUN,23421,Brontosaurus
+bruxa,pt,NOUN,23712,witch
+brócolos,pt,NOUN,12905,broccoli
+buda,pt,NOUN,23423,Buddha
+budismo,pt,NOUN,23426,buddhist_(person)
+buraco,pt,NOUN,14883,hole
+buraco,pt,NOUN,16188,"pit,stone"
+burro,pt,NOUN,13865,"donkey,mule"
+bélgica,pt,NOUN,22609,Belgium
+bêbedo,pt,ADJ,13886,drunk
+bíblia,pt,NOUN,21068,holy_book
+bíblia,pt,NOUN,21069,Bible_(Christian)
+búfalo,pt,NOUN,12917,"buffalo,bison"
+bússola,pt,NOUN,24626,compass
+cabala,pt,NOUN,15141,Kabbalat_Shabbat
+cabana,pt,NOUN,13102,"cabin,cottage,hut"
+cabana,pt,NOUN,24617,cabin_(boat)
+cabelo,pt,NOUN,14661,hair_(head)
+cabeça,pt,NOUN,14689,head
+cabra,pt,NOUN,23097,goat
+cabriolar,pt,VERB,24129,gallop-(to)
+cacau,pt,NOUN,20771,chocolate_flavouring
+cacau,pt,NOUN,22341,"chocolate,cocoa,cacao_(bitter_powder)"
+cachecol,pt,NOUN,16730,scarf
+cachimbo,pt,NOUN,16186,"pipe,smoking_pipe"
+cachorro,pt,NOUN,16434,puppy
+cachorro quente,pt,NOUN,14902,"hot_dog,frankfurter"
+cada um,pt,OTHER,13893,"each,every"
+cadeira,pt,NOUN,13148,"chair,seat"
+cadeira de baloiço,pt,NOUN,16681,rocking_chair
+cadeira de duche,pt,NOUN,24748,shower_chair
+cadeira de rodas,pt,NOUN,18233,wheelchair
+cadeira de rodas eléctrica,pt,NOUN,13920,electric_wheelchair
+cadeirão,pt,NOUN,12578,armchair
+cadáver,pt,NOUN,21315,"corpse,cadaver,carrion"
+cafetaria,pt,NOUN,13104,"cafe,coffee_house,snack_bar"
+café,pt,NOUN,13373,coffee
+cair,pt,VERB,13660,"descend,go_down-(to)"
+cair,pt,VERB,14142,fall-(to)
+caixa,pt,NOUN,12886,"box,cube"
+caixa de correio,pt,NOUN,15409,"mailbox,letterbox,postbox"
+caixa de merenda,pt,NOUN,23573,lunch_box
+caixa dos lápis,pt,NOUN,23166,"pencil_case,pencil_box"
+caixão,pt,NOUN,21116,coffin
+calado,pt,ADJ,16982,silent
+calcanhar,pt,NOUN,14700,heel
+calculadora,pt,NOUN,13108,calculator
+calcular,pt,VERB,13107,calculate-(to)
+calendário,pt,NOUN,13109,calendar
+calha,pt,NOUN,23073,eaves
+calha,pt,NOUN,23103,"gutter,eaves_trough"
+calor,pt,NOUN,14696,heat
+calças,pt,NOUN,15961,"pants,jeans,slacks,trousers"
+calções,pt,NOUN,16963,shorts
+cama,pt,NOUN,12649,bed
+cama de rede,pt,NOUN,24662,hammock
+cama pequena para transportar o bebé,pt,NOUN,13126,"carrycot,bassinet"
+camaleão,pt,NOUN,13150,chameleon
+camarões,pt,NOUN,23210,shrimp
+camelo,pt,NOUN,13110,camel
+caminho para bicicletas,pt,NOUN,24022,bicycle_path
+caminho para peões,pt,NOUN,24328,"walkway,footpath"
+camisa,pt,NOUN,16957,"shirt,blouse"
+camisola interior,pt,NOUN,17972,undershirt
+camião,pt,NOUN,17781,"truck,lorry"
+camião com reboque,pt,NOUN,13890,"dump_truck,dumper,tipper_lorry,tipper"
+campa,pt,NOUN,14638,grave
+campa,pt,NOUN,21283,tomb
+campo,pt,NOUN,13424,"countryside,country,nature"
+campo de desportos,pt,NOUN,22840,"court,field"
+campo de férias de verão,pt,NOUN,17461,summer_day_camp
+campo magnético,pt,NOUN,25339,magnetic_field
+canadá,pt,NOUN,13116,Canada
+canal,pt,NOUN,24619,canal_(water)
+canal deferente,pt,NOUN,18001,vas_deferens
+caneca,pt,NOUN,13621,"mug,cup"
+caneca,pt,NOUN,22578,cup
+canela,pt,NOUN,22312,cinnamon
+canela,pt,NOUN,22313,cinnamon_(powder)
+caneta,pt,NOUN,15991,"pen,pencil"
+canguru,pt,NOUN,12384,"kangaroo,marsupial_(animal),pouched_mammal"
+canhão,pt,NOUN,13120,"cannon,gun"
+canoa,pt,NOUN,22075,canoe
+canoa,pt,NOUN,22077,kayak
+canoagem,pt,NOUN,22050,canoeing
+cansado,pt,ADJ,17735,"tired,exhausted,weary"
+cantar,pt,VERB,16990,sing-(to)
+cantarolar,pt,VERB,23884,hum-(to)
+canto,pt,NOUN,13414,corner_(room)
+cantor,pt,NOUN,16991,singer
+canção,pt,NOUN,17210,song
+capacete,pt,NOUN,21615,helmet
+capacete de hóquei,pt,NOUN,21617,hockey_helmet
+capacete de protecção,pt,NOUN,21616,riding_helmet
+capacete de protecção,pt,NOUN,21618,"bicycle_helmet,crash_helmet"
+capacidade,pt,NOUN,12322,"ability,capability,capacity,potential"
+capitão,pt,NOUN,24744,"sea_captain,skipper"
+capricórnio,pt,NOUN,22646,Capricorn_(in_zodiac)
+caracol,pt,NOUN,17188,snail
+caramelo,pt,NOUN,22365,"lollipop,sucker"
+caranguejo,pt,NOUN,15226,"crab,shellfish_(with_claws)"
+caravana,pt,NOUN,13113,"camper,caravan,mobile_home"
+caravana com motor,pt,NOUN,24618,"camper_van,RV"
+cardiologista,pt,NOUN,21582,cardiologist
+caridade,pt,NOUN,13154,charity
+caridade cristã,pt,NOUN,21305,Christian_charity
+caril,pt,NOUN,22327,curry
+caril em pó,pt,NOUN,22328,curry_(powder)
+carimbo,pt,NOUN,17248,stamp
+carinhoso,pt,ADJ,15149,"kind,kindly"
+carmim,pt,NOUN,16692,"rouge,blusher"
+carne,pt,NOUN,15444,meat
+carne congelada,pt,NOUN,22355,"meat_(frozen),frozen_meat"
+carne de carneiro,pt,NOUN,15170,"lamb,mutton"
+carne de vaca,pt,NOUN,12652,beef
+carne moída,pt,NOUN,23591,"meat_(minced),minced_meat,ground_meat"
+carne picada,pt,NOUN,23591,"meat_(minced),minced_meat,ground_meat"
+carneiro,pt,NOUN,16950,sheep
+carniceiro,pt,NOUN,23037,butcher_shop
+caro,pt,PREP,13644,dear
+carpintaria,pt,NOUN,24339,woodcraft
+carregar,pt,NOUN,25111,load
+carreta de pónei,pt,NOUN,22093,sulky
+carrinho,pt,NOUN,13127,"cart,carriage"
+carrinho com motor,pt,NOUN,21822,"go-kart,kart"
+carrinho de bebé,pt,NOUN,12605,"baby_carriage,buggy,pram,pushchair,stroller"
+carrinho de mão,pt,NOUN,23416,"barrow,garden_cart,wheelbarrow"
+carris de comboios,pt,NOUN,23628,railway_track
+carro,pt,NOUN,13121,"car,automobile,motor_vehicle"
+carro do lixo,pt,NOUN,13890,"dump_truck,dumper,tipper_lorry,tipper"
+carro dos bombeiros,pt,NOUN,14186,"fire_truck,fire_engine"
+carro lateral de motocicleta,pt,NOUN,21821,sidecar_(motorcycle)
+carrossel,pt,NOUN,15458,"merry-go-round,carousel"
+carta,pt,NOUN,15198,"letter,mail,post"
+carta de condução,pt,NOUN,23853,driving_license
+carteiro,pt,NOUN,15199,"letter_carrier,postman,mailman"
+cartão de crédito,pt,NOUN,23415,"bank_card,money_card"
+cartão de crédito,pt,NOUN,24633,credit_card
+cartão de exposição,pt,NOUN,17489,"symbol_display,symbol_board,symbol_chart"
+carvão de pedra,pt,NOUN,13370,"biomass,biofuel"
+carvão de pedra,pt,NOUN,25062,"fossil_fuel,coal_(etc)"
+casa,pt,NOUN,14885,home
+casa,pt,NOUN,23154,multi_storey_home
+casa,pt,NOUN,23164,one_storey_home
+casa adoptiva,pt,NOUN,23513,foster_home
+casa de banho,pt,NOUN,12637,"bathroom,washroom"
+casa flutuante,pt,NOUN,22089,houseboat
+casa para barcos,pt,NOUN,22090,boathouse
+casaco,pt,NOUN,13371,"coat,jacket,jumper,sweater"
+casaco de mulher com pontos,pt,ADJ,24087,dotted
+casal,pt,NOUN,13425,couple_(heterosexual)
+casal,pt,NOUN,13426,couple_(two_persons)
+casal,pt,NOUN,13427,"family,couple"
+casamento,pt,NOUN,15425,marriage
+casamento,pt,NOUN,20575,"marriage,wedding"
+casamento,pt,NOUN,20576,marriage_(religious)
+casar,pt,VERB,15426,marry-(to)
+casca,pt,NOUN,15988,peel
+casca de árvore,pt,NOUN,22311,bark
+casco,pt,NOUN,24155,hoof
+casco de um navio,pt,NOUN,22065,"hull,body"
+cassete,pt,NOUN,13128,"cassette,audiocassette,videocassette"
+castanho,pt,NOUN,12910,brown_(bci)
+castanho,pt,NOUN,12911,brown_(ckb)
+castanholas,pt,NOUN,23830,castanets_(1)
+castanholas,pt,NOUN,23831,castanets_(2)
+castelo,pt,NOUN,23437,"castle,palace"
+castelo,pt,NOUN,23438,"castle,palace_(royal)"
+castelo,pt,NOUN,24119,"fort,fortress"
+castor,pt,NOUN,12646,beaver
+catamarã,pt,NOUN,22087,"catamaran,pontoon_boat"
+catolicismo romano,pt,NOUN,21038,"Roman_Catholicism,Roman_Catholic_Church"
+cauda,pt,NOUN,17496,tail
+cauda,pt,NOUN,24303,tail_(horse)
+causa,pt,NOUN,13134,cause
+causa,pt,VERB,13135,cause-(to)
+cavalariça,pt,NOUN,20600,stable
+cavaleiro,pt,NOUN,22091,"horse_rider,equestrian"
+cavalo,pt,NOUN,14897,horse
+cavalo de balouço,pt,NOUN,21876,rocking_horse
+cavar,pt,VERB,13677,dig-(to)
+cave,pt,NOUN,23029,"basement,cellar"
+caveira,pt,NOUN,25492,"skull,cranium"
+cavidade,pt,NOUN,13138,"cavity,caries"
+cazaquistão,pt,NOUN,23551,Kazakhstan
+caçador,pt,NOUN,25086,hunter
+caçar,pt,VERB,23537,hunt-(to)
+caçarola,pt,NOUN,23436,casserole
+cebola verde,pt,NOUN,14644,"green_onion,scallion,spring_onion"
+cedo,pt,ADV,13896,early
+cegarrega,pt,NOUN,23936,rattle_(musical_instrument)
+cegues,pt,ADJ,12856,blind
+ceia,pt,NOUN,17468,"supper,dinner"
+ceifa,pt,NOUN,14681,harvest
+celebração,pt,NOUN,21290,celebration
+celebração da vida,pt,NOUN,21291,celebration_of_life
+celeiro,pt,NOUN,12630,"barn,stable,shed"
+celibato,pt,NOUN,13141,"celibacy,chastity"
+celibato,pt,NOUN,24047,celibacy_(religious)
+cemitério,pt,NOUN,13142,cemetery
+cenoura,pt,NOUN,13124,"carrot,vegetable_(wedge-shaped)"
+centeio,pt,NOUN,24738,rye
+centro comercial,pt,NOUN,23207,"shopping_centre,mall,plaza"
+centro comercial,pt,NOUN,23208,shopping_mall
+centro de ciências,pt,NOUN,25369,science_centre
+centro de recursos de símbolos bliss,pt,NOUN,12859,blissymbolics_resource_centre
+cera dos ouvidos,pt,NOUN,13895,ear_mold
+cereais,pt,NOUN,13145,cereal
+cereais,pt,NOUN,24705,oats
+cereal,pt,NOUN,14625,"grain,cereal"
+cerejas,pt,NOUN,13159,cherry_(cherries)
+cerimonial,pt,NOUN,21317,ritual
+cerimónia,pt,NOUN,21096,ceremony
+cerimónia religiosa,pt,NOUN,20573,religious_ceremony
+cerimónia religiosa,pt,NOUN,20574,religious_ceremony_(God_based)
+cerimónia religiosa,pt,NOUN,21101,holy_event
+certeza,pt,ADJ,24049,"certain,sure"
+certo,pt,ADJ,13416,"correct,accurate,good,right"
+certo,pt,ADJ,15653,"moral,good,right,morally_right"
+cerveja,pt,NOUN,12653,beer
+cervical,pt,NOUN,13147,cervix
+cerâmica,pt,NOUN,24048,"ceramics,pottery"
+cesariana,pt,NOUN,13103,"caesarean_section,C-section"
+cesto de fruta,pt,NOUN,23515,"fruit_cream,compote"
+cevada,pt,NOUN,24608,barley
+chama,pt,NOUN,14194,flame
+chaminé,pt,NOUN,13168,chimney
+champanhe,pt,NOUN,22346,champagne
+champô,pt,NOUN,16938,shampoo
+champô,pt,VERB,24262,shampoo-(to)
+chapéu,pt,NOUN,14682,"hat,cap,hood"
+charrua,pt,NOUN,16206,plough
+chateado,pt,ADJ,17985,upset
+chateado,pt,NOUN,24822,"upset,disturbance,agitation"
+chave,pt,NOUN,15144,key
+chave de parafusos,pt,NOUN,16740,screwdriver
+chebat,pt,NOUN,16971,"Shevat,Shvat"
+chegada,pt,NOUN,13935,"end,arrival,stop"
+chegar,pt,VERB,17268,"stop,arrive,end-(to)"
+cheias,pt,NOUN,14201,flood
+cheio,pt,ADJ,14413,full
+cheio,pt,NOUN,24897,"filling,fill,fullness"
+cheio,pt,ADJ,25312,"full,satisfied"
+cheirar,pt,VERB,17018,smell-(to)
+cheirar mal,pt,VERB,17020,"smell_bad,stink-(to)"
+cherovia,pt,NOUN,15971,parsnip
+chilrear,pt,VERB,24060,"chirp,twitter-(to)"
+china,pt,NOUN,25029,China
+chinelos,pt,NOUN,17013,slipper(s)
+chocalho de bebé,pt,NOUN,23935,rattle
+chocar,pt,NOUN,13435,crash_(forward)
+chocar de frente,pt,VERB,13439,crash_(forward)-(to)
+chocolate,pt,NOUN,22340,"chocolate,cocoa,cacao_(sweet_powder)"
+chocolate,pt,NOUN,22905,chocolate
+chocolate para barrar,pt,NOUN,22906,chocolate_spread
+chorar,pt,VERB,13618,"cry,weep-(to)"
+chover,pt,VERB,16456,rain-(to)
+chupeta,pt,NOUN,24496,"pacifier,dummy"
+chutar,pt,VERB,15146,kick-(to)
+chuva,pt,NOUN,16455,rain
+chuveiro,pt,NOUN,16968,shower
+chuvoso,pt,ADJ,16458,rainy
+chá,pt,NOUN,17511,tea
+ciclismo,pt,NOUN,21823,cycling
+ciclismo de velocidade,pt,NOUN,21824,speed_cycling
+cidade,pt,NOUN,13351,"town,city_(small)"
+cidade do vaticano,pt,NOUN,21037,"Vatican,Vatican_City"
+cidade santa,pt,NOUN,21088,Holy_City
+cidadãos,pt,NOUN,13349,citizen
+cientista,pt,NOUN,21559,"scientist,academic"
+cigarro,pt,NOUN,13346,cigarette
+cinco,pt,NOUN,8501,"five_(digit),5"
+cintilar,pt,VERB,17960,"twinkle,shine,sparkle-(to)"
+cinto,pt,NOUN,12664,"belt,sash"
+cinto de segurança,pt,NOUN,24255,seat_belt
+cintura,pt,NOUN,18029,waist
+cinzas,pt,NOUN,12586,ashes
+cinzeiro,pt,NOUN,12587,ashtray
+cinzento,pt,NOUN,14639,"gray,grey"
+circo,pt,NOUN,24061,circus
+circuito eléctrico,pt,NOUN,25287,electric_circuit
+circuncisão,pt,NOUN,13348,circumcision
+cirurgião,pt,NOUN,21575,surgeon
+cisne,pt,NOUN,17473,swan
+ciumento,pt,ADJ,14967,jealous
+ciência,pt,NOUN,16735,"science,body_of_learning"
+ciência,pt,NOUN,23651,science
+claridade,pt,NOUN,22386,shine
+clarinete,pt,NOUN,23837,"clarinet,reed_instrument_(1)"
+clarinete,pt,NOUN,23838,"clarinet,reed_instrument_(2)"
+clube,pt,NOUN,13369,club
+clube,pt,NOUN,24446,fan_club
+clínica,pt,NOUN,13361,clinic
+clínica para bebés,pt,NOUN,12606,baby_clinic
+clínico,pt,ADJ,15446,"medical,medically"
+clítoris,pt,NOUN,13362,clitoris
+coaxar,pt,VERB,24073,croak_(frog)-(to)
+cobertor,pt,NOUN,12854,"blanket,duvet,quilt"
+cobertura,pt,NOUN,23600,overlay
+cobertura do soalho,pt,NOUN,14203,"floor_covering,linoleum"
+cobra de água,pt,NOUN,17190,water_snake
+coelho,pt,NOUN,16448,"rabbit,hare"
+cogumelo venenoso,pt,NOUN,15678,mushroom
+coisa,pt,NOUN,17717,"thing,object"
+coisa semelhante,pt,PREP,16985,"similar_looking,looks_similar"
+cola,pt,NOUN,14447,"glue,adhesive,paste"
+colar,pt,NOUN,25470,necklace
+colchete,pt,NOUN,14155,"fastener,gripper,velcro,zipper"
+colchão de ginástica,pt,NOUN,26006,gym_mat
+colete salva vidas,pt,NOUN,24687,life-jacket
+colher,pt,NOUN,17233,spoon
+colher de chá/café/sobremesa,pt,NOUN,22569,teaspoon
+colher de pau,pt,NOUN,22572,mixing_spoon
+colher grande e funda,pt,NOUN,22573,ladle
+colheres/copos de medição,pt,NOUN,22568,measuring_spoon
+colina,pt,NOUN,14712,hill
+colocar,pt,VERB,14448,"glue,paste,stick-(to)"
+colunas,pt,NOUN,23898,loudspeaker
+com,pt,NOUN,12364,along_with
+com a ajuda de,pt,PREP,18267,with
+comando à distância,pt,NOUN,24730,remote_control
+combater,pt,VERB,14175,"fight,combat-(to)"
+combinar,pt,VERB,13381,"combine,connect,link-(to)"
+combinação,pt,NOUN,17012,"slip,petticoat,half-slip,underskirt"
+comboio,pt,NOUN,17767,train
+combustível,pt,NOUN,14412,fuel
+comemoração,pt,NOUN,16486,remembrance_day
+comer,pt,VERB,13906,eat-(to)
+cometa,pt,NOUN,13384,comet
+começar,pt,VERB,12657,"begin,start-(to)"
+começo,pt,NOUN,12658,"beginning,start"
+comida,pt,NOUN,14377,food
+comida congelada,pt,NOUN,14404,food_(frozen)
+como,pt,OTHER,14906,how
+como?,pt,NOUN,14907,how-(question)
+comparar,pt,VERB,13391,compare-(to)
+competir,pt,VERB,13392,"compete,race-(to)"
+comportamento,pt,NOUN,12659,behaviour
+compositor,pt,NOUN,13393,composer
+comprar,pt,VERB,13099,"buy,purchase-(to)"
+compreender,pt,VERB,15161,know-(to)
+compreender,pt,VERB,17973,"understand,see-(to)"
+comprido,pt,ADV,15229,long
+comprimento,pt,NOUN,15193,"length,longness"
+comprimidos,pt,NOUN,16176,"pill,tablet"
+computador,pt,NOUN,23447,computer
+computador,pt,NOUN,23470,desktop_computer
+compôr-se,pt,VERB,13878,"dress_up,disguise-(to)"
+comunhão,pt,NOUN,21105,sacrament_of_communion
+comunicar,pt,VERB,13389,communicate-(to)
+comunicação,pt,NOUN,13390,communication
+concepção,pt,NOUN,13395,"conception,fertilization,fertilized_egg"
+concerto,pt,NOUN,23452,concert
+concha para servir,pt,NOUN,22571,serving_spoon
+concordar,pt,VERB,12353,agree-(to)
+condimento,pt,NOUN,14198,"flavouring,condiment,seasoning"
+condimento,pt,NOUN,22310,"flavouring,seasoning_(powder)"
+condimento de abertura,pt,NOUN,22333,sap_(flavouring)
+condimento de xarope de bordo,pt,NOUN,22334,maple_syrup_flavouring
+condutor,pt,NOUN,13884,"driver,chauffeur"
+conduzir,pt,VERB,13883,drive-(to)
+conduzir ao sexo,pt,NOUN,16765,"sex_drive,sexual_urge,libido"
+cone,pt,NOUN,13400,cone
+conferência,pt,NOUN,15450,"meeting,assembly,conference"
+confessar,pt,VERB,21099,confess-(to)
+confiança,pt,NOUN,17785,"trust,confidence"
+confiar,pt,VERB,17784,trust-(to)
+confirmação,pt,NOUN,21104,sacrament_of_confirmation
+confirmação,pt,NOUN,21110,confirmation
+confortável,pt,ADJ,13386,"comfortable,restful"
+conhecimento,pt,NOUN,15162,"knowledge,class_(in_combinations)"
+conhecimento do mundo,pt,NOUN,21098,insight
+consciência,pt,NOUN,13401,conscience
+conselheiro,pt,NOUN,13421,"counsellor,adviser"
+conselho,pt,NOUN,12345,"advice,counsel,recommendation"
+considerar,pt,VERB,22374,"reflect,consider-(to)"
+consigo,pt,VERB,13114,"can,be_able-(to)"
+consolar,pt,VERB,13385,"comfort,console-(to)"
+constelação,pt,NOUN,22633,constellation_of_stars
+constipar-se,pt,NOUN,24065,"cold,common_cold"
+constituição,pt,NOUN,24072,constitution
+constituição,pt,NOUN,24123,fundamental_law
+constituição,pt,NOUN,24124,fundamental_rule
+construir,pt,VERB,24877,"build,construct-(to)"
+consulta,pt,NOUN,12406,appointment
+consulta de fertilidade,pt,NOUN,14169,fertility_counselling
+conta,pt,NOUN,23604,"paper_money,bill"
+contar,pt,VERB,13422,count-(to)
+contente,pt,ADJ,14676,"happy,glad,gladly,happily"
+continente,pt,NOUN,22601,continent
+contra,pt,PREP,12351,"against,opposed_to"
+contrabaixo,pt,NOUN,23849,"double_bass,bass_fiddle,contrabass"
+contracção,pt,NOUN,13405,uterine_contraction
+contrastar,pt,VERB,13406,contrast-(to)
+controlar-se,pt,VERB,13407,control_oneself-(to)
+controlo,pt,NOUN,25987,control
+conversão,pt,NOUN,21321,conversion_(belief)
+converter,pt,VERB,21320,convert_(belief)-(to)
+convite,pt,NOUN,25093,invitation_(general_spoken)
+convite,pt,NOUN,25094,invitation_(general_written)
+convite,pt,NOUN,25095,invitation_(spoken)
+convite,pt,NOUN,25096,invitation_(written)
+convés,pt,NOUN,22061,deck
+copo de vidro,pt,NOUN,14442,"glass,drinking_glass"
+copo do vinho,pt,NOUN,21363,"goblet,wineglass"
+corajoso,pt,ADJ,23418,"brave,courageous"
+corajoso,pt,NOUN,23460,courage
+corar,pt,VERB,24029,blush-(to)
+coração,pt,NOUN,14695,heart
+coração mole,pt,NOUN,17481,"sweetheart,lover"
+corda,pt,NOUN,17276,"strap,string,velcro,rope,cord"
+corda para saltar à corda,pt,NOUN,15138,"jump_rope,skipping_rope"
+cordão umbilical,pt,NOUN,17965,umbilical_cord
+cores,pt,NOUN,13377,colour
+cornos,pt,NOUN,14896,horn(s)
+cornos,pt,NOUN,21061,"horn(s),antler(s)"
+coro,pt,NOUN,13176,"choir,chorus"
+coroa,pt,NOUN,22618,crown
+corpo,pt,NOUN,12870,"body,trunk"
+correcção,pt,NOUN,21341,"correctness,rightness"
+corredor,pt,NOUN,23105,hall
+correia para o pulso,pt,NOUN,24142,hand_splint
+correio electrónico,pt,NOUN,23485,"e-mail,email"
+corrente,pt,NOUN,21849,chain
+correr,pt,VERB,16699,"run,jog-(to)"
+corrida,pt,NOUN,16451,"race,competition,contest"
+corrida,pt,NOUN,21839,running
+corrida de automóveis,pt,NOUN,21829,"car_racing,auto_racing"
+corrida de automóveis,pt,NOUN,21830,"Formula_One,NASCAR_Kart"
+corrida de barcos a motor,pt,NOUN,22052,motorboat_sport
+corrida de barreiras,pt,NOUN,21840,hurdles
+corrida de bicicletas de montanha,pt,NOUN,21825,mountain_biking
+corrida de cavalos,pt,VERB,21836,ride_(horse)-(to)
+corrida de cavalos,pt,NOUN,22094,horse_racing
+corrida de cavalos,pt,VERB,24327,walk_(horse)-(to)
+corrida de cavalos,pt,NOUN,24936,"riding,horseback_riding"
+corrida de motos,pt,NOUN,21827,motorcycle_racing
+corrida de obstáculos,pt,NOUN,22096,showjumping_(horse)
+corrida de trenó puxado por cães,pt,NOUN,21877,"dogsled_sport,dogsled_racing"
+corrida de veículos com rodas,pt,NOUN,22095,carriage_racing
+corrigir,pt,VERB,13948,"appreciate,value,treasure-(to)"
+cortado às fatias,pt,ADJ,22383,sliced
+cortar,pt,VERB,13628,cut_(scissors)-(to)
+cortar,pt,VERB,13629,cut_(knife)-(to)
+cortar em fatias,pt,VERB,22382,slice-(to)
+cortar vegetais,pt,VERB,13179,chop-(to)
+corte,pt,NOUN,17213,"wound,cut,sore"
+corte de cesariana,pt,NOUN,13929,embryo
+cortina,pt,NOUN,13626,"curtain(s),drape(s)"
+coruja,pt,NOUN,15949,"owl,night_bird"
+corão,pt,NOUN,21072,Koran
+coser,pt,VERB,16763,sew-(to)
+costas,pt,NOUN,12609,back_(body)
+costelas,pt,NOUN,25487,rib(s)
+cotoveleira,pt,NOUN,21620,elbow_pad
+cotovelo,pt,NOUN,13916,elbow
+couve,pt,NOUN,13101,cabbage
+couve fermentada,pt,NOUN,16724,sauerkraut
+couve-flor,pt,NOUN,13133,cauliflower
+cozer,pt,VERB,12619,"bake,cook,roast-(to)"
+cozer ao vapor da água,pt,VERB,17256,steam-(to)
+cozinha,pt,NOUN,15154,kitchen
+cozinhar,pt,VERB,13408,cook-(to)
+cozinhar a comida,pt,VERB,16245,"prepare_food,cook-(to)"
+cozinheiro,pt,NOUN,22907,"cook,chef"
+coçar,pt,VERB,24507,scratch-(to)
+cratera,pt,NOUN,24631,crater
+cremar,pt,VERB,21286,cremate-(to)
+cremação,pt,NOUN,21285,cremation
+creme de leite,pt,NOUN,22307,"pudding,cream"
+crente,pt,NOUN,20565,believer_(in_God)
+crente,pt,NOUN,20566,believer
+crença,pt,NOUN,12660,belief
+crença,pt,NOUN,20564,belief_(supernatural)
+crer,pt,VERB,12661,believe-(to)
+crescente,pt,NOUN,13610,crescent
+crescer,pt,VERB,14649,grow-(to)
+criança,pt,NOUN,13166,"child,kid,youngster"
+crianças,pt,NOUN,15912,"offspring,child"
+criar,pt,VERB,13606,create-(to)
+crias,pt,NOUN,24408,baby_animal
+criativo,pt,ADJ,13608,creative
+criatura,pt,NOUN,13609,"creature,being"
+criação,pt,NOUN,13607,"creation,nature"
+crime,pt,NOUN,25036,crime
+crime,pt,NOUN,25038,"criminality,crime"
+cristal,pt,NOUN,13619,crystal
+cristandade,pt,NOUN,21027,Christianity
+cristão,pt,ADJ,13180,christian
+cristão,pt,NOUN,21031,Christian_(person)
+crocodilo,pt,NOUN,12362,"alligator,crocodile"
+croquete,pt,NOUN,13612,croquet_(activity)
+croquete,pt,NOUN,20586,croquet_(sport)
+croquete de peixe,pt,NOUN,22127,fishball
+crosta,pt,NOUN,16954,"shell,crust"
+cru,pt,ADJ,16464,"raw,uncooked"
+cruel,pt,ADJ,15439,"mean,cruel"
+cruz,pt,NOUN,13613,"cross,Christianity_(in_combinations)"
+cruz,pt,NOUN,20513,cross_(a)
+cruzeiro,pt,NOUN,22082,cruise_ship
+críquete,pt,NOUN,21808,cricket
+cuala,pt,NOUN,15163,koala
+cuecas de homem,pt,NOUN,17971,"underpants,briefs,panties"
+cuidado,pt,ADJ,13123,careful
+cuidados diários,pt,NOUN,13640,daycare
+cuidar,pt,NOUN,23056,"care,protection,defence"
+culpa,pt,NOUN,14652,guilt
+culpado,pt,ADJ,14653,guilty
+cultura,pt,NOUN,21608,culture
+curioso,pt,ADJ,25040,"curious,inquisitive"
+curling,pt,NOUN,21879,curling
+cuspir,pt,VERB,17231,spit-(to)
+custo,pt,NOUN,13417,"cost,price"
+cutelaria,pt,NOUN,13630,cutlery
+cálice,pt,NOUN,21364,chalice
+câmara municipal,pt,NOUN,23446,"community_centre,town_hall,village_hall"
+câncer,pt,NOUN,22640,Cancer_(in_zodiac)
+cântaro,pt,NOUN,16191,"pitcher,jug,kettle,pot"
+cãibra,pt,NOUN,13432,"cramp,spasm"
+cão,pt,NOUN,12380,"dog,canine_(animal),canid"
+célula,pt,NOUN,21540,cell
+cérebro,pt,NOUN,12893,brain
+céu,pt,NOUN,17006,sky
+cêntimo,pt,NOUN,13143,cent
+círculo,pt,NOUN,13347,circle_(shape)
+côco,pt,NOUN,13372,coconut
+da parte da tarde,pt,NOUN,12349,afternoon
+dactilografar,pt,VERB,23698,type-(to)
+damasco,pt,NOUN,12409,apricot
+dança,pt,NOUN,24853,"dance,dancing"
+dançar,pt,VERB,13631,dance-(to)
+dar,pt,VERB,14440,"give,offer,provide-(to)"
+dar um bate-cu,pt,VERB,24423,"bump,press-(to)"
+dar um salto mortal,pt,NOUN,24272,somersault
+dar um salto mortal,pt,NOUN,24273,somersault_(person)
+dardo,pt,NOUN,21850,dart
+dardo,pt,NOUN,21854,"javelin,spear"
+dardos,pt,NOUN,21853,darts
+de nada,pt,PREP,18466,"you_are_welcome,you're_welcome"
+de que género?,pt,NOUN,18230,what_kind-(question)
+de quem?,pt,NOUN,18247,whose_(person)
+de quem?,pt,NOUN,18248,whose-(question)
+de repente,pt,ADV,17452,"suddenly,abrupt,sudden"
+debaixo,pt,PREP,17969,"under,below,inferior"
+debater,pt,VERB,13688,"discuss,converse,debate-(to)"
+decidir,pt,VERB,13648,decide-(to)
+decisão,pt,NOUN,13649,decision
+decoração,pt,NOUN,24079,"decoration,ornament"
+dedo,pt,NOUN,14180,finger
+dedos dos pés,pt,NOUN,17745,toe
+defesa do ambiente,pt,NOUN,24224,protection_of_the_environment
+deficiência física,pt,ADJ,25995,"disabled,impaired,handicapped_(physically)"
+deficiência mental,pt,ADJ,25994,"disabled,impaired,handicapped_(intellectually,mentally)"
+degraus,pt,NOUN,24761,"step,stair"
+deitar,pt,VERB,15205,"lie_down,lie-(to)"
+deitar fora,pt,VERB,24090,"dump,dispose-(to)"
+deitar mão a,pt,VERB,17498,"take_away,remove-(to)"
+dela,pt,OTHER,14962,its
+delas,pt,OTHER,17701,"their,theirs-(persons)"
+dele,pt,OTHER,14962,its
+delegar,pt,VERB,25997,empower-(to)
+deles,pt,OTHER,17701,"their,theirs-(persons)"
+delicioso,pt,ADJ,22352,"delicious,scrumptious,yummy"
+demasiados,pt,ADJ,17754,"too_much,too_many"
+dentes,pt,NOUN,17517,teeth
+dentista,pt,NOUN,13656,dentist
+dentro,pt,PREP,14932,"in,inside,interior,internal"
+dentro,pt,NOUN,22116,indoor_(character)
+dentro,pt,ADJ,24914,"indoor,indoors"
+depressão,pt,NOUN,13659,depression
+depósito,pt,NOUN,17270,storeroom
+depósito,pt,NOUN,24008,aid_store_room
+derreter,pt,VERB,17699,"thaw,melt-(to)"
+desagradável,pt,ADJ,22354,disgusting_(taste)
+desaparecer,pt,VERB,21081,disappear-(to)
+desapareceu tudo,pt,NOUN,12361,all_gone
+desaparecimento,pt,NOUN,21080,disappearance
+descansar,pt,VERB,16496,rest-(to)
+descanso,pt,NOUN,16495,"rest,comfort"
+descascar,pt,VERB,15989,peel-(to)
+descolagem,pt,VERB,25186,take_off_(rocket)-(to)
+desconforto,pt,NOUN,13687,discomfort
+desconfortável,pt,ADJ,17968,uncomfortable
+desconhecido,pt,NOUN,17275,stranger
+desconhecido,pt,NOUN,24762,"stranger,unknown_(person)"
+descrever,pt,VERB,13661,describe-(to)
+descrição,pt,NOUN,24720,quality
+descrição,pt,NOUN,24721,quality_(measurement)
+desculpa,pt,NOUN,14122,excuse
+desculpar-se,pt,VERB,14123,excuse-(to)
+desde,pt,PREP,14403,from
+desdobrar,pt,VERB,23980,unfold-(to)
+desejar,pt,VERB,18266,"wish,desire-(to)"
+desejável,pt,ADJ,13662,desirable
+desemprego,pt,NOUN,17975,unemployment
+desenhar,pt,VERB,13873,"draw,sketch-(to)"
+desenhos animados,pt,NOUN,23435,"cartoon,animated_picture"
+desenvolver-se,pt,VERB,13666,develop-(to)
+desenvolvimento,pt,NOUN,13667,development
+deserto,pt,NOUN,21350,desert
+desligar,pt,VERB,24299,"switch_off,turn_off-(to)"
+desodorizante,pt,NOUN,13657,deodorant
+despachar-se,pt,NOUN,24166,"hurry,rush"
+despachar-se,pt,VERB,24167,"hurry,rush-(to)"
+despenhamento de um avião,pt,NOUN,13437,"crash_(air),plane_crash,air_crash"
+despenhar-se,pt,NOUN,13440,crash_(downward)
+desperdícios,pt,NOUN,18043,"waste,garbage,rubbish,trash"
+despertar sexualmente,pt,NOUN,16929,"sexual_arousal,sexual_excitement"
+despesa,pt,NOUN,12330,account
+desporto,pt,NOUN,20518,sport
+desporto,pt,NOUN,24939,sport_(class)
+desporto de cavalos com trenó,pt,NOUN,21875,horse_sled_sport
+desporto de tiro,pt,NOUN,21797,shooting_sports
+desportos aéreos,pt,NOUN,21796,sky_sports
+desportos com bola,pt,NOUN,21625,ball_sports
+desportos com mesa,pt,NOUN,21800,table_sports
+desportos com trenó,pt,NOUN,21870,sled_sport
+desportos de contacto,pt,NOUN,21627,contact_sports
+desportos de inverno,pt,NOUN,21630,winter_sports
+desportos de montanha,pt,NOUN,21795,mountain_sports
+desportos equestres,pt,NOUN,21629,equestrian_sports
+desportos mentais,pt,NOUN,21799,mind_sports
+desportos motorizados,pt,NOUN,21794,motor_sports
+desportos múltiplos,pt,NOUN,21857,multi-sport_event
+destruir,pt,VERB,13665,"destroy,annul,cancel,cross_out,delete-(to)"
+deus,pt,NOUN,14451,God
+deus,pt,NOUN,23098,God_the_father
+deus nórdico,pt,NOUN,22649,"Nordic_God,Nordic_Godess"
+dezembro,pt,NOUN,13647,December
+dia,pt,NOUN,13639,day
+dia da independência,pt,NOUN,14937,Independence_Day_(Israel)
+dia da mãe,pt,NOUN,24195,Mother's_Day
+dia de acção de graças,pt,NOUN,17534,thanksgiving
+dia de aniversário,pt,NOUN,12846,birthday
+dia de ano novo,pt,NOUN,15711,New_Year's_Day
+dia de jejum,pt,NOUN,14153,fast_day
+dia de jerusalém,pt,NOUN,14968,Jerusalem_Day
+dia de todos os santos,pt,NOUN,26007,Halloween
+dia do pai,pt,NOUN,24108,Father's_Day
+dia dos namorados,pt,NOUN,17998,Valentine's_Day
+diabo,pt,NOUN,20568,devil_(1)
+diabo,pt,NOUN,20569,devil_(2)
+diafragma,pt,NOUN,13671,"diaphragm_(contraceptive),pessary"
+diafragma,pt,NOUN,25046,"diaphragm,midriff"
+diamante,pt,NOUN,13669,"diamond_(shape),rhombus,rhomb"
+diarreia,pt,NOUN,24085,"diarrhea,diarrhoea"
+dieta,pt,NOUN,13673,diet
+diferente,pt,ADJ,13675,"different,other,difference"
+diferente,pt,ADJ,25405,"different,other,unequal"
+difícil,pt,ADJ,13676,"difficult,hard"
+difícil,pt,NOUN,24884,difficulty
+digerir,pt,VERB,13678,digest-(to)
+digestão,pt,NOUN,13679,digestion
+diligência,pt,NOUN,20601,carriage
+diminuição,pt,VERB,13651,"decrease,reduce-(to)"
+dinamarca,pt,NOUN,25991,Denmark
+dinheiro,pt,NOUN,15484,"money,cash"
+dinossauro,pt,NOUN,23477,dinosaur
+director de hospital,pt,NOUN,24620,"care_manager,care_plan_manager"
+direcção,pt,NOUN,13682,"direction,cardinal_point"
+direita,pt,ADJ,16673,right
+disco,pt,NOUN,13685,"disc,disk"
+disco,pt,NOUN,21847,discus
+disco vinil,pt,NOUN,16470,"CD,record"
+discoteca,pt,NOUN,13686,disco
+discreto,pt,ADJ,13402,"considerate,thoughtful"
+discurso,pt,NOUN,24756,speech
+discurso,pt,NOUN,25174,speech_(event)
+discussão,pt,NOUN,13689,"discussion,conversation,debate,chat"
+discutir,pt,VERB,12413,"argue,dispute,quarrel-(to)"
+disparar,pt,VERB,23662,shoot-(to)
+disparate,pt,NOUN,15726,nonsense
+disparate,pt,PREP,15727,nonsense-(exclamatory)
+dispendioso,pt,ADJ,23080,expensive
+dispersar-se,pt,VERB,21058,"disperse,disseminate,scatter,spread-(to)"
+distintivo,pt,NOUN,12616,"badge,shield"
+distância,pt,NOUN,25996,distance
+divertimento,pt,NOUN,17774,treat
+divertir-se,pt,VERB,12372,"amuse,entertain,please-(to)"
+dividir,pt,VERB,13694,divide-(to)
+divisão,pt,NOUN,13857,division
+divorciar-se,pt,VERB,13859,divorce-(to)
+divórcio,pt,NOUN,13858,divorce
+do outro lado,pt,ADJ,25983,"beyond,past"
+do público,pt,ADJ,16427,public_(of_the_public)
+do qual,pt,NOUN,18246,whose_(neutral)
+dobrar,pt,VERB,14375,"fold,pleat-(to)"
+doce,pt,ADJ,17477,sweet_(metaphor)
+doce,pt,ADJ,17478,sweet_(taste)
+doce,pt,NOUN,22372,candy_bar
+doce,pt,NOUN,24946,"sweetness,sweet"
+docente,pt,NOUN,17513,"teacher,instructor"
+docente,pt,NOUN,23675,"teacher,pedagogue,educator"
+docente,pt,NOUN,23676,"teacher,pedagogue,educator_(in_combinations)"
+doces,pt,NOUN,17479,"sweet,confection"
+doces,pt,NOUN,22371,"bar,cake"
+doces,pt,NOUN,22375,candy
+doces,pt,NOUN,22376,"candy,sweets"
+doente,pt,ADJ,16973,"sick,ill"
+doença,pt,NOUN,16164,"illness,disease,sickness_(sick_person)"
+doenças transmitidas sexualmente,pt,NOUN,24333,venereal_disease
+dois,pt,NOUN,8498,"two_(digit),2"
+dois pontos,pt,NOUN,8488,colon
+doloroso,pt,ADJ,15955,"painful,painfully,sore"
+domingo,pt,NOUN,25180,Sunday_(day1)
+domingo,pt,NOUN,25181,Sunday_(day2)
+domingo,pt,NOUN,25182,Sunday_(day7)
+dominós,pt,NOUN,24432,domino
+doninha fedorenta,pt,NOUN,17005,skunk
+dores,pt,NOUN,15954,"pain,suffering"
+dormir,pt,VERB,17009,sleep-(to)
+dormitório,pt,NOUN,21094,family_(group_home)
+doutrina de cristo,pt,NOUN,21076,gospel
+drenar,pt,VERB,13872,"drain,sift,strain-(to)"
+dromedário,pt,NOUN,13885,dromedary
+duende travesso,pt,NOUN,23695,troll
+duende travesso,pt,NOUN,23696,troll_(tailed)
+durante,pt,PREP,13892,"during,while"
+durar,pt,VERB,13404,"continue,pass-(to)"
+duro,pt,ADJ,20530,"hard,firm"
+duvidar,pt,VERB,13868,doubt-(to)
+dvd,pt,NOUN,24645,DVD
+dvd,pt,NOUN,24646,"DVD,movie_disc"
+década,pt,NOUN,13646,decade
+dólar,pt,NOUN,13863,dollar
+economia,pt,NOUN,21543,economics
+economia,pt,NOUN,23074,economics_(class)
+economia doméstica,pt,NOUN,23536,"house_work,housekeeping,housework"
+economista,pt,NOUN,21561,economist
+ecrã táctil,pt,NOUN,23687,touch_screen
+edicto,pt,NOUN,21339,proclamation_(written)
+edifício,pt,NOUN,14905,"house,building,dwelling,residence"
+edifício,pt,NOUN,23201,semi-detached_house
+educação,pt,NOUN,13908,education
+efeito,pt,NOUN,13910,"effect,result"
+efeito,pt,VERB,24466,have_impact_on-(to)
+efeito,pt,NOUN,24467,impact
+egipto,pt,NOUN,25286,Egypt
+egoísta,pt,ADJ,16755,"selfish,self-centred,self-centered,egoistic,egoistical,egocentric"
+egoísta,pt,NOUN,24937,"selfishness,egoism"
+ejaculação,pt,NOUN,13915,ejaculation
+ejaculação nocturna,pt,NOUN,15724,"nocturnal_emission,wet_dream"
+ela,pt,OTHER,16949,"she,her,herself"
+elas,pt,OTHER,17714,"they,them,themselves-(feminine_plural)"
+ele ou ela,pt,OTHER,14688,"he,she,him,her,one"
+ele próprio,pt,OTHER,14687,"he,him,himself"
+electricidade,pt,NOUN,13918,electricity
+elefante,pt,NOUN,13923,elephant
+eles,pt,OTHER,17712,"they,them,themselves-(indefinite)"
+eles,pt,OTHER,17715,"they,them,themselves-(masculine_plural)"
+elevador,pt,NOUN,13924,"elevator,lift"
+elevador,pt,NOUN,24304,"tail_lift,lift"
+elevar-se,pt,VERB,16676,"rise,ascend,go_up-(to)"
+elul,pt,NOUN,13925,Elul
+eléctrica,pt,ADJ,13917,"electric,electrical"
+eléctrico,pt,NOUN,24316,tram
+eléctrico,pt,NOUN,24318,trolleybus
+em,pt,PREP,12591,at
+em algum lado,pt,ADV,12402,"anywhere,anyplace,someplace,somewhere"
+em cima de,pt,PREP,15918,on
+em direcção a,pt,OTHER,17739,"to,toward,towards"
+em nenhuma parte,pt,ADV,15737,"nowhere,no_place"
+em qualquer altura,pt,NOUN,12401,"anytime,sometime"
+em qualquer parte,pt,ADV,12402,"anywhere,anyplace,someplace,somewhere"
+em troca de,pt,NOUN,14381,for_(in_exchange_for)
+em vinagre,pt,ADJ,22350,pickled
+embaraçado,pt,ADJ,13926,embarrassed
+embaraço,pt,NOUN,13928,embarrassment
+embaraçoso,pt,ADJ,13927,embarrassing
+embora,pt,PREP,12367,although
+emergência,pt,NOUN,13930,emergency
+empatia,pt,NOUN,13931,empathy
+empobrecer,pt,VERB,21307,impoverish-(to)
+empregado,pt,NOUN,18277,worker
+empregado de mesa,pt,NOUN,24777,"waiter,waitress"
+emprego,pt,NOUN,18273,"work,employment,job"
+emprestar,pt,VERB,12877,borrow-(to)
+emprestar,pt,VERB,15192,"lend,loan-(to)"
+empurrar,pt,VERB,16439,"push,shove-(to)"
+encher,pt,VERB,14176,fill-(to)
+encher,pt,VERB,25147,pump-(to)
+encher de ar,pt,VERB,25091,inflate-(to)
+encomenda,pt,NOUN,15966,"parcel,package"
+encontrar,pt,VERB,14179,find-(to)
+encontrar-se,pt,VERB,15449,"meet,encounter,see-(to)"
+encontro,pt,NOUN,13635,date_(man_woman)
+encontro,pt,NOUN,13636,date_(two_persons)
+encorajar,pt,VERB,25053,encourage-(to)
+energia,pt,NOUN,13936,energy
+energia,pt,NOUN,16234,power_(physics)
+energia nuclear,pt,NOUN,15738,nuclear_energy
+enevoado,pt,ADJ,13368,cloudy
+enfermeira,pt,NOUN,15905,nurse
+engasgar-se,pt,VERB,13177,"choke,gag-(to)"
+engenharia,pt,NOUN,25189,technology
+engolir,pt,VERB,17471,swallow-(to)
+engordar,pt,VERB,18220,weigh-(to)
+engraçado,pt,ADJ,14414,"funny,humorous"
+enguia,pt,NOUN,13909,eel
+enorme,pt,ADJ,21352,huge
+enorme,pt,ADJ,21353,enormous
+enseada,pt,NOUN,22625,inlet
+ensinar,pt,VERB,17512,"teach,instruct-(to)"
+ensinar o caminho,pt,NOUN,14946,"instruction(s),direction(s)"
+ensino,pt,NOUN,14945,"instruction,teaching"
+ensonado,pt,ADJ,25373,sleepy
+entalhar,pt,VERB,25273,carve-(to)
+enterrar,pt,VERB,12926,bury_(person)-(to)
+enterrar,pt,VERB,20581,bury-(to)
+enterro,pt,NOUN,20579,burial
+enterro,pt,NOUN,20580,burial_(religious)
+entrar,pt,VERB,13940,"enter,absorb,insert,penetrate-(to)"
+entre,pt,PREP,12669,between
+entrevista,pt,NOUN,21372,interview
+entrevistador,pt,NOUN,21374,interviewer
+entrevistar,pt,VERB,21373,interview-(to)
+então,pt,ADV,17705,"then,so,later"
+enviar,pt,VERB,16759,send-(to)
+enviar por correio,pt,VERB,15408,"mail,post-(to)"
+equador,pt,NOUN,22598,equator
+equipa,pt,NOUN,17514,team
+equipa,pt,NOUN,20605,team_(sport)
+equipa de trabalho,pt,NOUN,24634,"crew,staff"
+equipa de trabalho,pt,NOUN,24635,crew_(boat)
+equipa de trabalho,pt,NOUN,24636,crew_(plane)
+erecção,pt,NOUN,13944,"erection,erect_penis"
+erguer,pt,VERB,16459,"raise,grow,bring_up,cultivate-(to)"
+erguer,pt,VERB,24723,raise-(to)
+errado,pt,ADJ,14929,"immoral,bad,wrong,morally_wrong"
+erro,pt,NOUN,15479,"mistake,error,fault"
+erro,pt,NOUN,23867,"error,mishap"
+erupção cutânea,pt,NOUN,24232,rash_(skin)
+erva do mar,pt,NOUN,23658,seaweed
+ervas,pt,NOUN,22321,herb_flavouring_(powder)
+ervas,pt,NOUN,22322,herb_flavouring
+escada,pt,NOUN,15166,ladder
+escada,pt,NOUN,24612,boat_ladder
+escadas,pt,NOUN,17247,"stairs,steps"
+escadas rolantes,pt,NOUN,24096,"escalator,moving_stairs"
+escalar,pt,NOUN,22111,wall_climbing
+escandinávia,pt,NOUN,22619,The_Nordic_countries
+escola,pt,NOUN,16734,school
+escola,pt,NOUN,23198,school_(in_combinations)
+escola primária,pt,NOUN,23076,"elementary_school,primary_school"
+escolha,pt,NOUN,13175,"choice,selection,election"
+escolher,pt,VERB,13178,"choose,pick,select-(to)"
+esconder-se,pt,VERB,14710,"hide,conceal-(to)"
+esconder-se,pt,VERB,25077,"hide,conceal_(secret)-(to)"
+escorpião,pt,NOUN,16738,scorpion
+escorpião,pt,NOUN,22644,Scorpio_(in_zodiac)
+escorredor,pt,NOUN,24431,dish_rack
+escorrega,pt,NOUN,17011,slide
+escova,pt,NOUN,12912,brush
+escova de dentes,pt,NOUN,17756,toothbrush
+escovar,pt,VERB,12913,brush-(to)
+escovar os dentes,pt,VERB,12914,brush_teeth-(to)
+escravatura,pt,NOUN,25132,"oppression,captivity,slavery"
+escrever,pt,VERB,18285,write-(to)
+escritor,pt,NOUN,23716,"writer,author"
+escritório,pt,NOUN,15911,office
+escroto,pt,NOUN,16741,scrotum
+escuna,pt,NOUN,22073,schooner
+escuro,pt,ADJ,23844,dark
+escuteiro,pt,NOUN,25370,scout_(etc)
+escócia,pt,NOUN,22614,Scotland
+esfregar,pt,VERB,16695,"rub,scrub-(to)"
+esgrima,pt,NOUN,21837,fencing
+esmagar,pt,VERB,13616,"crush,squeeze-(to)"
+esmagar-se,pt,VERB,13436,crash_(downward)-(to)
+espalhar as cinzas,pt,VERB,21118,scatter_ashes-(to)
+espanha,pt,NOUN,25376,Spain
+espargo,pt,NOUN,24015,asparagus
+esparguete,pt,NOUN,20521,spaghetti
+espasmos,pt,NOUN,24275,spasm
+especial,pt,ADJ,17223,"special,particular"
+especiaria,pt,NOUN,14198,"flavouring,condiment,seasoning"
+especiaria,pt,NOUN,22310,"flavouring,seasoning_(powder)"
+espectacular,pt,PREP,18282,"wow,super,great,neat,cool-(exclamatory)"
+específico,pt,ADJ,17224,specific
+espelho,pt,NOUN,20527,mirror
+esperança cristã,pt,NOUN,21303,Christian_hope
+esperar,pt,VERB,14127,"expect,anticipate-(to)"
+esperar,pt,VERB,18030,wait-(to)
+esperar,pt,NOUN,24832,"wait,waiting"
+esperma,pt,NOUN,17226,sperm
+espermicida,pt,NOUN,17227,spermicide
+espingarda,pt,NOUN,14655,"gun,firearm"
+espinhas,pt,NOUN,25305,fish_bone
+espinhos,pt,NOUN,23627,"quill(s),spine(s)"
+espiral,pt,NOUN,17230,"spiral,curl_(shape)"
+espirrar,pt,VERB,17191,sneeze-(to)
+esposa,pt,NOUN,17237,"spouse,cohabitant,partner"
+espuma,pt,NOUN,23875,"foam,mousse"
+espuma de barbear,pt,NOUN,16947,"shaving_soap,shaving_cream"
+espécie de rata,pt,NOUN,14460,"gopher,ground_hog"
+espírito,pt,NOUN,21044,spirit
+espírito santo,pt,NOUN,23114,Holy_Spirit
+esquadro,pt,ADJ,17243,square_(description)
+esquecer,pt,VERB,14387,forget-(to)
+esqueleto,pt,NOUN,16998,skeleton
+esquerda,pt,ADJ,15187,left
+esqui,pt,NOUN,20597,skiing_(sport)
+esqui,pt,NOUN,20598,skiing_(activity)
+esqui aquático,pt,NOUN,21883,water_ski
+esqui aquático,pt,NOUN,21886,water_skiing
+esqui de montanha,pt,NOUN,21865,cross_country_skiing
+esqui estilo livre,pt,NOUN,21867,freestyle_skiing
+esquiar por um declive,pt,NOUN,21864,downhill_skiing
+esquilo,pt,NOUN,17245,squirrel
+esquilo norte americano,pt,NOUN,13170,chipmunk
+esquis,pt,NOUN,17003,skis_(pair_of)
+esta noite,pt,NOUN,17753,tonight
+esta semana,pt,NOUN,17721,this_week
+estacionamento pago,pt,NOUN,23915,parking_ticket
+estacionar,pt,VERB,23913,park-(to)
+estado,pt,NOUN,16423,"province,county,region,state"
+estado de espírito,pt,NOUN,15650,mood
+estados unidos,pt,NOUN,24776,USA
+estafetas,pt,NOUN,21841,relay
+estafetas,pt,NOUN,21842,relay_(sport)
+estar de pé,pt,VERB,17249,stand-(to)
+estação,pt,NOUN,23199,season
+estação das camionetas,pt,NOUN,24040,bus_station
+estação de comboios,pt,NOUN,24314,train_station_(building)
+estação de comboios,pt,NOUN,24315,train_station_(platforms)
+estação eléctrica,pt,NOUN,25141,"power_plant,power_station"
+este,pt,NOUN,13902,east
+este,pt,OTHER,17720,this
+este ano,pt,NOUN,17722,this_year
+este mês,pt,NOUN,24948,this_month
+esteio,pt,NOUN,12890,medical_aid
+esterilização,pt,NOUN,17262,sterilization
+esticar,pt,VERB,24291,stretch_(elongate)-(to)
+estrada,pt,NOUN,16678,road_(1)
+estrada,pt,NOUN,24247,road_(2)
+estrangeiro,pt,ADJ,24118,foreign
+estranho,pt,ADJ,17274,strange
+estreito,pt,ADJ,15693,narrow
+estrela,pt,NOUN,17252,star
+estrela de david,pt,NOUN,17251,star_of_David
+estrela de david,pt,NOUN,20515,star_of_David_(a)
+estrela do mar,pt,NOUN,23220,starfish
+estrutura,pt,NOUN,17445,"structure,construction"
+estudante,pt,NOUN,17446,"student,pupil"
+estufa,pt,NOUN,14643,"greenhouse,glasshouse,hothouse"
+estufado,pt,NOUN,23668,stew
+estuprar-se a si próprio,pt,NOUN,16753,self-harm
+estuprar-se a si próprio,pt,ADJ,22916,self-harming
+estupro,pt,NOUN,12327,"abuse,assault,violence"
+está bem,pt,ADJ,25129,"OK,alright"
+estéril,pt,ADJ,14939,"infertile,sterile"
+estónia,pt,NOUN,24097,Estonia
+estômago,pt,NOUN,25498,"stomach,tummy,tum"
+esvaziar,pt,VERB,23864,"empty,evacuate,throw_away,void-(to)"
+eterno,pt,ADJ,26000,eternal
+eterno,pt,NOUN,26001,"eternity,infinity"
+eu,pt,NOUN,14917,"I,me,myself-(feminine)"
+eu,pt,NOUN,14918,"I,me,myself-(masculine)"
+eu próprio,pt,NOUN,14916,"I,me,myself"
+euro,pt,NOUN,21541,Euro
+europa,pt,NOUN,22606,Europe
+eva,pt,NOUN,21064,Eve
+evadir-se,pt,VERB,25056,escape-(to)
+evangelho,pt,NOUN,21074,"hymn,psalm,gospel_song"
+evangelizar,pt,VERB,21346,evangelise-(to)
+evento cristão,pt,NOUN,21100,Christian_event
+evento religioso,pt,NOUN,21095,religious_event
+exame,pt,NOUN,17528,"test,assessment,exam"
+exame médico,pt,NOUN,24441,"examination,investigation"
+exame médico,pt,NOUN,24480,medical_examination
+examinar,pt,VERB,24442,examine_(medically)-(to)
+excelente,pt,ADJ,21343,excellent
+excelência,pt,NOUN,21342,excellence
+excitado,pt,ADJ,14119,ecstatic
+excitado,pt,ADJ,23868,"exciting,excitingly,excited,excitedly"
+excitação,pt,NOUN,14120,ecstasy
+excitação,pt,NOUN,23869,excitement
+excluir,pt,VERB,14121,exclude-(to)
+exercitar-se,pt,VERB,14124,"exercise,work_out-(to)"
+exibicionismo,pt,NOUN,14125,"exhibitionism,immodesty,indecent_exposure"
+existir,pt,VERB,12639,"be,am,are,is,exist-(to)"
+expectativa,pt,NOUN,14128,"expectation,anticipation"
+experiência,pt,NOUN,24893,experiment
+experiência fantástica,pt,NOUN,14640,great_experience
+explicar,pt,VERB,14130,"explain,give_a_reason-(to)"
+explodir,pt,VERB,14131,"explode,blow_up,detonate,burst-(to)"
+explosivo,pt,ADJ,24101,explosive
+explosão,pt,NOUN,14132,"explosion,detonation,blowup"
+extensão,pt,NOUN,24628,"connector,interface_box"
+extintor,pt,NOUN,25301,fire_extinguisher
+exército,pt,NOUN,12579,"military,armed_forces,armed_services"
+exército,pt,NOUN,24967,"army,regular_army,ground_forces"
+faca,pt,NOUN,15159,"knife,sword"
+facto,pt,NOUN,14139,fact
+fada,pt,NOUN,23494,"fairy,fairy_godmother"
+falar,pt,VERB,16728,"say,speak,talk,tell,express-(to)"
+falhar,pt,VERB,24444,fail-(to)
+falhar,pt,NOUN,24445,failure
+falta de vista,pt,ADJ,26033,visually_impaired
+familiares,pt,NOUN,16481,"relative,relation"
+família de pai ou mãe solteiros,pt,NOUN,21093,single_parent_family
+fantasma,pt,NOUN,23520,"ghost,phantom"
+farinha,pt,NOUN,14204,flour
+farinha de arroz,pt,NOUN,22135,rice_flour
+farinha fina de milho,pt,NOUN,13415,cornmeal
+farmacêutico,pt,NOUN,23611,pharmacist
+farmácia,pt,NOUN,23072,"drugstore,pharmacy"
+farnel,pt,NOUN,23573,lunch_box
+farol,pt,NOUN,23143,lighthouse
+fatia,pt,NOUN,22381,slice
+fato,pt,NOUN,17456,suit
+fato de banho,pt,NOUN,17484,"swimsuit,swimwear,bathing_suit"
+fato macaco,pt,NOUN,12411,"apron,coverall,smock,overall"
+fato para a neve,pt,NOUN,17199,"snowsuit,winter_clothing"
+favorito,pt,ADJ,14158,favourite
+fax,pt,NOUN,23499,fax_(machine)
+fazer,pt,VERB,13860,"do,act-(to)"
+fazer a cama,pt,VERB,23575,make_the_bed-(to)
+fazer as necessidades fisiológicas,pt,VERB,15668,"move_bowels,defecate,stool,shit,ca-ca-(to)"
+fazer dieta,pt,VERB,13674,diet-(to)
+fazer em croché,pt,VERB,13611,crochet-(to)
+fazer truques,pt,VERB,23453,"conjure,turn_to,transform-(to)"
+fazer uma manifestação,pt,VERB,23065,"act,demonstrate_(against)-(to)"
+febre,pt,NOUN,24112,"fever,temperature"
+fechado,pt,ADJ,25277,closed
+fechar,pt,VERB,13364,"close,enclose,shut-(to)"
+federação russa,pt,NOUN,23642,Russia
+feijão,pt,NOUN,12642,bean
+feijão verde,pt,NOUN,17442,"string_bean,green_bean,runner_bean,wax_bean"
+feio,pt,ADV,17964,"ugly,unattractive"
+feito,pt,ADJ,24844,"finished,complete,completed,done,all_done"
+feito pelo homem,pt,ADJ,15420,"man-made,produced"
+feito pelo homem,pt,NOUN,24803,"man-made_item,artefact,artifact,product"
+felicidade,pt,NOUN,14675,"happiness,fun,joy,pleasure"
+felicitar,pt,VERB,15437,congratulate-(to)
+feliz,pt,ADJ,25312,"full,satisfied"
+feminino,pt,NOUN,14166,female_(gender)
+feriado,pt,NOUN,14884,"holiday,festival"
+feriado santo,pt,NOUN,14455,Good_Friday
+ferir,pt,VERB,14913,"hurt,pain_(feel),suffer-(to)"
+ferradura,pt,NOUN,24163,horseshoe
+ferramentas,pt,NOUN,17755,"tool,instrument"
+ferramentas,pt,NOUN,22561,"kitchen_tool,utensil"
+ferreiro,pt,NOUN,24417,blacksmith
+ferreiro,pt,NOUN,24456,goldsmith
+ferreiro,pt,NOUN,24510,silversmith
+ferrinhos,pt,NOUN,23968,triangle_(instrument)_(1)
+ferrinhos,pt,NOUN,23969,triangle_(instrument)_(2)
+ferro,pt,NOUN,23122,iron
+ferro de engomar,pt,NOUN,14955,"iron,smoothing_iron"
+ferver,pt,VERB,12871,boil_(food)-(to)
+ferver,pt,VERB,16987,"simmer,poach-(to)"
+ferver água,pt,VERB,12872,boil_(liquid)-(to)
+festa,pt,NOUN,15973,"party,festival"
+festa da epifânia,pt,NOUN,24095,Epiphany
+festança,pt,NOUN,21287,"revelry,revel"
+feto,pt,NOUN,14170,fetus
+fevereiro,pt,NOUN,14161,February
+fezes,pt,NOUN,12884,"bowel_movement,defecation,shitting,feces,shit,poop"
+fibra das folhas de piteira,pt,NOUN,16190,pita
+ficar,pt,VERB,17254,"stay,remain-(to)"
+ficha,pt,NOUN,16207,plug
+ficheiro,pt,NOUN,23479,"document,written_record"
+ficheiro,pt,NOUN,24643,"document_(electronic),digital_document"
+fidelidade,pt,NOUN,14172,"fidelity,loyalty,solidarity"
+fila de pessoas,pt,NOUN,23896,"line,queue"
+filha,pt,NOUN,13638,daughter
+filho,pt,NOUN,17209,son
+filhó americana,pt,NOUN,22126,waffle
+filme,pt,NOUN,15669,"movie,film"
+fim,pt,NOUN,13935,"end,arrival,stop"
+fim-de-semana,pt,NOUN,18218,weekend_(6-7)
+fim-de-semana,pt,NOUN,18219,weekend_(7-1)
+fim-de-semana,pt,NOUN,25217,weekend
+finalmente,pt,ADV,14178,"finally,at_last"
+finlândia,pt,NOUN,14182,Finland
+fino,pt,ADJ,17716,"thin,slim,narrow"
+fio de cabelo,pt,NOUN,14660,hair
+fio dental,pt,NOUN,13655,toothpick
+fio eléctrico,pt,NOUN,13921,"electric_wire,electric_cord,cord,cable,lead"
+fiorde,pt,NOUN,22613,fjord
+fisioterapeuta,pt,NOUN,21592,physiotherapist
+fisioterapia,pt,NOUN,24211,physiotherapy
+fita,pt,NOUN,16504,"ribbon,tape"
+flauta,pt,NOUN,23871,"flute,recorder"
+flauta,pt,NOUN,23872,"flute,transverse_flute"
+flauta,pt,NOUN,23873,flute_(alto)
+flauta,pt,NOUN,23874,flute_(soprano)
+flauta,pt,NOUN,23937,recorder
+flauta,pt,NOUN,23938,recorder_(alto)
+flauta,pt,NOUN,23939,recorder_(bass)
+flauta,pt,NOUN,23940,recorder_(soprano)
+flauta,pt,NOUN,23941,recorder_(tenor)
+flautim,pt,NOUN,23924,piccolo_(1)
+flautim,pt,NOUN,23925,piccolo_(2)
+flecha,pt,NOUN,21852,arrow
+floco de neve,pt,NOUN,17195,snowflake
+flor,pt,NOUN,14205,flower
+flor de bolbo,pt,NOUN,12919,bulb_(flower)
+flor de bolbo,pt,NOUN,14206,flower_(from_bulb)
+flor protegida,pt,NOUN,14369,flower_(protected)
+flor silvestre,pt,NOUN,14370,wildflower
+floresta,pt,NOUN,14386,"forest,bush,wood,woods"
+florista,pt,NOUN,23091,garden_centre
+flutuar,pt,VERB,14200,float-(to)
+foca,pt,NOUN,23657,seal
+fogo,pt,NOUN,14183,fire
+fogo de artifício,pt,NOUN,24655,firework
+fogueira de campismo,pt,NOUN,12874,"bonfire,barbeque,campfire"
+fogão de álcool,pt,NOUN,22593,"hot_tray,chafing_dish"
+folha,pt,NOUN,15183,leaf
+folha de carvalho silvestre,pt,NOUN,15422,maple-leaf
+folha de exame,pt,NOUN,23715,worksheet
+folhas de papel,pt,NOUN,15962,"paper,card,page"
+fome,pt,ADJ,14912,hungry
+forma,pt,NOUN,16940,"shape,form"
+formiga,pt,NOUN,12395,ant
+forno,pt,NOUN,17273,"stove,furnace,heater,oven"
+forno do microondas,pt,NOUN,15463,microwave_oven
+forte,pt,ADJ,17444,"strong,powerful"
+força policial,pt,NOUN,14146,"police_force,police"
+forçar,pt,ADJ,14383,"forced,compelled,obliged"
+fotocopiadora,pt,NOUN,23456,"copier,photocopier"
+fotocópia,pt,NOUN,13412,"copy,duplicate"
+fotografia,pt,NOUN,16169,"photograph,photo,pic"
+fraco,pt,ADJ,18213,weak
+fractura,pt,NOUN,24852,"break,fracture,damage"
+fracção,pt,PREP,15972,"part,bit,piece,portion,part_of"
+fralda,pt,NOUN,13670,"diaper,nappy"
+framboesa,pt,NOUN,16463,"raspberry,blackberry,compound_berry"
+frança,pt,NOUN,25063,France
+frasco de vidro com boca larga,pt,NOUN,22589,glass_jar
+frase,pt,NOUN,16760,"sentence,clause,phrase"
+freio,pt,NOUN,24038,"bridle,headstall"
+frej,pt,NOUN,22818,Frey
+freja,pt,NOUN,22819,Freya
+frente,pt,NOUN,25311,"front,front_of_a_thing"
+fresco,pt,ADJ,13410,"cool,chilly"
+fresco,pt,ADJ,13411,"cool,chilly_(opposite_warm)"
+fresco,pt,ADJ,14399,fresh
+frigg,pt,NOUN,22651,Frigg
+frigideira,pt,NOUN,22581,frying_pan
+frigideira eléctrica,pt,NOUN,22580,electric_pan
+frigorífico,pt,NOUN,23632,"refrigerator,fridge"
+frio,pt,ADJ,13375,cold
+frio,pt,ADJ,13376,cold_(opposite_hot)
+frio,pt,ADV,23440,chilly
+fritadeira eléctrica,pt,NOUN,22585,deep_fryer
+fritar,pt,VERB,14411,"fry,saute-(to)"
+fritar bastante,pt,VERB,13653,deep-fry-(to)
+fritos,pt,ADJ,22351,fried
+fritura,pt,NOUN,22124,doughnut
+fritura,pt,NOUN,22125,bagel
+fronha,pt,NOUN,16178,pillowcase
+frustrado,pt,ADJ,14408,frustrated
+frustrante,pt,ADJ,14409,frustrating
+frustração,pt,NOUN,14410,frustration
+fruta,pt,NOUN,14405,fruit
+frágil,pt,ADJ,12897,"breakable,fragile"
+fumar,pt,VERB,17185,smoke-(to)
+fumo,pt,NOUN,17022,smoke
+funeral,pt,NOUN,20577,funeral_(religious)
+funeral,pt,NOUN,20578,funeral
+funil,pt,NOUN,22574,funnel
+furar,pt,VERB,16189,"pit,stone-(to)"
+furgão,pt,NOUN,18000,"van,minibus"
+futebol,pt,NOUN,14380,"football,soccer_(activity)"
+futebol,pt,NOUN,20583,"football,soccer_(sport)"
+futebol americano,pt,NOUN,20593,"rugby,football_(N.A.)"
+futuro,pt,NOUN,14417,future
+fábrica,pt,NOUN,14140,"factory,plant"
+fácil,pt,ADJ,23861,"easy,easily"
+fácil,pt,NOUN,24890,"ease,easiness,simplicity"
+fé cristã,pt,NOUN,21302,Christian_faith
+férias,pt,NOUN,17995,"vacation,holiday"
+fértil,pt,ADJ,14168,fertile
+fêmea,pt,ADJ,14165,"female,feminine_(person)"
+fígado,pt,NOUN,25462,liver
+física,pt,NOUN,21556,physics
+fósforos,pt,NOUN,15430,match
+gafanhoto,pt,NOUN,14637,grasshopper
+gaita,pt,NOUN,24802,"bell,chime_bar"
+gaivota,pt,NOUN,14654,"gull,seagull,sea_gull"
+galeria de arte,pt,NOUN,12582,"art_gallery,gallery"
+galho,pt,NOUN,12894,branch
+galinha,pt,NOUN,13164,chicken_(bird)
+galinha,pt,NOUN,13165,"chicken_(food),poultry"
+galinha de água,pt,NOUN,16679,roadrunner_(bird)
+galo,pt,NOUN,23043,"cockerel,rooster"
+galopar,pt,VERB,24129,gallop-(to)
+gancho,pt,NOUN,14891,"hook,hanger"
+ganhar,pt,VERB,13898,earn-(to)
+ganso,pt,NOUN,14458,goose_(bird)
+ganso,pt,NOUN,14459,goose_(food)
+garagem,pt,NOUN,14420,garage
+garfo,pt,NOUN,14389,fork
+garra,pt,NOUN,13354,claw_(animal)
+garrafa,pt,NOUN,12880,"bottle,flask"
+garrafa-termo,pt,NOUN,17710,"thermos,cooler,flask"
+garras,pt,NOUN,15978,paw
+gasolina,pt,NOUN,14425,"gasoline,gas,petrol"
+gatinho,pt,NOUN,24474,kitten
+gato,pt,NOUN,12383,"cat,feline_(animal),felid"
+gaveta,pt,NOUN,13874,drawer
+gazela sul africana,pt,NOUN,22616,springbok
+gelado,pt,ADJ,14925,"icy,frozen"
+gelado,pt,NOUN,22369,"ice_cream,sherbet,sorbet"
+gelado no cone,pt,NOUN,14921,ice_cream_(cone)
+gelado perna de pau,pt,NOUN,22366,ice_cream_(lollipop)
+gelado perna de pau,pt,NOUN,22367,water_ice_lollipop
+gelado perna de pau,pt,NOUN,22368,popsicle
+gelar,pt,VERB,14397,"freeze,solidify-(to)"
+geleia,pt,NOUN,14965,"jam,jelly,marmalade,preserves"
+gelo,pt,NOUN,14919,ice
+generalização,pt,NOUN,14430,generalization
+gengibre,pt,NOUN,22318,ginger
+genitais,pt,NOUN,14431,"genitals,sex_organs"
+genocídio,pt,NOUN,21612,"genocide,holocaust"
+geografia,pt,NOUN,23093,geography
+geologia,pt,NOUN,21550,geology
+geologia,pt,NOUN,23095,geology_(class)
+geral,pt,ADJ,14429,indefinite
+geral,pt,ADJ,24131,general
+geólogo,pt,NOUN,21567,geologist
+gigante,pt,ADJ,21354,gigantic
+gigante,pt,NOUN,23521,giant
+gigante,pt,NOUN,23522,giant_(human)
+ginecologista,pt,NOUN,21580,gynecologist
+ginásio,pt,NOUN,26005,"gym,gymnasium"
+ginástica,pt,NOUN,21798,gymnastics
+girafa,pt,NOUN,14438,giraffe
+girassol,pt,NOUN,24297,sunflower
+girino,pt,NOUN,24302,tadpole
+gnomo,pt,NOUN,23481,"dwarf,gnome"
+gnomo,pt,NOUN,23483,elf_(fog)
+gnomo,pt,NOUN,23484,elf_(star)
+gnomo,pt,NOUN,23566,leprechaun
+golfe,pt,NOUN,14453,golf_(activity)
+golfe,pt,NOUN,20592,golf_(sport)
+golfinho,pt,NOUN,13864,"dolphin,porpoise,water_mammal_(with_tail)"
+golo,pt,NOUN,14450,goal
+gongo,pt,NOUN,23878,gong
+gorro,pt,NOUN,21613,headscarf
+gostar,pt,VERB,13938,enjoy-(to)
+gostar,pt,VERB,15210,like-(to)
+governar,pt,VERB,14461,"govern,rule-(to)"
+governo,pt,NOUN,24812,government
+gracejar,pt,VERB,14974,joke-(to)
+grade junto do fogão,pt,NOUN,22577,stovetop
+grande,pt,ADJ,12835,"big,large"
+grande,pt,NOUN,24875,"bigness,largeness"
+grande número de coisas ou pessoas,pt,NOUN,15675,multitude
+granizo,pt,NOUN,14659,hail
+granuloso,pt,ADJ,22363,lumpy
+gravador de cassetes,pt,NOUN,17505,"sound_recorder,tape-recorder"
+gravador de vídeo,pt,NOUN,18011,video_recorder
+gravar a informção na disquete,pt,VERB,23648,save_(computer)-(to)
+gravata,pt,NOUN,17730,"tie,necktie"
+gravidade,pt,NOUN,25070,"gravity,gravitation"
+gravidez,pt,NOUN,16240,pregnancy
+graça divina,pt,NOUN,21040,"grace,grace_of_God"
+grelhar,pt,VERB,12906,"broil,barbecue,grill-(to)"
+grilheta,pt,NOUN,24010,ankle_splint
+gripe,pt,NOUN,24117,"flu,influenza"
+gritar,pt,VERB,16965,shout-(to)
+groselha,pt,NOUN,13623,currant(s)
+grosso,pt,ADJ,26003,"fat,thick"
+grua,pt,NOUN,13434,crane
+grupo,pt,NOUN,14646,group_(people)
+grupo,pt,NOUN,14647,"group_of,much_of,many_of,quantity_of"
+grupo de música,pt,NOUN,15680,musical_group
+gruta,pt,NOUN,13137,cave
+grávida,pt,ADJ,16241,pregnant
+grávida,pt,ADJ,16242,pregnant_(ckb)
+grécia,pt,NOUN,25071,Greece
+guarda chuva,pt,NOUN,17966,umbrella
+guarda-louça,pt,NOUN,13622,"cupboard,closet,wardrobe"
+guardanapo,pt,NOUN,15692,"napkin,serviette"
+guardar,pt,VERB,15143,"keep,preserve,save-(to)"
+guaxinim,pt,NOUN,16450,raccoon
+guerra,pt,NOUN,18036,war
+guia,pt,NOUN,15182,"leader,director,guide_(2)"
+guia,pt,NOUN,21054,"leader,director,guide_(1)"
+guitarra baixo,pt,NOUN,23811,bass_guitar
+gás,pt,NOUN,14424,gas
+gás,pt,NOUN,25067,gas_(fuel)
+gás,pt,NOUN,25068,gas_(fuel_from_biomass)
+géiser,pt,NOUN,24830,geyser
+gémeos,pt,NOUN,22655,Gemini_(in_zodiac)
+gémeos,pt,NOUN,23978,twins
+género,pt,NOUN,14428,"gender,sex"
+género,pt,NOUN,17961,"type,kind,sort"
+habilidade,pt,NOUN,12322,"ability,capability,capacity,potential"
+habitar,pt,VERB,15223,"live,dwell,reside-(to)"
+hambúrguer,pt,NOUN,20770,hamburger
+hambúrguer de peixe,pt,NOUN,22120,fishburger
+harmonia,pt,NOUN,14680,"harmony,harmoniousness,concord,concordance"
+harpa,pt,NOUN,23881,harp
+helicóptero,pt,NOUN,14701,helicopter
+herói,pt,NOUN,23528,hero
+herói,pt,NOUN,25381,Superman
+heterossexualidade,pt,NOUN,14709,heterosexuality
+hidroplano,pt,NOUN,22104,seaplane
+hidroterapeuta,pt,NOUN,21597,hydrotherapist
+hidroterapia,pt,NOUN,24169,hydrotherapy
+hinário,pt,NOUN,21073,"hymnal,hymn_book"
+hipopótamo,pt,NOUN,14714,hippopotamus
+historiador,pt,NOUN,21569,historian
+história,pt,NOUN,17272,"story,report,tale"
+história,pt,NOUN,21553,history
+hoje,pt,NOUN,17744,today
+holanda,pt,NOUN,15708,"Netherlands_(The),Holland"
+homem,pt,NOUN,15416,"man,male"
+homossexualidade feminina,pt,NOUN,14887,"homosexuality_(female),lesbianism"
+homossexualidade feminina,pt,ADJ,24813,"homosexual_(female),lesbian"
+homossexualidade masculina,pt,NOUN,14888,homosexuality_(male)
+homossexualidade masculina,pt,ADJ,24814,"homosexual_(male),gay"
+hora,pt,NOUN,14904,"hour,o'clock"
+horas,pt,NOUN,17732,time
+horizontal,pt,ADJ,23116,horizontal
+horizontal,pt,NOUN,23117,horizontal-(a)
+horizonte,pt,NOUN,14894,horizon
+horrível,pt,PREP,17963,"ugh,yuk-(exclamatory)"
+horrível,pt,ADJ,21289,"awful,dreadful,terrible"
+hospital,pt,NOUN,14899,"hospital,clinic"
+hotel,pt,NOUN,14903,"hotel,motel"
+hugin e munin,pt,NOUN,22823,Hugin_and_Munin
+humilde,pt,ADJ,14910,"humble,meek"
+hungria,pt,NOUN,24165,Hungary
+hóquei,pt,NOUN,14174,"field_hockey,hockey_(activity)"
+hóquei,pt,NOUN,20591,"field_hockey,hockey_(sport)"
+hóquei em campo,pt,NOUN,21042,bandy_(sport)
+hóquei no gelo,pt,NOUN,14922,ice_hockey_(activity)
+hóquei no gelo,pt,NOUN,20590,ice_hockey_(sport)
+hóstia,pt,NOUN,21367,"Host,wafer_(in_religious_ceremony)"
+iar,pt,NOUN,14964,Iyar
+icebergue,pt,NOUN,24171,iceberg
+ideia,pt,NOUN,14926,"idea,thought"
+idiota,pt,ADJ,24295,"stupid,dumb"
+idoso,pt,ADJ,15916,"old,elderly"
+iene,pt,NOUN,18293,yen
+igreja,pt,NOUN,13345,"church,mosque,temple"
+igreja grega ortodoxa,pt,NOUN,21030,Eastern_Orthodox_Church
+igual,pt,ADJ,16713,"same,equal,equality"
+igual,pt,ADJ,25368,"equal,same"
+igualar,pt,VERB,13943,equal-(to)
+ilegal,pt,ADJ,23118,"illegal,criminal"
+ilha,pt,NOUN,14958,island
+imaginar,pt,ADJ,15411,"make-believe,pretend,imaginary"
+imperdoável,pt,ADJ,21294,"unforgivable,inexcusable"
+impermeável,pt,NOUN,16457,raincoat
+implorar,pt,VERB,21334,"beg,plead-(to)"
+importante,pt,ADJ,14930,"important,significant"
+importante,pt,NOUN,24913,"importance,significance"
+importar-se,pt,NOUN,15471,"mind,intellect,reason"
+impostos,pt,NOUN,23230,tax
+impressora,pt,NOUN,17962,"printer,typewriter"
+imprimir,pt,VERB,23624,print-(to)
+inabitado,pt,ADJ,21356,uninhabited
+incapacidade,pt,NOUN,25992,"disability,handicap,impairment"
+incenso,pt,NOUN,21358,incense
+incerto,pt,ADJ,22918,"uncertain,unsure"
+incesto,pt,NOUN,14933,incest
+incluir,pt,VERB,14934,include-(to)
+incorrecto,pt,ADJ,14935,"incorrect,bad,inaccurate,wrong"
+independente,pt,ADJ,24172,independent
+indicar o caminho,pt,VERB,15181,"lead,direct,guide-(to)"
+infante santo,pt,NOUN,21086,Holy_Infant
+infecção,pt,VERB,24468,infect-(to)
+infecção,pt,ADJ,24469,infected
+infecção,pt,NOUN,24470,infection
+inferno,pt,NOUN,21062,hell
+infestação de insectos,pt,NOUN,14944,insect_(pest)
+infinito,pt,ADJ,26010,"infinite,limitless"
+inflamável,pt,ADJ,14195,"burnable,combustible,ignitable"
+inflamável,pt,ADJ,24680,"inflammable,flammable"
+informação,pt,NOUN,23542,information
+ingredientes,pt,NOUN,22380,ingredient
+injecção,pt,NOUN,14941,"injection,inoculation,shot"
+inocente,pt,ADJ,23121,"innocent,not_guilty"
+inquietação,pt,NOUN,17780,trouble
+inquietação,pt,ADJ,24821,troublesome
+insecto,pt,NOUN,14943,"insect,bug"
+inseminação artificial,pt,NOUN,12583,artificial_insemination
+instrumento musical,pt,NOUN,15681,musical_instrument
+instrumento musical,pt,NOUN,23904,musical_instrument_(in_combinations)
+instrumento musical,pt,NOUN,23905,musical_instrument_(with_many_strings)
+instrumento musical de sinos,pt,NOUN,23814,"bells,chime_bars,tubular_bells"
+instrumento para abrir,pt,NOUN,22394,opener
+insulina,pt,NOUN,25459,insulin
+intelectual,pt,ADJ,15456,"mental,intellectual,rational,thinking"
+inteligente,pt,ADJ,17015,"smart,bright,clever,intelligent"
+inteligente,pt,NOUN,22917,"smartness,brightness,cleverness,intelligence"
+intensidade,pt,NOUN,14947,intensity
+intenção,pt,NOUN,16437,purpose
+interessante,pt,ADJ,14948,"interesting,interested"
+interessante,pt,NOUN,24916,interest
+internacional,pt,ADJ,14949,international
+internet,pt,NOUN,23543,internet_(1)
+internet,pt,NOUN,23544,internet_(2)
+interrogar,pt,VERB,21333,interrogate-(to)
+interruptor,pt,NOUN,23569,light_switch
+interruptor de pedal,pt,NOUN,23670,switch
+intervalo das dez horas para comer,pt,NOUN,17521,ten_o'clock_eating_break
+intervalo das quatro horas para comer,pt,NOUN,14393,four_o'clock_eating_break
+intestino delgado,pt,NOUN,25460,"intestine(s),bowel(s),gut(s)"
+intestino grosso,pt,NOUN,25460,"intestine(s),bowel(s),gut(s)"
+intimidade,pt,NOUN,14950,"intimacy,closeness"
+introduzir,pt,VERB,23547,"introduce,present-(to)"
+invejoso,pt,ADJ,13941,envious
+inventar,pt,VERB,14953,invent-(to)
+inverno,pt,NOUN,18261,winter_(ckb)
+inverno,pt,NOUN,18262,winter_(snow)
+inverno,pt,NOUN,18263,winter_(rain)
+iogurte,pt,NOUN,18296,"yogurt,yoghurt"
+iogurte congelado,pt,NOUN,22357,"yogurt,yoghurt_(frozen)"
+iogurte de fruta,pt,NOUN,14407,"fruit_yogurt,fruit_yoghurt"
+ir de carro,pt,VERB,21833,go_by_car-(to)
+ir de cavalo,pt,VERB,21835,go_by_horse-(to)
+iraque,pt,NOUN,25097,Iraq
+irlanda,pt,NOUN,14954,Ireland
+irmã,pt,NOUN,16994,sister
+irmão,pt,NOUN,12909,brother
+irmãos,pt,NOUN,16972,sibling(s)
+irão,pt,NOUN,25330,Iran
+islândia,pt,NOUN,14923,Iceland
+islão,pt,NOUN,21029,Islam
+isolamento,pt,NOUN,25326,"impermeable_material,insulation_(material)"
+israel,pt,NOUN,14959,Israel
+isso,pt,OTHER,14960,"it,itself"
+isso é mau,pt,PREP,17698,"too_bad,I'm_sorry,I'm_so_sorry"
+isto,pt,OTHER,17711,these
+itália,pt,NOUN,25098,Italy
+jamais,pt,ADV,14115,"ever,whenever"
+janeiro,pt,NOUN,14966,January
+janela,pt,NOUN,18256,window
+janela com grades,pt,NOUN,18257,barred_window
+jantar,pt,NOUN,15405,"lunch,dinner"
+japão,pt,NOUN,25099,Japan
+jardim zoológico,pt,NOUN,18475,zoo
+jardineiro,pt,NOUN,23519,gardener
+jaula,pt,NOUN,13105,cage
+jejuar,pt,VERB,21323,fast-(to)
+jeová,pt,NOUN,18286,Yahrzeit
+jesus cristo,pt,NOUN,14969,"Jesus_(of_Nazareth),Jesus_Christ,Christ"
+jesus cristo,pt,NOUN,20567,Jesus_Christ
+jesus cristo,pt,NOUN,23099,God_the_son
+jet ski,pt,NOUN,21884,jet_ski
+joaninha,pt,NOUN,25333,ladybird
+joelheiras,pt,NOUN,21619,knee_pad
+joelho,pt,NOUN,15157,knee
+jogar futebol,pt,VERB,16201,play_football-(to)
+jogo,pt,NOUN,14418,game
+jogo,pt,NOUN,17492,table_game
+jogo de berlinde,pt,NOUN,21806,"boules,boccia_(sport)"
+jogo de cartas,pt,NOUN,13122,"cards,playing_cards"
+jogo de cartas,pt,NOUN,23432,card_game
+jogos de computador,pt,NOUN,24659,game_box
+jogos olímpicos,pt,NOUN,25130,"Olympics,Olympic_games"
+jornal,pt,NOUN,15713,"newspaper,bulletin,newsletter"
+jornalista,pt,NOUN,23548,journalist
+josé,pt,NOUN,21047,"Joseph,Saint_Joseph"
+juba,pt,NOUN,24184,mane_(horse)
+judaico,pt,ADJ,14972,Jewish
+judaísmo,pt,NOUN,21028,Judaism
+judeu,pt,NOUN,21032,Jew
+judo,pt,NOUN,20595,judo
+julho,pt,NOUN,15137,July
+junho,pt,NOUN,15140,June
+juntamente,pt,NOUN,12364,along_with
+juntos,pt,ADV,17746,"together,attached,appended,fastened,joined"
+juíz,pt,NOUN,23125,judge
+jóia,pt,NOUN,14971,"jewel,gem,gemstone"
+jóquei,pt,NOUN,22092,jockey
+júpiter,pt,NOUN,24473,Jupiter_(planet)
+kazoo,pt,NOUN,23888,kazoo
+ketchup,pt,NOUN,23552,ketchup
+kibbutz,pt,NOUN,15145,kibbutz
+lacrosse,pt,NOUN,26013,lacrosse_(sport)
+lado,pt,NOUN,16974,side_(body)
+lado,pt,NOUN,16975,side_(enclosure)
+ladrar,pt,VERB,24020,bark-(to)
+ladrão,pt,NOUN,23683,thief
+lagarta,pt,NOUN,13132,caterpillar
+lagarto,pt,NOUN,12388,"lizard,reptile_(snake_like_animal)"
+lago,pt,NOUN,15168,"lake,pond"
+lagoa,pt,NOUN,16219,pool
+lagosta,pt,NOUN,23053,crayfish
+lagosta,pt,NOUN,23146,lobster
+lama,pt,NOUN,15672,"mud,clay"
+lamento,pt,PREP,17214,sorry
+lamparina a óleo,pt,NOUN,21362,oil_lamp
+lanterna,pt,NOUN,14196,"flashlight,lantern"
+lançamento do dardo,pt,NOUN,21851,javelin_throw
+lançamento do martelo,pt,NOUN,21848,hammer_throw
+lançamento do peso,pt,NOUN,21846,shot_put
+laqueação das trompas,pt,NOUN,17789,tubal_ligation
+laranja,pt,NOUN,15931,orange_(bci)
+laranja,pt,NOUN,15932,orange_(ckb)
+laranja,pt,NOUN,15933,"orange,citrus_fruit"
+lareira,pt,NOUN,14185,fireplace
+largo,pt,ADJ,12835,"big,large"
+largo,pt,ADJ,18250,"wide,broad"
+largo,pt,NOUN,24875,"bigness,largeness"
+lasanha,pt,NOUN,22133,"lasagne,lasagna"
+lata,pt,NOUN,13115,"cylinder,can"
+lata,pt,NOUN,20528,"can,tin,jar"
+lata,pt,NOUN,22590,"tin,can"
+lata dos condimentos,pt,NOUN,17228,spice_box
+lavandaria,pt,NOUN,15179,"laundromat,launderette,laundry"
+lavandaria,pt,NOUN,24828,laundry_(workplace)
+lavar,pt,VERB,18038,"wash,bathe,bath-(to)"
+lavar a louça,pt,VERB,23705,"wash_up,do_the_dishes-(to)"
+lavável,pt,ADJ,18039,washable
+lazer,pt,NOUN,23141,leisure_time
+laço,pt,NOUN,12882,bow_(knot)
+lealdade,pt,NOUN,17786,truth
+lego,pt,NOUN,23454,"constructional_blocks,lego_(etc)"
+legos,pt,NOUN,23455,constructional_toy
+lei,pt,NOUN,23132,law
+lei,pt,NOUN,23133,law-(a)
+lei,pt,NOUN,23134,"law,The_Law"
+leite,pt,NOUN,15468,milk
+leiteiro,pt,NOUN,15469,milkman
+leitor dvd,pt,NOUN,24647,DVD_player
+lembrar,pt,VERB,23634,"remember,recall-(to)"
+leme,pt,NOUN,22066,rudder
+lenhador,pt,NOUN,23572,lumberjack
+lento,pt,ADJ,24268,"slow,slowly"
+lenço de assoar,pt,NOUN,14671,handkerchief
+lençol,pt,NOUN,16951,"sheet(s),bedclothes,bed_linen"
+leopardo,pt,NOUN,15194,leopard
+leque,pt,NOUN,14149,fan
+ler,pt,VERB,16465,read-(to)
+ler,pt,NOUN,24933,reading
+letras do alfabeto primitivo teutónico,pt,NOUN,22830,runes
+letreiro,pt,NOUN,16977,"sign,advertisement"
+levantamento de pesos,pt,NOUN,21859,weight_lifting
+levantar,pt,VERB,15207,"lift,raise-(to)"
+levantar papagaios de papel,pt,NOUN,22115,kite_flying
+levantar vôo,pt,NOUN,17499,"takeoff,take-off,airplane_take-off"
+levantar vôo,pt,VERB,25384,take_off_(airplane)-(to)
+levar,pt,VERB,17497,"take,bring,carry,move-(to)"
+leão,pt,NOUN,15217,lion
+leão,pt,NOUN,22641,Leo_(in_zodiac)
+leão marinho,pt,NOUN,23655,sea_lion
+lhe,pt,OTHER,14716,"his,her,hers,one's"
+liberdade,pt,NOUN,14396,"freedom,liberty"
+libra esterlina,pt,NOUN,16232,pound_sterling
+ligadura,pt,NOUN,12625,"bandage,dressing"
+ligadura,pt,NOUN,12836,"bindi,tika_(decoration)"
+ligar,pt,VERB,24300,"switch_on,turn_on-(to)"
+ligar,pt,VERB,24710,"plug_in,connect_(digital)-(to)"
+lima,pt,NOUN,15211,lime
+lima,pt,NOUN,23500,"file,data_file_(digital)"
+limitação de nascimentos,pt,NOUN,12844,birth_control
+limonada,pt,NOUN,15191,lemonade
+limpa neve,pt,NOUN,23951,"snowplow,snowplough"
+limpar,pt,VERB,13357,clean-(to)
+limpar,pt,ADJ,24062,clean
+limão,pt,NOUN,15190,lemon
+lindo,pt,ADJ,12645,"beautiful,attractive,good-looking,handsome,pretty"
+lindo,pt,NOUN,22903,beauty
+linear,pt,ADJ,15215,"linear,straight"
+linguagem,pt,NOUN,15172,language
+linguagem gestual,pt,NOUN,21538,sign_language
+linguagem gestual,pt,NOUN,23506,"finger_spelling,finger_alphabet"
+linha,pt,NOUN,15214,"line,stripe"
+linha curva,pt,NOUN,13627,"curve,curved_line"
+lista,pt,NOUN,15220,"list,inventory"
+lista,pt,NOUN,16733,"schedule,timetable"
+lista,pt,NOUN,24603,agenda
+listrado,pt,ADJ,24293,striped
+livraria,pt,NOUN,23034,bookshop
+livre,pt,ADJ,14395,"free,freely"
+livro,pt,NOUN,12875,book
+livro de exercícios,pt,NOUN,18276,workbook
+livro de orações,pt,NOUN,16238,"prayer_book,Siddur"
+lição,pt,NOUN,23567,"lesson,lecture,class"
+lobo,pt,NOUN,18268,"wolf,dingo,wild_dog"
+lobo mau,pt,NOUN,25218,werewolf
+local,pt,NOUN,16193,"place,area,location,space"
+loja,pt,NOUN,23223,"store,shop"
+loja de bebidas,pt,NOUN,23145,"liquor_shop,liquor_store"
+loja de brinquedos,pt,NOUN,23241,toy_shop
+loja de doces,pt,NOUN,23228,"sweet_shop,candy_store"
+loja de prendas,pt,NOUN,23096,gift_shop
+loja de produtos naturais,pt,NOUN,23108,health_goods_shop
+loja de roupa,pt,NOUN,23042,clothing_shop
+loja de vegetais,pt,NOUN,23101,greengrocer
+loja principal,pt,NOUN,23067,department_store
+loke,pt,NOUN,26016,Loki
+longe,pt,NOUN,25559,"farness,remoteness,farawayness"
+loto,pt,NOUN,23571,"lotto,bingo_(etc)"
+lua,pt,NOUN,15651,moon
+lugar selvagem,pt,NOUN,21351,wilderness
+lupa,pt,NOUN,24478,"magnifier,magnifying_glass"
+luta livre,pt,NOUN,18283,wrestling_(activity)
+luta livre,pt,NOUN,20594,wrestling_(sport)
+luva de basebol,pt,NOUN,14445,"sports_glove,glove,mitt"
+luvas com dedos,pt,NOUN,14446,"glove(s),mitt(s),mitten(s)"
+luvas de borracha,pt,NOUN,22597,"dish_gloves,rubber_gloves"
+luvas de cozinha,pt,NOUN,22596,"potholder,oven_mitt"
+luz,pt,NOUN,15208,light
+luz,pt,ADJ,24845,light_(not_dark)
+lá fora,pt,PREP,15942,"out,exterior,external,outside"
+lábios,pt,NOUN,15218,lip(s)
+lápis de desenho,pt,NOUN,13604,"crayon,coloured_pencil,marker"
+lápis para os olhos,pt,NOUN,14135,eyebrow_pencil
+lâmina de barbear,pt,NOUN,16946,"shaver,razor"
+lâmpada,pt,NOUN,13919,"electric_light,lamp"
+lã,pt,NOUN,18271,wool
+líder de claque,pt,NOUN,25027,cheerleader
+líder religioso,pt,NOUN,21055,religious_leader
+língua,pt,NOUN,17752,tongue
+línguas,pt,NOUN,21557,linguistics
+línguista,pt,NOUN,21572,linguist
+macaco,pt,NOUN,15485,"monkey,ape,gorilla,primate"
+macarrão,pt,NOUN,22130,macaroni
+macho,pt,ADJ,15414,"male,masculine_(person)"
+macho,pt,NOUN,15417,male_genitals_(man_with_penis)
+macio,pt,ADJ,17203,soft
+madeira,pt,NOUN,18270,"wood,lumber,timber"
+madrasta,pt,NOUN,17261,stepmother
+maestro,pt,NOUN,24811,conductor_(music)
+mago,pt,NOUN,23713,wizard
+magoar-se,pt,VERB,14942,"injure,hurt-(to)"
+maio,pt,NOUN,15435,May
+maior de idade,pt,NOUN,12341,"adult,grownup"
+maior que,pt,NOUN,16480,greater_than_(relation)
+mais,pt,CONJ,12374,"and,also,plus,too"
+mais,pt,ADV,15654,more
+mais,pt,NOUN,24879,comparative_more
+mais comprido,pt,ADJ,15230,longer
+mais velho,pt,NOUN,24508,senior_citizen
+majestoso,pt,ADJ,24250,royal
+mala,pt,NOUN,16438,"purse,pocketbook,wallet"
+mala da escola,pt,NOUN,23650,schoolbag
+mamilo,pt,NOUN,15720,nipple(s)
+mancha,pt,NOUN,17236,"spot,mark"
+mancha,pt,NOUN,22833,blot
+mandamentos,pt,NOUN,13388,commandments
+manga,pt,NOUN,15419,mango
+manhã,pt,NOUN,15655,morning_(before_noon)
+manhã,pt,NOUN,15656,morning_(early)
+manteiga,pt,NOUN,13095,butter
+manteiga de amendoim,pt,NOUN,15985,peanut_butter
+manter,pt,VERB,15143,"keep,preserve,save-(to)"
+maná,pt,NOUN,21355,manna
+maometanismo,pt,ADJ,15659,"Muslim,Moslem,Islamic"
+mapa,pt,NOUN,15421,map
+maquilhagem,pt,NOUN,15413,makeup
+maquilhagem para os olhos,pt,NOUN,14137,eye_makeup
+maracas,pt,NOUN,23900,"maracas,calabash_(etc)"
+maravilhoso,pt,ADJ,24829,"great,wonderful,fantastic"
+marcador,pt,NOUN,16737,score
+marechevan,pt,NOUN,13160,Cheshvan
+margarina,pt,NOUN,15424,margarine
+marido,pt,NOUN,14914,husband
+marinha,pt,NOUN,15696,navy
+marinheiro,pt,NOUN,16708,sailor
+marioneta de mão,pt,NOUN,16433,puppet
+marte,pt,NOUN,24479,Mars_(planet)
+martelo,pt,NOUN,14665,hamentasch
+martelo,pt,NOUN,14666,"hammer,gavel,mallet"
+março,pt,NOUN,15423,March
+maré,pt,NOUN,22626,tide
+maré alta,pt,NOUN,22628,high_tide
+maré baixa,pt,NOUN,22629,low_water
+mas,pt,CONJ,13094,"but,except"
+massa,pt,NOUN,22129,pasta
+massa crua,pt,NOUN,22379,batter
+massa de pão,pt,NOUN,22378,dough
+massa informe,pt,NOUN,22362,lump(s)
+massagem,pt,NOUN,21606,massage
+massagista,pt,NOUN,21602,masseur
+mastigar,pt,VERB,13163,chew-(to)
+mastro,pt,NOUN,22059,mast
+masturbação,pt,NOUN,15429,masturbation
+matemática,pt,NOUN,15432,"mathematics,arithmetic,math_(2)"
+matemática,pt,NOUN,21558,"mathematics,arithmetic,math_(1)"
+matemática,pt,NOUN,23148,"math,mathematics_(class)_(1)"
+matemática,pt,NOUN,23585,"math,mathematics_(class)_(2)"
+matemático,pt,NOUN,21573,mathematician_(academic)
+material absorvente,pt,NOUN,12325,"absorbent_material,sponge"
+material de limpeza,pt,NOUN,22397,cleaning_tool
+material médico,pt,NOUN,12355,"aid,device,support"
+maturidade,pt,NOUN,15433,maturation
+mausoléu,pt,NOUN,21117,mausoleum
+maçã,pt,NOUN,12405,apple
+mecânico,pt,NOUN,23429,car_mechanic
+mecânico,pt,NOUN,23587,"mechanic,technician"
+medicamentos,pt,NOUN,15448,"medicine,medication"
+medir,pt,VERB,15442,measure-(to)
+meditar,pt,VERB,21097,meditate-(to)
+medição,pt,NOUN,15443,"measurement,measure"
+medição,pt,NOUN,24806,"scale,measurement"
+medo,pt,ADJ,12347,"afraid,frightened,scared"
+meias,pt,NOUN,17264,"stocking(s),sock(s),pantyhose,tights"
+meio,pt,NOUN,15464,"middle,centre"
+mel,pt,NOUN,14890,honey_(food)
+mel para barrar,pt,NOUN,14889,honey_(spread)
+melhor,pt,ADV,12668,better
+melodia,pt,NOUN,17953,"tune,melody"
+melro,pt,NOUN,12851,"blackbird,crow,raven"
+melão,pt,NOUN,15452,melon
+membro,pt,NOUN,24692,member
+memorando,pt,NOUN,24696,minutes
+memória,pt,NOUN,25343,"memory_game,Kim's_game"
+menina,pt,NOUN,12607,baby_girl
+menino,pt,NOUN,12604,baby_boy
+menopausa,pt,NOUN,15453,menopause
+menor que,pt,NOUN,16479,less_than_(relation)
+menos,pt,ADJ,15185,"fewest,least"
+menos,pt,NOUN,15474,"minus,no,without"
+mensagem,pt,NOUN,24484,message
+mensagem,pt,NOUN,24485,"message,content_(communication)"
+menstruação,pt,NOUN,15455,"menstruation,menstrual_period,period"
+mentir,pt,VERB,23895,lie-(to)
+mentira,pt,NOUN,23894,lie
+mercado,pt,NOUN,23147,market
+mercúrio,pt,NOUN,24483,Mercury_(planet)
+mergulho,pt,NOUN,22055,diving_(sport)
+mergulho  com escafandro,pt,NOUN,22057,"snorkeling,scuba_diving,deep_sea_diving_(sport)"
+mergulho sincronizado,pt,NOUN,22054,"synchronized_diving,synchro_diving_(sport)"
+meridional,pt,ADJ,17220,southern
+mesa,pt,NOUN,17493,table
+mesa de jogo,pt,NOUN,17492,table_game
+mesmo som,pt,PREP,16714,same_sound
+messias,pt,NOUN,21043,Messiah
+metade,pt,NOUN,24906,"half,one-half"
+metal,pt,NOUN,15459,metal
+metal,pt,NOUN,23150,metal_bar
+meteorologia,pt,NOUN,21555,meteorology
+metereologista,pt,NOUN,21571,meteorologist
+metro,pt,NOUN,24296,"subway,metro,underground,tube"
+metáfora,pt,NOUN,15460,metaphor
+meu,pt,OTHER,15686,"my,mine"
+meu,pt,OTHER,15688,"my,mine-(masculine)"
+miar,pt,VERB,24191,"mew,meow-(to)"
+microfone,pt,NOUN,23902,microphone
+microondas,pt,VERB,15462,microwave-(to)
+microscópio,pt,NOUN,24487,microscope
+midgardsormen,pt,NOUN,22826,Midgard's_serpent
+mijar,pt,VERB,17989,"urinate,make_water,pass_water,micturate,pee,piddle,piss,wee-(to)"
+milagre,pt,NOUN,21299,miracle
+milho,pt,NOUN,13413,corn
+mineiro,pt,NOUN,15472,mine
+minha,pt,OTHER,15686,"my,mine"
+minha,pt,OTHER,15687,"my,mine-(feminine)"
+minhoca,pt,NOUN,18279,worm
+ministro,pt,NOUN,24192,minister_(government)
+minuto,pt,NOUN,15475,minute
+miolo,pt,NOUN,15741,nucleus_(atom)
+misericórdia,pt,NOUN,21292,misericordia_(forgiveness_from_God)
+missionário,pt,NOUN,21060,missionary
+misterioso,pt,ADJ,21298,"mysterious,unknown"
+mistura,pt,NOUN,22377,mixture
+misturar,pt,VERB,15481,"mix,blend-(to)"
+mistério,pt,NOUN,21297,"mystery,unknown"
+mjolner,pt,NOUN,22654,Mjolnir
+moamede,pt,NOUN,21034,"Muhammad,Mohammed,Muhammed"
+mobília,pt,NOUN,14416,furniture
+mochila,pt,NOUN,12611,"backpack,rucksack"
+moeda,pt,NOUN,13374,coin
+moeda,pt,NOUN,23604,"paper_money,bill"
+moer,pt,VERB,15427,"mash,crush,squeeze,squash_(food)-(to)"
+moisés,pt,NOUN,21067,Moses
+molde em gesso,pt,NOUN,13129,cast_(medical)
+molhado,pt,ADJ,18226,"wet,damp,moist,watery"
+molhe,pt,NOUN,24857,pier
+molho de baunilha,pt,NOUN,22317,vanilla_sauce
+molho de caril,pt,NOUN,22329,curry_sauce
+molho de carne,pt,NOUN,20522,"sauce,gravy,relish,dressing"
+molho de chocolate,pt,NOUN,22342,chocolate_sauce
+molho de ervas,pt,NOUN,22323,herb_sauce
+molho de gengibre,pt,NOUN,22320,ginger_sauce
+molho de maionese para salada,pt,NOUN,22324,salad_dressing
+molho de mostarda,pt,NOUN,22332,mustard_sauce
+molho de pimenta,pt,NOUN,22326,pepper_sauce
+monitor,pt,NOUN,23451,"computer_screen,monitor"
+monoteísmo,pt,NOUN,21025,monotheism
+monstro,pt,NOUN,15486,monster
+montanha,pt,NOUN,15663,mountain
+montanhismo,pt,NOUN,22109,mountain_climbing
+monte,pt,NOUN,25033,"collection,pile,tussock_(etc)"
+morada,pt,NOUN,23402,address
+morango,pt,NOUN,17278,strawberry
+morcego,pt,NOUN,12636,bat_(animal)
+morder,pt,VERB,12847,bite-(to)
+morrer,pt,VERB,13672,die-(to)
+morsa,pt,NOUN,23704,walrus
+mortal,pt,ADJ,15657,mortal
+morte,pt,NOUN,13645,death
+morte de uma pessoa,pt,NOUN,21313,dead_person
+morte de uma pessoa,pt,NOUN,21314,dead_(the_dead)
+morto,pt,ADJ,13642,"dead,deceased"
+mosca,pt,NOUN,14371,"fly,flying_insect"
+moshav,pt,NOUN,15658,moshav
+mostarda,pt,NOUN,22330,mustard
+mostarda em pó,pt,NOUN,22331,mustard_(powder)
+mostrar,pt,NOUN,16199,"play,recreation"
+mostrar,pt,VERB,16967,"show,demonstrate-(to)"
+mostrar,pt,NOUN,23480,drama
+mostrar,pt,NOUN,23610,"performance,show"
+mostrar,pt,NOUN,23617,play_(theater)
+mostrar,pt,NOUN,23618,"play,game_(in_combinations)"
+moto,pt,NOUN,21810,"motorcycle,scooter"
+motociclismo com side car,pt,NOUN,21828,sidecar_(motorcycle_sport)
+motocross,pt,NOUN,21826,"motorcycling,motocross"
+motoreta para a neve,pt,NOUN,23950,snowmobile
+motorista de autocarros,pt,NOUN,13091,bus_driver
+movimento,pt,NOUN,24702,"movement,motion_(1)"
+movimento,pt,NOUN,24703,"movement,motion_(2)"
+movimento,pt,NOUN,25119,"move,movement"
+movimento da placa continental,pt,NOUN,22621,continental_drift
+movimento de vai e vem,pt,NOUN,12613,"backward,back"
+moínho de vento,pt,NOUN,25395,windmill
+mudar,pt,NOUN,13151,"change,alteration,conversion"
+mudar,pt,VERB,13152,"change,alter,convert-(to)"
+mudar,pt,VERB,15667,move-(to)
+mudar de casa,pt,VERB,24701,move_(change_position)-(to)
+mudo,pt,ADJ,15728,nonspeaking
+mugir,pt,VERB,24194,"moo,bellow-(to)"
+muitas vezes,pt,ADV,15913,"often,frequent,frequently"
+muito tempo,pt,ADJ,24181,long_time
+muitos,pt,ADJ,15671,"much,many,very"
+muletas,pt,NOUN,13617,crutches
+mulher,pt,NOUN,18269,"woman,female"
+mulher casada,pt,NOUN,18251,wife
+multa de trânsito,pt,NOUN,23082,fine_(penalty)
+multiplicar,pt,VERB,15674,multiply-(to)
+multiplicação,pt,NOUN,15673,multiplication
+mundo,pt,NOUN,18278,world
+museu,pt,NOUN,15677,museum
+musical,pt,NOUN,23594,musical
+mágico,pt,NOUN,23574,magician
+máquina,pt,NOUN,15406,"machine,appliance,engine,motor"
+máquina de costura,pt,NOUN,16764,sewing_machine
+máquina de lavar,pt,NOUN,18041,washer
+máquina de lavar,pt,NOUN,18042,"washing_machine,washer"
+máquina de secar roupa,pt,NOUN,24320,"tumble-drier,tumble-dryer"
+máquina fotográfica,pt,NOUN,13111,camera
+máscara,pt,NOUN,15428,"mask,false_face"
+máscara,pt,NOUN,25354,PEP_mask
+máscara de protecção,pt,NOUN,21621,protective_mask
+máximo,pt,ADJ,15661,"most,maximum"
+máximo,pt,NOUN,24944,superlative_most
+mãe,pt,NOUN,15662,"mother,mom,mommy,mum"
+mãe adoptiva,pt,NOUN,14391,foster_mother
+mãe solteira,pt,NOUN,21091,single_mother
+mão,pt,NOUN,14667,hand
+médico,pt,NOUN,13861,"doctor,physician"
+médico de reabilitação,pt,NOUN,21579,"doctor_(rehab,hab)"
+método da periodicidade,pt,NOUN,16503,rhythm_method
+mês,pt,NOUN,15649,month
+mês seguinte,pt,NOUN,24921,next_month
+móvel de gavetas,pt,NOUN,13162,"chest_of_drawers,bureau,dresser"
+múmia,pt,NOUN,25120,mummy_(general)
+múmia,pt,NOUN,25121,mummy_(imaginary)
+músculo,pt,NOUN,20517,muscle
+música,pt,NOUN,15679,music
+música country,pt,NOUN,23841,country_music
+música pop,pt,NOUN,23931,pop_music
+música popular,pt,NOUN,21611,folk_music
+música rap,pt,NOUN,23934,rap_(music)
+música rock,pt,NOUN,24663,hard_rock
+música rock,pt,NOUN,24736,"rock_music,rock'n'roll,rock"
+músico,pt,NOUN,15683,musician
+nabo,pt,NOUN,17958,"turnip,rutabaga,vegetable_(large-leafed)"
+nada,pt,NOUN,23907,"nothing,none"
+nadar,pt,VERB,17482,swim-(to)
+namorado,pt,NOUN,17997,Valentine_(card)
+nariz,pt,NOUN,15732,nose
+nascer do sol,pt,NOUN,17466,sunrise
+nascimento,pt,NOUN,12842,"birth,giving_birth,partuition,delivery"
+nascimento,pt,NOUN,12843,birth
+natal,pt,NOUN,13181,Christmas
+natas,pt,NOUN,13605,cream
+natação,pt,NOUN,22053,swimming_(sport)
+natação sincronizada,pt,NOUN,22056,synchronized_swimming_(sport)
+naturalismo,pt,NOUN,20563,"religion,naturalism"
+nave espacial,pt,NOUN,16680,"rocket,spaceship"
+navio de carga,pt,NOUN,22069,freighter
+nação,pt,NOUN,13423,"country,state"
+nação,pt,NOUN,21610,nation
+necessitados,pt,NOUN,15701,need_(needy_person)
+necessitar,pt,VERB,15702,"need,require-(to)"
+necessário,pt,ADJ,15698,"necessary,necessarily,needed"
+negócio,pt,NOUN,13093,"business,economy,commerce,trade"
+nem,pt,CONJ,15729,nor
+nem um nem outro,pt,OTHER,15706,neither
+nenhum,pt,NOUN,23907,"nothing,none"
+nenúfar,pt,NOUN,24778,"water_flower,water_lily"
+neptuno,pt,NOUN,24492,Neptune_(planet)
+neurologista,pt,NOUN,21583,neurologist
+neurónio,pt,NOUN,25473,neuron
+nevar,pt,VERB,17193,snow-(to)
+neve,pt,NOUN,17192,snow
+nevoeiro,pt,NOUN,14374,fog
+nevão,pt,NOUN,17198,snowstorm
+ninguém,pt,NOUN,15723,"no_one,nobody"
+nisan,pt,NOUN,15721,"Nisan,Nissan"
+noite,pt,NOUN,15719,night
+noivos,pt,ADJ,13937,engaged
+nome,pt,NOUN,15691,"name,label,term,title"
+nome do símbolo,pt,NOUN,21624,bliss-name
+norma,pt,NOUN,16697,"rule,regulation"
+normalmente,pt,ADV,17992,"usually,usual"
+norte,pt,NOUN,15730,north
+noruega,pt,NOUN,22612,Norway
+nossa,pt,OTHER,15939,"our,ours-(feminine)"
+nossa,pt,OTHER,15940,"our,ours-(masculine)"
+nossa,pt,OTHER,15941,"our,ours"
+nosso,pt,OTHER,15939,"our,ours-(feminine)"
+nosso,pt,OTHER,15940,"our,ours-(masculine)"
+nosso,pt,OTHER,15941,"our,ours"
+nota de música,pt,NOUN,15682,"musical_note,music_(in_combinations)"
+notícias,pt,NOUN,15712,news
+nove,pt,NOUN,8505,"nine_(digit),9"
+novembro,pt,NOUN,15735,November
+novo,pt,ADJ,15710,new
+novo,pt,ADJ,18467,young
+novo testamento,pt,NOUN,21071,New_Testament
+noz,pt,NOUN,15906,nut
+noé,pt,NOUN,21065,Noah
+nuca,pt,NOUN,15700,neck_(body)
+nunca,pt,ADV,23906,never
+nuvem,pt,NOUN,13367,cloud
+não,pt,ADV,15733,"not,negative,no,don't,doesn't"
+não!,pt,PREP,15722,no-(exclamatory)
+nítido,pt,ADJ,13358,"clear,transparent"
+nível,pt,ADJ,14197,flat
+nó,pt,NOUN,24177,knot
+nódoa negra,pt,NOUN,24419,"bruise,contusion,haematoma"
+nódoa negra,pt,ADJ,24421,"bruised,dented"
+nós,pt,OTHER,18210,"we,us,ourselves-(feminine)"
+nós,pt,OTHER,18211,"we,us,ourselves-(masculine)"
+nós mesmos,pt,OTHER,18212,"we,us,ourselves"
+número,pt,NOUN,15742,number
+o,pt,OTHER,17700,the
+o ano passado,pt,NOUN,15176,last_year
+o mais comprido,pt,ADJ,15393,longest
+o melhor,pt,ADJ,12667,best
+o menor,pt,ADJ,15195,"fewer,less"
+o mês passado,pt,NOUN,24835,last_month
+o próprio,pt,NOUN,16752,"self,oneself,ego_(person)"
+o quê,pt,OTHER,18228,what
+o quê?,pt,OTHER,18229,"what,question_mark_(small)"
+o quê?,pt,NOUN,18239,which-(question)
+obedecer,pt,VERB,15907,"obey,comply-(to)"
+obediência,pt,NOUN,21309,obedience
+objecto direito,pt,NOUN,15216,"linear_thing,pole"
+objecto não identificado,pt,NOUN,17977,unidentified_object_(suspected_explosive)
+objecto sólido,pt,NOUN,17205,solid_thing
+objectos de vidro,pt,NOUN,14444,glassware
+obra de arte,pt,NOUN,18275,"work_of_art,art_object"
+obrigado,pt,PREP,17533,"thanks,thank_you"
+observar,pt,VERB,15908,observe-(to)
+oceano,pt,NOUN,15909,"ocean,sea"
+ocidental,pt,ADJ,18225,western
+oculista,pt,NOUN,23598,optician
+odiar,pt,VERB,23883,hate-(to)
+odor,pt,NOUN,17017,"smell,odour"
+oeste,pt,NOUN,18224,west
+oficina,pt,NOUN,23567,"lesson,lecture,class"
+oftalmologista,pt,NOUN,21578,"ophthalmologist,oculist"
+oito,pt,NOUN,8504,"eight_(digit),8"
+olhar,pt,VERB,18045,watch-(to)
+olho,pt,NOUN,14133,eye
+olá,pt,PREP,14702,"hello,greetings"
+olá,pt,NOUN,24458,Good_day_(hello)
+ombro,pt,NOUN,16964,shoulder
+omeleta,pt,NOUN,22139,"omelette,omelet"
+onda,pt,NOUN,21880,wave
+onda gigantesca,pt,NOUN,22624,tidal_wave
+onde,pt,OTHER,18236,where
+onde?,pt,NOUN,18237,where-(question)
+ontem,pt,NOUN,18295,yesterday
+operação,pt,NOUN,15924,operation
+operação cesariana,pt,NOUN,14915,hysterectomy
+opinião,pt,NOUN,15925,opinion
+oposição,pt,NOUN,15928,"opposition,counter_purpose"
+oposto,pt,PREP,15927,"opposite_meaning,opposite_of,opposite"
+ordenar,pt,VERB,21335,"command,order-(to)"
+orelhas furadas,pt,VERB,25482,pierce_(jewellery)-(to)
+orelhas furadas,pt,VERB,25483,pierce-(to)
+orelhas furadas,pt,NOUN,25484,piercing_(thing)
+organizar,pt,VERB,15935,"organize,arrange-(to)"
+orgasmo,pt,NOUN,15936,orgasm
+orgulhoso,pt,ADJ,16422,proud
+orgão,pt,NOUN,23911,"organ,pipe_organ"
+oriental,pt,ADJ,13904,eastern
+orquestra,pt,NOUN,24873,"band,orchestra"
+ortopedia,pt,NOUN,21594,orthoptist
+ortopedista,pt,NOUN,21577,orthopaedist
+os,pt,OTHER,17700,the
+osso,pt,NOUN,12873,bone
+osteopata,pt,NOUN,21600,osteopath
+ostra,pt,NOUN,15952,"oyster,clam,mussel"
+otorrinolaringologista,pt,NOUN,21576,otolaryngologist
+ou,pt,CONJ,15929,or
+ouriço-cacheiro,pt,NOUN,23527,hedgehog
+ouro,pt,NOUN,23100,gold
+outono,pt,NOUN,12597,"autumn,fall_(ckb)"
+outono,pt,NOUN,12598,"autumn,fall"
+outra vez,pt,ADV,12350,again
+outro,pt,NOUN,15938,"other,another_(person)"
+outro,pt,ADJ,24011,"other,another_(thing)"
+outubro,pt,NOUN,15910,October
+ouvido,pt,NOUN,13894,ear
+ouvido debilitado,pt,ADJ,26009,hearing-impaired
+ouvir,pt,VERB,14692,"hear,listen-(to)"
+oval,pt,NOUN,15946,"oval,ellipse_(shape)"
+oval,pt,NOUN,23599,oval
+ovelha,pt,NOUN,24475,lamb
+ovo,pt,NOUN,13911,"egg,ovum_(1)"
+ovo,pt,NOUN,13912,"egg,ovum_(2)"
+ovo cozido,pt,NOUN,22137,"egg_(boiled),boiled_egg"
+ovo escalfado,pt,NOUN,22141,"egg_(poached),poached_egg"
+ovos estrelados,pt,NOUN,22138,"egg_(fried),fried_egg"
+ovos mexidos,pt,NOUN,22140,scrambled_eggs
+ovário,pt,NOUN,15947,ovary
+paciente,pt,VERB,15977,be_patient-(to)
+paciência,pt,NOUN,15976,patience
+padaria,pt,NOUN,23027,bakery
+padeiro,pt,NOUN,23412,baker
+padrasto,pt,NOUN,17260,stepfather
+padre,pt,NOUN,15473,"minister,pastor,preacher,priest,rabbi"
+pagar,pt,VERB,15979,"pay,spend-(to)"
+pai,pt,NOUN,14157,"father,dad,daddy,papa,pa,pop"
+pai adoptivo,pt,NOUN,14392,foster_parent
+pai natal,pt,NOUN,23647,"Santa_Claus,Father_Christmas"
+pai solteiro,pt,NOUN,21092,single_father
+pais,pt,NOUN,15968,parent
+pais solteiros,pt,NOUN,21090,single_parent
+paisagem,pt,NOUN,16731,"scenery,landscape"
+palavra,pt,NOUN,18272,word
+palco,pt,NOUN,24214,"platform,stage"
+palha,pt,NOUN,24147,hay
+palhaço,pt,NOUN,23443,clown
+palhinha,pt,NOUN,17277,"straw,drinking_straw"
+palmeira,pt,NOUN,15960,palm
+pandeireta,pt,NOUN,23964,tambourine_(1)
+pandeireta,pt,NOUN,23965,tambourine_(2)
+panela,pt,NOUN,22584,"pot,kettle,boiler"
+panela do molho,pt,NOUN,16229,"pot,pan"
+panela do molho,pt,NOUN,22579,saucepan
+pangaia,pt,NOUN,22067,"paddle,oar"
+pangaia,pt,NOUN,22068,paddle_(two_blades)
+pano da louça,pt,NOUN,22398,cleaning_cloth
+pano de banho,pt,NOUN,18040,"washcloth,washrag,flannel"
+panquecas,pt,NOUN,23603,"pancake,crepe,tortilla"
+panquecas pequenas,pt,NOUN,23949,"small_pancake,blini"
+papa,pt,NOUN,21057,Pope
+papagaio,pt,NOUN,15970,"parrot,myna,talking_bird"
+papagaio de papel,pt,NOUN,15155,kite
+papas de aveia,pt,NOUN,23621,porridge
+papel higiénico,pt,NOUN,17748,toilet_paper
+par,pt,NOUN,15959,pair
+para a frente,pt,ADV,14390,forward
+para baixo,pt,ADV,13869,"down,downward"
+para baixo e para a frente,pt,NOUN,13871,downward_and_forward
+para baixo e para trás,pt,NOUN,13870,downward_and_backward
+para cima,pt,ADV,17983,"up,upward"
+para cima e para a frente,pt,NOUN,17987,upward_and_forward
+para cima e para baixo,pt,ADJ,20524,up_and_down
+para cima e para trás,pt,NOUN,17986,upward_and_backward
+para dentro,pt,PREP,14952,into
+para fora à direita,pt,NOUN,15943,"out_of,exit_(forward)"
+para longe,pt,ADV,25522,"away,at_a_distance,off"
+para que,pt,NOUN,14382,"for_(the_purpose_of),in_order_to"
+para trás e para a frente,pt,NOUN,12610,"back_and_forth,backward_and_forward,to_and_fro"
+parabéns,pt,PREP,15487,"congratulations,best_of_luck,mazel_tov"
+parafuso,pt,NOUN,16739,screw
+paragem de autocarro,pt,NOUN,24041,"bus_stop,bus_bay"
+paralelo,pt,NOUN,15964,parallel
+parar,pt,NOUN,13935,"end,arrival,stop"
+parar,pt,VERB,17268,"stop,arrive,end-(to)"
+paraíso,pt,NOUN,24149,"Heaven,Kingdom_of_God"
+parecer,pt,VERB,16750,seem-(to)
+parede,pt,NOUN,18033,wall
+parque,pt,NOUN,15969,park
+parte do símbolo bliss,pt,PREP,12858,blissymbol_part
+partes do corpo,pt,NOUN,24033,body_part
+partida,pt,NOUN,12658,"beginning,start"
+partidas,pt,NOUN,13658,departure
+partido,pt,ADJ,12907,broken
+partilhar,pt,VERB,16941,share-(to)
+partir,pt,VERB,12896,"break,crack,fracture,tear-(to)"
+partir,pt,VERB,17016,"smash,grind,shatter,splinter-(to)"
+passado,pt,NOUN,15975,past
+passador,pt,NOUN,16976,"sieve,colander,strainer"
+passageiro,pt,NOUN,23605,passenger
+passagem de ano,pt,NOUN,25475,New_Year's_eve_(day)
+passagem de ano,pt,NOUN,25476,New_Year's_eve_(evening)
+passagem de ano,pt,NOUN,25477,"New_Year's_eve,end_of_year_(day)"
+passagem de ano,pt,NOUN,25478,"New_Year's_eve,end_of_year_(evening)"
+passaporte,pt,NOUN,24207,passport
+passar a ferro,pt,VERB,14956,iron-(to)
+passar um pano por,pt,VERB,18264,"wipe,dust,polish-(to)"
+passarinho,pt,NOUN,24447,fledgeling
+passas,pt,NOUN,24231,"raisin(s),currant(s)"
+passatempo,pt,NOUN,14718,"hobby,pastime"
+passear a pé,pt,VERB,25320,hike-(to)
+passeio,pt,NOUN,24209,"pavement,sidewalk"
+pasta,pt,NOUN,23511,folder
+pasta,pt,NOUN,23512,folder_(digital)
+pasta de dentes,pt,NOUN,17757,toothpaste
+pasta dos papéis,pt,NOUN,23420,briefcase
+pastor,pt,NOUN,23661,shepherd
+patamar,pt,NOUN,23047,"corridor,hall"
+patena,pt,NOUN,21366,"paten,holy_tray"
+patinagem,pt,NOUN,21860,skating
+patinagem artística,pt,NOUN,21862,figure_skating
+patinagem de velocidade,pt,NOUN,21861,speed_skating
+patinar,pt,VERB,16684,roller_skate-(to)
+patins com rodas,pt,NOUN,16685,roller_skates
+patins para o gelo,pt,NOUN,14924,ice_skates
+pato,pt,NOUN,12840,"duck,bird_(water),waterbird,waterfowl,seabird,seafowl"
+pato,pt,NOUN,13889,duck_(food)
+patrão,pt,NOUN,24849,"boss,supervisor"
+pau,pt,NOUN,24180,"linear_thing_(horizontal),bar"
+pausa,pt,NOUN,16497,"rest_period,break"
+pavão,pt,NOUN,15984,peacock
+paz,pt,NOUN,15980,peace_(opposite_war)
+paz,pt,NOUN,16936,"greeting,shalom,salam_(etc)"
+pecado,pt,NOUN,16988,sin
+pecador,pt,NOUN,16993,sinner
+pecar,pt,VERB,16989,sin-(to)
+pediatra,pt,NOUN,21574,paediatrician
+pedicuro,pt,NOUN,21596,"podiatrist,chiropodist"
+pedinte,pt,NOUN,25019,beggar
+pedir,pt,VERB,21336,demand-(to)
+pedir desculpa,pt,VERB,12404,"apologize,apologise,regret_(express)-(to)"
+pedra,pt,NOUN,17266,stone_(material)
+pedra tumular,pt,NOUN,21284,tombstone
+pedreiro,pt,NOUN,23419,bricklayer
+pedúnculo,pt,NOUN,17259,"stem,stalk"
+pega,pt,NOUN,17487,"handle,switch"
+pegadas,pt,NOUN,25308,footprint
+peido,pt,NOUN,25060,"fart,wind"
+peito,pt,NOUN,12899,breast(s)
+peixe,pt,NOUN,14188,fish_(animal)
+peixe,pt,NOUN,14189,fish_(food)
+peixe congelado,pt,NOUN,22356,fish_(frozen)
+peixe dourado,pt,NOUN,14452,"goldfish,guppy,pet_fish"
+peixes,pt,NOUN,22648,Pisces_(in_zodiac)
+pele,pt,NOUN,15186,leather
+pele,pt,NOUN,17001,skin
+pele de animal,pt,NOUN,12387,"animal_skin,hide,pelt"
+pelicano,pt,NOUN,15990,pelican
+película fotográfica,pt,NOUN,14177,film
+pena,pt,NOUN,14160,feather
+pendurar,pt,VERB,14673,"hang,hook-(to)"
+penetrar,pt,VERB,15992,"penetrate,go_through-(to)"
+pensar,pt,VERB,17718,"think,reason-(to)"
+penso higiénico,pt,NOUN,16719,"sanitary_napkin,sanitary_towel,tampon"
+pente,pt,NOUN,13378,comb
+pentear,pt,VERB,13379,comb-(to)
+pepino,pt,NOUN,13620,cucumber
+pequena mata,pt,NOUN,14648,grove
+pequeno,pt,ADJ,15221,"little,small"
+pequeno,pt,ADJ,16962,short
+pequeno,pt,NOUN,24938,"shortness_(distance,length)"
+pequeno almoço,pt,NOUN,12898,breakfast
+percentagem,pt,NOUN,8484,"percent,percentage,%"
+percevejo,pt,NOUN,12655,beetle
+percussão,pt,NOUN,23921,percussion_instrument
+perder,pt,VERB,15394,lose_(fail_to_keep)-(to)
+perder,pt,NOUN,15396,loss_(emotional)
+perder,pt,VERB,23897,lose_(fail_to_win)-(to)
+perdoado,pt,ADV,21381,forgiven
+perdoar,pt,VERB,14388,"forgive,pardon-(to)"
+perfeito,pt,ADJ,21345,perfect
+perfeição,pt,NOUN,21344,perfection
+perfume,pt,NOUN,15997,"perfume,fragrance,aroma,scent"
+pergunta,pt,NOUN,16445,question
+perguntar,pt,VERB,12588,"ask,inquire,question-(to)"
+perigo,pt,NOUN,13632,danger
+perigo,pt,ADJ,13633,dangerous
+periquito,pt,NOUN,15963,"parakeet,budgie"
+permitir,pt,VERB,15196,"let,allow,permit-(to)"
+perna,pt,NOUN,15188,leg
+pernas e pés,pt,NOUN,15189,legs_and_feet
+perpendicular,pt,NOUN,15998,perpendicular
+perseguir,pt,VERB,25275,chase-(to)
+perseguição,pt,NOUN,14677,harassment
+perseverança,pt,NOUN,21318,perseverance
+perseverar,pt,VERB,21319,persevere-(to)
+persuadir,pt,VERB,21311,"persuade,convince-(to)"
+pertence a,pt,PREP,12663,"belongs_to,of_(possessive)"
+perto,pt,ADJ,15697,"near,almost,close,nearly"
+peru,pt,NOUN,17955,turkey_(food)
+período de tempo,pt,NOUN,15212,"limited_time,interval,period,awhile,for_a_while"
+perú,pt,NOUN,17954,turkey_(bird)
+pesa,pt,NOUN,18222,weight_(a)
+pesado,pt,ADJ,14698,heavy
+pesca,pt,NOUN,14191,fishing
+pesca desportiva,pt,NOUN,22058,fishing_(sport)
+pescador,pt,NOUN,23509,fisherman
+pescar,pt,VERB,14190,fish-(to)
+pescoço,pt,NOUN,15699,neck_(head)
+peso,pt,NOUN,18221,weight
+peso,pt,NOUN,23248,weight_(measurement)
+peso leve,pt,ADJ,25336,light_(weight)
+pesquisar,pt,VERB,24935,research-(to)
+pessoa ajoelhada,pt,NOUN,16162,kneeling_(kneeling_person)
+pessoa deitada,pt,NOUN,16163,"reclining,lying_(person_lying_down)"
+pessoa fraca,pt,NOUN,16167,weakness_(weak_person)
+pessoa que toma conta de crianças em casa,pt,NOUN,12608,babysitter
+pessoa à espera,pt,NOUN,16166,standing_(standing_person)
+pessoal,pt,NOUN,17246,staff
+pestanejar,pt,VERB,18260,"wink,blink-(to)"
+petroleiro,pt,NOUN,22070,tanker
+petróleo,pt,NOUN,15914,"oil,lubricant"
+petróleo,pt,NOUN,25127,oil_(fuel)
+piano,pt,NOUN,23862,electric_piano
+piano,pt,NOUN,23922,piano_(1)
+piano,pt,NOUN,23923,piano_(2)
+picante,pt,ADJ,14901,"hot,spicy,peppery"
+pijamas,pt,NOUN,16442,"pyjama(s),nightgown,nightie,pajama(s)"
+pilhas,pt,NOUN,12638,battery
+piloto,pt,NOUN,16179,pilot
+pimenta,pt,NOUN,15995,pepper_(vegetable)
+pimenta,pt,NOUN,15996,pepper_(seasoning)
+pimenta,pt,NOUN,22325,pepper_(powder)
+pinguim,pt,NOUN,15993,penguin
+pintar,pt,VERB,15957,"paint,dye-(to)"
+pintor,pt,NOUN,15958,painter
+pintura,pt,NOUN,16172,"picture,image,icon,painting"
+pinças de cozinha,pt,NOUN,22565,kitchen_tongs
+pipocas,pt,NOUN,16221,popcorn
+piquenique,pt,NOUN,16171,picnic
+pirata,pt,NOUN,23616,pirate
+pirâmide,pt,NOUN,16443,pyramid
+piscina,pt,NOUN,17483,swimming_pool
+piscina baixa para crianças,pt,NOUN,18026,"wading_pool,paddling_pool"
+piso,pt,NOUN,23085,"floor,storey,level,etage"
+piso,pt,NOUN,23086,floor_(42nd)
+piso,pt,NOUN,23087,floor_(first)
+pista,pt,NOUN,23690,track
+pista,pt,NOUN,25278,clue
+pistola,pt,NOUN,14670,"handgun,pistol"
+piza,pt,NOUN,16192,pizza
+pião,pt,NOUN,17759,dreidel_top
+planador,pt,NOUN,22103,glider
+planeamento familiar,pt,NOUN,14147,family_planning
+planeamento familiar clínico,pt,NOUN,14148,family_planning_clinic
+planear,pt,VERB,16195,"plan,design-(to)"
+planeta,pt,NOUN,22834,planet
+planeta,pt,NOUN,24437,dwarf_planet
+planeta,pt,NOUN,24455,gas_planet
+planeta,pt,NOUN,24504,"rock_planet,terrestrial_planet"
+planeta terra,pt,NOUN,13900,"earth,globe,world"
+planeta terra,pt,NOUN,24438,"Earth,Tellus_(planet)"
+plano,pt,NOUN,16194,"plan,design,method,system"
+plano militar,pt,NOUN,15466,military_plane
+planta,pt,NOUN,16196,plant
+planta em forma de ovo,pt,NOUN,13913,eggplant
+plutão,pt,NOUN,24498,Pluto_(dwarf_planet)
+plástico,pt,NOUN,16197,plastic
+pneu,pt,NOUN,17734,"tire,tyre"
+pobre,pt,ADJ,16220,poor_(little_money)
+pobre,pt,ADJ,20582,poor_(without_possessions)
+pobreza,pt,NOUN,21306,poverty
+poeiras radioactivas,pt,NOUN,15739,"nuclear_fallout,radioactive_dust"
+poema,pt,NOUN,16210,poem
+poesia,pt,NOUN,16211,poetry
+polainas de caçador,pt,NOUN,24010,ankle_splint
+polegar,pt,NOUN,17726,thumb
+polenta,pt,NOUN,16216,polenta
+polir,pt,VERB,22389,polish-(to)
+politeísmo,pt,NOUN,21026,polytheism
+poluição,pt,NOUN,16218,pollution
+polvo,pt,NOUN,23160,octopus
+polícia,pt,NOUN,16217,"police_officer,policeman,policewoman"
+polónia,pt,NOUN,25139,Poland
+pomar,pt,NOUN,15934,orchard
+ponte,pt,NOUN,12902,"bridge,overpass"
+ponto,pt,NOUN,13867,dot
+ponto,pt,NOUN,14886,home_run
+ponto de exclamação,pt,NOUN,8483,exclamation_mark
+ponto de vista,pt,NOUN,16214,point_of_view
+por,pt,PREP,13100,"by,by_means_of,of"
+por cima,pt,NOUN,17758,top
+por cima,pt,NOUN,25387,"top,top_of_a_thing"
+por favor,pt,PREP,16204,please
+por isso,pt,ADV,17708,"therefore,so,so_that"
+porco,pt,NOUN,16175,pig
+porco,pt,NOUN,16223,"pork,ham"
+porco espinho,pt,NOUN,23620,porcupine
+porque,pt,PREP,12647,because
+porquinho da índia,pt,NOUN,14434,"gerbil,guinea_pig,hamster"
+porquê?,pt,NOUN,18249,why-(question)
+porta,pt,NOUN,13866,door
+porteiro,pt,NOUN,24683,"janitor,caretaker"
+porto,pt,NOUN,14678,harbour
+portugal,pt,NOUN,25140,Portugal
+positivo,pt,ADJ,16225,positive
+posição,pt,NOUN,16224,position
+possibilidade,pt,NOUN,15436,possibility
+possivelmente,pt,ADV,16226,"maybe,perhaps,possibly"
+possuir,pt,VERB,15950,"own,possess-(to)"
+possível,pt,ADJ,25831,possible
+postal,pt,NOUN,16227,postcard
+poste firme,pt,NOUN,22063,stern
+potro,pt,NOUN,24448,foal
+pouca profundidade,pt,ADJ,16935,shallow
+pouco,pt,ADJ,24111,"few,little"
+pousada,pt,NOUN,24876,"board_and_lodging,room_and_board"
+poço da água,pt,NOUN,22631,spring_(water)
+prado,pt,NOUN,15180,"lawn,meadow"
+praia,pt,NOUN,12640,"beach,bank,coast,shore"
+prancha de prono,pt,NOUN,21813,"prone_board,scooter-board"
+prancha de skate,pt,NOUN,16997,skateboard
+prancha de surf,pt,NOUN,21881,surfboard
+prancha de windsurf,pt,NOUN,21882,"sailboard,windsurf_board,windsurfing_board"
+prata,pt,NOUN,23213,silver
+prateleira,pt,NOUN,16953,shelf
+praticar,pt,VERB,16235,"practise,practice,drill,exercise,rehearse-(to)"
+prato,pt,NOUN,13690,"dish,plate,platter"
+prato principal,pt,NOUN,22119,main_course
+pratos,pt,NOUN,23842,cymbal
+prazer sexual,pt,NOUN,16932,sexual_pleasure
+pregar,pt,VERB,21310,preach-(to)
+pregar o evangelho,pt,VERB,21347,evangelise_(christian)-(to)
+prego,pt,NOUN,15689,nail
+prenda,pt,NOUN,14437,"gift,offering,present"
+prender,pt,VERB,23025,arrest-(to)
+preocupar-se,pt,VERB,18281,worry-(to)
+preocupar-se,pt,VERB,23059,"care,protect,defend-(to)"
+preocupação,pt,NOUN,18280,worry
+preparado,pt,ADJ,16466,"ready,prepared"
+preparar,pt,VERB,16244,"prepare,set,set_up,ready,gear_up,fix-(to)"
+prepúcio,pt,NOUN,14385,foreskin
+presente,pt,NOUN,16246,present
+preservar,pt,VERB,15143,"keep,preserve,save-(to)"
+preservativo,pt,NOUN,13398,condom
+presidente,pt,NOUN,24051,chairman
+presidente,pt,NOUN,24220,president
+pressão,pt,NOUN,23169,pressure
+pretender,pt,VERB,16247,"pretend,make_believe-(to)"
+preto,pt,NOUN,12849,black_(bci)
+preto,pt,NOUN,12850,black_(ckb)
+previsão meteorológica,pt,NOUN,22637,weather_forecast
+previsão meteorológica,pt,NOUN,24747,shipping_forecast
+primavera,pt,NOUN,17240,spring_(ckb)
+primavera,pt,NOUN,17241,spring
+primeiro,pt,ADV,14187,"first,primary"
+primeiro ministro,pt,NOUN,24221,prime_minister
+primeiros socorros,pt,NOUN,25304,first_aid
+primo,pt,NOUN,13429,cousin
+primo,pt,NOUN,25279,cousin_(male)
+primo,pt,NOUN,25280,cousin_(female)
+princesa,pt,NOUN,23623,princess
+prisioneiro,pt,NOUN,25145,prisoner
+prisão,pt,NOUN,16250,"prison,jail"
+prisão de ventre,pt,NOUN,24070,constipation_(1)
+prisão de ventre,pt,NOUN,24071,constipation_(2)
+proa de navio,pt,NOUN,22062,"bow,fore"
+problema,pt,NOUN,16253,problem
+procurar,pt,VERB,16742,search-(to)
+procurar,pt,VERB,18045,watch-(to)
+produtor,pt,NOUN,15412,"maker,manufacturer,producer"
+produtos manufacturados,pt,NOUN,14672,"handmade_object,handicraft"
+produtos químicos,pt,NOUN,13158,chemical_product
+produzir,pt,VERB,15410,"make,manufacture,produce-(to)"
+proeza,pt,NOUN,24402,achievement
+profecia,pt,NOUN,21048,prophecy
+professor de psicologia,pt,NOUN,23184,psychology_teacher
+profeta,pt,NOUN,21050,prophet
+profetizar,pt,VERB,21049,prophesy-(to)
+profissão,pt,NOUN,21360,"calling,profession,career"
+profundo,pt,ADJ,13652,deep
+programa de televisão,pt,NOUN,24773,"TV_programme,TV_show,radio_programme"
+projector de slides,pt,NOUN,16254,projector
+prometer,pt,VERB,16417,"promise,pledge-(to)"
+prometer,pt,NOUN,24930,promise
+proposição,pt,NOUN,16760,"sentence,clause,phrase"
+prostituição,pt,NOUN,16418,prostitution
+protector solar,pt,NOUN,17463,"sunscreen,sunblock,sun_lotion"
+protectores de mesa,pt,NOUN,22594,"table_mat,placemat"
+protectores de orelhas,pt,NOUN,13897,earmuffs_(protection)
+protectores de orelhas,pt,NOUN,24889,earmuffs_(general)
+protecção,pt,NOUN,16420,"protection,shelter"
+protecção para o punho,pt,NOUN,24340,wrist_splint
+proteger,pt,VERB,16419,"protect,cover,shelter,take_care_of-(to)"
+protestantismo,pt,NOUN,21039,protestantism
+protestar,pt,VERB,16421,"protest,object,oppose-(to)"
+protestar,pt,VERB,23178,"protest,resist-(to)"
+prova,pt,NOUN,23079,evidence
+provar,pt,VERB,17507,taste-(to)
+provável,pt,ADJ,16252,"probable,likely,probably"
+província,pt,NOUN,16423,"province,county,region,state"
+prédio,pt,NOUN,12403,"apartment,flat,unit"
+prédio,pt,NOUN,23022,apartment_block
+prédio,pt,NOUN,23153,multi_storey_building
+prédio,pt,NOUN,23163,"one_storey_building,bungalow"
+prédio,pt,NOUN,23243,two_storey_building
+príncipe,pt,NOUN,23622,prince
+psicologia,pt,NOUN,23183,psychology
+psicologia,pt,NOUN,24818,psychology_(class)
+psicólogo,pt,NOUN,23181,psychologist
+psicólogo,pt,NOUN,23182,psychologist_(researcher)
+psiquiatra,pt,NOUN,21584,psychiatrist
+pterossáurio,pt,NOUN,23625,"Pterosaur,Pterodactyl"
+puberdade,pt,NOUN,16425,puberty
+publicidade,pt,NOUN,12344,advertisement
+pudim,pt,NOUN,22307,"pudding,cream"
+pudim de natal,pt,NOUN,22308,Christmas_pudding
+pugilismo,pt,NOUN,12887,boxing_(activity)
+pugilismo,pt,NOUN,20596,boxing_(sport)
+pulga,pt,NOUN,14199,flea
+pulmões,pt,NOUN,25465,lung(s)
+pulseira,pt,NOUN,25433,bracelet
+pulso,pt,NOUN,18284,wrist
+pulverizador,pt,NOUN,23954,"spray_bottle,vaporizer,spray_can"
+pulverizar,pt,VERB,23953,"spray,vaporize-(to)"
+puncionar,pt,VERB,16432,"puncture,prick-(to)"
+punção,pt,NOUN,16212,"point,tip,peak"
+purim,pt,NOUN,16435,Purim
+puré de tomate,pt,NOUN,23685,tomato_sauce
+puxar,pt,VERB,16431,"pull,drag,tow,tug-(to)"
+puzzle,pt,NOUN,16441,jigsaw_puzzle
+pá,pt,NOUN,16966,"shovel,spade"
+pálpebra,pt,NOUN,14136,eyelid_(upper)
+pára-quedas,pt,NOUN,22105,parachute
+páraquedista,pt,NOUN,15965,paratrooper
+páscoa,pt,NOUN,13903,easter
+páscoa dos judeus,pt,NOUN,15974,Passover
+pássaro,pt,NOUN,12837,bird
+pássaro azul,pt,NOUN,12867,bluebird
+pássaro de estimação,pt,NOUN,12838,bird_(domestic)
+pássaro selvagem,pt,NOUN,12841,bird_(wild)
+pássaros protegidos,pt,NOUN,12839,bird_(protected)
+pântano,pt,NOUN,17472,"swamp,bog,marsh"
+pão,pt,NOUN,12895,"bread,loaf_of_bread,loaf"
+pé,pt,NOUN,14379,foot
+pénis,pt,NOUN,15994,penis
+pêlo,pt,NOUN,14415,"fur,coat_(animal),hair_(animal)"
+pêlos púbicos,pt,NOUN,16426,pubic_hair
+pêra,pt,NOUN,15986,pear
+pêssego,pt,NOUN,15983,"peach,nectarine"
+pílula,pt,NOUN,12845,"birth_control_pill,pill"
+pó,pt,NOUN,16233,"powder,dust"
+pó de gengibre,pt,NOUN,22319,ginger_(powder)
+pó de talco,pt,NOUN,17500,talcum_powder
+pó para escurecer as sobrancelhas,pt,NOUN,15164,"eyeliner,kohl"
+pólder,pt,NOUN,21539,polder_(Dutch)
+pólo,pt,NOUN,22098,polo
+pólo aquático,pt,NOUN,21805,water_polo
+pólo norte,pt,NOUN,22600,North_Pole
+pólo sul,pt,NOUN,22599,South_Pole
+pôr a mesa,pt,VERB,23563,lay_the_table-(to)
+pôr de parte,pt,VERB,13665,"destroy,annul,cancel,cross_out,delete-(to)"
+pôr do sol,pt,NOUN,17467,sunset
+público,pt,ADJ,16428,public_(not_private)
+público,pt,NOUN,16429,public_(the_public)
+púrpura,pt,NOUN,16436,"purple,violet_(bci)"
+quadrado,pt,NOUN,17242,square_(shape)
+quadro,pt,NOUN,12852,"blackboard,chalkboard,whiteboard,writing_board"
+qual,pt,OTHER,18238,"which,that-(relative)"
+qualidade,pt,NOUN,24720,quality
+qualidade,pt,NOUN,24721,quality_(measurement)
+qualquer coisa,pt,NOUN,12400,"anything,something"
+quando?,pt,OTHER,18234,when
+quando?,pt,OTHER,18235,"when,what_time-(question)"
+quantos?,pt,ADJ,14908,"how_much,how_many"
+quaresma,pt,NOUN,21322,fast
+quaresma,pt,NOUN,24178,Lent
+quarta parte,pt,NOUN,24932,"quarter,one_quarter"
+quarta-feira,pt,NOUN,25214,Wednesday_(day3)
+quarta-feira,pt,NOUN,25215,Wednesday_(day4)
+quarta-feira,pt,NOUN,25216,Wednesday_(day5)
+quarto,pt,NOUN,12650,bedroom
+quatro,pt,NOUN,8500,"four_(digit),4"
+que coisa?,pt,NOUN,18231,what_(thing)-(question)
+quebra nozes,pt,NOUN,22566,nutcracker
+queijo,pt,NOUN,13157,cheese
+queijo,pt,NOUN,22358,hard_cheese
+queijo de coelho,pt,NOUN,22364,cottage_cheese
+queijo fresco,pt,NOUN,22359,soft_cheese
+queijo fresco,pt,NOUN,22361,fresh_cheese
+queijo para barrar,pt,NOUN,22360,spreadable_cheese
+queimadura,pt,ADJ,12923,"burned,burnt"
+queimadura solar,pt,NOUN,24766,sunburn
+queimadura solar,pt,NOUN,24768,suntan
+queimar,pt,VERB,12922,burn-(to)
+queixo,pt,NOUN,13169,chin
+quem?,pt,OTHER,18244,"who,whom-(question)"
+quem?,pt,OTHER,18245,"who,whom,that-(relative)"
+quente,pt,ADJ,14900,hot_(temperature)
+quente,pt,ADJ,18037,warm
+querer,pt,VERB,18035,"want,desire-(to)"
+querer,pt,VERB,24261,"shall,will-(modal_aux_v)"
+quiabo,pt,NOUN,24706,"okra,lady's_finger"
+quieto,pt,ADV,24285,"still,continuing,ongoing"
+quieto,pt,ADV,25177,"still,calm,peaceful,tranquil"
+quilha de um navio,pt,NOUN,22064,keel
+quinta,pt,NOUN,14151,farm
+quinta-feira,pt,NOUN,25193,Thursday_(day4)
+quinta-feira,pt,NOUN,25194,Thursday_(day5)
+quinta-feira,pt,NOUN,25195,Thursday_(day6)
+quintal,pt,NOUN,18287,yard
+quiropodista,pt,NOUN,21601,chiropractor
+quisleu,pt,NOUN,15151,Kislev
+química,pt,NOUN,21544,chemistry
+químico,pt,NOUN,21562,chemist
+rabanete,pt,NOUN,16454,radish
+radiação electromagnética,pt,NOUN,13922,electromagnetic_radiation
+radiação nuclear,pt,NOUN,15740,"nuclear_radiation,radioactivity"
+radioso,pt,ADJ,17465,sunny
+rainha,pt,NOUN,23626,queen
+raiva,pt,NOUN,16449,rabies
+raiz do dente,pt,NOUN,16688,"root(s),rootage,root_system"
+ralhar,pt,VERB,21361,nag-(to)
+ramadão,pt,NOUN,21324,Ramadan
+ramo,pt,NOUN,17263,"stick,log"
+rampa,pt,NOUN,23629,ramp
+rapariga,pt,NOUN,14439,girl
+rapaz,pt,NOUN,12888,"boy,lad"
+rapel,pt,NOUN,22110,"abseiling,rappelling"
+raposa,pt,NOUN,14394,"fox,jackal,coyote"
+raquetes,pt,NOUN,16452,"racket,racquet"
+raspar,pt,VERB,16945,shave_(beard)-(to)
+rastejar,pt,VERB,13603,crawl-(to)
+rato,pt,NOUN,12386,"rat,rodent,gnawer,gnawing_animal"
+rato,pt,NOUN,15665,mouse
+rato,pt,NOUN,23593,"mouse,pointing_device"
+rato-almiscarado,pt,NOUN,15684,muskrat
+raviolis,pt,NOUN,22134,ravioli
+raízes dos vegetais,pt,NOUN,18005,vegetable_(below_ground)
+real,pt,ADJ,16467,"real,really"
+reboque,pt,NOUN,18028,"wagon,cart,truck"
+receber,pt,VERB,14435,"get,acquire,receive-(to)"
+receita,pt,NOUN,16469,recipe
+receita,pt,NOUN,24724,receipt
+recente,pt,ADJ,16468,"recent,recently"
+recepção,pt,NOUN,24502,reception
+recheio para sanduíche,pt,NOUN,17238,"spread,paste"
+recife,pt,NOUN,23458,coral_reef
+recinto,pt,NOUN,13934,enclosure
+recipiente para a areia,pt,NOUN,16717,"sandbox,sandpit,sandtray"
+recipiente para cozinhar por meio da acção do vapor,pt,NOUN,22586,steamer
+recordar,pt,VERB,23634,"remember,recall-(to)"
+recreio,pt,NOUN,16202,playground
+rectangular,pt,ADJ,16473,"rectangular,oblong"
+rectificadora,pt,NOUN,22562,"grater,grinder"
+rectângulo,pt,NOUN,16472,"rectangle,oblong_(shape)"
+recuar,pt,VERB,12612,back_up-(to)
+rede de pesca,pt,NOUN,21357,fishnet
+rede para apanhar animais,pt,NOUN,23595,net
+redondo,pt,ADJ,16693,"round,circular"
+refeição,pt,NOUN,15438,meal
+refeição leve,pt,NOUN,17187,snack_(food)
+refeição leve,pt,NOUN,20606,snack_(meal)
+reflector,pt,NOUN,22385,reflector
+reflexo,pt,NOUN,15476,arrow_(bent)
+reflexo,pt,NOUN,22384,reflection
+reflexólogo,pt,NOUN,21604,reflexologist
+reforma,pt,NOUN,24489,money_on_a_regular_basis
+reforma,pt,NOUN,24493,old-age_pension
+reforma,pt,NOUN,24503,retirement_pension
+reformado,pt,ADJ,25155,retired
+refúgio subterrâneo,pt,NOUN,17970,bomb_shelter
+regador,pt,NOUN,24331,water_bucket
+regar,pt,VERB,24330,water-(to)
+regresso,pt,NOUN,16499,return
+rei,pt,NOUN,23559,king
+reino unido,pt,NOUN,17979,United_Kingdom
+reino unido,pt,NOUN,22610,England
+relativizador,pt,OTHER,16482,"who,that,which-(relative)"
+relações anais,pt,NOUN,12373,anal_intercourse
+relações sexuais,pt,NOUN,16931,"sexual_intercourse,intercourse,copulation"
+religioso,pt,ADJ,20562,religious
+religioso,pt,ADJ,22915,religious_(God_based)
+religião,pt,NOUN,20561,religion_(God_based)
+religião,pt,NOUN,23190,"religion_(science_of),theology"
+relinchar,pt,VERB,24199,"neigh,whinny-(to)"
+reluzente,pt,ADJ,12903,bright
+reluzente,pt,ADJ,22388,"shiny,glossy"
+relva,pt,NOUN,14636,grass
+relâmpagos,pt,NOUN,15209,lightning
+relógio,pt,NOUN,13363,"clock,timepiece"
+relógio,pt,NOUN,18044,"watch,wristwatch"
+remo,pt,NOUN,22051,rowing
+remos,pt,NOUN,21801,boating
+rena,pt,NOUN,16478,"reindeer,caribou"
+reparar,pt,VERB,14192,"fix,mend,repair-(to)"
+repetir,pt,VERB,16487,"repeat,copy,duplicate,reproduce-(to)"
+reprodução,pt,NOUN,16488,reproduction
+repuxo,pt,NOUN,24900,fountain
+república checa,pt,NOUN,25043,Czech_Republic
+requisitar,pt,VERB,16489,request-(to)
+reservatório de água,pt,NOUN,23247,water_tower
+residente,pt,NOUN,16491,resident
+resolver,pt,VERB,17206,solve-(to)
+respeito,pt,NOUN,16494,"respect,admiration"
+respirar,pt,NOUN,12900,breath
+respirar,pt,VERB,12901,breathe-(to)
+respiração artificial,pt,NOUN,12584,artificial_respiration
+respiração artificial,pt,VERB,12585,"give_artificial_respiration,resuscitate,revive-(to)"
+responder,pt,VERB,12394,"answer,reply-(to)"
+resposta,pt,NOUN,12393,"answer,reply"
+ressentir,pt,VERB,16490,resent-(to)
+ressurreição,pt,NOUN,21316,resurrection
+restaurante,pt,NOUN,16498,"restaurant,cafeteria"
+reunir,pt,VERB,14426,"gather,assemble-(to)"
+reunião,pt,NOUN,14427,"gathering,assembly,meeting,conference"
+reunião religiosa,pt,NOUN,21288,religious_gathering
+revista,pt,NOUN,15407,"magazine,journal"
+reza,pt,NOUN,16237,prayer
+rezar,pt,VERB,16236,pray-(to)
+rico,pt,ADJ,16506,rich_(taste)
+rico,pt,ADJ,16507,"rich,wealthy"
+rifle,pt,NOUN,16510,"rifle,shotgun"
+rima,pt,NOUN,16502,rhyme
+rinoceronte,pt,NOUN,16501,rhinoceros
+rins,pt,NOUN,24176,kidney
+rio,pt,NOUN,16677,"river,stream,current"
+riquexó,pt,NOUN,16508,rickshaw
+riquezas,pt,NOUN,16952,shekel
+rir,pt,NOUN,24824,"laugh,laughter"
+rir-se,pt,VERB,15178,laugh-(to)
+rocha,pt,NOUN,17267,"stone,rock"
+rocha,pt,NOUN,24763,"submerged_rock,reef"
+roda,pt,NOUN,18232,wheel
+roda da massa,pt,NOUN,22132,pasta_wheel
+rodar,pt,VERB,16690,"rotate,circle,circulate,wind_up,orbit-(to)"
+rolar,pt,VERB,23640,roll-(to)
+rolo da massa,pt,NOUN,22592,rolling_pin
+rolo de pão,pt,NOUN,16683,"roll,bun"
+rolo de pão,pt,NOUN,20769,bun_(food)
+rolos de couve estufada,pt,NOUN,23502,"filled_cabbage,stuffed_cabbage"
+roménia,pt,NOUN,25417,Romania
+roncar,pt,VERB,24140,grunt_(pig)-(to)
+rosa,pt,NOUN,16184,pink_(bci)
+rosa,pt,NOUN,16185,pink_(ckb)
+rosa,pt,NOUN,22611,rose
+rosto,pt,NOUN,14138,face
+roubar,pt,VERB,23667,steal-(to)
+roupa interior,pt,NOUN,17974,"underwear,underclothes"
+roupas,pt,NOUN,13366,"clothing,clothes,garment"
+roupão,pt,NOUN,13879,"dressing_gown,housecoat,robe"
+rouquidão,pt,ADJ,26025,speech_impaired
+rua,pt,NOUN,17441,street
+rugir,pt,VERB,24139,growl_(dog)-(to)
+rugir,pt,VERB,24248,roar_(lion)-(to)
+ruínas,pt,NOUN,23641,"ruin,wreck,wreckage_(building)_(2)"
+ruínas,pt,NOUN,25605,"ruin,wreck,wreckage_(building)_(1)"
+rádio,pt,NOUN,16453,radio_(1)
+rádio,pt,NOUN,25363,radio_(2)
+rápido,pt,ADJ,16446,"quick,fast,quickly,rapid,rapidly"
+rápido,pt,NOUN,24819,"quickness,rapidity,speediness"
+rápidos,pt,NOUN,22623,rapid(s)
+râguebi,pt,NOUN,20593,"rugby,football_(N.A.)"
+régua,pt,NOUN,16698,"ruler,measuring_stick,tapeline,tape_measure"
+sabbath,pt,NOUN,14113,"evening_before_holiday,evening_of_Sabbath"
+sabonete,pt,NOUN,17200,"soap,detergent"
+sabor,pt,NOUN,17506,taste
+saca rolhas,pt,NOUN,22395,bottle_opener
+saca-rolhas,pt,NOUN,22564,corkscrew
+saco,pt,NOUN,16701,"sack,bag"
+saco cama,pt,NOUN,17010,sleeping_bag
+sacramento,pt,NOUN,21102,sacrament
+sacramento das ordens sacras,pt,NOUN,21107,sacrament_of_holy_orders
+sacramento do casamento,pt,NOUN,21108,sacrament_of_marriage
+sacramento dos doentes,pt,NOUN,21109,sacrament_of_anointment_of_sick
+sacrificar,pt,VERB,22831,"offer,sacrifice-(to)"
+sacrifício,pt,NOUN,22832,sacrifice
+sagitário,pt,NOUN,22645,Sagittarius_(in_zodiac)
+sagrada família,pt,NOUN,21089,Holy_Family
+saia,pt,NOUN,17002,skirt
+sair,pt,VERB,14126,exit-(to)
+sair para baixo,pt,NOUN,15944,"out_of,exit_(downward)"
+sala,pt,NOUN,16687,room
+sala da terapia da fala,pt,NOUN,24277,speech_therapy_room
+sala de aulas,pt,NOUN,13353,classroom
+sala de cinema,pt,NOUN,15670,"movie_theatre,cinema"
+sala de concertos,pt,NOUN,13396,concert_hall
+sala de estar,pt,NOUN,15224,"living_room,lounge,sitting_room,front_room,parlor,parlour,waiting_room"
+sala de estudo,pt,NOUN,15202,library_(room)
+sala de fisioterapia,pt,NOUN,24212,physiotherapy_room
+sala de jantar,pt,NOUN,13680,dining_room
+sala de jogos,pt,NOUN,15482,"recreation_room,moadan"
+sala de recreio,pt,NOUN,16203,"playroom,family_room,recreation_room"
+sala de terapia ocupacional,pt,NOUN,24201,occupational_therapy_room
+sala de trabalho,pt,NOUN,23252,workplace
+sala de visitas,pt,NOUN,24465,guest_room
+salada,pt,NOUN,16709,salad
+salada de frutas servida em copos,pt,NOUN,22142,fruit_salad
+salada de marisco,pt,NOUN,22305,shellfish_salad
+salada de massa,pt,NOUN,22306,pasta_salad
+saliva,pt,NOUN,16710,"saliva,spit"
+salmão,pt,NOUN,23195,salmon
+salpicar,pt,VERB,17232,splash-(to)
+salsicha,pt,NOUN,16726,"sausage,frankfurter,hotdog,hot_dog"
+saltar,pt,VERB,15139,jump-(to)
+saltar só som um pé,pt,VERB,14892,hop-(to)
+salto com vara,pt,NOUN,22114,hang_gliding
+salto do sapato,pt,NOUN,25455,heel_(shoe)
+salto em altura,pt,NOUN,21843,high_jump
+salto em comprimento,pt,NOUN,26017,long_jump_(sport)
+salto à vara,pt,NOUN,21844,pole_vaulting
+saltos de esqui,pt,NOUN,21866,ski_jumping
+salvador,pt,NOUN,21043,Messiah
+salvação,pt,NOUN,24253,salvation_(religious)
+salários,pt,NOUN,18027,"wage(s),pay,salary"
+sanduíche,pt,NOUN,16718,sandwich
+sanduíche,pt,NOUN,23196,sandwich_(open_face)
+sandálias,pt,NOUN,16716,sandal(s)
+sangrar,pt,VERB,12855,bleed-(to)
+sangue,pt,NOUN,12861,blood
+sanitários,pt,NOUN,17747,toilet
+santidade,pt,NOUN,21082,holiness
+santidade da vida,pt,NOUN,21087,sanctity_of_life
+santificar,pt,VERB,21084,"sanctify,consecrate-(to)"
+santo,pt,ADJ,21041,"divine,holy"
+santo,pt,ADJ,21083,holy
+santo,pt,NOUN,21085,saint
+santíssima trindade,pt,NOUN,23115,Holy_Trinity
+sapato,pt,NOUN,16959,shoe
+sapato para a neve,pt,NOUN,25613,snowshoe
+sapo,pt,NOUN,14402,"frog,toad"
+sari,pt,NOUN,16720,sari
+sarigueia,pt,NOUN,15926,"opossum,possum"
+sarimner,pt,NOUN,22825,Saehrimnir
+satisfação,pt,NOUN,16721,"satisfaction,contentment"
+saturno,pt,NOUN,24505,Saturn_(planet)
+satélite,pt,NOUN,24624,communication_satellite
+satélite,pt,NOUN,24739,satellite
+satélite,pt,NOUN,24779,"weather_satellite,spy_satellite"
+saudável,pt,ADJ,14691,"healthy,well"
+sauna,pt,NOUN,16725,sauna
+saxofone,pt,NOUN,23946,saxophone_(1)
+saxofone,pt,NOUN,23947,saxophone_(2)
+saúde,pt,NOUN,14690,health
+se,pt,PREP,14927,if
+se faz favor,pt,PREP,15967,"pardon,what_did_you_say"
+secador de cabelo,pt,NOUN,24141,"hair_drier,blow_dryer"
+secar,pt,VERB,23858,dry-(to)
+seco,pt,ADJ,23857,dry
+secretária,pt,NOUN,13663,"desk,worktable,work_table"
+secretária,pt,NOUN,16746,secretary
+secretário,pt,NOUN,15418,"manager,secretary"
+seda,pt,NOUN,23211,silk
+sede,pt,ADJ,17719,thirsty
+segredar,pt,VERB,18240,whisper-(to)
+segredo,pt,NOUN,16745,secret
+seguir,pt,VERB,21053,follow-(to)
+segunda-feira,pt,NOUN,25113,Monday_(day1)
+segunda-feira,pt,NOUN,25114,Monday_(day2)
+segunda-feira,pt,NOUN,25115,Monday_(day3)
+segundo,pt,NOUN,16743,second_(time)
+segundo,pt,ADJ,16744,second_(ordinal)
+segurar,pt,VERB,14882,"hold,contain_(1)-(to)"
+segurar,pt,VERB,23532,hold_(with_hand)-(to)
+segurar,pt,VERB,25083,"hold,contain_(2)-(to)"
+seguro,pt,ADJ,16704,"safe,safely,secure,securely"
+seguro,pt,NOUN,16705,"safety,security"
+seguro médico,pt,NOUN,15447,medical_insurance
+seis,pt,NOUN,8502,"six_(digit),6"
+sela,pt,NOUN,22839,saddle
+selva,pt,NOUN,25202,"tropical_rain_forest,jungle"
+sem fim,pt,ADJ,21331,"unending,endless"
+semana,pt,NOUN,18217,week
+semana seguinte,pt,NOUN,15715,next_week
+semelhante,pt,PREP,16984,"similar,like,alike"
+semente,pt,NOUN,16749,seed
+sempre,pt,ADV,12368,"always,ever,forever"
+sentar,pt,VERB,16995,sit-(to)
+sentido da vida,pt,NOUN,21607,view_of_life
+sentimento,pt,NOUN,14164,"feeling,emotion,sensation"
+sentir,pt,VERB,14163,feel-(to)
+sentir a falta de alguém,pt,VERB,15478,"miss,lose-(to)"
+sentir pesar,pt,VERB,21296,mourn-(to)
+sentir-se mal,pt,ADJ,12615,"bad,wrong"
+separar,pt,VERB,23471,"detach,take_apart-(to)"
+ser,pt,VERB,12639,"be,am,are,is,exist-(to)"
+ser,pt,NOUN,13609,"creature,being"
+ser causado por,pt,VERB,13136,be_caused_by-(to)
+ser humano,pt,NOUN,16161,"person,human_being,individual,human"
+sereia,pt,NOUN,23590,mermaid
+serenidade,pt,NOUN,15981,"peace,peace_of_mind,serenity"
+seringa,pt,NOUN,17491,syringe
+serpear,pt,VERB,18252,"wiggle,squirm-(to)"
+serpear,pt,ADV,18253,wiggly
+serpente,pt,NOUN,17189,snake
+serra,pt,NOUN,16727,saw
+serralharia,pt,NOUN,24190,metal_craft
+serviço de reserva militar,pt,NOUN,15467,military_reserve_duty
+serviço militar,pt,NOUN,14650,guard_duty
+serviços,pt,NOUN,23203,service_(work)
+serviços,pt,NOUN,24256,service_(help)
+sesta,pt,NOUN,17008,sleep
+sete,pt,NOUN,8503,"seven_(digit),7"
+setembro,pt,NOUN,16761,September
+setentrional,pt,ADJ,15731,northern
+seu,pt,OTHER,14962,its
+seu,pt,OTHER,17702,"their,theirs-(indefinite)"
+seus,pt,OTHER,14962,its
+seus,pt,OTHER,17704,"their,theirs-(masculine_plural)"
+sexo oral,pt,NOUN,15930,oral_sex
+sexta-feira,pt,NOUN,25064,Friday_(day5)
+sexta-feira,pt,NOUN,25065,Friday_(day6)
+sexta-feira,pt,NOUN,25066,Friday_(day7)
+sexualidade,pt,NOUN,16933,sexuality
+sidra,pt,NOUN,22347,cider
+significado,pt,NOUN,15441,"meaning,sense,significance"
+significar,pt,VERB,15440,"mean,signify-(to)"
+silêncio,pt,NOUN,16981,"silence,quiet"
+sim,pt,PREP,18294,yes-(exclamatory)
+simpático,pt,ADJ,15717,"nice,pleasant"
+sinagoga,pt,NOUN,17490,synagogue
+sinais de trânsito,pt,NOUN,24735,"road_sign,traffic_signal"
+sino,pt,NOUN,12662,bell
+sirene,pt,NOUN,24616,buzzer
+sistema nervoso central,pt,NOUN,21585,"central_nervous_system,CNS"
+sistema solar,pt,NOUN,22836,solar_system
+situação,pt,NOUN,24720,quality
+situação,pt,NOUN,24721,quality_(measurement)
+siv,pt,NOUN,22653,Sif
+sivan,pt,NOUN,16996,Sivan
+sleipner,pt,NOUN,22824,Sleipnir
+snooker,pt,NOUN,22099,billiards
+snooker,pt,NOUN,22100,"pool,snooker"
+snow board,pt,NOUN,21868,snowboarding
+snowboard,pt,NOUN,21869,snowboard
+soalho,pt,NOUN,14202,floor
+soar,pt,VERB,17217,sound-(to)
+sobrancelha,pt,NOUN,14134,eyebrow
+sobre,pt,PREP,15948,"over,above,superior"
+sobremesa,pt,NOUN,13664,dessert
+sobrenatural,pt,NOUN,21036,supernatural-(noun)
+sobrenatural,pt,ADJ,24945,supernatural
+sobrinha,pt,NOUN,15718,niece
+sobrinha,pt,NOUN,24817,niece_or_nephew
+sobrinho,pt,NOUN,15707,nephew
+sociologia,pt,NOUN,21551,sociology
+sociólogo,pt,NOUN,21568,sociologist
+soco,pt,VERB,14717,hit-(to)
+sofrer,pt,NOUN,12331,ache
+sofá,pt,NOUN,13419,"couch,chesterfield,sofa"
+sol,pt,NOUN,17462,sun
+soldado,pt,NOUN,17204,"soldier,warrior"
+soletrar,pt,VERB,23665,spell-(to)
+solidéu,pt,NOUN,17004,"skullcap,kipa,yarmulke"
+solitário,pt,ADV,15228,"lonely,lonesome"
+solstício do verão,pt,NOUN,15465,midsummer
+soluço,pt,NOUN,25075,hiccup(s)_(1)
+soluço,pt,NOUN,25076,hiccup(s)_(2)
+som,pt,NOUN,17216,sound
+som grave num navio,pt,NOUN,22060,boom
+somar,pt,NOUN,12339,"addition,gain"
+somar,pt,NOUN,24003,"adding,additive"
+sombra,pt,NOUN,24746,"shadow,shade"
+sonhar,pt,VERB,13875,dream-(to)
+sopa,pt,NOUN,17218,"soup,broth"
+soprar,pt,VERB,12862,blow_(wind)-(to)
+soprar,pt,VERB,12863,blow_(mouth)-(to)
+sorrir,pt,VERB,17021,"smile,grin-(to)"
+sorte,pt,NOUN,15402,"luck,fortune"
+sortudo,pt,ADJ,15403,"lucky,fortunate"
+soutien,pt,NOUN,12889,"bra,brassiere"
+squash,pt,NOUN,26027,squash_(sport)
+sua,pt,OTHER,14715,his
+sua,pt,OTHER,14962,its
+suas,pt,OTHER,14962,its
+suas,pt,OTHER,17703,"their,theirs-(feminine_plural)"
+suave,pt,ADJ,17186,smooth
+subtracção,pt,NOUN,17449,"subtraction,loss"
+subtrair,pt,VERB,17448,"subtract,remove,take_away-(to)"
+sucesso,pt,NOUN,17451,success
+suculento,pt,ADJ,22349,juicy
+suficiente,pt,ADV,13939,enough
+sugerir,pt,VERB,17454,"suggest,propose-(to)"
+sugestão,pt,NOUN,17455,"suggestion,proposal"
+suiça,pt,NOUN,25184,Switzerland
+sujo,pt,ADJ,13683,"dirty,soiled"
+sul,pt,NOUN,17219,south
+sumo de fruta,pt,NOUN,14406,"fruit_juice,juice"
+sumo de uva,pt,NOUN,14633,grape_juice
+sumário,pt,NOUN,25179,"summary,abstract"
+suor,pt,NOUN,17475,"sweat,perspiration"
+supermercado,pt,NOUN,23102,"grocery_store,food_store,supermarket"
+surdez,pt,ADJ,13643,deaf
+surf com vela e prancha,pt,NOUN,21885,wind_surfing
+surpreender,pt,VERB,23961,surprise-(to)
+surpreendido,pt,ADJ,23962,surprised
+surpresa,pt,NOUN,23960,surprise
+suécia,pt,NOUN,22617,Sweden
+sábado,pt,NOUN,25163,Saturday_(day1)
+sábado,pt,NOUN,25164,Saturday_(day6)
+sábado,pt,NOUN,25165,Saturday_(day7)
+sábado entre judeus,pt,NOUN,16700,"Sabbath,day_of_rest"
+século,pt,NOUN,13144,century
+sémen,pt,NOUN,16757,semen
+série de edifícios,pt,NOUN,23815,"block,city_block"
+símbolo bliss,pt,NOUN,12857,"blissymbol,Bliss-word"
+só,pt,ADV,12363,"alone,just,only,solitary"
+sótão,pt,NOUN,23026,attic
+tabaco,pt,NOUN,17743,tobacco
+taco,pt,NOUN,12635,bat_(sport)
+tailândia,pt,NOUN,25416,Thailand
+tala,pt,NOUN,24279,splint_(orthopedic)
+talete,pt,NOUN,17501,tallith
+talhador,pt,NOUN,15159,"knife,sword"
+talheres/louça de mesa,pt,NOUN,17993,utensil
+talvez,pt,ADV,16226,"maybe,perhaps,possibly"
+tamanho,pt,NOUN,23214,size
+tambor,pt,NOUN,23854,drum_(1)
+tambor,pt,NOUN,23855,drum_(2)
+tampa,pt,NOUN,22583,lid
+tampa do computador,pt,NOUN,23562,laptop
+tamuz,pt,NOUN,17502,Tammuz
+tandem,pt,NOUN,21816,tandem_bicycle
+tangerina,pt,NOUN,17503,"tangerine,clementine,mandarin"
+tanque,pt,NOUN,17504,tank
+tanque de óleo,pt,NOUN,22071,oil_tanker
+tapete pequeno e grosso,pt,NOUN,16696,"rug,carpet,mat"
+tarde,pt,ADV,15177,late
+tardinha,pt,NOUN,13950,evening
+tartaruga,pt,NOUN,17959,"turtle,tortoise"
+tatuagem,pt,NOUN,25499,tattoo_(permanent)
+tatuagem,pt,NOUN,25500,tattoo_(sticker)
+tatuagem,pt,NOUN,25501,"tattoo,picture_on_skin"
+taxista,pt,NOUN,17510,"taxi_driver,cab_driver"
+teatro,pt,NOUN,16970,"exhibition_hall,showplace"
+teatro,pt,NOUN,23237,theatre
+tebet,pt,NOUN,17530,Tevet
+tecer,pt,VERB,18215,weave-(to)
+tecido,pt,NOUN,13365,"cloth,fabric,material,textile,net"
+tecla,pt,NOUN,23553,key_(computer)
+teclado,pt,NOUN,23555,keyboard_(computer)
+teclado,pt,NOUN,23963,"synthesizer,synthesiser,keyboard"
+teclado alternativo,pt,NOUN,23601,"overlay_keyboard,membrane_keyboard"
+tecnologia,pt,NOUN,25189,technology
+tecto,pt,NOUN,13139,ceiling
+telefonar,pt,VERB,22904,"call,telephone,ring-(to)"
+telefone,pt,NOUN,17518,telephone
+telemóvel,pt,NOUN,23592,"mobile_phone,cellphone"
+telescópio,pt,NOUN,22635,telescope
+televisão,pt,NOUN,17519,television
+telhado,pt,NOUN,16686,"roof,cover"
+telhado,pt,NOUN,23073,eaves
+telhado,pt,NOUN,23103,"gutter,eaves_trough"
+telégrafo,pt,NOUN,24042,cable_car
+tem um som parecido com,pt,PREP,16986,"similar_sound,sounds_like"
+tema,pt,NOUN,23669,subject_(of_study)
+temer,pt,VERB,14159,"fear,be_afraid,dread-(to)"
+tempero,pt,NOUN,14198,"flavouring,condiment,seasoning"
+tempero,pt,NOUN,22309,"flavouring,seasoning_(liquid)"
+tempero,pt,NOUN,22310,"flavouring,seasoning_(powder)"
+tempestade,pt,NOUN,17271,gale
+tempestade,pt,NOUN,23956,storm
+tempo,pt,NOUN,18214,weather
+temporizador,pt,NOUN,23238,timer
+tenda,pt,NOUN,17523,tent
+tenho,pt,VERB,15685,"must,have_to,be_forced_to-(to)"
+tenho,pt,VERB,24264,"should,would-(modal_aux_v)"
+tentar,pt,VERB,17787,"try,attempt-(to)"
+tentilhão,pt,NOUN,17211,"songbird,finch,thrush"
+ter,pt,VERB,14685,have-(to)
+ter esperança,pt,VERB,14893,hope-(to)
+ter êxito,pt,VERB,17450,succeed-(to)
+terapeuta,pt,NOUN,20516,therapist
+terapeuta da fala,pt,NOUN,21590,speech_therapist
+terapeuta da fala,pt,NOUN,21595,communication_therapist
+terapeuta de aromas,pt,NOUN,21603,aroma_therapist
+terapeuta de dança,pt,NOUN,21599,dance_therapist
+terapeuta de música,pt,NOUN,21598,music_therapist
+terapeuta ocupacional,pt,NOUN,21591,occupational_therapist
+terapia,pt,NOUN,21589,therapy
+terapia da fala,pt,NOUN,24276,speech_therapy
+terapia ocupacional,pt,NOUN,24200,occupational_therapy
+terma,pt,NOUN,22632,hot_spring
+terminar,pt,VERB,14181,"finish,complete-(to)"
+terminar,pt,VERB,17268,"stop,arrive,end-(to)"
+termómetro,pt,NOUN,17709,thermometer
+terra,pt,NOUN,13901,"earth,ground,land"
+terra,pt,NOUN,14173,field
+terramoto,pt,NOUN,22620,earthquake
+terrorista,pt,NOUN,17526,terrorist
+terça-feira,pt,NOUN,25203,Tuesday_(day2)
+terça-feira,pt,NOUN,25204,Tuesday_(day3)
+terça-feira,pt,NOUN,25205,Tuesday_(day4)
+tesouras,pt,NOUN,16736,scissors
+tesouro,pt,NOUN,25143,"precious_thing,treasure"
+testa,pt,NOUN,14384,forehead
+testículo,pt,NOUN,17529,testicle
+teu,pt,OTHER,18471,"your,yours-(masculine_singular)"
+teu,pt,OTHER,18473,"your,yours-(singular)"
+teus,pt,OTHER,18470,"your,yours-(masculine_plural)"
+tia,pt,NOUN,12596,aunt
+tigela,pt,NOUN,13403,"container,bowl,holder,pouch,basket"
+tigre,pt,NOUN,17731,tiger
+tinta,pt,NOUN,15956,"paint,dye"
+tio,pt,NOUN,17967,uncle
+tiranossaurus,pt,NOUN,23699,Tyrannosaurus_Rex
+tiras de batatas,pt,NOUN,24716,"potato_chip(s),chip(s),crisp(s)"
+tiras de chocolate,pt,NOUN,22343,chocolate_(hagel)
+tiro com arco,pt,NOUN,21856,archery
+tisri,pt,NOUN,17737,Tishri
+toalha,pt,NOUN,24312,towel
+toalha de altar,pt,NOUN,21369,altar_cloth
+toalha de mesa,pt,NOUN,17494,tablecloth
+toalhetes,pt,NOUN,17738,tissue
+tobogã,pt,NOUN,21871,toboggan
+tocar,pt,VERB,17761,"touch,feel-(to)"
+tocar,pt,VERB,23930,play_(instrument)-(to)
+toda a gente,pt,NOUN,14117,"everybody,everyone"
+todo conhecedor,pt,ADJ,21328,all_knowing
+todo poderoso,pt,ADJ,21329,all_powerful
+tomar duche,pt,VERB,16969,shower-(to)
+tomar um banho de sol,pt,VERB,24765,sunbathe-(to)
+tomate,pt,NOUN,17749,tomato
+tonto,pt,ADJ,24642,dizzy
+topo,pt,NOUN,17758,top
+topo,pt,NOUN,25387,"top,top_of_a_thing"
+tor,pt,NOUN,22652,Thor
+tora,pt,NOUN,17760,Torah
+toranja,pt,NOUN,14634,grapefruit
+tornado,pt,NOUN,23887,hurricane
+tornar-se,pt,VERB,12648,become-(to)
+torneira,pt,NOUN,24516,tap_(1)
+torneira,pt,NOUN,24517,tap_(2)
+tornozelo,pt,NOUN,12391,ankle
+torrada,pt,NOUN,17740,toast
+torradeira,pt,NOUN,17742,toaster
+torrar,pt,VERB,17741,toast-(to)
+torre,pt,NOUN,23240,tower
+torre de vigilância,pt,NOUN,23245,"watch_tower,observation_tower"
+torta,pt,NOUN,16173,"pie,tart"
+torta,pt,NOUN,22128,dumpling
+tossir,pt,VERB,13420,cough-(to)
+toucinho entremeado,pt,NOUN,12614,bacon
+touro,pt,NOUN,12920,bull
+touro,pt,NOUN,22639,Taurus_(in_zodiac)
+touros a lutarem,pt,NOUN,12921,bull_(fighting)
+trabalhar,pt,VERB,18274,work-(to)
+trabalho de casa,pt,NOUN,23533,"homework,home_studying"
+trabalho de grupo,pt,NOUN,24305,teamwork
+trabalho de parto,pt,NOUN,15165,labour
+trabalho manual,pt,NOUN,13431,craft
+tradição familiar,pt,NOUN,14144,family_(traditional)
+tradição familiar,pt,NOUN,14145,family_(cohabiting)
+tradição familiar,pt,NOUN,20572,family
+traduzir,pt,VERB,17769,translate-(to)
+trajo de fantasia,pt,NOUN,13418,"costume,disguise"
+trampolim,pt,NOUN,17768,trampoline
+trancar,pt,VERB,15227,lock-(to)
+trancinhas,pt,NOUN,25023,"braid,plait,pigtail(s)"
+tranquilidade,pt,ADJ,16447,"quiet,quietly"
+tranquilo,pt,ADJ,15982,"peaceful,serene,calm"
+transferidor,pt,NOUN,23180,protractor
+transformador de comida,pt,NOUN,22393,"food_processor,kitchen_machine"
+transpirar,pt,VERB,17474,"sweat,perspire-(to)"
+transportar,pt,VERB,13125,"carry,move,transport-(to)"
+traqueia,pt,NOUN,25505,"trachea,wind_pipe"
+traseira,pt,NOUN,25364,"rear,back_of_a_thing"
+travar,pt,VERB,24850,brake_(general)-(to)
+travar,pt,VERB,24851,brake_(vehicle)-(to)
+travessa,pt,NOUN,22575,oven_tray
+travesso,pt,ADJ,15694,naughty
+travesso,pt,ADJ,15695,"naughty,not_nice"
+travesti,pt,NOUN,17771,transvestite_(male)
+travestie,pt,NOUN,17770,transvestite_(female)
+trazer,pt,VERB,12904,bring-(to)
+trempe,pt,NOUN,22595,"pot_stand,trivet"
+trenó,pt,NOUN,17007,"sled,sledge,sleigh,toboggan"
+trenó,pt,NOUN,21872,bobsleigh
+trenó de cavalos,pt,NOUN,21873,"horse_sled,horse-drawn_sleigh"
+trenó de cão,pt,NOUN,21878,sled_dog
+trenó para cães,pt,NOUN,21874,dog_sled
+trepar,pt,VERB,13360,climb-(to)
+tresandar,pt,VERB,17019,"smell,give_off_odour-(to)"
+trevo,pt,NOUN,16939,"shamrock,clover"
+triangular,pt,ADJ,17777,triangular
+triatlo,pt,NOUN,21858,triathlon
+tribo,pt,NOUN,21609,"people,tribe,clan,folk"
+tribunal,pt,NOUN,23052,"court,courtroom"
+triceratops,pt,NOUN,23694,Triceratops
+triciclo,pt,NOUN,17778,tricycle
+tricotar,pt,VERB,15160,knit-(to)
+trigo,pt,NOUN,24780,wheat
+triste,pt,ADJ,16702,"sad,sadly,unhappily,unhappy"
+tristeza,pt,NOUN,16703,"sadness,sorrow,unhappiness"
+triângulo,pt,NOUN,17776,triangle
+trocar,pt,VERB,14118,"exchange,substitute,trade-(to)"
+trombeta,pt,NOUN,14895,"trumpet,horn,cornet_(1)"
+trombone,pt,NOUN,23970,trombone
+trompa de falópio,pt,NOUN,14143,fallopian_tube
+trompeta,pt,NOUN,23971,"trumpet,horn,cornet_(2)"
+tronco,pt,NOUN,17783,"trunk,tree_trunk,bole"
+trotar,pt,VERB,24319,trot_(horse)-(to)
+trotinete,pt,NOUN,21811,scooter
+trovão,pt,NOUN,17727,thunder
+tráfego,pt,NOUN,17766,traffic
+três,pt,NOUN,8499,"three_(digit),3"
+três paus verticais unidos por barras horizontais,pt,NOUN,21809,wicket
+tu,pt,OTHER,18299,"you,yourself-(feminine_singular)"
+tu,pt,OTHER,18301,"you,yourself-(masculine_singular)"
+tu próprio,pt,OTHER,18465,"you,yourself"
+tua,pt,OTHER,18468,"your,yours-(feminine_plural)"
+tua,pt,OTHER,18469,"your,yours-(feminine_singular)"
+tua,pt,OTHER,18473,"your,yours-(singular)"
+tuba,pt,NOUN,23973,tuba_(1)
+tuba,pt,NOUN,23974,tuba_(2)
+tubarão,pt,NOUN,16942,shark
+tubo,pt,NOUN,16187,"pipe,hose,tube_(1)"
+tubo,pt,NOUN,23926,"pipe,hose,tube_(2)"
+tubo,pt,NOUN,23927,"pipe,tube_(closed)"
+tudo,pt,OTHER,12360,"all,every,everything,total,whole"
+turma,pt,NOUN,13352,class
+turquia,pt,NOUN,25206,Turkey
+tyr,pt,NOUN,22820,Tyr
+tábua,pt,NOUN,12868,board_(material)
+tábua,pt,NOUN,20599,board
+tábua de engomar,pt,NOUN,14957,ironing_board
+tâmara,pt,NOUN,13637,date_(fruit)
+ténis,pt,NOUN,26030,"tennis,racket_sport,racquet_sport"
+ténis,pt,NOUN,26031,tennis_(activity)
+ténis de mesa,pt,NOUN,26028,"table_tennis,ping-pong_(activity)"
+ténis de mesa,pt,NOUN,26029,"table_tennis,ping-pong_(sport)"
+ténis de praia,pt,NOUN,25981,beach_tennis_(activity)
+ténis de praia,pt,NOUN,25982,beach_tennis_(sport)
+térmita,pt,NOUN,17524,"termite,wood_destroying_insect"
+tórax,pt,NOUN,13161,chest
+túnel,pt,NOUN,24321,"tunnel,subway,underpass"
+ucrânia,pt,NOUN,25207,Ukraine
+um,pt,NOUN,8497,"one_(digit),1"
+um de dois,pt,OTHER,13914,either
+uma,pt,OTHER,12321,"a,an,any"
+uma vez,pt,ADV,15919,once
+umbigo,pt,NOUN,24198,navel
+unha,pt,NOUN,13355,claw_(bird)
+unha,pt,NOUN,24114,"fingernail,nail"
+unidade,pt,NOUN,17978,"unit,example,sample,for_example,e.g."
+uniforme escolar,pt,NOUN,24743,school_uniform
+unir,pt,VERB,14154,"fasten,attach,join,append,connect-(to)"
+universal,pt,ADJ,21380,"universal,world-wide"
+universidade,pt,NOUN,17980,university
+uretra,pt,NOUN,17988,urethra
+urina,pt,NOUN,17990,"urine,piss,pee,piddle,weewee,water"
+urna,pt,NOUN,21281,urn
+urso,pt,NOUN,12643,bear
+urso,pt,NOUN,24801,bear's_head
+usar,pt,VERB,17991,use-(to)
+usar o inalador,pt,NOUN,25328,inhaler
+uvas,pt,NOUN,14635,grape(s)
+vaca,pt,NOUN,13430,cow
+vagem,pt,NOUN,15987,pea(s)
+vagem,pt,NOUN,17442,"string_bean,green_bean,runner_bean,wax_bean"
+vagem,pt,NOUN,22837,"pod,seedcase,seedpod"
+vagina,pt,NOUN,17996,vagina
+vale,pt,NOUN,17999,valley
+valhalá,pt,NOUN,22827,Valhalla
+valia,pt,NOUN,13949,"evaluation,value"
+vamos,pt,VERB,15197,"let_us,let's"
+vampiro,pt,NOUN,25209,vampire
+vapor,pt,NOUN,17255,steam
+vaporizador para o cabelo,pt,NOUN,23880,hair_spray
+vara de esqui,pt,NOUN,17000,ski_pole(s)
+varanda,pt,NOUN,12620,"balcony,porch,veranda"
+varinha de condão,pt,NOUN,18034,wand
+varrer,pt,VERB,12913,brush-(to)
+vasectomia,pt,NOUN,18002,vasectomy
+vaso,pt,NOUN,21282,"vase,urn,trophy_cup"
+vaso de conservas,pt,NOUN,22588,"storage_jar,preserving_jar"
+vassoura,pt,NOUN,12908,broom
+vaticinar,pt,VERB,21051,predict-(to)
+vazante,pt,NOUN,22627,"low_tide,ebb"
+vazio,pt,ADJ,23863,empty
+veado,pt,NOUN,12381,"deer,cervine_(animal),cervid"
+vedação,pt,NOUN,14167,"fence,wall"
+vegetais,pt,NOUN,18004,vegetable_(above_ground)
+vegetais,pt,NOUN,23710,vegetable(s)
+vegetal em forma de cilindro,pt,NOUN,18007,vegetable_(oval-shaped)
+vela,pt,NOUN,13117,candle
+vela,pt,NOUN,20519,sail
+velejar,pt,NOUN,22049,sailing
+velho,pt,ADJ,15915,old_(opposite_new)
+velho,pt,ADJ,23910,old
+velho testamento,pt,NOUN,21070,Old_Testament
+velocidade,pt,NOUN,23216,speed
+vencer,pt,VERB,18254,win-(to)
+vender,pt,VERB,16756,sell-(to)
+vender,pt,NOUN,23069,discount_sale
+vender,pt,NOUN,23194,sale
+venenoso,pt,NOUN,16215,poison
+vento,pt,NOUN,18255,wind
+ventoinha,pt,NOUN,24104,fan_(machine)
+ventoínha,pt,NOUN,25362,"propeller,rotor_(blades)"
+ver,pt,VERB,16747,"see,look,watch-(to)"
+ver,pt,VERB,18045,watch-(to)
+verdade,pt,ADJ,17782,"true,truly,truthful,truthfully"
+verde,pt,NOUN,14641,green_(bci)
+verde,pt,NOUN,14642,green_(ckb)
+vergar,pt,VERB,24412,bend-(to)
+vergonha,pt,NOUN,16937,shame
+vermelho,pt,NOUN,16474,red_(bci)
+vermelho,pt,NOUN,16475,red_(ckb)
+verniz para as unhas,pt,NOUN,15690,"nail_polish,nail_varnish"
+vertical,pt,ADJ,23249,vertical
+vertical,pt,NOUN,23250,vertical-(a)
+verão,pt,NOUN,17459,summer_(ckb)
+verão,pt,NOUN,17460,summer
+vestes talares,pt,NOUN,21370,vestment
+vestido,pt,NOUN,13876,dress
+vestir,pt,VERB,13877,"dress,wear-(to)"
+vestiário,pt,NOUN,24063,"cloakroom,walk-in_closet"
+vestuário,pt,NOUN,22097,dressage
+vesícula seminal,pt,NOUN,16758,seminal_vesicle
+veterinário,pt,NOUN,25392,veterinarian
+vez,pt,NOUN,17956,"turn,play"
+veículo,pt,NOUN,18010,"vehicle,carriage,railway_car"
+veículo,pt,NOUN,24332,vehicle_(long)
+viagem,pt,NOUN,17779,"trip,journey,travel,voyage"
+viajante,pt,NOUN,23693,traveller
+viajar,pt,VERB,17772,travel-(to)
+vida,pt,NOUN,15206,life
+vida eterna,pt,NOUN,13945,"eternal_life,immortality_(after_death)"
+vidro,pt,NOUN,14441,glass_material
+vila,pt,NOUN,18012,village
+vinagre,pt,NOUN,18013,vinegar
+vinho,pt,NOUN,18258,wine
+vinho de málaga,pt,NOUN,15664,"mountain_berry,cowberry,lingonberry"
+vinho espumoso,pt,NOUN,22345,sparkling_wine
+viola,pt,NOUN,23879,"guitar,string_instrument"
+violação,pt,NOUN,16462,rape
+violeta,pt,NOUN,18014,"purple,violet_(ckb)"
+violino,pt,NOUN,23983,violin
+violoncelo,pt,NOUN,23834,cello
+viquingue,pt,NOUN,22828,Viking
+vir,pt,VERB,13383,"come,approach-(to)"
+virar,pt,VERB,17957,turn-(to)
+virgem,pt,NOUN,22642,Virgo_(in_zodiac)
+virgem maria,pt,NOUN,21046,Mary_(Mother_of_Christ)
+virgindade,pt,NOUN,18015,virginity
+visita de estudo,pt,NOUN,15945,"outing,excursion"
+visitar,pt,VERB,18017,visit-(to)
+visitas,pt,NOUN,18018,"visitor,guest"
+visão,pt,NOUN,21300,"vision,apparition"
+vitela,pt,NOUN,18003,veal
+viver,pt,VERB,15222,live_(life)-(to)
+vizinho,pt,NOUN,15705,neighbour
+voador,pt,ADJ,14373,flying
+voar,pt,VERB,14372,fly-(to)
+vocação,pt,NOUN,21359,"calling,vocation"
+voleibol,pt,NOUN,21804,volleyball
+voltagem,pt,NOUN,25396,voltage
+voltar,pt,VERB,16500,"return,come_back,reverse-(to)"
+voltímetro,pt,NOUN,23075,electricity_meter
+voltímetro,pt,NOUN,25397,voltmeter
+voluntário,pt,NOUN,18021,volunteer
+vomitar,pt,VERB,18022,"vomit,throw_up,puke-(to)"
+vossas,pt,OTHER,18472,"your,yours-(plural)"
+vossos,pt,OTHER,18472,"your,yours-(plural)"
+voyerismo,pt,NOUN,18023,voyeurism
+voz,pt,NOUN,23984,voice
+vulva,pt,NOUN,18025,vulva
+vários,pt,ADJ,16762,several
+vénus,pt,NOUN,24522,Venus_(planet)
+véspera de natal,pt,NOUN,25441,Christmas_Eve_(day)
+véspera de natal,pt,NOUN,25442,Christmas_Eve_(evening)
+véu,pt,NOUN,21614,veil
+vós,pt,OTHER,18298,"you,yourselves-(feminine_plural)"
+vós,pt,OTHER,18300,"you,yourselves-(masculine_plural)"
+vós próprios,pt,OTHER,18302,"you,yourselves-(plural)"
+vúlcano,pt,NOUN,18020,volcano
+woden,pt,NOUN,22650,Woden
+xarope da árvore,pt,NOUN,22337,syrup_(from_tree)
+xarope de bordo,pt,NOUN,22338,maple_syrup
+xarope de milho,pt,NOUN,22339,corn_syrup
+xarope doce,pt,NOUN,22335,syrup
+xilofone,pt,NOUN,23986,"xylophone,vibraphone_(1)"
+xilofone,pt,NOUN,23987,"xylophone,vibraphone_(2)"
+xiva,pt,NOUN,16958,Shiva
+xivaísmo,pt,NOUN,21295,shiva_(judaism)
+zangado,pt,ADJ,12377,"angry,angrily,mad"
+zero,pt,NOUN,8496,"zero_(digit),0"
+zoologia,pt,NOUN,21549,zoology
+zoólogo,pt,NOUN,21566,zoologist
+à frente de,pt,PREP,12656,"before,in_front_of,prior_to"
+à tarde,pt,NOUN,23157,noon
+à volta de,pt,PREP,12580,around
+ácaro,pt,NOUN,15480,"mite,tick"
+ácido,pt,ADJ,16944,"sharp_(taste),acid,sour"
+áfrica,pt,NOUN,22602,Africa
+áfrica do sul,pt,NOUN,22615,South_Africa
+água,pt,NOUN,18209,"water,fluid,liquid"
+água,pt,NOUN,25337,liquid
+águas profundas,pt,NOUN,22630,high_water
+áries,pt,NOUN,22638,Aries_(in_zodiac)
+árvore,pt,NOUN,17775,tree
+árvore de natal,pt,NOUN,21371,Christmas_tree
+ás vezes,pt,ADV,17208,sometimes
+ásia,pt,NOUN,22604,Asia
+áustria,pt,NOUN,25015,Austria
+âmbula,pt,NOUN,21365,ampullae
+âncora,pt,NOUN,24604,anchor
+ângulo,pt,NOUN,12376,angle
+ângulo,pt,NOUN,23020,angle_(measurement)
+ângulo direito,pt,NOUN,16674,"angle_(right),right_angle"
+ânus,pt,NOUN,12396,anus
+é claro,pt,ADJ,14961,"apparent(ly),clear(ly),evident(ly),obvious(ly),plain(ly)"
+íman,pt,NOUN,25338,magnet
+índia,pt,NOUN,25090,India
+índigo,pt,NOUN,14938,indigo
+íntimo,pt,ADJ,14951,"intimate,close"
+íntimo,pt,ADJ,16251,private
+óculos de sol,pt,NOUN,24767,sunglasses
+óculos para ver,pt,NOUN,14443,"glasses,eyeglasses"
+ópera,pt,NOUN,23597,opera
+órgãos sexuais femininos,pt,NOUN,14432,"genitals,sex_organs_(female)"
+órgãos sexuais masculinos,pt,NOUN,14433,"genitals,sex_organs_(male)"
+último,pt,ADJ,15173,"last,final"
+último,pt,ADJ,23893,"last_(person,etc)"
+úrano,pt,NOUN,24521,Uranus_(planet)
+útero,pt,NOUN,17994,"uterus,womb"
