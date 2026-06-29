@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill-rule="evenodd" height="8.958333333333334in" preserveAspectRatio="none" stroke-linecap="round" viewBox="0 0 936 644" width="13.0in">
+<style type="text/css">
+.brush0 { fill: rgb(255,255,255); }
+.pen0 { stroke: rgb(0,0,0); stroke-width: 1; stroke-linejoin: round; }
+.font0 { font-size: 11px; font-family: "MS Sans Serif"; }
+.pen1 { stroke: rgb(0,0,0); stroke-width: 14; stroke-linejoin: round; }
+.brush1 { fill: none; }
+.brush2 { fill: rgb(0,0,0); }
+.font1 { font-weight: bold; font-size: 16px; font-family: System, sans-serif; }
+</style>
+<g>
+<path class="pen1" d="M 274.99903481845126,385.9961051938461 A 127.5,127.5 0 1 0 20.000980380849143,385.9999961553692" fill="none"/>
+<line class="pen1" fill="none" x1="852" x2="852" y1="322" y2="418"/>
+<line class="pen1" fill="none" x1="852" x2="852" y1="449" y2="449"/>
+<path class="pen1" d="M 340.0662428874896,321.9914736877488 A 254.5,255.5 0 0 0 468.7018619171348,512.7343935711102" fill="none"/>
+<path class="pen1" d="M 466.9980921477605,321.99223327246324 A 63.5,63.5 0 1 0 340.00196841240614,321.9999845006897" fill="none"/>
+<path class="pen1" d="M 594.9980921477604,321.99223327246324 A 63.5,63.5 0 1 0 468.00196841240614,321.9999845006897" fill="none"/>
+<path class="pen1" d="M 467.171752599735,512.5183940927529 A 255.5,255.5 0 0 0 595.9257653272348,321.99048273426087" fill="none"/>
+<line class="pen1" fill="none" x1="116" x2="148" y1="130" y2="194"/>
+<line class="pen1" fill="none" x1="148" x2="180" y1="194" y2="130"/>
+<line class="pen1" fill="none" x1="84" x2="84" y1="130" y2="130"/>
+<line class="pen1" fill="none" x1="724" x2="724" y1="258" y2="514"/>
+<line class="pen1" fill="none" x1="724" x2="660" y1="514" y2="450"/>
+<line class="pen1" fill="none" x1="724" x2="788" y1="514" y2="450"/>
+<circle class="pen1" cx="147.5" cy="385.5" fill="none" r="63.5"/>
+<line class="pen1" fill="none" x1="148" x2="148" y1="322" y2="450"/>
+</g>
+</svg>

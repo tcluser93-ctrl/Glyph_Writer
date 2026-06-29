@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill-rule="evenodd" height="8.947916666666666in" preserveAspectRatio="none" stroke-linecap="round" viewBox="0 0 552 644" width="7.666666666666667in">
+<style type="text/css">
+.brush0 { fill: rgb(255,255,255); }
+.pen0 { stroke: rgb(0,0,0); stroke-width: 1; stroke-linejoin: round; }
+.font0 { font-size: 11px; font-family: "MS Sans Serif"; }
+.pen1 { stroke: rgb(0,0,0); stroke-width: 14; stroke-linejoin: round; }
+.brush1 { fill: none; }
+.font1 { font-weight: bold; font-size: 16px; font-family: System, sans-serif; }
+</style>
+<g>
+<path class="pen1" d="M 21.04617294281462,321.86561019509304 A 254.0,255.5 0 0 0 148.8810761827483,512.4175871757841" fill="none"/>
+<path class="pen1" d="M 146.99809214776047,321.99223327246324 A 63.5,63.5 0 1 0 20.00196841240612,321.9999845006897" fill="none"/>
+<path class="pen1" d="M 274.9980921477605,321.99223327246324 A 63.5,63.5 0 1 0 148.00196841240611,321.9999845006897" fill="none"/>
+<path class="pen1" d="M 147.2350856197781,512.6262137731214 A 255.0,255.5 0 0 0 275.9297612213228,321.9909772319881" fill="none"/>
+<line class="pen1" fill="none" x1="148" x2="276" y1="258" y2="514"/>
+<line class="pen1" fill="none" x1="276" x2="20" y1="514" y2="514"/>
+<line class="pen1" fill="none" x1="20" x2="148" y1="514" y2="258"/>
+<line class="pen1" fill="none" x1="20" x2="148" y1="386" y2="130"/>
+<line class="pen1" fill="none" x1="148" x2="276" y1="130" y2="386"/>
+<line class="pen1" fill="none" x1="20" x2="84" y1="386" y2="386"/>
+<line class="pen1" fill="none" x1="212" x2="276" y1="386" y2="386"/>
+<path class="pen1" d="M 467.9999961553692,258.0009803808491 A 127.5,127.5 0 1 0 467.9961051938461,512.9990348184513" fill="none"/>
+<path class="pen1" d="M 467.88011927967017,257.8399498236434 A 159.5,159.5 0 0 0 468.3588107011498,513.5172023549974" fill="none"/>
+<line class="pen1" fill="none" x1="468" x2="532" y1="354" y2="418"/>
+<line class="pen1" fill="none" x1="532" x2="468" y1="354" y2="418"/>
+<line class="pen1" fill="none" x1="500" x2="500" y1="322" y2="450"/>
+</g>
+</svg>

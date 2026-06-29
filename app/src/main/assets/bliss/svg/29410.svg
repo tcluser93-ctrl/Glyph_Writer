@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill-rule="evenodd" height="8.958333333333334in" preserveAspectRatio="none" stroke-linecap="round" viewBox="0 0 1000 644" width="13.885416666666666in">
+<style type="text/css">
+.brush0 { fill: rgb(255,255,255); }
+.pen0 { stroke: rgb(0,0,0); stroke-width: 1; stroke-linejoin: round; }
+.font0 { font-size: 11px; font-family: "MS Sans Serif"; }
+.pen1 { stroke: rgb(0,0,0); stroke-width: 14; stroke-linejoin: round; }
+.brush1 { fill: none; }
+.font1 { font-weight: bold; font-size: 16px; font-family: System, sans-serif; }
+</style>
+<g>
+<path class="pen1" d="M 724.0662428874896,321.9914736877488 A 254.5,255.5 0 0 0 852.7018619171348,512.7343935711102" fill="none"/>
+<path class="pen1" d="M 850.9980921477604,321.99223327246324 A 63.5,63.5 0 1 0 724.0019684124061,321.9999845006897" fill="none"/>
+<path class="pen1" d="M 978.9980921477604,321.99223327246324 A 63.5,63.5 0 1 0 852.0019684124061,321.9999845006897" fill="none"/>
+<path class="pen1" d="M 851.171752599735,512.5183940927529 A 255.5,255.5 0 0 0 979.9257653272348,321.99048273426087" fill="none"/>
+<line class="pen1" fill="none" x1="308" x2="340" y1="450" y2="386"/>
+<line class="pen1" fill="none" x1="340" x2="372" y1="386" y2="450"/>
+<path class="pen1" d="M 467.9999961553692,258.0009803808491 A 127.5,127.5 0 0 0 340.0009803808491,385.9999961553692" fill="none"/>
+<path class="pen1" d="M 338.99903481845126,385.9961051938461 A 127.5,127.5 0 0 0 211.99999615536922,258.0009803808491" fill="none"/>
+<circle class="pen1" cx="595.5" cy="385.5" fill="none" r="63.5"/>
+<line class="pen1" fill="none" x1="532" x2="660" y1="514" y2="514"/>
+<circle class="pen1" cx="83.5" cy="385.5" fill="none" r="63.5"/>
+<line class="pen1" fill="none" x1="52" x2="84" y1="194" y2="130"/>
+<line class="pen1" fill="none" x1="84" x2="116" y1="130" y2="194"/>
+</g>
+</svg>
