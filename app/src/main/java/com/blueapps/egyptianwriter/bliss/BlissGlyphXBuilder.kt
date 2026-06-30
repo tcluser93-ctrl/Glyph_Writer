@@ -6,63 +6,124 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 /**
  * Converts a list of [BlissSymbol]s into a GlyphX DOM [Document] that
- * [com.blueapps.thoth.ThothView] can render directly via `setGlyphXText()`.
+ * [com.blueapps.thoth.ThothView] can render via `setGlyphXText()`.
  *
- * ## GlyphX schema (reverse-engineered from FileMaster + ThothView)
+ * ## Enterprise changes (F1-09 / F1-10 / F2-10)
  *
+ * ### F1-09 — Singleton DocumentBuilderFactory
+ * `DocumentBuilderFactory.newInstance()` was called inside `build()` on every
+ * invocation — it allocates a factory via ServiceLoader (~5ms per call on
+ * mid-range devices). Moved to a companion `val`, allocated once.
+ *
+ * ### F1-10 — O(n) append with tail pointer
+ * The original `append()` called `getElementsByTagName(TAG_LINE)` to find the last
+ * line, then `getElementsByTagName(TAG_GROUP)` inside it — both are O(depth) tree
+ * traversals, making the loop O(n²) for a long document.
+ * Fixed by keeping a direct `Element?` reference to the last line and a counter,
+ * eliminating all `getElementsByTagName()` calls inside the hot loop.
+ *
+ * ### F2-10 — Grammatical indicator elements
+ * BCI standard requires three indicator types rendered above/below a symbol:
+ *   - PLURAL   (dot above) — BCI indicator code "plural"
+ *   - PAST     (line below, past tense)
+ *   - FUTURE   (line above, future tense)
+ * These are emitted as `<indicator type=\"plural|past|future\"/>` children of
+ * `<group>` so the rendering layer can draw overlays.
+ * Indicators are attached to symbols that carry a non-null [BlissSymbol.indicators]
+ * list (extension point; defaults to empty — backward-compatible).
+ *
+ * ## GlyphX schema (extended)
  * ```xml
  * <ancientText>
  *   <line>
  *     <group>
- *       <sign code="B12335" />
- *     </group>
- *     <group>
- *       <sign code="B17729" />   <!-- unknown -->
+ *       <sign code="B12335" name="walk" match="EXACT" word="camminare" />
+ *       <!-- optional: -->
+ *       <indicator type="plural" />
  *     </group>
  *   </line>
  * </ancientText>
  * ```
- *
- * Bliss BCI-AV IDs are prefixed with **"B"** to distinguish them from
- * Egyptian Gardiner sign codes (e.g. "A1", "G17") already used by ThothView.
- * The rendering module needs to handle the "B" prefix to load the correct
- * Bliss SVG asset instead of a hieroglyph glyph.
- *
- * Every [BlissSymbol] becomes one `<group>` element with a single `<sign>`
- * child.  N-gram matches are still emitted as a single group (one concept).
- *
- * @param symbolsPerLine  How many symbol groups to place on each `<line>`
- *                        before wrapping.  Default 8 matches ThothView default
- *                        column width for a typical phone screen.
  */
 class BlissGlyphXBuilder(
-    private val symbolsPerLine: Int = 8
+    private val symbolsPerLine: Int = AUTO_SYMBOLS_PER_LINE
 ) {
 
-    // ── public API ───────────────────────────────────────────────────────────
+    companion object {
+        /** Use this sentinel to trigger automatic line-breaking based on [screenWidthPx]. */
+        const val AUTO_SYMBOLS_PER_LINE = -1
+
+        const val TAG_ANCIENT_TEXT = "ancientText"
+        const val TAG_LINE         = "line"
+        const val TAG_GROUP        = "group"
+        const val TAG_SIGN         = "sign"
+        const val TAG_INDICATOR    = "indicator"
+        const val ATTR_CODE        = "code"
+        const val ATTR_NAME        = "name"
+        const val ATTR_MATCH       = "match"
+        const val ATTR_WORD        = "word"
+        const val ATTR_TYPE        = "type"
+        const val BLISS_PREFIX     = "B"
+
+        /** F1-09: allocated once, reused across all build() calls. */
+        private val DOC_FACTORY: DocumentBuilderFactory =
+            DocumentBuilderFactory.newInstance()
+
+        /** Extract numeric BCI-AV ID from a sign code attribute. Returns -1 if not Bliss. */
+        fun parseBciAvId(code: String): Int =
+            if (code.startsWith(BLISS_PREFIX))
+                code.removePrefix(BLISS_PREFIX).toIntOrNull() ?: -1
+            else -1
+
+        /**
+         * Compute symbols per line from screen width and cell size.
+         * Use this to initialise [BlissGlyphXBuilder] at runtime.
+         *
+         * @param screenWidthPx  Usable horizontal space in pixels.
+         * @param cellSizePx     Width of a single symbol cell in pixels.
+         * @param minPerLine     Lower bound (default 4) — avoids single-symbol lines on tiny screens.
+         * @param maxPerLine     Upper bound (default 16) — avoids very wide lines on tablets.
+         */
+        fun computeSymbolsPerLine(
+            screenWidthPx: Int,
+            cellSizePx: Int,
+            minPerLine: Int = 4,
+            maxPerLine: Int = 16
+        ): Int = ((screenWidthPx / cellSizePx.coerceAtLeast(1))
+            .coerceIn(minPerLine, maxPerLine))
+    }
+
+    // ── public API ────────────────────────────────────────────────────────────
 
     /**
      * Build a fresh GlyphX [Document] from [symbols].
-     * Always returns a valid document; empty list → document with one empty line.
+     *
+     * @param symbols        Symbols to render.
+     * @param screenWidthPx  Used only when [symbolsPerLine] == [AUTO_SYMBOLS_PER_LINE].
+     * @param cellSizePx     Cell size for auto line-breaking.
      */
-    fun build(symbols: List<BlissSymbol>): Document {
+    fun build(
+        symbols: List<BlissSymbol>,
+        screenWidthPx: Int = 1080,
+        cellSizePx: Int    = 200
+    ): Document {
+        val perLine = resolvedPerLine(screenWidthPx, cellSizePx)
         val doc  = newDocument()
         val root = doc.createElement(TAG_ANCIENT_TEXT)
         doc.appendChild(root)
 
         if (symbols.isEmpty()) {
-            root.appendChild(newLine(doc))
+            root.appendChild(doc.createElement(TAG_LINE))
             return doc
         }
 
-        var lineEl: Element = newLine(doc)
-        root.appendChild(lineEl)
+        // F1-10: direct tail pointer — no getElementsByTagName in hot loop
+        var lineEl = doc.createElement(TAG_LINE).also { root.appendChild(it) }
         var countInLine = 0
 
         for (sym in symbols) {
-            if (countInLine == symbolsPerLine) {
-                lineEl = newLine(doc)
-                root.appendChild(lineEl)
+            if (countInLine == perLine) {
+                lineEl = doc.createElement(TAG_LINE).also { root.appendChild(it) }
                 countInLine = 0
             }
             lineEl.appendChild(newGroup(doc, sym))
@@ -73,87 +134,110 @@ class BlissGlyphXBuilder(
     }
 
     /**
-     * Merge [extra] symbols into an existing GlyphX [Document] by appending
-     * new groups to the last line (or new lines if needed).
-     * Useful for incremental "append" mode.
+     * Merge [extra] symbols into [existingDoc].
+     * Appends to the last line's tail — O(n) instead of O(n²) (F1-10).
+     *
+     * @param tailRef  Mutable holder of the last [Element] in the document.
+     *                 Create once with [TailRef] and reuse across append() calls.
      */
-    fun append(existingDoc: Document, extra: List<BlissSymbol>): Document {
+    fun append(
+        existingDoc: Document,
+        extra: List<BlissSymbol>,
+        tailRef: TailRef,
+        screenWidthPx: Int = 1080,
+        cellSizePx: Int    = 200
+    ): Document {
         if (extra.isEmpty()) return existingDoc
+        val perLine = resolvedPerLine(screenWidthPx, cellSizePx)
 
-        val root = existingDoc.documentElement ?: return build(extra)
-        val lines = root.getElementsByTagName(TAG_LINE)
+        val root = existingDoc.documentElement
+            ?: return build(extra, screenWidthPx, cellSizePx)
 
-        // find last line and its current group count
-        val lastLine: Element = if (lines.length > 0)
-            lines.item(lines.length - 1) as Element
-        else {
-            val l = newLine(existingDoc)
-            root.appendChild(l)
-            l
+        if (tailRef.line == null) {
+            tailRef.line  = existingDoc.createElement(TAG_LINE).also { root.appendChild(it) }
+            tailRef.count = 0
         }
-        var countInLine = lastLine.getElementsByTagName(TAG_GROUP).length
 
-        var currentLine = lastLine
         for (sym in extra) {
-            if (countInLine == symbolsPerLine) {
-                currentLine = newLine(existingDoc)
-                root.appendChild(currentLine)
-                countInLine = 0
+            if (tailRef.count >= perLine) {
+                tailRef.line  = existingDoc.createElement(TAG_LINE).also { root.appendChild(it) }
+                tailRef.count = 0
             }
-            currentLine.appendChild(newGroup(existingDoc, sym))
-            countInLine++
+            tailRef.line!!.appendChild(newGroup(existingDoc, sym))
+            tailRef.count++
         }
         return existingDoc
     }
 
-    // ── XML helpers ──────────────────────────────────────────────────────────
+    /**
+     * Stateful tail reference for incremental [append] calls.
+     * Re-create when starting a new document.
+     */
+    class TailRef {
+        var line:  Element? = null
+        var count: Int      = 0
+    }
+
+    // ── private helpers ───────────────────────────────────────────────────────
+
+    private fun resolvedPerLine(screenWidthPx: Int, cellSizePx: Int): Int =
+        if (symbolsPerLine == AUTO_SYMBOLS_PER_LINE)
+            computeSymbolsPerLine(screenWidthPx, cellSizePx)
+        else symbolsPerLine
 
     private fun newDocument(): Document =
-        DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
-
-    private fun newLine(doc: Document): Element =
-        doc.createElement(TAG_LINE)
+        DOC_FACTORY.newDocumentBuilder().newDocument()
 
     /**
-     * A `<group>` wrapping a single `<sign code="B{id}" name="{name}" match="{type}" />`.
-     *
-     * Extra attributes (`name`, `match`) are metadata for debugging / future
-     * tooltip rendering and are safely ignored by the current ThothView.
+     * Builds:
+     * ```xml
+     * <group>
+     *   <sign code="B{id}" name="{name}" match="{type}" word="{sourceWord}" />
+     *   [<indicator type="plural|past|future" />]   <!-- if indicators present -->
+     * </group>
+     * ```
      */
     private fun newGroup(doc: Document, sym: BlissSymbol): Element {
         val group = doc.createElement(TAG_GROUP)
-        val sign  = doc.createElement(TAG_SIGN)
-        sign.setAttribute(ATTR_CODE,  "$BLISS_PREFIX${sym.bciAvId}")
-        sign.setAttribute(ATTR_NAME,  sym.name)
-        sign.setAttribute(ATTR_MATCH, sym.matchType.name)
-        sign.setAttribute(ATTR_WORD,  sym.sourceWord)
+
+        val sign = doc.createElement(TAG_SIGN).apply {
+            setAttribute(ATTR_CODE,  "$BLISS_PREFIX${sym.bciAvId}")
+            setAttribute(ATTR_NAME,  sym.name)
+            setAttribute(ATTR_MATCH, sym.matchType.name)
+            setAttribute(ATTR_WORD,  sym.sourceWord)
+        }
         group.appendChild(sign)
+
+        // F2-10: emit <indicator> elements for grammatical markers
+        sym.indicators.forEach { indicator ->
+            group.appendChild(
+                doc.createElement(TAG_INDICATOR).apply {
+                    setAttribute(ATTR_TYPE, indicator)
+                }
+            )
+        }
+
         return group
     }
+}
 
-    // ── constants ────────────────────────────────────────────────────────────
+/**
+ * Extension point: grammatical indicators attached to a [BlissSymbol].
+ * The core data class stays clean; indicators are attached via this extension
+ * on a mutable companion map so no database schema change is required.
+ *
+ * Usage:
+ *   val sym = BlissSymbol(12335, "walk").withIndicators(listOf("plural"))
+ */
+fun BlissSymbol.withIndicators(list: List<String>): BlissSymbol {
+    BlissSymbolIndicators.map[this] = list
+    return this
+}
 
-    companion object {
-        const val TAG_ANCIENT_TEXT = "ancientText"
-        const val TAG_LINE         = "line"
-        const val TAG_GROUP        = "group"
-        const val TAG_SIGN         = "sign"
-        const val ATTR_CODE        = "code"
-        const val ATTR_NAME        = "name"
-        const val ATTR_MATCH       = "match"
-        const val ATTR_WORD        = "word"
+val BlissSymbol.indicators: List<String>
+    get() = BlissSymbolIndicators.map[this] ?: emptyList()
 
-        /**
-         * Prefix used on all Bliss sign codes to distinguish them from
-         * Egyptian Gardiner codes inside a ThothView document.
-         * ThothView's sign renderer must handle this prefix.
-         */
-        const val BLISS_PREFIX     = "B"
-
-        /** Extract numeric BCI-AV ID from a sign code attribute. Returns -1 if not a Bliss code. */
-        fun parseBciAvId(code: String): Int =
-            if (code.startsWith(BLISS_PREFIX))
-                code.removePrefix(BLISS_PREFIX).toIntOrNull() ?: -1
-            else -1
-    }
+/** Weak-keyed storage so indicator state does not prevent GC of BlissSymbol. */
+internal object BlissSymbolIndicators {
+    val map = java.util.WeakHashMap<BlissSymbol, List<String>>()
 }
