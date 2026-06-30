@@ -5,276 +5,315 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 /**
- * Self-contained Fragment: accepts free text → translates to [BlissSymbol]s →
- * renders chip preview → pushes result to [BlissViewModel] → host Activity
- * forwards [Document] to ThothView.
- *
- * All heavy work (I/O + translation) runs inside [BlissViewModel.translate],
- * which uses [viewModelScope] + [Dispatchers.IO]. The Fragment only observes
- * [BlissViewModel.uiState] via a lifecycle-aware [repeatOnLifecycle] collector,
- * so there are zero raw Thread / Handler usages here.
+ * Self-contained Fragment that:
+ *  1. Accepts free-text input from the user
+ *  2. Translates it to [BlissSymbol]s via [BlissTranslator]
+ *  3. Builds a GlyphX DOM [Document] via [BlissGlyphXBuilder]
+ *  4. Pushes the result to [BlissViewModel] → host Activity → ThothView
  *
  * ## Integration in DocumentEditorActivity (Java)
  * ```java
+ * // In onCreate — observe ViewModel after binding ThothView:
  * BlissViewModel vm = new ViewModelProvider(this).get(BlissViewModel.class);
- * // Observe via LiveData adapter:
- * LiveDataKt.asLiveData(vm.getUiState(), ...)
- *     .observe(this, state -> {
- *         if (state.getGlyphXDocument() != null)
- *             thothView.setGlyphXText(state.getGlyphXDocument());
- *     });
+ * vm.getGlyphXDocument()  // or use StateFlow via lifecycleScope if Kotlin
+ *     .observe(this, doc -> { try { thothView.setGlyphXText(doc); } catch(Exception e){} });
+ *
+ * // Add Bliss tab to ImageButtonGroup, then:
+ * //   case 2: replace fragment with BlissTranslateFragment.newInstance("it")
+ * ```
+ *
+ * ## Layout (built programmatically — no extra XML required)
+ * ```
+ * ┌───────────────────────────────────────────────┐
+ * │ [Spinner: lang]              [▶ Traduci]       │
+ * │ EditText (testo sorgente, 3–6 righe)           │
+ * │ ─────────────────────────────────────────────  │
+ * │  ProgressBar (nascosta quando inattiva)        │
+ * │ ScrollView                                     │
+ * │   FlexboxLayout: [chip][chip][chip]…           │
+ * │ ─────────────────────────────────────────────  │
+ * │ Status: "12 simboli  •  2 sconosciuti  83%"    │
+ * └───────────────────────────────────────────────┘
  * ```
  */
 class BlissTranslateFragment : Fragment() {
 
+    // ── shared ViewModel (Activity-scoped) ───────────────────────────────────
     private val vm: BlissViewModel by activityViewModels()
-    private val glyphXBuilder = BlissGlyphXBuilder(symbolsPerLine = 8)
-    private var translator: BlissTranslator? = null
 
+    // ── engine ───────────────────────────────────────────────────────────────
+    private val glyphXBuilder = BlissGlyphXBuilder(symbolsPerLine = 8)
+    private var translateJob: Job? = null
+
+    // ── views ────────────────────────────────────────────────────────────────
     private lateinit var langSpinner:     Spinner
     private lateinit var translateButton: Button
     private lateinit var inputEditText:   EditText
-    private lateinit var symbolContainer: LinearLayout
+    private lateinit var chipContainer:   LinearLayout   // wrapping via ScrollView
     private lateinit var statusText:      TextView
     private lateinit var progressBar:     ProgressBar
-    private lateinit var errorText:       TextView
 
-    // ── lifecycle ────────────────────────────────────────────────────────────────
+    // ── lifecycle ────────────────────────────────────────────────────────────
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
-        val initialLang = arguments?.getString(ARG_LANG)
-            ?: Locale.getDefault().language.take(2)
-                .let { if (it in BlissLookup.SUPPORTED_LANGS) it else DEFAULT_LANG }
-        vm.setLang(initialLang)
+        val initLang = arguments?.getString(ARG_LANG)
+            ?: Locale.getDefault().language.take(2).let {
+                if (it in BlissLookup.SUPPORTED_LANGS) it else DEFAULT_LANG
+            }
+        // Kick off lookup load if not already loaded for this language
+        if (!vm.lookupReady.value || vm.langCode.value != initLang) {
+            vm.setLang(initLang)
+        }
         return buildLayout(requireContext())
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        observeUiState()
-        initEngine(vm.uiState.value.langCode)
+        observeViewModel()
+        // Restore last chips if ViewModel already has results
+        vm.symbols.value.takeIf { it.isNotEmpty() }?.let { renderChips(it) }
     }
 
-    // ── state observer ────────────────────────────────────────────────────────────
-
-    private fun observeUiState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                vm.uiState.collect { state -> applyState(state) }
-            }
-        }
-    }
-
-    private fun applyState(state: BlissViewModel.UiState) {
-        progressBar.visibility    = if (state.isLoading) View.VISIBLE else View.GONE
-        translateButton.isEnabled = !state.isLoading
-
-        if (state.error != null) {
-            errorText.text       = "⚠ ${state.error}"
-            errorText.visibility = View.VISIBLE
-        } else {
-            errorText.visibility = View.GONE
-        }
-
-        if (state.symbols.isNotEmpty()) renderChips(state.symbols)
-
-        if (!state.isLoading && state.error == null) {
-            val s = state.stats
-            statusText.text = when {
-                s.total == 0 -> "Pronto • ${state.langCode}"
-                else -> "${s.total} simboli  •  ${s.unknown} sconosciuti  •  " +
-                        "copertura ${(s.coverage * 100).toInt()}%  " +
-                        "[E:${s.exact} L:${s.lemma} N:${s.ngram} F:${s.fallback}]"
-            }
-        }
-    }
-
-    // ── layout builder ─────────────────────────────────────────────────────────────
+    // ── layout builder ───────────────────────────────────────────────────────
 
     private fun buildLayout(ctx: android.content.Context): View {
-        val d = ctx.resources.displayMetrics.density
-        fun Int.dp() = (this * d).toInt()
+        val dp = ctx.resources.displayMetrics.density
+        fun Int.px() = (this * dp).toInt()
 
         val root = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(16.dp(), 12.dp(), 16.dp(), 12.dp())
+            setPadding(16.px(), 12.px(), 16.px(), 12.px())
+            contentDescription = "Traduttore Bliss"
         }
 
+        // row 1 — language spinner + translate button
+        val row1 = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(MATCH, WRAP)
+        }
         val sortedLangs = BlissLookup.SUPPORTED_LANGS.sorted()
         langSpinner = Spinner(ctx).apply {
-            adapter = ArrayAdapter(ctx, android.R.layout.simple_spinner_item, sortedLangs).also {
-                it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            }
-            setSelection(sortedLangs.indexOf(vm.uiState.value.langCode).coerceAtLeast(0))
+            layoutParams = LinearLayout.LayoutParams(0, WRAP, 1f)
+            contentDescription = "Lingua sorgente"
+            val adapter = ArrayAdapter(ctx,
+                android.R.layout.simple_spinner_item, sortedLangs)
+                .also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
+            setAdapter(adapter)
+            setSelection(sortedLangs.indexOf(vm.langCode.value).coerceAtLeast(0))
             onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(p: AdapterView<*>?, v: View?, pos: Int, id: Long) {
                     val lang = sortedLangs[pos]
-                    if (lang != vm.uiState.value.langCode) { vm.setLang(lang); initEngine(lang) }
+                    if (lang != vm.langCode.value) vm.setLang(lang)
                 }
                 override fun onNothingSelected(p: AdapterView<*>?) {}
             }
-            contentDescription = "Lingua sorgente"
         }
         translateButton = Button(ctx).apply {
-            text = "▶ Traduci"
-            contentDescription = "Avvia traduzione Bliss"
-            setOnClickListener { onTranslateClicked() }
+            text = "▶"
+            contentDescription = "Traduci"
+            layoutParams = LinearLayout.LayoutParams(WRAP, WRAP)
+                .also { it.marginStart = 8.px() }
+            setOnClickListener { runTranslation() }
         }
-        root.addView(LinearLayout(ctx).apply {
-            orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(MATCH, WRAP)
-            addView(langSpinner, LinearLayout.LayoutParams(0, WRAP, 1f))
-            addView(translateButton, LinearLayout.LayoutParams(WRAP, WRAP).also { it.marginStart = 8.dp() })
-        })
+        row1.addView(langSpinner)
+        row1.addView(translateButton)
+        root.addView(row1)
 
+        // row 2 — input
         inputEditText = EditText(ctx).apply {
-            hint = "Testo da tradurre in Bliss…"
-            contentDescription = "Testo sorgente da tradurre in Bliss"
+            hint = ctx.getString(android.R.string.untitled)  // overridden below via tag
+            hint = "Inserisci testo da tradurre…"
             minLines = 3; maxLines = 6
-            layoutParams = LinearLayout.LayoutParams(MATCH, WRAP).also { it.topMargin = 8.dp() }
+            contentDescription = "Testo sorgente"
+            layoutParams = LinearLayout.LayoutParams(MATCH, WRAP)
+                .also { it.topMargin = 8.px() }
         }
         root.addView(inputEditText)
 
+        // divider
         root.addView(View(ctx).apply {
-            layoutParams = LinearLayout.LayoutParams(MATCH, 1.dp()).also {
-                it.topMargin = 8.dp(); it.bottomMargin = 4.dp()
-            }
+            layoutParams = LinearLayout.LayoutParams(MATCH, 1.px())
+                .also { it.topMargin = 8.px(); it.bottomMargin = 4.px() }
             setBackgroundColor(0x22888888)
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         })
 
+        // progress bar
         progressBar = ProgressBar(ctx).apply {
-            visibility = View.GONE
-            layoutParams = LinearLayout.LayoutParams(WRAP, WRAP).also {
-                it.gravity = android.view.Gravity.CENTER_HORIZONTAL
-            }
+            isVisible = false
+            layoutParams = LinearLayout.LayoutParams(WRAP, WRAP)
+                .also { it.gravity = android.view.Gravity.CENTER_HORIZONTAL }
+            contentDescription = "Caricamento in corso"
         }
         root.addView(progressBar)
 
-        errorText = TextView(ctx).apply {
-            visibility = View.GONE
-            setTextColor(0xFFCC0000.toInt())
-            textSize = 12f
-            layoutParams = LinearLayout.LayoutParams(MATCH, WRAP)
+        // chip scroll area
+        val scrollView = ScrollView(ctx).apply {
+            layoutParams = LinearLayout.LayoutParams(MATCH, 0, 1f)
+                .also { it.topMargin = 4.px() }
         }
-        root.addView(errorText)
-
-        val scrollView = android.widget.ScrollView(ctx).apply {
-            layoutParams = LinearLayout.LayoutParams(MATCH, 0, 1f).also { it.topMargin = 4.dp() }
+        chipContainer = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL   // rows stacked vertically
+            setPadding(4.px(), 4.px(), 4.px(), 4.px())
         }
-        symbolContainer = LinearLayout(ctx).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(4.dp(), 4.dp(), 4.dp(), 4.dp())
-        }
-        scrollView.addView(symbolContainer)
+        scrollView.addView(chipContainer)
         root.addView(scrollView)
 
+        // status
         statusText = TextView(ctx).apply {
             text = ""
             textSize = 12f
-            layoutParams = LinearLayout.LayoutParams(MATCH, WRAP).also { it.topMargin = 4.dp() }
+            layoutParams = LinearLayout.LayoutParams(MATCH, WRAP)
+                .also { it.topMargin = 4.px() }
         }
         root.addView(statusText)
+
         return root
     }
 
-    // ── engine ───────────────────────────────────────────────────────────────────
+    // ── ViewModel observers ──────────────────────────────────────────────────
 
-    private fun initEngine(lang: String) {
-        translator = null
-        vm.setLoading(true)
-        val appCtx = requireContext().applicationContext
-        val lk = BlissLookup.getInstance(appCtx)
-        if (lk.isReady) { onLookupReady(lk); return }
-        lk.loadAsync(
-            langCode = lang,
-            onReady  = { if (isAdded) onLookupReady(lk) },
-            onError  = { t -> if (isAdded) vm.setError(t.message) }
-        )
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // lookup readiness → update progress/status
+                launch {
+                    vm.lookupReady.collectLatest { ready ->
+                        progressBar.isVisible = !ready
+                        if (ready) {
+                            val lex = vm.lookup?.lexicon?.size ?: 0
+                            statusText.text = "Pronto • $lex voci • ${vm.langCode.value}"
+                            translateButton.isEnabled = true
+                        } else {
+                            statusText.text = "Caricamento dizionario [${vm.langCode.value}]…"
+                            translateButton.isEnabled = false
+                        }
+                    }
+                }
+                // stats → status bar update
+                launch {
+                    vm.stats.collectLatest { s ->
+                        if (s.total > 0) {
+                            val pct = (s.coverage * 100).toInt()
+                            statusText.text = "${s.total} simboli  •  ${s.unknown} sconosciuti  •  $pct%"
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    private fun onLookupReady(lk: BlissLookup) {
-        translator = BlissTranslator(lk)
-        vm.setLoading(false)
-        statusText.text = "Pronto • ${lk.lexicon.size} voci • ${vm.uiState.value.langCode}"
-    }
+    // ── translation (lifecycle-safe coroutine) ───────────────────────────────
 
-    // ── translation ─────────────────────────────────────────────────────────────
-
-    private fun onTranslateClicked() {
+    private fun runTranslation() {
         val text = inputEditText.text?.toString()?.trim() ?: return
-        val tr   = translator ?: run { statusText.text = "Dizionario non ancora pronto, attendi…"; return }
-        vm.translate(text, tr, glyphXBuilder)
+        if (text.isEmpty()) {
+            vm.clear()
+            chipContainer.removeAllViews()
+            statusText.text = "Input vuoto."
+            return
+        }
+        val lk = vm.lookup ?: run {
+            statusText.text = "Dizionario non ancora pronto, attendi…"
+            return
+        }
+
+        translateJob?.cancel()
+        translateButton.isEnabled = false
+        progressBar.isVisible = true
+
+        translateJob = viewLifecycleOwner.lifecycleScope.launch {
+            val (symbols, doc) = withContext(Dispatchers.Default) {
+                val syms = BlissTranslator(lk).translate(text)
+                val doc  = glyphXBuilder.build(syms)
+                syms to doc
+            }
+            // Back on main thread
+            vm.postTranslation(symbols, doc)
+            renderChips(symbols)
+            translateButton.isEnabled = true
+            progressBar.isVisible = false
+        }
     }
 
-    // ── chip renderer ────────────────────────────────────────────────────────────
+    // ── chip renderer ────────────────────────────────────────────────────────
 
+    /**
+     * Renders symbols as rows of text chips inside [chipContainer].
+     * Each chip shows the BCI-AV ID + truncated English name and is
+     * colour-coded by [BlissSymbol.MatchType].
+     */
     private fun renderChips(symbols: List<BlissSymbol>) {
-        symbolContainer.removeAllViews()
+        chipContainer.removeAllViews()
+        if (symbols.isEmpty()) return
+
         val ctx     = requireContext()
-        val density = ctx.resources.displayMetrics.density
-        fun Int.dp() = (this * density).toInt()
+        val dp      = ctx.resources.displayMetrics.density
+        fun Int.px() = (this * dp).toInt()
+        val rowsPerLine = 4  // chips per horizontal row
 
-        var row = newChipRow(ctx)
-        symbolContainer.addView(row)
-        var inRow = 0
-
-        for (sym in symbols) {
-            if (inRow == ROW_CHIPS) { row = newChipRow(ctx); symbolContainer.addView(row); inRow = 0 }
-            row.addView(buildChip(ctx, sym, 4.dp()))
-            inRow++
+        var row: LinearLayout? = null
+        symbols.forEachIndexed { idx, sym ->
+            if (idx % rowsPerLine == 0) {
+                row = LinearLayout(ctx).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    layoutParams = LinearLayout.LayoutParams(MATCH, WRAP)
+                        .also { it.bottomMargin = 4.px() }
+                }
+                chipContainer.addView(row)
+            }
+            val chip = TextView(ctx).apply {
+                text = sym.displayLabel()
+                textSize = 10f
+                gravity  = android.view.Gravity.CENTER
+                setPadding(6.px(), 6.px(), 6.px(), 6.px())
+                contentDescription = "BCI ${sym.bciAvId}: ${sym.name}, match ${sym.matchType.name}"
+                layoutParams = LinearLayout.LayoutParams(0, WRAP, 1f)
+                    .also { it.marginEnd = 4.px() }
+                setBackgroundColor(chipColor(sym.matchType))
+                setOnClickListener {
+                    Toast.makeText(
+                        ctx,
+                        "BCI-AV: ${sym.bciAvId}\nNome: ${sym.name}\nParola: '${sym.sourceWord}'\nMatch: ${sym.matchType}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            row?.addView(chip)
         }
     }
-
-    private fun newChipRow(ctx: android.content.Context): LinearLayout =
-        LinearLayout(ctx).apply {
-            orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(MATCH, WRAP).also {
-                it.bottomMargin = (4 * resources.displayMetrics.density).toInt()
-            }
-        }
-
-    private fun buildChip(ctx: android.content.Context, sym: BlissSymbol, margin: Int): TextView =
-        TextView(ctx).apply {
-            text    = sym.displayLabel()
-            textSize = 10f
-            gravity  = android.view.Gravity.CENTER
-            setPadding(margin + 2, margin + 2, margin + 2, margin + 2)
-            layoutParams = LinearLayout.LayoutParams(WRAP, WRAP).also { it.marginEnd = margin }
-            setBackgroundColor(chipColor(sym.matchType))
-            contentDescription = "${sym.name} corrispondenza ${sym.matchType.name}"
-            setOnClickListener {
-                Toast.makeText(
-                    ctx,
-                    "BCI-AV: ${sym.bciAvId}\nNome: ${sym.name}\n" +
-                    "Parola: '${sym.sourceWord}'\nMatch: ${sym.matchType}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
 
     private fun chipColor(mt: BlissSymbol.MatchType): Int = when (mt) {
-        BlissSymbol.MatchType.EXACT             -> 0xFFD0F0D0.toInt()
-        BlissSymbol.MatchType.LEMMA             -> 0xFFD0E8FF.toInt()
-        BlissSymbol.MatchType.NGRAM             -> 0xFFFFF3B0.toInt()
-        BlissSymbol.MatchType.FALLBACK_CATEGORY -> 0xFFFFDDB0.toInt()
-        BlissSymbol.MatchType.UNKNOWN           -> 0xFFFFD0D0.toInt()
+        BlissSymbol.MatchType.EXACT             -> 0xFFD0F0D0.toInt()  // verde
+        BlissSymbol.MatchType.LEMMA             -> 0xFFD0E8FF.toInt()  // azzurro
+        BlissSymbol.MatchType.NGRAM             -> 0xFFFFF3B0.toInt()  // giallo
+        BlissSymbol.MatchType.FALLBACK_CATEGORY -> 0xFFFFDDB0.toInt()  // arancio
+        BlissSymbol.MatchType.UNKNOWN           -> 0xFFFFD0D0.toInt()  // rosso
     }
 
+    // ── companion ────────────────────────────────────────────────────────────
+
     companion object {
-        private const val ARG_LANG     = "arg_lang"
+        private const val ARG_LANG    = "arg_lang"
         private const val DEFAULT_LANG = "it"
-        private const val ROW_CHIPS    = 6
         private val MATCH = ViewGroup.LayoutParams.MATCH_PARENT
         private val WRAP  = ViewGroup.LayoutParams.WRAP_CONTENT
 

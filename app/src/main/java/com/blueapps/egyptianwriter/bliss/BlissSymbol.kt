@@ -27,6 +27,12 @@ data class BlissSymbol(
         if (name.length <= maxLen) name else name.take(maxLen - 1) + "…"
 
     /**
+     * Convenience property for [BlissRenderer] compatibility — returns full [name].
+     * Prefer [gloss] with an explicit maxLen when truncation is needed.
+     */
+    val gloss: String get() = name
+
+    /**
      * Short label shown on UI chips: "#12335\ncamminare".
      * Capped at [nameMax] chars to fit fixed-width cells.
      */
@@ -44,12 +50,12 @@ data class BlissSymbol(
         NGRAM,
         /** No word match; a generic category symbol was used as fallback. */
         FALLBACK_CATEGORY,
-        /** No match at all — rendered with the "?" symbol (BCI-AV 17729). */
+        /** No match at all — rendered with the \"?\" symbol (BCI-AV 17729). */
         UNKNOWN
     }
 
     companion object {
-        /** BCI-AV ID used as the universal "unknown / question mark" symbol. */
+        /** BCI-AV ID used as the universal \"unknown / question mark\" symbol. */
         const val UNKNOWN_SYMBOL_ID = 17729
 
         /** BCI-AV ID for a generic spacer / blank placeholder (⌀). */
