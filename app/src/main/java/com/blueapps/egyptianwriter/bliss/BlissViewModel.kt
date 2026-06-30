@@ -1,161 +1,170 @@
 package com.blueapps.egyptianwriter.bliss
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.w3c.dom.Document
 
 /**
- * ViewModel scoped to the host Activity (e.g. DocumentEditorActivity).
+ * ViewModel scoped to the host Activity (e.g. `DocumentEditorActivity`).
  *
- * It is the **single source of truth** for the Bliss translation session:
- * - [uiState]          — full UI state snapshot (StateFlow, always current)
- * - [glyphXDocument]   — latest GlyphX [Document] for ThothView (StateFlow)
- * - [events]           — one-shot events (SharedFlow) e.g. load errors
+ * Single source of truth for the Bliss translation session:
+ * - active ISO-639-1 language
+ * - [UiState] lifecycle (Idle → Loading → Ready | Error)
+ * - last translated [BlissSymbol] list
+ * - derived GlyphX [Document] ready for ThothView
+ * - translation statistics
  *
- * Both [BlissTranslateFragment] (producer) and [DocumentEditorActivity]
- * (consumer → ThothView) observe [glyphXDocument].
+ * The [BlissLookup] is owned here and loaded via [viewModelScope], so the
+ * coroutine is automatically cancelled when the ViewModel is cleared (no leaks).
  *
- * ## Java interop
+ * ## Java interop (Activity)
  * ```java
- * // Collect StateFlow from Java via FlowKt / LiveData bridge
- * LiveData<BlissUiState> liveState =
- *     FlowLiveDataConversions.asLiveData(blissVm.getUiState(), lifecycle);
+ * BlissViewModel vm = new ViewModelProvider(this).get(BlissViewModel.class);
+ * vm.getGlyphXDocument().observe(this, doc -> thothView.setGlyphXText(doc));
+ * vm.getUiStateLiveData().observe(this, state -> {
+ *     if (state instanceof BlissViewModel.UiState.Error) {
+ *         showError(((BlissViewModel.UiState.Error) state).message);
+ *     }
+ * });
  * ```
  *
- * ## Kotlin / Compose
+ * ## Kotlin Fragment
  * ```kotlin
- * val state by vm.uiState.collectAsState()
+ * val vm: BlissViewModel by activityViewModels()
+ * vm.setLang("it")          // triggers load if not already ready
+ * vm.postTranslation(symbols, doc)
  * ```
  */
-class BlissViewModel(application: Application) : AndroidViewModel(application) {
+class BlissViewModel(app: Application) : AndroidViewModel(app) {
 
-    // ── UI state ─────────────────────────────────────────────────────────────
+    // ── UI state ───────────────────────────────────────────────────────────
 
-    private val _uiState = MutableStateFlow(BlissUiState())
-    /** Full snapshot of the translation session. Collect in Fragment/Activity. */
-    val uiState: StateFlow<BlissUiState> = _uiState.asStateFlow()
+    sealed class UiState {
+        /** No load started or session cleared. */
+        object Idle : UiState()
+        /** Assets are being loaded from disk. */
+        object Loading : UiState()
+        /** Assets loaded; translator is ready. */
+        data class Ready(val langCode: String, val lexiconSize: Int) : UiState()
+        /** Load failed. */
+        data class Error(val message: String) : UiState()
+    }
 
-    /** Convenience: last translated GlyphX Document (null until first translation). */
+    private val _uiState = MutableStateFlow<UiState>(UiState.Idle)
+    /** Collect in Kotlin; observe via [uiStateLiveData] in Java. */
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+    /** LiveData bridge for Java Activity consumers. */
+    val uiStateLiveData: LiveData<UiState> = _uiState.asLiveData()
+
+    // ── translation data ──────────────────────────────────────────────────
+
     private val _glyphXDocument = MutableStateFlow<Document?>(null)
-    val glyphXDocument: StateFlow<Document?> = _glyphXDocument.asStateFlow()
+    /** GlyphX Document built from the last successful translation. */
+    val glyphXDocument: LiveData<Document?> = _glyphXDocument.asLiveData()
 
-    // ── one-shot events ───────────────────────────────────────────────────────
+    private val _symbols = MutableStateFlow<List<BlissSymbol>>(emptyList())
+    val symbols: LiveData<List<BlissSymbol>> = _symbols.asLiveData()
 
-    private val _events = MutableSharedFlow<BlissEvent>(replay = 0, extraBufferCapacity = 8)
-    /** One-shot events: errors, ready signals. Collect with repeatOnLifecycle. */
-    val events: SharedFlow<BlissEvent> = _events.asSharedFlow()
+    private val _stats = MutableStateFlow(TranslationStats())
+    val stats: LiveData<TranslationStats> = _stats.asLiveData()
 
-    // ── active language ───────────────────────────────────────────────────────
+    private val _langCode = MutableStateFlow(DEFAULT_LANG)
+    val langCode: LiveData<String> = _langCode.asLiveData()
 
-    private var currentLang: String = DEFAULT_LANG
-    private var loadJob: Job? = null
+    // ── lookup (owned by ViewModel, load job tied to viewModelScope) ────────
 
-    // ── public API ────────────────────────────────────────────────────────────
+    val lookup: BlissLookup = BlissLookup.getInstance(app)
+
+    // ── public API ───────────────────────────────────────────────────────────
+
+    /**
+     * Initiates an asset load for [lang] if not already ready for that language.
+     * Idempotent: calling twice with the same lang while loading is a no-op.
+     *
+     * Transitions:
+     * - [UiState.Idle] or [UiState.Error] → [UiState.Loading] → [UiState.Ready]
+     * - On error: [UiState.Loading] → [UiState.Error]
+     */
+    fun setLang(lang: String) {
+        val code = lang.take(2).lowercase()
+        if (_langCode.value != code) {
+            _langCode.value = code
+            lookup.reset()
+        }
+        if (_uiState.value is UiState.Ready && lookup.currentLang == code) return
+        _uiState.value = UiState.Loading
+        lookup.loadIfNeeded(
+            lang  = code,
+            scope = viewModelScope,
+            onReady = {
+                _uiState.value = UiState.Ready(
+                    langCode    = code,
+                    lexiconSize = lookup.lexicon.size
+                )
+            },
+            onError = { t ->
+                _uiState.value = UiState.Error(t.message ?: "Unknown error")
+            }
+        )
+    }
 
     /**
      * Called by [BlissTranslateFragment] after each successful translation.
-     * Safe to call from any thread.
+     * All updates are safe from background threads (StateFlow.value is thread-safe;
+     * LiveData bridge switches to Main automatically).
      */
     fun postTranslation(symbolList: List<BlissSymbol>, doc: Document) {
-        val stats = TranslationStats.from(symbolList)
-        _uiState.update { it.copy(symbols = symbolList, stats = stats, isTranslating = false) }
+        _symbols.value        = symbolList
         _glyphXDocument.value = doc
+        _stats.value          = TranslationStats.from(symbolList)
     }
 
     /**
-     * Kick off async loading of the BCI-AV lookup tables for [langCode].
-     * Cancels any in-flight load for a different language.
-     * Posts [BlissEvent.LookupReady] on completion, [BlissEvent.LoadError] on failure.
+     * Runs translation on [Dispatchers.IO] inside [viewModelScope].
+     * Cancellation-safe: if the ViewModel is cleared mid-translation the job
+     * is cancelled automatically (no runaway background threads).
+     *
+     * @param text       Raw user input.
+     * @param translator A ready [BlissTranslator] instance.
+     * @param builder    [BlissGlyphXBuilder] to convert symbols to DOM.
+     * @param onResult   Called on the **main** thread with the result.
      */
-    fun initLookup(langCode: String) {
-        val lang = normaliseLang(langCode)
-        if (lang == currentLang && _uiState.value.isLookupReady) return
-        currentLang = lang
-
-        loadJob?.cancel()
-        _uiState.update { it.copy(isLookupLoading = true, isLookupReady = false, lookupLang = lang) }
-
-        loadJob = viewModelScope.launch {
-            try {
-                val lookup = BlissLookup.getInstance(getApplication())
-                withContext(Dispatchers.IO) { lookup.load(lang) }
-                _uiState.update { it.copy(isLookupLoading = false, isLookupReady = true,
-                    lexiconSize = lookup.lexicon.size) }
-                _events.emit(BlissEvent.LookupReady(lang, lookup.lexicon.size))
-            } catch (t: Throwable) {
-                Log.e(TAG, "Lookup load failed", t)
-                _uiState.update { it.copy(isLookupLoading = false, isLookupReady = false) }
-                _events.emit(BlissEvent.LoadError(t.localizedMessage ?: "Unknown error"))
-            }
-        }
-    }
-
-    /** Trigger a translation on the IO dispatcher; posts result via [postTranslation]. */
-    fun translate(text: String, lookup: BlissLookup, glyphXBuilder: BlissGlyphXBuilder) {
-        if (text.isBlank()) { clear(); return }
-        _uiState.update { it.copy(isTranslating = true) }
-        viewModelScope.launch {
-            try {
-                val (symbols, doc) = withContext(Dispatchers.Default) {
-                    val syms = BlissTranslator(lookup).translate(text)
-                    syms to glyphXBuilder.build(syms)
-                }
+    fun translateAsync(
+        text:       String,
+        translator: BlissTranslator,
+        builder:    BlissGlyphXBuilder,
+        onResult:   (List<BlissSymbol>, Document) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val symbols = translator.translate(text)
+            val doc     = builder.build(symbols)
+            withContext(Dispatchers.Main) {
                 postTranslation(symbols, doc)
-            } catch (t: Throwable) {
-                Log.e(TAG, "Translation failed", t)
-                _uiState.update { it.copy(isTranslating = false) }
-                _events.emit(BlissEvent.TranslationError(t.localizedMessage ?: "Error"))
+                onResult(symbols, doc)
             }
         }
     }
 
-    /** Update the active language; triggers a lookup reload if changed. */
-    fun setLang(code: String) {
-        val lang = normaliseLang(code)
-        if (lang != currentLang) initLookup(lang)
-    }
-
-    /** Clear translation state (e.g. when user clears the input). */
+    /** Clear translation result (e.g. when the user clears the input). */
     fun clear() {
-        _uiState.update { it.copy(symbols = emptyList(), stats = TranslationStats(), isTranslating = false) }
-        // glyphXDocument intentionally kept: ThothView retains last render
+        _symbols.value = emptyList()
+        _stats.value   = TranslationStats()
+        // Keep _glyphXDocument — ThothView retains its last render.
+        _uiState.value = if (lookup.isReady)
+            UiState.Ready(lookup.currentLang ?: DEFAULT_LANG, lookup.lexicon.size)
+        else UiState.Idle
     }
 
-    // ── helpers ───────────────────────────────────────────────────────────────
-
-    private fun normaliseLang(code: String): String {
-        val base = code.lowercase().take(2)
-        return if (base in BlissLookup.SUPPORTED_LANGS) base else DEFAULT_LANG
-    }
-
-    // ── data classes ──────────────────────────────────────────────────────────
-
-    /**
-     * Immutable snapshot of the full translation UI state.
-     * StateFlow emits a new copy on every change.
-     */
-    data class BlissUiState(
-        val symbols:        List<BlissSymbol> = emptyList(),
-        val stats:          TranslationStats  = TranslationStats(),
-        val isTranslating:  Boolean           = false,
-        val isLookupLoading:Boolean           = false,
-        val isLookupReady:  Boolean           = false,
-        val lookupLang:     String            = DEFAULT_LANG,
-        val lexiconSize:    Int               = 0
-    )
+    // ── data class ────────────────────────────────────────────────────────────
 
     data class TranslationStats(
         val total:    Int = 0,
@@ -165,12 +174,9 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
         val fallback: Int = 0,
         val unknown:  Int = 0
     ) {
-        /** Coverage ratio [0.0, 1.0]. Returns 0 for empty input. */
+        /** Fraction of tokens that resolved to a known Bliss symbol. */
         val coverage: Float
             get() = if (total == 0) 0f else (total - unknown).toFloat() / total
-
-        /** Coverage as a 0-100 Int percentage for display. */
-        val coveragePct: Int get() = (coverage * 100).toInt()
 
         companion object {
             fun from(list: List<BlissSymbol>) = TranslationStats(
@@ -184,15 +190,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /** One-shot events emitted by the ViewModel. */
-    sealed class BlissEvent {
-        data class LookupReady(val lang: String, val lexiconSize: Int) : BlissEvent()
-        data class LoadError(val message: String) : BlissEvent()
-        data class TranslationError(val message: String) : BlissEvent()
-    }
-
     companion object {
-        private const val TAG          = "BlissViewModel"
         private const val DEFAULT_LANG = "it"
     }
 }
