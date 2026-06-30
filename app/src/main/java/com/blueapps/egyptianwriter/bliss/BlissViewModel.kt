@@ -11,137 +11,163 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.w3c.dom.Document
 
 /**
- * ViewModel scoped to the host Activity (e.g. [DocumentEditorActivity]).
+ * ViewModel for the Bliss translation screen.
  *
- * Single source of truth for the Bliss translation session:
- *  - last translated [BlissSymbol] list
- *  - derived GlyphX [org.w3c.dom.Document] for ThothView
- *  - translation statistics
- *  - current language + lookup readiness
+ * Owns the lifecycle of [BlissLookup], [BlissTranslator], [BlissGlyphXBuilder],
+ * and the new [MorfologikLemmatizer].  Translation uses [translateAsync] which
+ * activates the Morfologik FSA tier (tier 3c2) for higher coverage on IT/EN/DE.
  *
- * ## Usage (Activity — Java)
- * ```java
- * BlissViewModel vm = new ViewModelProvider(this).get(BlissViewModel.class);
- * vm.getGlyphXDocument().observe(this, doc -> thothView.setGlyphXText(doc));
- * ```
- *
- * ## Usage (Fragment — Kotlin)
- * ```kotlin
- * val vm: BlissViewModel by activityViewModels()
- * vm.postTranslation(symbols, glyphXDoc)
- * ```
+ * State is exposed as [StateFlow]<[UiState]> — the Fragment simply collects.
  */
 class BlissViewModel(application: Application) : AndroidViewModel(application) {
 
-    // ── StateFlows (Kotlin-idiomatic; also convertible to LiveData with .asLiveData()) ──
+    // ── UI state ──────────────────────────────────────────────────────────────
 
-    private val _glyphXDocument = MutableStateFlow<org.w3c.dom.Document?>(null)
-    val glyphXDocument: StateFlow<org.w3c.dom.Document?> = _glyphXDocument.asStateFlow()
+    data class UiState(
+        val symbols:     List<BlissSymbol>  = emptyList(),
+        val glyphXDoc:   Document?          = null,
+        val stats:       TranslationStats?  = null,
+        val langCode:    String             = "it",
+        val isLoading:   Boolean            = false,
+        val error:       String?            = null
+    )
 
-    private val _symbols = MutableStateFlow<List<BlissSymbol>>(emptyList())
-    val symbols: StateFlow<List<BlissSymbol>> = _symbols.asStateFlow()
+    private val _uiState = MutableStateFlow(UiState())
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
-    private val _stats = MutableStateFlow(TranslationStats())
-    val stats: StateFlow<TranslationStats> = _stats.asStateFlow()
+    // ── engine components ────────────────────────────────────────────────────
 
-    private val _langCode = MutableStateFlow("it")
-    val langCode: StateFlow<String> = _langCode.asStateFlow()
+    private val lookup:     BlissLookup          = BlissLookup.getInstance(application)
+    private val morfologik: MorfologikLemmatizer = MorfologikLemmatizer(application)
+    private var translator: BlissTranslator?     = null
+    private var builder:    BlissGlyphXBuilder?  = null
+    private var translateJob: Job? = null
 
-    /** True once the [BlissLookup] for the active language is fully loaded. */
-    private val _lookupReady = MutableStateFlow(false)
-    val lookupReady: StateFlow<Boolean> = _lookupReady.asStateFlow()
-
-    /** Non-null after [loadLookup] completes successfully. */
-    private var _lookup: BlissLookup? = null
-    val lookup: BlissLookup? get() = _lookup
-
-    private var loadJob: Job? = null
-
-    // ── Lookup lifecycle ─────────────────────────────────────────────────────
+    // ── language management ───────────────────────────────────────────────────
 
     /**
-     * Launches a coroutine on [Dispatchers.IO] to load [BlissLookup] assets
-     * for [langCode].  Cancels any in-flight load before starting a new one.
-     * Safe to call from the main thread.
+     * Loads the BCI-AV assets for [lang] and initialises the Room FTS4 DB.
+     * Idempotent — no-op if same language is already loaded.
      */
-    fun loadLookup(langCode: String = _langCode.value) {
-        loadJob?.cancel()
-        _lookupReady.value = false
-        loadJob = viewModelScope.launch {
+    fun setLang(lang: String) {
+        val normalised = lang.lowercase().take(2)
+        if (lookup.isReady && lookup.currentLang == normalised) return
+        _uiState.value = _uiState.value.copy(isLoading = true, error = null, langCode = normalised)
+        lookup.loadIfNeeded(
+            lang    = normalised,
+            scope   = viewModelScope,
+            onReady = {
+                translator = BlissTranslator(lookup, morfologik)
+                // Initialise Room FTS4 DB in background after assets are loaded
+                viewModelScope.launch(Dispatchers.IO) { lookup.initDb() }
+                _uiState.value = _uiState.value.copy(isLoading = false)
+                Log.i(TAG, "Engine ready [lang=$normalised, morfologik=${morfologik.isAvailable(normalised)}]")
+            },
+            onError = { e ->
+                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+                Log.e(TAG, "Engine load error", e)
+            }
+        )
+    }
+
+    fun setBuilder(glyphXBuilder: BlissGlyphXBuilder) {
+        builder = glyphXBuilder
+    }
+
+    // ── translation ───────────────────────────────────────────────────────────
+
+    /**
+     * Translates [text] using the **async** pipeline (Morfologik tier active).
+     * Cancels any in-flight translation before starting a new one.
+     */
+    fun translate(text: String) {
+        val t = translator ?: run {
+            _uiState.value = _uiState.value.copy(error = "Engine not ready")
+            return
+        }
+        translateJob?.cancel()
+        translateJob = viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                val lk = withContext(Dispatchers.IO) {
-                    BlissLookup.getInstance(getApplication()).also { it.load(langCode) }
+                val symbols = withContext(Dispatchers.Default) {
+                    // translateAsync is suspend and handles Morfologik IO internally
+                    t.translateAsync(text)
                 }
-                _lookup = lk
-                _lookupReady.value = true
-                Log.i(TAG, "Lookup ready: lang=$langCode lexicon=${lk.lexicon.size}")
+                val doc = withContext(Dispatchers.Default) {
+                    builder?.let { b ->
+                        b.clear()
+                        symbols.forEach { sym -> b.append(sym) }
+                        b.build()
+                    }
+                }
+                val stats = TranslationStats.from(symbols)
+                _uiState.value = _uiState.value.copy(
+                    symbols   = symbols,
+                    glyphXDoc = doc,
+                    stats     = stats,
+                    isLoading = false
+                )
             } catch (e: Exception) {
-                Log.e(TAG, "Lookup load failed", e)
-                _lookupReady.value = false
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error     = e.message
+                )
+                Log.e(TAG, "Translation error", e)
             }
         }
     }
 
-    // ── Translation ──────────────────────────────────────────────────────────
+    // ── helpers ────────────────────────────────────────────────────────────────
 
-    /**
-     * Called by [BlissTranslateFragment] after each successful translation.
-     * Already on the main thread — direct assignment (no postValue needed).
-     */
-    fun postTranslation(symbolList: List<BlissSymbol>, doc: org.w3c.dom.Document) {
-        _symbols.value = symbolList
-        _glyphXDocument.value = doc
-        _stats.value = TranslationStats.from(symbolList)
+    fun setLoading(loading: Boolean) {
+        _uiState.value = _uiState.value.copy(isLoading = loading)
     }
 
-    /** Update the active language and trigger a lookup reload. */
-    fun setLang(code: String) {
-        if (_langCode.value != code) {
-            _langCode.value = code
-            loadLookup(code)
-        }
+    fun setError(msg: String?) {
+        _uiState.value = _uiState.value.copy(error = msg, isLoading = false)
     }
 
-    /** Clear translation state (e.g. when the user clears the input). */
-    fun clear() {
-        _symbols.value = emptyList()
-        _stats.value = TranslationStats()
-        // Do NOT clear glyphXDocument — ThothView keeps showing last render
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(error = null)
     }
 
     override fun onCleared() {
         super.onCleared()
-        loadJob?.cancel()
-    }
-
-    // ── Data classes ─────────────────────────────────────────────────────────
-
-    data class TranslationStats(
-        val total:    Int = 0,
-        val exact:    Int = 0,
-        val lemma:    Int = 0,
-        val ngram:    Int = 0,
-        val fallback: Int = 0,
-        val unknown:  Int = 0
-    ) {
-        val coverage: Float
-            get() = if (total == 0) 0f else (total - unknown).toFloat() / total
-
-        companion object {
-            fun from(list: List<BlissSymbol>) = TranslationStats(
-                total    = list.size,
-                exact    = list.count { it.matchType == BlissSymbol.MatchType.EXACT },
-                lemma    = list.count { it.matchType == BlissSymbol.MatchType.LEMMA },
-                ngram    = list.count { it.matchType == BlissSymbol.MatchType.NGRAM },
-                fallback = list.count { it.matchType == BlissSymbol.MatchType.FALLBACK_CATEGORY },
-                unknown  = list.count { it.matchType == BlissSymbol.MatchType.UNKNOWN }
-            )
-        }
+        translateJob?.cancel()
     }
 
     companion object {
         private const val TAG = "BlissViewModel"
+    }
+}
+
+// ── TranslationStats ──────────────────────────────────────────────────────────
+
+/**
+ * Coverage breakdown for a translated symbol list.
+ * Exposed on [BlissViewModel.UiState.stats].
+ */
+data class TranslationStats(
+    val total:   Int,
+    val exact:   Int,
+    val lemma:   Int,
+    val ngram:   Int,
+    val unknown: Int
+) {
+    /** Coverage ratio 0..1 (fraction of non-UNKNOWN symbols). */
+    val coverage: Float
+        get() = if (total == 0) 0f else (total - unknown).toFloat() / total.toFloat()
+
+    companion object {
+        fun from(symbols: List<BlissSymbol>) = TranslationStats(
+            total   = symbols.size,
+            exact   = symbols.count { it.matchType == BlissSymbol.MatchType.EXACT },
+            lemma   = symbols.count { it.matchType == BlissSymbol.MatchType.LEMMA },
+            ngram   = symbols.count { it.matchType == BlissSymbol.MatchType.NGRAM },
+            unknown = symbols.count { it.matchType == BlissSymbol.MatchType.UNKNOWN }
+        )
     }
 }

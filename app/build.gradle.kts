@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("kotlin-android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -31,6 +33,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = "11"
     }
     buildFeatures {
         viewBinding = true
@@ -64,6 +69,15 @@ dependencies {
     implementation(libs.recyclerview)
     implementation(libs.fragment)
     implementation(libs.viewpager2)
+
+    // ── NLP: Morfologik offline FSA lemmatizer (IT / EN / DE) ────────────────
+    implementation(libs.morfologik.stemming)
+
+    // ── DB: Room FTS5 BCI lookup ──────────────────────────────────────────────
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    kapt(libs.room.compiler)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

@@ -15,15 +15,21 @@ import java.util.Locale
 /**
  * Loads and exposes in-memory lookup tables built from the BCI-AV asset files.
  *
- * All tables are loaded lazily on first access and kept in RAM for the app
- * lifetime (~5-10 MB depending on language).
+ * ## Lookup tier order
+ * 1. **N-gram exact match** (HashMap `_ngramIndex`)           — fastest
+ * 2. **Lexicon surface match** (HashMap `_lexicon`)           — fast
+ * 3. **Lemma match** (HashMap `_lemmaIndex` / `_lemmaPoSIndex`) — fast
+ * 4. **Room FTS4 exact match** (`_db.bciDao().lookupExact`)   — ~1 ms, suspend
+ * 5. **Room FTS4 prefix match** (`_db.bciDao().lookupPrefix`) — ~2 ms, suspend
+ *    (used by UI typeahead; not part of translate() hot path)
+ *
+ * Tiers 1-3 are synchronous HashMap reads.  Tier 4-5 are suspend functions
+ * available to callers via [lookupSurfaceDb] / [lookupPrefixDb].
  *
  * ## Thread-safety
- * Every backing field is `@Volatile`.  Each field is written exactly once (or
- * on [reset]/reload) from a single background coroutine, so the JVM memory
- * model guarantees that any subsequent read on any thread sees the fully
- * constructed map.  The maps themselves are read-only after assignment, so
- * no additional synchronisation is needed for reads.
+ * Every backing field is `@Volatile`.  Each field is written exactly once
+ * from a single background coroutine, so the JVM memory model guarantees
+ * that any subsequent read on any thread sees the fully constructed map.
  *
  * ## Usage
  * ```kotlin
@@ -45,6 +51,10 @@ import java.util.Locale
  * | `lemmas_{lang}.csv` | `lemma,POS,bci_av_id` | lemma + POS → BCI-AV ID |
  * | `ngrams_multilang.csv` | `lang,ngram,bci_av_id` | n-gram phrase → BCI-AV ID |
  *
+ * ## FTS4 dictionary asset (optional, shipped separately)
+ * `assets/morfologik/{lang}.dict` + `{lang}.info` — Morfologik FSA binaries.
+ * If absent, [MorfologikLemmatizer] degrades gracefully (tier 4 disabled).
+ *
  * Supported language codes: `it en de fr es nl pl pt`
  */
 class BlissLookup private constructor(private val context: Context) {
@@ -62,21 +72,20 @@ class BlissLookup private constructor(private val context: Context) {
     /**
      * POS-aware lemma index.  Key = `"lemma|POS"` (e.g. `"camminare|V"`).
      * POS codes: `N V A R P D C I X`.
-     * Falls back to [lemmaIndex] in [lookupLemmaPos] when the combined key is absent.
      */
     val lemmaPoSIndex: Map<String, Int> get() = _lemmaPoSIndex
     /** N-gram phrase → BCI-AV ID (language-specific, lower-cased). */
     val ngramIndex:    Map<String, Int> get() = _ngramIndex
 
-    /** ISO-639-1 code of the last successfully loaded language, or `null` if not yet loaded. */
+    /** ISO-639-1 code of the last successfully loaded language. */
     @Volatile var currentLang: String? = null
         private set
 
-    /** `true` once [load] (or [loadIfNeeded]) completes without error. */
+    /** `true` once [load] completes without error. */
     @Volatile var isReady: Boolean = false
         private set
 
-    // ── private backing fields (@Volatile for safe cross-thread publication) ─
+    // ── private backing fields ───────────────────────────────────────────────
 
     @Volatile private var _names         = emptyMap<Int, String>()
     @Volatile private var _synsets       = emptyMap<Int, Long>()
@@ -85,9 +94,11 @@ class BlissLookup private constructor(private val context: Context) {
     @Volatile private var _lemmaPoSIndex = emptyMap<String, Int>()
     @Volatile private var _ngramIndex    = emptyMap<String, Int>()
 
+    /** Room FTS4 database instance (lazy-initialised after first load). */
+    @Volatile private var _db: BlissDatabase? = null
+
     // ── custom exception ─────────────────────────────────────────────────────
 
-    /** Thrown by [load] when a mandatory asset cannot be parsed. */
     class LoadException(message: String, cause: Throwable? = null) :
         IOException(message, cause)
 
@@ -95,14 +106,6 @@ class BlissLookup private constructor(private val context: Context) {
 
     /**
      * Idempotent load.  No-op when [lang] equals [currentLang] **and** [isReady].
-     * Otherwise calls [reset] then [load] on [Dispatchers.IO].
-     *
-     * @param lang    ISO-639-1 code, e.g. `"it"`, `"en"`, `"de"`.
-     * @param scope   [CoroutineScope] that owns the load job (typically
-     *                `viewModelScope` or `lifecycleScope`).  The job is
-     *                automatically cancelled when the scope is cancelled.
-     * @param onReady Called on the **main** thread after a successful load.
-     * @param onError Called on the **main** thread if loading throws.
      */
     fun loadIfNeeded(
         lang:    String,
@@ -118,14 +121,6 @@ class BlissLookup private constructor(private val context: Context) {
         loadAsync(normalised, scope, onReady, onError)
     }
 
-    /**
-     * Unconditional async load.  Prefer [loadIfNeeded] for the common case.
-     *
-     * @param lang    ISO-639-1 code.
-     * @param scope   Owner [CoroutineScope].
-     * @param onReady Called on the **main** thread after success.
-     * @param onError Called on the **main** thread on failure.
-     */
     fun loadAsync(
         lang:    String,
         scope:   CoroutineScope,
@@ -142,12 +137,6 @@ class BlissLookup private constructor(private val context: Context) {
         }
     }
 
-    /**
-     * Synchronous, blocking load.  **Must** be called from a background thread
-     * or from within a coroutine on [Dispatchers.IO].
-     *
-     * @throws LoadException if a mandatory asset is missing or malformed.
-     */
     @Throws(LoadException::class)
     fun load(langCode: String) {
         val lang = normaliseLang(langCode)
@@ -168,15 +157,23 @@ class BlissLookup private constructor(private val context: Context) {
         currentLang = lang
         isReady     = true
         Log.i(TAG, "Bliss assets loaded: names=${_names.size}, lexicon=${_lexicon.size}, " +
-                "lemmas=${_lemmaIndex.size}, lemmas+POS=${_lemmaPoSIndex.size}, " +
-                "ngrams=${_ngramIndex.size}")
+                "lemmas=${_lemmaIndex.size}, ngrams=${_ngramIndex.size}")
     }
 
     /**
-     * Wipes all in-memory tables and resets [isReady] / [currentLang].
-     * Call before loading a different language so that [loadIfNeeded] triggers
-     * a fresh load instead of treating the old data as current.
+     * Initialises the Room FTS4 database and populates it from the current
+     * in-memory maps if empty.  Call this from a coroutine **after** [load]
+     * has completed.
+     *
+     * Safe to call multiple times — [BlissDatabase.populateIfEmpty] is idempotent.
      */
+    suspend fun initDb() {
+        val lang = currentLang ?: return
+        val db = BlissDatabase.getInstance(context)
+        _db = db
+        BlissDatabase.populateIfEmpty(db, _lexicon, _lemmaIndex, lang)
+    }
+
     fun reset() {
         _names         = emptyMap()
         _synsets       = emptyMap()
@@ -189,33 +186,50 @@ class BlissLookup private constructor(private val context: Context) {
         Log.d(TAG, "BlissLookup reset")
     }
 
-    // ── lookup helpers ───────────────────────────────────────────────────────
+    // ── HashMap lookup helpers (sync, tiers 1-3) ─────────────────────────────
 
     fun nameOf(id: Int): String = _names[id] ?: id.toString()
-
     fun synsetOf(id: Int): Long = _synsets[id] ?: -1L
 
-    /** Surface word lookup (case-insensitive). */
     fun lookupSurface(word: String): Int? = _lexicon[word.lowercase(Locale.ROOT)]
+    fun lookupLemma(lemma: String): Int?  = _lemmaIndex[lemma.lowercase(Locale.ROOT)]
 
-    /** POS-agnostic lemma lookup (case-insensitive). */
-    fun lookupLemma(lemma: String): Int? = _lemmaIndex[lemma.lowercase(Locale.ROOT)]
-
-    /**
-     * POS-aware lookup.  [pos] is one of: `N V A R P D C I X`.
-     * Falls back to plain [lookupLemma] when the combined key is absent.
-     */
     fun lookupLemmaPos(lemma: String, pos: String): Int? {
         val key = "${lemma.lowercase(Locale.ROOT)}|${pos.uppercase(Locale.ROOT)}"
         return _lemmaPoSIndex[key] ?: _lemmaIndex[lemma.lowercase(Locale.ROOT)]
     }
 
-    /** N-gram phrase lookup (case-insensitive). */
     fun lookupNgram(phrase: String): Int? = _ngramIndex[phrase.lowercase(Locale.ROOT)]
 
+    // ── Room FTS4 lookup helpers (suspend, tiers 4-5) ────────────────────────
+
     /**
-     * Convenience: wraps a raw lookup result into a [BlissSymbol].
+     * Exact keyword lookup via Room FTS4.
+     * Returns `null` if the DB is not yet initialised or the word is absent.
+     * Runs on [Dispatchers.IO] internally (Room suspend functions are
+     * already dispatcher-safe).
+     *
+     * Call this as **tier 4** after all HashMap tiers have missed.
      */
+    suspend fun lookupSurfaceDb(word: String): Int? {
+        val lang = currentLang ?: return null
+        return _db?.bciDao()?.lookupExact(word.lowercase(Locale.ROOT), lang)
+    }
+
+    /**
+     * Prefix search via Room FTS4 — enables typeahead in the CAA symbol picker.
+     * Returns up to [limit] BCI IDs whose keyword starts with [prefix].
+     *
+     * This is **not** part of the translate() hot path; use it only from UI
+     * layer coroutines (e.g. a SearchView.OnQueryTextListener).
+     */
+    suspend fun lookupPrefixDb(prefix: String, limit: Int = 10): List<Int> {
+        val lang = currentLang ?: return emptyList()
+        if (prefix.length < 2) return emptyList()  // avoid full-table scan
+        return _db?.bciDao()?.lookupPrefix(prefix.lowercase(Locale.ROOT), lang, limit)
+            ?: emptyList()
+    }
+
     fun toSymbol(
         id:     Int,
         source: String,
@@ -239,10 +253,9 @@ class BlissLookup private constructor(private val context: Context) {
             while (keys.hasNext()) {
                 val key = keys.next()
                 val id  = key.toIntOrNull() ?: continue
-                map[id] = json.optString(key, "")
-                    .takeIf { it.isNotEmpty() } ?: continue
+                map[id] = json.optString(key, "").takeIf { it.isNotEmpty() } ?: continue
             }
-        } ?: Log.w(TAG, "bci_names.json not found — names will be empty")
+        } ?: Log.w(TAG, "bci_names.json not found")
         return map
     }
 
@@ -256,7 +269,7 @@ class BlissLookup private constructor(private val context: Context) {
                 val v   = json.optLong(key, -1L)
                 if (v >= 0L) map[id] = v
             }
-        } ?: Log.w(TAG, "bci_blissnet.json not found — synsets will be empty")
+        } ?: Log.w(TAG, "bci_blissnet.json not found")
         return map
     }
 
@@ -269,53 +282,40 @@ class BlissLookup private constructor(private val context: Context) {
                 val id  = json.optInt(key, -1)
                 if (id > 0) map[key.lowercase(Locale.ROOT)] = id
             }
-        } ?: Log.w(TAG, "bci_lexicon_$lang.json not found — lexicon will be empty")
+        } ?: Log.w(TAG, "bci_lexicon_$lang.json not found")
         return map
     }
 
-    /**
-     * Streams `lemmas_{lang}.csv` lazily line-by-line.
-     * Format: `lemma,POS,bci_av_id`  (header row skipped)
-     * Returns `Pair(plainMap, posMap)`.
-     */
     private fun loadLemmas(lang: String): Pair<Map<String, Int>, Map<String, Int>> {
         val plain = HashMap<String, Int>(12000)
         val pos   = HashMap<String, Int>(12000)
-        val asset = "bliss/lemmas_$lang.csv"
         try {
-            context.assets.open(asset).use { stream ->
+            context.assets.open("bliss/lemmas_$lang.csv").use { stream ->
                 BufferedReader(InputStreamReader(stream, Charsets.UTF_8))
-                    .lineSequence()
-                    .drop(1)          // skip header
+                    .lineSequence().drop(1)
                     .forEach { line ->
                         val parts = line.split(",", limit = 3)
                         if (parts.size < 3) return@forEach
-                        val lemma = parts[0].trim().lowercase(Locale.ROOT)
+                        val lemma  = parts[0].trim().lowercase(Locale.ROOT)
                         val posTag = parts[1].trim().uppercase(Locale.ROOT)
-                        val id    = parts[2].trim().toIntOrNull() ?: return@forEach
+                        val id     = parts[2].trim().toIntOrNull() ?: return@forEach
                         if (lemma.isEmpty() || id <= 0) return@forEach
                         plain.putIfAbsent(lemma, id)
                         pos["$lemma|$posTag"] = id
                     }
             }
         } catch (io: IOException) {
-            Log.w(TAG, "$asset not found — lemma index will be empty")
+            Log.w(TAG, "lemmas_$lang.csv not found")
         }
         return plain to pos
     }
 
-    /**
-     * Streams `ngrams_multilang.csv` lazily, collecting only rows for [lang].
-     * Format: `lang,ngram,bci_av_id`  (header row skipped)
-     */
     private fun loadNgrams(lang: String): Map<String, Int> {
-        val map   = HashMap<String, Int>(3000)
-        val asset = "bliss/ngrams_multilang.csv"
+        val map = HashMap<String, Int>(3000)
         try {
-            context.assets.open(asset).use { stream ->
+            context.assets.open("bliss/ngrams_multilang.csv").use { stream ->
                 BufferedReader(InputStreamReader(stream, Charsets.UTF_8))
-                    .lineSequence()
-                    .drop(1)
+                    .lineSequence().drop(1)
                     .forEach { line ->
                         val parts = line.split(",", limit = 3)
                         if (parts.size < 3) return@forEach
@@ -326,59 +326,39 @@ class BlissLookup private constructor(private val context: Context) {
                     }
             }
         } catch (io: IOException) {
-            Log.w(TAG, "$asset not found — ngram index will be empty")
+            Log.w(TAG, "ngrams_multilang.csv not found")
         }
         return map
     }
 
-    // ── JSON helper ──────────────────────────────────────────────────────────
-
-    /**
-     * Opens [assetPath] from assets and parses it as a [JSONObject].
-     * Returns `null` (logging a warning) if the file is absent or malformed.
-     */
     private fun readJsonObjectOrNull(assetPath: String): JSONObject? =
         try {
             context.assets.open(assetPath).use { stream ->
-                val text = stream.bufferedReader(Charsets.UTF_8).readText()
-                JSONObject(text)
+                JSONObject(stream.bufferedReader(Charsets.UTF_8).readText())
             }
-        } catch (io: IOException) {
-            null
-        } catch (e: org.json.JSONException) {
-            Log.e(TAG, "Malformed JSON in $assetPath", e)
-            null
-        }
-
-    // ── lang normalisation ───────────────────────────────────────────────────
+        } catch (_: IOException) { null }
+          catch (e: org.json.JSONException) {
+              Log.e(TAG, "Malformed JSON in $assetPath", e); null
+          }
 
     private fun normaliseLang(code: String): String {
         val lc = code.lowercase(Locale.ROOT).take(2)
         return if (lc in SUPPORTED_LANGS) lc else DEFAULT_LANG
     }
 
-    // ── companion ────────────────────────────────────────────────────────────
-
     companion object {
         private const val TAG          = "BlissLookup"
         private const val DEFAULT_LANG = "it"
 
-        /** All ISO-639-1 codes for which BCI-AV lexicon assets exist. */
         val SUPPORTED_LANGS: Set<String> = setOf(
             "it", "en", "de", "fr", "es", "nl", "pl", "pt"
         )
 
         @Volatile private var INSTANCE: BlissLookup? = null
 
-        /**
-         * Returns the process-wide singleton, creating it if necessary.
-         * Always pass [applicationContext] (never an Activity context) to
-         * avoid memory leaks.
-         */
         fun getInstance(context: Context): BlissLookup =
             INSTANCE ?: synchronized(this) {
-                INSTANCE ?: BlissLookup(context.applicationContext)
-                    .also { INSTANCE = it }
+                INSTANCE ?: BlissLookup(context.applicationContext).also { INSTANCE = it }
             }
     }
 }
