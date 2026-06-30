@@ -1,5 +1,7 @@
 package com.blueapps.egyptianwriter.bliss
 
+import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,32 +25,17 @@ import java.util.Locale
  *  1. Accepts free-text input from the user
  *  2. Translates it to [BlissSymbol]s via [BlissTranslator]
  *  3. Builds a GlyphX DOM [Document] via [BlissGlyphXBuilder]
- *  4. Pushes the result to [BlissViewModel] → host Activity → ThothView
+ *  4. Renders symbol chips in the UI and pushes the result to [BlissViewModel]
  *
- * ## Integration in DocumentEditorActivity (Java)
- * ```java
- * // In onCreate — observe ViewModel after binding ThothView:
- * BlissViewModel vm = new ViewModelProvider(this).get(BlissViewModel.class);
- * vm.getGlyphXDocument()  // or use StateFlow via lifecycleScope if Kotlin
- *     .observe(this, doc -> { try { thothView.setGlyphXText(doc); } catch(Exception e){} });
+ * ## GlyphXBuilder initialization
+ * The builder is initialised **after** the View is ready (in [onViewCreated]),
+ * using the real screen width to compute [BlissGlyphXBuilder.computeSymbolsPerLine].
+ * On configuration change (rotation) it is re-created via [reinitGlyphXBuilder].
  *
- * // Add Bliss tab to ImageButtonGroup, then:
- * //   case 2: replace fragment with BlissTranslateFragment.newInstance("it")
- * ```
- *
- * ## Layout (built programmatically — no extra XML required)
- * ```
- * ┌───────────────────────────────────────────────┐
- * │ [Spinner: lang]              [▶ Traduci]       │
- * │ EditText (testo sorgente, 3–6 righe)           │
- * │ ─────────────────────────────────────────────  │
- * │  ProgressBar (nascosta quando inattiva)        │
- * │ ScrollView                                     │
- * │   FlexboxLayout: [chip][chip][chip]…           │
- * │ ─────────────────────────────────────────────  │
- * │ Status: "12 simboli  •  2 sconosciuti  83%"    │
- * └───────────────────────────────────────────────┘
- * ```
+ * ## BlissRenderer integration
+ * [BlissRenderer] is used for the ThothView-bound rendering path (GlyphX DOM).
+ * All drawable fetches go through [BlissSignProvider.getDrawableAsync], which is
+ * suspend and runs on IO. The UI path (chips) is kept lightweight.
  */
 class BlissTranslateFragment : Fragment() {
 
@@ -56,14 +43,18 @@ class BlissTranslateFragment : Fragment() {
     private val vm: BlissViewModel by activityViewModels()
 
     // ── engine ───────────────────────────────────────────────────────────────
-    private val glyphXBuilder = BlissGlyphXBuilder(symbolsPerLine = 8)
+    /**
+     * Lazily initialised in [onViewCreated] once the screen metrics are known.
+     * Re-created in [onConfigurationChanged] to reflect the new orientation.
+     */
+    private var glyphXBuilder: BlissGlyphXBuilder? = null
     private var translateJob: Job? = null
 
     // ── views ────────────────────────────────────────────────────────────────
     private lateinit var langSpinner:     Spinner
     private lateinit var translateButton: Button
     private lateinit var inputEditText:   EditText
-    private lateinit var chipContainer:   LinearLayout   // wrapping via ScrollView
+    private lateinit var chipContainer:   LinearLayout
     private lateinit var statusText:      TextView
     private lateinit var progressBar:     ProgressBar
 
@@ -78,7 +69,6 @@ class BlissTranslateFragment : Fragment() {
             ?: Locale.getDefault().language.take(2).let {
                 if (it in BlissLookup.SUPPORTED_LANGS) it else DEFAULT_LANG
             }
-        // Kick off lookup load if not already loaded for this language
         if (!vm.lookupReady.value || vm.langCode.value != initLang) {
             vm.setLang(initLang)
         }
@@ -87,9 +77,44 @@ class BlissTranslateFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        reinitGlyphXBuilder()          // ← adaptive init with real screen width
         observeViewModel()
-        // Restore last chips if ViewModel already has results
         vm.symbols.value.takeIf { it.isNotEmpty() }?.let { renderChips(it) }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        reinitGlyphXBuilder()          // ← re-init on rotation / window resize
+    }
+
+    // ── adaptive GlyphXBuilder initialisation ────────────────────────────────
+
+    /**
+     * (Re-)creates [glyphXBuilder] using the real screen width available at
+     * this moment.  Safe to call from [onViewCreated] and [onConfigurationChanged].
+     *
+     * Cell size is fixed at [CELL_SIZE_DP] dp; [BlissGlyphXBuilder.computeSymbolsPerLine]
+     * derives the number of symbols that fit horizontally.
+     */
+    private fun reinitGlyphXBuilder() {
+        val ctx = context ?: return
+        val dm  = ctx.resources.displayMetrics
+
+        // Use WindowMetrics (API 30+) when available; fall back to displayMetrics
+        val screenWidthPx: Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val wm = requireActivity().windowManager
+            wm.currentWindowMetrics.bounds.width()
+        } else {
+            @Suppress("DEPRECATION")
+            dm.widthPixels
+        }
+
+        val cellSizePx = (CELL_SIZE_DP * dm.density).toInt()
+        val symbolsPerLine = BlissGlyphXBuilder.computeSymbolsPerLine(
+            screenWidthPx = screenWidthPx,
+            cellSizePx    = cellSizePx
+        )
+        glyphXBuilder = BlissGlyphXBuilder(symbolsPerLine = symbolsPerLine)
     }
 
     // ── layout builder ───────────────────────────────────────────────────────
@@ -139,7 +164,6 @@ class BlissTranslateFragment : Fragment() {
 
         // row 2 — input
         inputEditText = EditText(ctx).apply {
-            hint = ctx.getString(android.R.string.untitled)  // overridden below via tag
             hint = "Inserisci testo da tradurre…"
             minLines = 3; maxLines = 6
             contentDescription = "Testo sorgente"
@@ -171,7 +195,7 @@ class BlissTranslateFragment : Fragment() {
                 .also { it.topMargin = 4.px() }
         }
         chipContainer = LinearLayout(ctx).apply {
-            orientation = LinearLayout.VERTICAL   // rows stacked vertically
+            orientation = LinearLayout.VERTICAL
             setPadding(4.px(), 4.px(), 4.px(), 4.px())
         }
         scrollView.addView(chipContainer)
@@ -194,7 +218,6 @@ class BlissTranslateFragment : Fragment() {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // lookup readiness → update progress/status
                 launch {
                     vm.lookupReady.collectLatest { ready ->
                         progressBar.isVisible = !ready
@@ -208,7 +231,6 @@ class BlissTranslateFragment : Fragment() {
                         }
                     }
                 }
-                // stats → status bar update
                 launch {
                     vm.stats.collectLatest { s ->
                         if (s.total > 0) {
@@ -235,6 +257,11 @@ class BlissTranslateFragment : Fragment() {
             statusText.text = "Dizionario non ancora pronto, attendi…"
             return
         }
+        val builder = glyphXBuilder ?: run {
+            // Fallback: builder not yet initialised (very early call)
+            reinitGlyphXBuilder()
+            glyphXBuilder
+        } ?: return
 
         translateJob?.cancel()
         translateButton.isEnabled = false
@@ -242,11 +269,10 @@ class BlissTranslateFragment : Fragment() {
 
         translateJob = viewLifecycleOwner.lifecycleScope.launch {
             val (symbols, doc) = withContext(Dispatchers.Default) {
-                val syms = BlissTranslator(lk).translate(text)
-                val doc  = glyphXBuilder.build(syms)
+                val syms = BlissTranslator(lk).translate(text)   // includes indicator pass
+                val doc  = builder.build(syms)
                 syms to doc
             }
-            // Back on main thread
             vm.postTranslation(symbols, doc)
             renderChips(symbols)
             translateButton.isEnabled = true
@@ -256,11 +282,6 @@ class BlissTranslateFragment : Fragment() {
 
     // ── chip renderer ────────────────────────────────────────────────────────
 
-    /**
-     * Renders symbols as rows of text chips inside [chipContainer].
-     * Each chip shows the BCI-AV ID + truncated English name and is
-     * colour-coded by [BlissSymbol.MatchType].
-     */
     private fun renderChips(symbols: List<BlissSymbol>) {
         chipContainer.removeAllViews()
         if (symbols.isEmpty()) return
@@ -268,11 +289,11 @@ class BlissTranslateFragment : Fragment() {
         val ctx     = requireContext()
         val dp      = ctx.resources.displayMetrics.density
         fun Int.px() = (this * dp).toInt()
-        val rowsPerLine = 4  // chips per horizontal row
+        val chipsPerRow = 4
 
         var row: LinearLayout? = null
         symbols.forEachIndexed { idx, sym ->
-            if (idx % rowsPerLine == 0) {
+            if (idx % chipsPerRow == 0) {
                 row = LinearLayout(ctx).apply {
                     orientation = LinearLayout.HORIZONTAL
                     layoutParams = LinearLayout.LayoutParams(MATCH, WRAP)
@@ -280,19 +301,38 @@ class BlissTranslateFragment : Fragment() {
                 }
                 chipContainer.addView(row)
             }
+            // Build indicator badge string (e.g. "[P+]") appended to chip label
+            val indicatorBadge = buildString {
+                val inds = sym.indicators
+                if (inds.isNotEmpty()) {
+                    append(" [")
+                    if (BlissTranslator.INDICATOR_PLURAL in inds) append("×")
+                    if (BlissTranslator.INDICATOR_PAST   in inds) append("↩")
+                    if (BlissTranslator.INDICATOR_FUTURE in inds) append("→")
+                    append("]")
+                }
+            }
             val chip = TextView(ctx).apply {
-                text = sym.displayLabel()
+                text = "${sym.displayLabel()}$indicatorBadge"
                 textSize = 10f
                 gravity  = android.view.Gravity.CENTER
                 setPadding(6.px(), 6.px(), 6.px(), 6.px())
-                contentDescription = "BCI ${sym.bciAvId}: ${sym.name}, match ${sym.matchType.name}"
+                contentDescription = buildString {
+                    append("BCI ${sym.bciAvId}: ${sym.name}, match ${sym.matchType.name}")
+                    if (sym.indicators.isNotEmpty())
+                        append(", indicatori: ${sym.indicators.joinToString()}")
+                }
                 layoutParams = LinearLayout.LayoutParams(0, WRAP, 1f)
                     .also { it.marginEnd = 4.px() }
                 setBackgroundColor(chipColor(sym.matchType))
                 setOnClickListener {
+                    val indStr = if (sym.indicators.isEmpty()) "nessuno"
+                                 else sym.indicators.joinToString()
                     Toast.makeText(
                         ctx,
-                        "BCI-AV: ${sym.bciAvId}\nNome: ${sym.name}\nParola: '${sym.sourceWord}'\nMatch: ${sym.matchType}",
+                        "BCI-AV: ${sym.bciAvId}\nNome: ${sym.name}" +
+                        "\nParola: '${sym.sourceWord}'\nMatch: ${sym.matchType}" +
+                        "\nIndicatori: $indStr",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -302,18 +342,20 @@ class BlissTranslateFragment : Fragment() {
     }
 
     private fun chipColor(mt: BlissSymbol.MatchType): Int = when (mt) {
-        BlissSymbol.MatchType.EXACT             -> 0xFFD0F0D0.toInt()  // verde
-        BlissSymbol.MatchType.LEMMA             -> 0xFFD0E8FF.toInt()  // azzurro
-        BlissSymbol.MatchType.NGRAM             -> 0xFFFFF3B0.toInt()  // giallo
-        BlissSymbol.MatchType.FALLBACK_CATEGORY -> 0xFFFFDDB0.toInt()  // arancio
-        BlissSymbol.MatchType.UNKNOWN           -> 0xFFFFD0D0.toInt()  // rosso
+        BlissSymbol.MatchType.EXACT             -> 0xFFD0F0D0.toInt()
+        BlissSymbol.MatchType.LEMMA             -> 0xFFD0E8FF.toInt()
+        BlissSymbol.MatchType.NGRAM             -> 0xFFFFF3B0.toInt()
+        BlissSymbol.MatchType.FALLBACK_CATEGORY -> 0xFFFFDDB0.toInt()
+        BlissSymbol.MatchType.UNKNOWN           -> 0xFFFFD0D0.toInt()
     }
 
     // ── companion ────────────────────────────────────────────────────────────
 
     companion object {
-        private const val ARG_LANG    = "arg_lang"
+        private const val ARG_LANG     = "arg_lang"
         private const val DEFAULT_LANG = "it"
+        /** Cell size in dp used to compute symbols-per-line. Match BlissRenderer.DEFAULT_CELL_DP. */
+        private const val CELL_SIZE_DP = 72
         private val MATCH = ViewGroup.LayoutParams.MATCH_PARENT
         private val WRAP  = ViewGroup.LayoutParams.WRAP_CONTENT
 
