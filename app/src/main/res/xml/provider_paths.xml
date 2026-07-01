@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <files-path name="documents" path="Documents/"/>
+<!--
+  provider_paths.xml
+  FileProvider paths. Authority: com.blueapps.fileprovider (vedere AndroidManifest.xml).
+  Aggiunta path bliss_svg_share per condivisione SVG da BlissTranslateFragment.
+-->
+<paths>
+    <cache-path
+        name="bliss_svg_share"
+        path="bliss_share/" />
+    <external-path
+        name="external_files"
+        path="." />
 </paths>

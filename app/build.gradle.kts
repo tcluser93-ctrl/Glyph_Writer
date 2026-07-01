@@ -70,13 +70,16 @@ dependencies {
     implementation(libs.fragment)
     implementation(libs.viewpager2)
 
-    // ── NLP: Morfologik offline FSA lemmatizer (IT / EN / DE) ────────────────
+    // ── NLP: Morfologik offline FSA lemmatizer (IT / EN / DE) ──────────────────
     implementation(libs.morfologik.stemming)
 
-    // ── DB: Room FTS5 BCI lookup ──────────────────────────────────────────────
+    // ── DB: Room FTS5 BCI lookup ───────────────────────────────────────
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     kapt(libs.room.compiler)
+
+    // ── UI: FlexboxLayout (chip Bliss con wrap automatico) ─────────────────
+    implementation(libs.flexbox)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
