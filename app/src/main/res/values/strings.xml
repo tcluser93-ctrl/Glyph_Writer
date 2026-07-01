@@ -65,4 +65,66 @@
     <string name="content_description_writing_direction_rtl">right-to-left layout</string>
     <string name="error_broken_document_title">broken document</string>
     <string name="error_broken_document_text">This document is broken. If you imported it from outside the app, please try importing it again. If the problem continues or if you did not import the document, please restart the app and check for updates.</string>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         Bliss Translator — Fase 4 UI + Fase 5 Accessibilità
+         Tutte le stringhe usate in fragment_translate.xml e BlissTranslateFragment.kt
+         ══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Labels visibili -->
+    <string name="bliss_label_language">Source language</string>
+    <string name="bliss_label_suggestions">Suggestions</string>
+    <string name="bliss_label_output">Translation (Bliss tokens)</string>
+    <string name="bliss_label_symbols">Bliss symbols</string>
+    <string name="bliss_hint_input">Text to translate (max 500 chars)</string>
+
+    <!-- Bottoni -->
+    <string name="bliss_btn_translate">Translate to Bliss</string>
+    <string name="bliss_btn_share">Share SVG</string>
+
+    <!-- contentDescription per TalkBack / Switch Access -->
+    <string name="bliss_cd_spinner_language">Select source language for Bliss translation</string>
+    <string name="bliss_cd_input_text">Input text field. Type or paste the text you want to translate into Bliss symbols.</string>
+    <string name="bliss_cd_btn_translate">Translate the input text into Bliss symbols</string>
+    <string name="bliss_cd_progress">Translation in progress, please wait</string>
+    <string name="bliss_cd_output">Translation result in Bliss tokens</string>
+    <string name="bliss_cd_symbol_container">Grid of Bliss symbols corresponding to the translated text</string>
+    <string name="bliss_cd_suggestions">Predictive suggestions for the current word</string>
+    <string name="bliss_cd_fab_share">Share the Bliss translation as an SVG image</string>
+
+    <!-- Lingue disponibili nello Spinner -->
+    <string-array name="bliss_language_names">
+        <item>Italian (IT)</item>
+        <item>English (EN)</item>
+        <item>German (DE)</item>
+        <item>French (FR)</item>
+        <item>Spanish (ES)</item>
+        <item>Dutch (NL)</item>
+        <item>Norwegian (NO)</item>
+        <item>Swedish (SV)</item>
+    </string-array>
+
+    <string-array name="bliss_language_codes" translatable="false">
+        <item>it</item>
+        <item>en</item>
+        <item>de</item>
+        <item>fr</item>
+        <item>es</item>
+        <item>nl</item>
+        <item>no</item>
+        <item>sv</item>
+    </string-array>
+
+    <!-- Messaggi di stato / errore -->
+    <string name="bliss_msg_translating">Translating…</string>
+    <string name="bliss_msg_no_result">No Bliss symbols found for this text.</string>
+    <string name="bliss_msg_error">Translation error. Please try again.</string>
+    <string name="bliss_msg_empty_input">Please enter some text to translate.</string>
+    <string name="bliss_msg_share_title">Share Bliss translation</string>
+    <string name="bliss_msg_share_chooser">Share SVG via…</string>
+
+    <!-- Accessibilità: live region announcement -->
+    <string name="bliss_a11y_translation_ready">Translation complete. %d Bliss symbols generated.</string>
+    <string name="bliss_a11y_symbol_desc">Bliss symbol: %s</string>
+    <string name="bliss_a11y_suggestion">Suggestion: %s. Double-tap to insert.</string>
 </resources>

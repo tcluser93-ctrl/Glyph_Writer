@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  fragment_translate.xml
+  Fase 4 UI: layout dichiarativo per BlissTranslateFragment.
+  Sostituisce integralmente il layout programmatico precedente.
+  Richiede: implementation("com.google.android.flexbox:flexbox:3.0.0") in build.gradle
+-->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:scrollbars="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- ── Selettore lingua ───────────────────────────────────────────── -->
+        <TextView
+            android:id="@+id/label_language"
+            style="@style/textViewNormal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bliss_label_language"
+            android:textSize="16sp"
+            android:labelFor="@+id/spinner_language" />
+
+        <Spinner
+            android:id="@+id/spinner_language"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="@string/bliss_cd_spinner_language"
+            android:background="@drawable/icon_background"
+            tools:listitem="@android:layout/simple_spinner_item" />
+
+        <!-- ── Input testo ────────────────────────────────────────────────── -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/input_layout_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:hint="@string/bliss_hint_input"
+            app:counterEnabled="true"
+            app:counterMaxLength="500">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_input_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine|textCapSentences"
+                android:minLines="3"
+                android:maxLines="6"
+                android:maxLength="500"
+                android:importantForAutofill="no"
+                android:contentDescription="@string/bliss_cd_input_text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- ── Suggerimenti predittivi ────────────────────────────────────── -->
+        <TextView
+            android:id="@+id/label_suggestions"
+            style="@style/textViewNormal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bliss_label_suggestions"
+            android:textSize="14sp"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_suggestions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:contentDescription="@string/bliss_cd_suggestions"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:visibility="visible"
+            tools:listitem="@layout/item_suggestion" />
+
+        <!-- ── Pulsante Traduci ───────────────────────────────────────────── -->
+        <Button
+            android:id="@+id/btn_translate"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="12dp"
+            android:text="@string/bliss_btn_translate"
+            android:contentDescription="@string/bliss_cd_btn_translate"
+            android:nextFocusDown="@+id/text_output_label"
+            style="@style/Widget.MaterialComponents.Button" />
+
+        <!-- ── Progress ───────────────────────────────────────────────────── -->
+        <ProgressBar
+            android:id="@+id/progress_translate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"
+            android:contentDescription="@string/bliss_cd_progress"
+            android:importantForAccessibility="yes" />
+
+        <!-- ── Output testuale ────────────────────────────────────────────── -->
+        <TextView
+            android:id="@+id/text_output_label"
+            style="@style/textViewNormal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bliss_label_output"
+            android:textSize="16sp"
+            android:labelFor="@+id/text_output" />
+
+        <TextView
+            android:id="@+id/text_output"
+            style="@style/textViewNormal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="12dp"
+            android:minHeight="48dp"
+            android:padding="8dp"
+            android:background="@drawable/icon_background"
+            android:textSize="16sp"
+            android:accessibilityLiveRegion="polite"
+            android:importantForAccessibility="yes"
+            android:contentDescription="@string/bliss_cd_output"
+            android:nextFocusDown="@+id/symbol_container"
+            tools:text="PERSON ACTION WATER" />
+
+        <!-- ── Output Bliss simboli ───────────────────────────────────────── -->
+        <TextView
+            android:id="@+id/label_symbols"
+            style="@style/textViewNormal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bliss_label_symbols"
+            android:textSize="16sp" />
+
+        <!--
+          FlexboxLayout: sostituisce il LinearLayout orizzontale (bug #6).
+          i simboli vanno a capo automaticamente — nessun chip viene tagliato.
+          Richiede: com.google.android.flexbox:flexbox:3.0.0
+        -->
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/symbol_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:minHeight="64dp"
+            android:accessibilityLiveRegion="polite"
+            android:importantForAccessibility="yes"
+            android:contentDescription="@string/bliss_cd_symbol_container"
+            app:flexWrap="wrap"
+            app:flexDirection="row"
+            app:alignItems="flex_start"
+            app:justifyContent="flex_start" />
+
+        <!-- ── FAB Condividi ──────────────────────────────────────────────── -->
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fab_share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/bliss_btn_share"
+            android:contentDescription="@string/bliss_cd_fab_share"
+            android:visibility="gone"
+            app:icon="@android:drawable/ic_menu_share"
+            tools:visibility="visible" />
+
+    </LinearLayout>
+</ScrollView>

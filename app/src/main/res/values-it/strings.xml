@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bliss Translator — localizzazione italiana -->
+    <string name="bliss_label_language">Lingua sorgente</string>
+    <string name="bliss_label_suggestions">Suggerimenti</string>
+    <string name="bliss_label_output">Traduzione (token Bliss)</string>
+    <string name="bliss_label_symbols">Simboli Bliss</string>
+    <string name="bliss_hint_input">Testo da tradurre (max 500 caratteri)</string>
+    <string name="bliss_btn_translate">Traduci in Bliss</string>
+    <string name="bliss_btn_share">Condividi SVG</string>
+    <string name="bliss_cd_spinner_language">Seleziona la lingua sorgente per la traduzione Bliss</string>
+    <string name="bliss_cd_input_text">Campo di testo. Digita o incolla il testo da tradurre in simboli Bliss.</string>
+    <string name="bliss_cd_btn_translate">Traduci il testo in simboli Bliss</string>
+    <string name="bliss_cd_progress">Traduzione in corso, attendere</string>
+    <string name="bliss_cd_output">Risultato della traduzione in token Bliss</string>
+    <string name="bliss_cd_symbol_container">Griglia di simboli Bliss corrispondenti al testo tradotto</string>
+    <string name="bliss_cd_suggestions">Suggerimenti predittivi per la parola corrente</string>
+    <string name="bliss_cd_fab_share">Condividi la traduzione Bliss come immagine SVG</string>
+    <string-array name="bliss_language_names">
+        <item>Italiano (IT)</item>
+        <item>Inglese (EN)</item>
+        <item>Tedesco (DE)</item>
+        <item>Francese (FR)</item>
+        <item>Spagnolo (ES)</item>
+        <item>Olandese (NL)</item>
+        <item>Norvegese (NO)</item>
+        <item>Svedese (SV)</item>
+    </string-array>
+    <string name="bliss_msg_translating">Traduzione in corso…</string>
+    <string name="bliss_msg_no_result">Nessun simbolo Bliss trovato per questo testo.</string>
+    <string name="bliss_msg_error">Errore di traduzione. Riprova.</string>
+    <string name="bliss_msg_empty_input">Inserisci del testo da tradurre.</string>
+    <string name="bliss_msg_share_title">Condividi traduzione Bliss</string>
+    <string name="bliss_msg_share_chooser">Condividi SVG tramite…</string>
+    <string name="bliss_a11y_translation_ready">Traduzione completata. %d simboli Bliss generati.</string>
+    <string name="bliss_a11y_symbol_desc">Simbolo Bliss: %s</string>
+    <string name="bliss_a11y_suggestion">Suggerimento: %s. Doppio tocco per inserire.</string>
+</resources>

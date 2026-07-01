@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  file_paths.xml
+  FileProvider paths per la condivisione SVG tramite Intent.ACTION_SEND.
+  Dichiarato in AndroidManifest.xml sotto provider android:name="androidx.core.content.FileProvider".
+-->
+<paths>
+    <cache-path
+        name="bliss_svg_share"
+        path="bliss_share/" />
+    <files-path
+        name="bliss_svg_export"
+        path="bliss_export/" />
+</paths>
