@@ -2,20 +2,22 @@ name: Unit Tests
 
 # ────────────────────────────────────────────────────────────────────────────
 # Triggers
-#   • Ogni push su main / feature/* / fix/* che tocca codice o build files
-#   • Ogni Pull Request verso main
-#   • Esecuzione manuale dalla tab Actions
+#   • Esecuzione manuale dalla tab Actions (unico trigger attivo)
+#
+# I trigger automatici sono commentati; riattivare quando la suite
+# sarà stabile in CI.
+#
+#  push:
+#    branches: [ "main", "feature/**", "fix/**" ]
+#    paths:
+#      - "app/src/**"
+#      - "app/build.gradle.kts"
+#      - "gradle/libs.versions.toml"
+#      - ".github/workflows/unit-tests.yml"
+#  pull_request:
+#    branches: [ "main" ]
 # ────────────────────────────────────────────────────────────────────────────
 on:
-  push:
-    branches: [ "main", "feature/**", "fix/**" ]
-    paths:
-      - "app/src/**"
-      - "app/build.gradle.kts"
-      - "gradle/libs.versions.toml"
-      - ".github/workflows/unit-tests.yml"
-  pull_request:
-    branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
