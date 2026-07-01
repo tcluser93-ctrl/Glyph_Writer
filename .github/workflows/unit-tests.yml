@@ -65,6 +65,7 @@ jobs:
           if [ ! -f "$TARGET/thoth-debug.aar" ]; then
             TMP=$(mktemp -d)
             mkdir -p "$TMP/empty"
+            touch "$TMP/empty/.keep"
             (cd "$TMP/empty" && zip -qr "$TARGET/thoth-debug.aar" .)
           fi
 
