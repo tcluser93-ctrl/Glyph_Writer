@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
-    id("kotlin-android")
-    id("kotlin-kapt")
+    // kotlin-android è già incluso da AGP 9.x — non serve aggiungerlo manualmente
+    id("kotlin-kapt")  // Room compiler (kapt)
 }
 
 android {
