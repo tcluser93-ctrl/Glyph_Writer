@@ -23,6 +23,11 @@ zoomlayout = "1.9.0"
 morfologik = "2.1.9"
 room = "2.7.1"
 flexbox = "3.0.0"
+# ── test ──────────────────────────────────────────────────────────────────────
+coroutinesTest    = "1.9.0"
+archCoreTesting   = "2.2.0"
+mockitoKotlin     = "5.4.0"
+junitJupiter      = "5.11.4"
 
 [libraries]
 autobreaklinelayout = { module = "com.github.zerozhiqin:AutoBreakLineLayout", version.ref = "autobreaklinelayout" }
@@ -50,6 +55,12 @@ room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 flexbox = { group = "com.google.android.flexbox", name = "flexbox", version.ref = "flexbox" }
+# ── test libs ─────────────────────────────────────────────────────────────────
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
+arch-core-testing       = { group = "androidx.arch.core", name = "core-testing", version.ref = "archCoreTesting" }
+mockito-kotlin          = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
+junit-jupiter           = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
+junit-jupiter-engine    = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junitJupiter" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
