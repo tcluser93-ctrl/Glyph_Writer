@@ -1,7 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
-    // kotlin-android è già iniettato da AGP 9.x — NON ridichiararlo qui
-    alias(libs.plugins.kotlin.kapt)  // Room compiler
+    // kotlin-android e kotlin-kapt sono già bundled in AGP 9.x:
+    // non usare alias con version.ref, ma id() senza versione
+    id("kotlin-kapt")  // Room compiler — usa la versione Kotlin bundled da AGP
 }
 
 android {
