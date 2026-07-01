@@ -1,14 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
-    // kotlin-android è già incluso da AGP 9.x — non serve aggiungerlo manualmente
-    id("kotlin-kapt")  // Room compiler (kapt)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.kapt)  // Room compiler
 }
 
 android {
     namespace = "com.blueapps.egyptianwriter"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.blueapps.egyptianwriter"
@@ -91,7 +89,7 @@ dependencies {
     testRuntimeOnly(libs.junit.jupiter.engine)        // JUnit 5 engine
     testImplementation(libs.kotlinx.coroutines.test)  // TestCoroutineScope / runTest
     testImplementation(libs.arch.core.testing)        // InstantTaskExecutorRule (LiveData)
-    testImplementation(libs.mockito.kotlin)           // mock<T>(), whenever()
+    testImplementation(libs.mockito.kotlin)           // mock<T>(), wherever()
 
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
