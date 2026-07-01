@@ -1,0 +1,3001 @@
+lang,w1,w2,freq
+it,rappresentazione,spettacolo,5
+it,aritmetica,matematica,4
+it,folletto,gnomo irlandese,4
+it,facile,facilmente,3
+it,infinito,senza limite,3
+it,cristo,gesù cristo,3
+it,i nostri,il nostro,3
+it,i nostri,la nostra,3
+it,il nostro,la nostra,3
+it,il nostro,le nostre,3
+it,la nostra,le nostre,3
+it,la nostra,nostro,3
+it,le nostre,nostro,3
+it,costruzione,edificio,3
+it,castello,palazzo,3
+it,folla,lavoratori,3
+it,una,uno,2
+it,dietro,oltre,2
+it,finito,terminato,2
+it,alfabeto,caratteri,2
+it,alfabeto,lettere,2
+it,caratteri,lettere,2
+it,appartamento,edifici elevati a blocco,2
+it,allontanarsi,via,2
+it,attraente,bello,2
+it,budella,corto intestino,2
+it,budella,lungo,2
+it,corto intestino,lungo,2
+it,campo,campo sportivo,2
+it,campo,cortile,2
+it,campo sportivo,cortile,2
+it,certo,sicuro,2
+it,decorazione,ornamento,2
+it,asciutto,secco,2
+it,combustibile,infiammabile,2
+it,casa,dimora,2
+it,corni,sirene,2
+it,guida,leader,2
+it,mentire,menzogna,2
+it,basso,corto,2
+it,errore,sbaglio,2
+it,il più,massimo,2
+it,dovere,dovrebbe,2
+it,niente,nulla,2
+it,antico,vecchio,2
+it,calmo,immobile,2
+it,molo,passerella,2
+it,cilindro,tubo,2
+it,difficoltà,problema,2
+it,rapido,veloce,2
+it,rapido,velocemente,2
+it,veloce,velocemente,2
+it,michetta,panino,2
+it,lo stesso,simile,2
+it,lo stesso,uguale,2
+it,simile,uguale,2
+it,agenda,programma,2
+it,egocentrico,egoista,2
+it,deposito,ripostiglio,2
+it,brillante,intelligente,2
+it,bufera,tempesta,2
+it,idiota,stupido,2
+it,quella,quello,2
+it,formaggio cremoso,formaggio fresco,2
+it,documento,file,2
+it,eroe,figura d'azione,2
+it,eroe,superman,2
+it,figura d'azione,superman,2
+it,rovine,ruderi,2
+it,check up,controllo medico,2
+it,fallire,sbagliare,2
+it,caccia,ricerca,2
+it,descrizione,qualità,2
+it,un,una,1
+it,un,uno,1
+it,abilità,capacità,1
+it,circa,riguardo a,1
+it,conto,fattura,1
+it,andare,avanzare,1
+it,andare,camminare,1
+it,consiglio,raccomandazione,1
+it,avere paura,avere paura di,1
+it,contrario,opposto,1
+it,opposto,significato opposto,1
+it,allora,fa,1
+it,attrezzatura,supporto,1
+it,aria,atmosfera,1
+it,ogni cosa,tutto,1
+it,solitario,solo,1
+it,con,insieme,1
+it,con,di,1
+it,con,in,1
+it,di,in,1
+it,costantemente,sempre,1
+it,adirato,arrabbiato,1
+it,ansioso,preoccupato,1
+it,bisticciare,litigare,1
+it,sopra,su,1
+it,strada,via,1
+it,dare aiuto,soccorso,1
+it,guanciale,pancetta,1
+it,bagaglio,valigia,1
+it,bar,caffè,1
+it,capannone,fienile,1
+it,batteria,pila,1
+it,esistere,essere,1
+it,creatura,essere,1
+it,di fronte,prima,1
+it,precedente,prima,1
+it,inizio,partenza,1
+it,appartiene a,di,1
+it,cintura,vita,1
+it,meglio,migliore,1
+it,gonfiare,soffiare,1
+it,dare in prestito,prestare,1
+it,andare in bagno,fare la cacca,1
+it,rompere,spezzare,1
+it,portare,trasportare,1
+it,acceso,bruciante,1
+it,emettere un rutto,ruttare,1
+it,caffetteria,snack bar,1
+it,acro,campo,1
+it,acro,terra,1
+it,campo,terra,1
+it,essere in grado,potere,1
+it,auto,automobile,1
+it,causa,motivo,1
+it,cambiare,trasformare,1
+it,camino,comignolo,1
+it,la natività,natale,1
+it,anello,cerchio,1
+it,asciugare,pulire,1
+it,chiaramente,chiaro,1
+it,chiaramente,ovviamente,1
+it,chiaro,ovviamente,1
+it,chiaro,ovvio,1
+it,ovviamente,ovvio,1
+it,arrampicarsi,salire,1
+it,orologio,sveglia,1
+it,cappotto,giacca,1
+it,freddo,rabbrividente,1
+it,competere,gareggiare,1
+it,continuare,durare,1
+it,continuare,prendere tempo,1
+it,durare,prendere tempo,1
+it,corretto,esatto,1
+it,provincia,stato,1
+it,coppia,paio,1
+it,cortile,giardino,1
+it,cadere,precipitare,1
+it,basso ventre,regione pubica,1
+it,attuale,corrente,1
+it,pericoloso,velenoso,1
+it,banco,scrivania,1
+it,budino,dolce,1
+it,cancellare,distruggere,1
+it,cancellare,eliminare,1
+it,direzione,istruzione,1
+it,comando,direzione,1
+it,comando,guida,1
+it,direzione,guida,1
+it,livellato,piatto,1
+it,detestare,non potere sopportare,1
+it,fabbricare,fare,1
+it,fabbricare,produrre,1
+it,fare,produrre,1
+it,asina,asino,1
+it,abito,vestito,1
+it,abbigliarsi,agghindarsi,1
+it,durante,mentre,1
+it,ogni,ognuno,1
+it,sporcizia,terra,1
+it,est,levante,1
+it,bordo,crosta,1
+it,cavo elettrico,filo elettrico,1
+it,imbarazzato,timido,1
+it,recinto,staccionata,1
+it,arrivo,fine,1
+it,arrivo,meta,1
+it,fine,meta,1
+it,abbastanza,pieno,1
+it,pieno,sazio,1
+it,geloso,invidioso,1
+it,classificare,esaminare,1
+it,controllare,esaminare,1
+it,controllare,testare,1
+it,esaminare,testare,1
+it,valore,valutazione,1
+it,avvenimento,evento,1
+it,allenarsi,fare esercizio,1
+it,aspettarsi di,contare su,1
+it,frequentemente,spesso,1
+it,fecondo,fertile,1
+it,autopompa,camion dei pompieri,1
+it,aggiustare,riparare,1
+it,andare con l'aereo,volare,1
+it,curvare,piegare,1
+it,costringere,obbligare,1
+it,quattro del pomeriggio merenda,tè del pomeriggio,1
+it,formaggio molle,fresco,1
+it,amica,amico,1
+it,benzina,carburante,1
+it,beni,oggetti,1
+it,bene,bravo,1
+it,cereale,grano,1
+it,fucile,pistola,1
+it,borsetta,sacco,1
+it,tormento,vessazione,1
+it,avere,possesso,1
+it,avere,proprietà,1
+it,possesso,proprietà,1
+it,egli,egli stesso,1
+it,egli,lui,1
+it,egli stesso,lui,1
+it,aiuto,assistenza,1
+it,di lei,lei,1
+it,ella,lei,1
+it,ella,lei stessa,1
+it,lei,lei stessa,1
+it,nascondere,scomparire,1
+it,il suo,sua,1
+it,il suo,suo,1
+it,sua,suo,1
+it,piccante,speziato,1
+it,ora,subito,1
+it,maniera,modo,1
+it,abbracciare,stringere a se,1
+it,modesto,umile,1
+it,io,me,1
+it,io,me stesso,1
+it,me,me stesso,1
+it,immorale,sbagliato,1
+it,incorretto,male,1
+it,incorretto,sbagliato,1
+it,male,sbagliato,1
+it,dentro,internamente,1
+it,ampliare,aumentare,1
+it,aumentare,innalzare,1
+it,ferire,provocare dolore,1
+it,insegnamento,istruzione,1
+it,intimo,vicino,1
+it,vicino,vicino fisiscamente,1
+it,essa,esso,1
+it,essa,il,1
+it,esso,il,1
+it,esso,lo,1
+it,il,lo,1
+it,il,ne,1
+it,lo,ne,1
+it,gli,il,1
+it,gli,la,1
+it,il,la,1
+it,il,le,1
+it,la,le,1
+it,la,li,1
+it,le,li,1
+it,le,lo,1
+it,li,lo,1
+it,articolazione,giuntura,1
+it,conservare,mantenere,1
+it,conservare,serbare,1
+it,mantenere,serbare,1
+it,chiave,tasto,1
+it,calciare,dare un calcio,1
+it,gentile,gentilmente,1
+it,amabile,gentile,1
+it,cucina,fornello,1
+it,coltello,taglierino,1
+it,sapere,sapere di,1
+it,conoscenza,sapere,1
+it,pascolo,prato,1
+it,condurre,dirigere,1
+it,il meno,il più piccolo,1
+it,meno,senza,1
+it,concedere,permettere,1
+it,lettera,posta,1
+it,lattuga,vegetali a foglia,1
+it,periodo,tempo limitato,1
+it,linea,riga,1
+it,dritto,lineare,1
+it,leone,leonessa,1
+it,labbra,labbro,1
+it,risiedere,vivere,1
+it,fragoroso,rumoroso,1
+it,affetto,amore,1
+it,buona fortuna,fortuna,1
+it,fortuna,fortunato,1
+it,auguri,buon compleanno,1
+it,auguri,buona fortuna,1
+it,buon compleanno,buona fortuna,1
+it,cena,pranzo,1
+it,macchina,strumento,1
+it,giornale,rivista,1
+it,imbucare,impostare,1
+it,maschio,uomo,1
+it,genere maschile,uomo,1
+it,direttore,manager,1
+it,abietto,crudele,1
+it,senso,significato,1
+it,dimensione,misura,1
+it,medicazione,medicine,1
+it,incontrare,incontrarsi,1
+it,assemblea,conferenza,1
+it,mestruazioni,periodo mestruale,1
+it,intellettuale,mentale,1
+it,intellettuale,pensiero,1
+it,mentale,pensiero,1
+it,mentale,razionale,1
+it,pensiero,razionale,1
+it,carosello,giostra,1
+it,centro,in mezzo,1
+it,frappè,frullato,1
+it,il mio,mio,1
+it,mancare,sentire la mancanza,1
+it,sala giochi,sala ricreazione,1
+it,buono,giusto,1
+it,fango,melma,1
+it,gruppo musicale,gruppo pop,1
+it,firma,nome,1
+it,birichino,disubbidiente,1
+it,avere bisogno,avere bisogno di,1
+it,negativo,no,1
+it,negativo,non,1
+it,no,non,1
+it,fesseria,nonsense,1
+it,quaderno,taccuino,1
+it,adempiere,ubbidire,1
+it,mare,oceano,1
+it,discendenza,progenie,1
+it,anziano,vecchio,1
+it,apertura,buco,1
+it,opposizione,scopo di replica,1
+it,ordinare,organizzare,1
+it,comandare,ordinare,1
+it,gita,viaggio,1
+it,imbianchino,pittore,1
+it,imbianchino,pittrice,1
+it,pittore,pittrice,1
+it,parte,parte di,1
+it,parte,pezzo,1
+it,parte di,pezzo,1
+it,pace,serenità,1
+it,calmo,quieto,1
+it,essere umano,individuo,1
+it,essere umano,persona,1
+it,individuo,persona,1
+it,maiale,porco,1
+it,piano,progetto,1
+it,pianificare,programmare,1
+it,pinza,tenaglia,1
+it,poesia,poetica,1
+it,forse,possibilmente,1
+it,casseruola,pentola,1
+it,esercitare,praticare,1
+it,pregare,rendere grazie,1
+it,pregare,supplicare,1
+it,probabile,probabilmente,1
+it,non privato,pubblico,1
+it,perforare,pungere,1
+it,portafoglio,portamonete,1
+it,conservare qualcosa,riporre,1
+it,orsetto lavatore,procione,1
+it,competizione,gara sportiva,1
+it,stuprare,violentare,1
+it,al sangue,crudo,1
+it,recente,recentemente,1
+it,dispiacere,pentimento,1
+it,fare un'altra volta,ripetere,1
+it,intervallo,pausa,1
+it,rientrare,tornare,1
+it,andare su veicoli,montare,1
+it,andare in alto,sollevarsi,1
+it,navicella spaziale,razzo,1
+it,fare un cerchio,girare,1
+it,fare un cerchio,rotolare,1
+it,girare,rotolare,1
+it,girare,voltare,1
+it,paesaggio,scenario,1
+it,punteggio,risultato,1
+it,guardare,vedere,1
+it,apparire,sembrare,1
+it,condividere,spartire,1
+it,rimessa,ripostiglio,1
+it,brillare,splendere,1
+it,chiamare a voce alta,gridare,1
+it,fare vedere,mostrare,1
+it,peccatore,peccatrice,1
+it,copricapo,papalina,1
+it,sonnellino,sonno,1
+it,canottiera,sottoveste,1
+it,canottiera,maglietta intima,1
+it,schizzare,sguazzare,1
+it,da spalmare,per imbottire sandwich,1
+it,scale,scalini,1
+it,pernottare,restare,1
+it,calzettone,calzino,1
+it,pancia,stomaco,1
+it,fermarsi,portare a termine,1
+it,accarezzare,vezzeggiare,1
+it,studente,studentessa,1
+it,proporre,suggerire,1
+it,dondolare,oscillare,1
+it,afferrare,portare via,1
+it,fare i dispetti,tormentare,1
+it,ore dieci meranda,tè del mattino,1
+it,il loro,loro,1
+it,loro,loro stessi,1
+it,esse,loro,1
+it,essi,loro,1
+it,ci,lì,1
+it,queste,questi,1
+it,pensare,ragionare,1
+it,questa,questo,1
+it,quelle,quelli,1
+it,in direzione di,verso,1
+it,autocarro,caravan,1
+it,veramente,vero,1
+it,provare,tentare,1
+it,non confortevole,scomodo,1
+it,capire,comprendere,1
+it,comunità,villaggio,1
+it,paga,salario,1
+it,immondizia,rifiuto,1
+it,all'erta,vigile,1
+it,acqua,liquido,1
+it,a noi,noi,1
+it,a noi,noi stessi,1
+it,noi,noi stessi,1
+it,lavorare a telaio,tessere,1
+it,ovest,ponente,1
+it,che,che cosa,1
+it,di chi,il quale,1
+it,ampio,largo,1
+it,dimenarsi,ondeggiare,1
+it,voi,voi stessi,1
+it,te stesso,tu,1
+it,il tuo,tuo,1
+it,i tuoi,tuoi,1
+it,gustoso,saporito,1
+it,football americano,rugby,1
+it,carro coperto,diligenza,1
+it,cattolicesimo romano,chiesa romana cattolica,1
+it,messìa,redentore,1
+it,profeta,profetessa,1
+it,disperdere,disseminare,1
+it,adamo,il primo uomo,1
+it,eva,la prima donna,1
+it,bibbia,libro sacro,1
+it,libro sacro,vecchio testamento,1
+it,canto sacro,inno,1
+it,canto sacro,salmo,1
+it,inno,salmo,1
+it,apparizione,manifestazione,1
+it,apparizione,visione,1
+it,consacrare,santificare,1
+it,dipartimento,padiglione,1
+it,dipartimento,unità abitativa,1
+it,padiglione,unità abitativa,1
+it,consapevolezza del mondo,intuizione,1
+it,battesimo,battezzare,1
+it,cena del signore,comunione,1
+it,cena del signore,eucarestia,1
+it,comunione,eucarestia,1
+it,misericordia,perdono di dio,1
+it,dolersi,essere triste,1
+it,ignoto,mistero,1
+it,misterioso,sconosciuto,1
+it,impoverirsi,peggiorare,1
+it,convincere,persuadere,1
+it,cadavere,salma,1
+it,domandare,esigere,1
+it,annunciare,proclamare,1
+it,annuncio,proclamazione,1
+it,accuratezza,correttezza,1
+it,eccellenza,perfezione,1
+it,affogare,provocare annegamento,1
+it,patena,vassoio sacro,1
+it,abito sacerdotale,paramento,1
+it,colloquio,intervista,1
+it,oculista,oftalmologo,1
+it,pedicure,podologo,1
+it,massaggiatore,trice,1
+it,clan,gente,1
+it,clan,tribù,1
+it,gente,tribù,1
+it,genocidio,olocausto,1
+it,andare in canoa,canottaggio,1
+it,capovolersi,scuffare,1
+it,gnocchi,ravioli,1
+it,pasta,pastella,1
+it,linfa,linfa dell'albero,1
+it,crema di cioccolato,sciroppo al cioccolato,1
+it,considerare,riflettere,1
+it,apribottiglie,apriscatole,1
+it,molatrice,smerigliatrice,1
+it,copertura,tovaglietta,1
+it,guanti di gomma,guanti per i piatti,1
+it,nazioni nordiche,scandinavia,1
+it,cavallone,maroso,1
+it,flusso,marea,1
+en,your,yours-,6
+en,their,theirs-,4
+en,them,themselves-,4
+en,them,they,4
+en,themselves-,they,4
+en,director,leader,3
+en,moslem,muslim,3
+en,pipe,tube_,3
+en,us,we,3
+en,you,yourselves-,3
+en,abortion_,miscarriage,2
+en,celibacy,chastity,2
+en,action,demonstration_,2
+en,act,demonstrate_-,2
+en,aid,help,2
+en,alphabet,letters__,2
+en,at_a_distance,away,2
+en,gravy,relish,2
+en,gravy,sauce,2
+en,relish,sauce,2
+en,can,tin,2
+en,cacao_,chocolate,2
+en,cacao_,cocoa,2
+en,chocolate,cocoa,2
+en,copy,duplicate,2
+en,couple_,family,2
+en,different,other,2
+en,another_,other,2
+en,disability,handicap,2
+en,egg,ovum_,2
+en,cable,cord,2
+en,cable,electric_cord,2
+en,cord,electric_cord,2
+en,cord,electric_wire,2
+en,electric_cord,electric_wire,2
+en,drill,exercise,2
+en,drill,practice,2
+en,exercise,practice,2
+en,field_hockey,hockey_,2
+en,fix,mend,2
+en,flavouring,seasoning_,2
+en,bloom,flower,2
+en,football,soccer_,2
+en,assembly,conference,2
+en,conference,meeting,2
+en,genitals,sex_organs_,2
+en,glove,mitt,2
+en,glue,paste,2
+en,food_store,grocery_store,2
+en,he,him,2
+en,her,hers,2
+en,contain_-,hold,2
+en,cornet_,horn,2
+en,cornet_,trumpet,2
+en,horn,trumpet,2
+en,frankfurter,hot_dog,2
+en,me,myself-,2
+en,director,guide_,2
+en,guide_,leader,2
+en,fewest,least,2
+en,arithmetic,math_,2
+en,arithmetic,mathematics,2
+en,math_,mathematics,2
+en,disabled,handicapped__,2
+en,disabled,handicapped_,2
+en,disabled,impaired,2
+en,handicapped_,impaired,2
+en,film_,movie,2
+en,mine-,my,2
+en,our,ours-,2
+en,exit_,out_of,2
+en,calm,peaceful,2
+en,tablet,tablet_computer,2
+en,tablet,tablet_pc_,2
+en,tablet_computer,tablet_pc_,2
+en,ping-pong__,table_tennis,2
+en,ping-pong_,table_tennis,2
+en,hose,pipe,2
+en,hose,tube_,2
+en,kettle,pot,2
+en,district,neighbourhood_,2
+en,purple,violet_,2
+en,equal,same,2
+en,pedagogue,teacher,2
+en,call,telephone,2
+en,pee,piddle,2
+en,pee,piss,2
+en,piddle,piss,2
+en,walker,walking_aid_,2
+en,ourselves-,us,2
+en,ourselves-,we,2
+en,damp,moist,2
+en,you,yourself-,2
+en,cookery,cooking,2
+en,cookery,preparation_,2
+en,cooking,preparation_,2
+en,math,mathematics__,2
+en,dilapidated,ruined__,2
+en,clarinet,reed_instrument_,2
+en,contrabassoon,double_bassoon_,2
+en,french_horn,horn_,2
+en,snowplough,snowplow,2
+en,vibraphone_,xylophone,2
+en,program,programme,2
+en,motion_,movement,2
+en,connect_-,plug_in,2
+en,lease,rent,2
+en,farness,remoteness,2
+en,boundlessness,infiniteness,2
+en,church_ruin,temple_ruin,2
+en,church_ruin,wreck,2
+en,temple_ruin,wreck,2
+en,temple_ruin,wreckage__,2
+en,wreck,wreckage__,2
+en,wreck,wreckage_,2
+en,quit_-,resign,2
+en,end_of_year_,new_year's_eve,2
+en,handicraft_,handmade_figure,2
+en,denseness,density,2
+en,slanted,slanting,2
+en,percent,percentage,1
+en,decimal_point,full_stop,1
+en,decimal_point,period,1
+en,full_stop,period,1
+en,full_stop,point,1
+en,period,point,1
+en,awhile,for_a_while,1
+en,awhile,interval,1
+en,for_a_while,interval,1
+en,for_a_while,limited_time,1
+en,interval,limited_time,1
+en,interval,period,1
+en,limited_time,period,1
+en,menstrual_period,menstruation,1
+en,menstrual_period,period,1
+en,menstruation,period,1
+en,peak,point,1
+en,peak,tip,1
+en,point,tip,1
+en,indicate-,point,1
+en,modifier_,one_,1
+en,modifier_,two_,1
+en,modifier_,three_,1
+en,an,any,1
+en,any,some,1
+en,ability,capability,1
+en,ability,capacity,1
+en,capability,capacity,1
+en,capability,potential,1
+en,capacity,potential,1
+en,about,concerning,1
+en,about,in_relation_to,1
+en,concerning,in_relation_to,1
+en,concerning,of,1
+en,in_relation_to,of,1
+en,in_relation_to,on,1
+en,of,on,1
+en,of,regarding,1
+en,on,regarding,1
+en,by,by_means_of,1
+en,by,of,1
+en,by_means_of,of,1
+en,absorbent_material,sponge,1
+en,abstinence,celibacy,1
+en,abstinence,chastity,1
+en,abuse,assault,1
+en,abuse,violence,1
+en,assault,violence,1
+en,accident,chance_event,1
+en,act,action,1
+en,act,deed,1
+en,action,deed,1
+en,activity,male_gender_,1
+en,active,actively,1
+en,add,gain-,1
+en,addition,gain,1
+en,adult,grownup,1
+en,adult,mature,1
+en,advance,go-,1
+en,go-,walk,1
+en,advertisement,sign,1
+en,advice,counsel,1
+en,advice,recommendation,1
+en,counsel,recommendation,1
+en,advise,counsel,1
+en,advise,recommend-,1
+en,counsel,recommend-,1
+en,afraid,frightened,1
+en,afraid,scared,1
+en,frightened,scared,1
+en,after,behind,1
+en,against,opposed_to,1
+en,ago,then_,1
+en,aid,device,1
+en,aid,support,1
+en,device,support,1
+en,aid,assistance,1
+en,assistance,help,1
+en,assistance,support,1
+en,help,support,1
+en,aid,assist,1
+en,assist,help,1
+en,assist,serve,1
+en,help,serve,1
+en,help,support-,1
+en,serve,support-,1
+en,air,atmosphere,1
+en,aeroplane,airplane,1
+en,aeroplane,plane,1
+en,airplane,plane,1
+en,alcoholic_beverage,alcoholic_drink,1
+en,alcoholic_beverage,liquor,1
+en,alcoholic_drink,liquor,1
+en,all,every,1
+en,all,everything,1
+en,every,everything,1
+en,every,total,1
+en,everything,total,1
+en,everything,whole,1
+en,total,whole,1
+en,each,every,1
+en,alligator,crocodile,1
+en,alone,just,1
+en,alone,only,1
+en,just,only,1
+en,just,solitary,1
+en,only,solitary,1
+en,fair,just,1
+en,alpana,rangoli_,1
+en,always,ever,1
+en,always,forever,1
+en,ever,forever,1
+en,ever,whenever,1
+en,amuse,entertain,1
+en,amuse,please-,1
+en,entertain,please-,1
+en,also,and,1
+en,also,plus,1
+en,and,plus,1
+en,and,too,1
+en,plus,too,1
+en,angrily,angry,1
+en,angrily,mad,1
+en,angry,mad,1
+en,animal,beast,1
+en,animal_,bovid,1
+en,animal_,bovine,1
+en,bovid,bovine,1
+en,animal_,cold-blooded_animal,1
+en,animal_,ectotherm,1
+en,cold-blooded_animal,ectotherm,1
+en,cold-blooded_animal,poikilotherm,1
+en,ectotherm,poikilotherm,1
+en,animal_,endotherm,1
+en,animal_,homeotherm,1
+en,endotherm,homeotherm,1
+en,endotherm,warm-blooded_animal,1
+en,homeotherm,warm-blooded_animal,1
+en,canid,canine_,1
+en,canid,dog,1
+en,canine_,dog,1
+en,cervid,cervine_,1
+en,cervid,deer,1
+en,cervine_,deer,1
+en,cat,felid,1
+en,cat,feline_,1
+en,felid,feline_,1
+en,marsupial_,pouched_mammal,1
+en,gnawer,gnawing_animal,1
+en,gnawer,rat,1
+en,gnawing_animal,rat,1
+en,gnawing_animal,rodent,1
+en,rat,rodent,1
+en,animal_skin,hide,1
+en,animal_skin,pelt,1
+en,hide,pelt,1
+en,conceal-,hide,1
+en,conceal_-,hide,1
+en,lizard,reptile_,1
+en,answer,reply,1
+en,answer,reply-,1
+en,anxious,anxiously,1
+en,anybody,anyone,1
+en,anybody,somebody,1
+en,anyone,somebody,1
+en,anyone,someone,1
+en,somebody,someone,1
+en,anything,something,1
+en,anytime,sometime,1
+en,anyplace,anywhere,1
+en,anyplace,someplace,1
+en,anywhere,someplace,1
+en,anywhere,somewhere,1
+en,someplace,somewhere,1
+en,apartment,flat,1
+en,apartment,unit,1
+en,flat,unit,1
+en,eg,example,1
+en,eg,for_example,1
+en,example,for_example,1
+en,example,sample,1
+en,for_example,sample,1
+en,for_example,unit,1
+en,sample,unit,1
+en,apologise,apologize,1
+en,apologise,regret_-,1
+en,apologize,regret_-,1
+en,apron,coverall,1
+en,apron,overall,1
+en,coverall,overall,1
+en,coverall,smock,1
+en,overall,smock,1
+en,argue,dispute,1
+en,argue,quarrel-,1
+en,dispute,quarrel-,1
+en,argument,dispute,1
+en,argument,quarrel,1
+en,dispute,quarrel,1
+en,quarrel,row,1
+en,armed_forces,armed_services,1
+en,armed_forces,military,1
+en,armed_services,military,1
+en,art_gallery,gallery,1
+en,give_artificial_respiration,resuscitate,1
+en,give_artificial_respiration,revive-,1
+en,resuscitate,revive-,1
+en,ask,inquire,1
+en,ask,question-,1
+en,inquire,question-,1
+en,be_curious-,enquire,1
+en,be_curious-,inquire,1
+en,enquire,inquire,1
+en,enquire,wonder,1
+en,inquire,wonder,1
+en,astronaut,cosmonaut,1
+en,autumn,fall_,1
+en,autumn,fall,1
+en,drop,fall,1
+en,drop,spill,1
+en,fall,spill,1
+en,fall,tumble,1
+en,spill,tumble,1
+en,at_a_distance,off_,1
+en,away,off_,1
+en,at_a_distance,off,1
+en,away,off,1
+en,baby,infant,1
+en,baby_carriage,buggy,1
+en,baby_carriage,pram,1
+en,buggy,pram,1
+en,buggy,pushchair,1
+en,pram,pushchair,1
+en,pram,stroller,1
+en,pushchair,stroller,1
+en,alternation,back_and_forth,1
+en,alternation,backward_and_forward,1
+en,back_and_forth,backward_and_forward,1
+en,back_and_forth,to_and_fro,1
+en,backward_and_forward,to_and_fro,1
+en,backpack,rucksack,1
+en,back,backward,1
+en,bad,wrong,1
+en,bad,immoral,1
+en,bad,morally_wrong,1
+en,immoral,morally_wrong,1
+en,immoral,wrong,1
+en,morally_wrong,wrong,1
+en,bad,inaccurate,1
+en,bad,incorrect,1
+en,inaccurate,incorrect,1
+en,inaccurate,wrong,1
+en,incorrect,wrong,1
+en,badge,shield,1
+en,bag,baggage,1
+en,bag,luggage,1
+en,baggage,luggage,1
+en,baggage,suitcase,1
+en,luggage,suitcase,1
+en,bag,sack,1
+en,bake,cook,1
+en,bake,roast-,1
+en,cook,roast-,1
+en,chef,cook,1
+en,balcony,porch,1
+en,balcony,veranda,1
+en,porch,veranda,1
+en,band,orchestra_,1
+en,band,orchestra,1
+en,bandage,dressing,1
+en,dressing,gravy,1
+en,dressing,relish,1
+en,bank,beach,1
+en,bank,coast,1
+en,beach,coast,1
+en,beach,shore,1
+en,coast,shore,1
+en,bar,pub,1
+en,bar,cake,1
+en,bar,linear_thing_,1
+en,barber,hairdresser,1
+en,barbershop,beauty_shop,1
+en,barn,shed,1
+en,barn,stable,1
+en,shed,stable,1
+en,bathroom,washroom,1
+en,am,are,1
+en,am,be,1
+en,are,be,1
+en,are,exist-,1
+en,be,exist-,1
+en,be,is,1
+en,exist-,is,1
+en,attractive,beautiful,1
+en,attractive,good-looking,1
+en,beautiful,good-looking,1
+en,beautiful,handsome,1
+en,good-looking,handsome,1
+en,good-looking,pretty,1
+en,handsome,pretty,1
+en,bee,bumblebee,1
+en,bee,hoverfly,1
+en,bumblebee,hoverfly,1
+en,beet,beetroot,1
+en,before,in_front_of,1
+en,before,prior_to,1
+en,in_front_of,prior_to,1
+en,begin,start-,1
+en,beginning,start,1
+en,bell,chime_bar,1
+en,belongs_to,of_,1
+en,belt,sash,1
+en,bench,pew,1
+en,beyond,past_,1
+en,beyond,past,1
+en,big,large,1
+en,bindi,tika_,1
+en,bird_,duck,1
+en,bird_,seabird,1
+en,duck,seabird,1
+en,duck,seafowl,1
+en,seabird,seafowl,1
+en,seabird,waterbird,1
+en,seafowl,waterbird,1
+en,seafowl,waterfowl,1
+en,waterbird,waterfowl,1
+en,birth,delivery,1
+en,birth,giving_birth,1
+en,delivery,giving_birth,1
+en,delivery,parturition,1
+en,giving_birth,parturition,1
+en,birth_control_pill,pill,1
+en,pill,tablet,1
+en,blackbird,crow,1
+en,blackbird,raven,1
+en,crow,raven,1
+en,blackboard,chalkboard,1
+en,blackboard,whiteboard,1
+en,chalkboard,whiteboard,1
+en,chalkboard,writing_board,1
+en,whiteboard,writing_board,1
+en,blanket,duvet,1
+en,blanket,quilt,1
+en,duvet,quilt,1
+en,bliss-word,blissymbol,1
+en,block,brick,1
+en,block,city_block,1
+en,boat,ship,1
+en,body,trunk,1
+en,body,hull,1
+en,bole,tree_trunk,1
+en,bole,trunk,1
+en,tree_trunk,trunk,1
+en,boot,luggage_compartment,1
+en,boot,roof_box,1
+en,luggage_compartment,roof_box,1
+en,luggage_compartment,trunk,1
+en,roof_box,trunk,1
+en,barbeque,bonfire,1
+en,barbeque,campfire,1
+en,bonfire,campfire,1
+en,boss,supervisor_,1
+en,boss,supervisor,1
+en,bottle,flask,1
+en,cooler,flask,1
+en,cooler,thermos,1
+en,flask,thermos,1
+en,base,bottom,1
+en,ass,bottom,1
+en,ass,bum,1
+en,bottom,bum,1
+en,bottom,buttocks,1
+en,bum,buttocks,1
+en,bum,rear,1
+en,buttocks,rear,1
+en,bottom,bottom_of_a_thing,1
+en,base,foundation,1
+en,base,fundament,1
+en,foundation,fundament,1
+en,bowel,intestine_,1
+en,bowel,gut,1
+de,anwalt,anwältin,6
+de,bonbon,süßigkeit,5
+de,fanatiker,fanatikerin,5
+de,arithmetik,mathe,4
+de,arithmetik,mathematik,4
+de,mathe,mathematik,4
+de,mathe,rechnen,4
+de,mathematik,rechnen,4
+de,ping pong,tischtennis,4
+de,samstag,sonnabend,4
+de,beerdigung,begräbnis,4
+de,psychologe,psychologin,4
+de,sein,seine,3
+de,leiter,leiterin,3
+de,büchse,dose,3
+de,kakaopulver,schokoladenpulver,3
+de,computer,pc,3
+de,verteidiger,verteidigerin,3
+de,familie,paar,3
+de,spiel,theaterstück,3
+de,geschlechtsorgane,geschlechtsteile,3
+de,ihr,sie,3
+de,euch,euer,3
+de,euer,ihr,3
+de,eigenheim,heim,3
+de,christus,jesus,3
+de,ehe,hochzeit,3
+de,mein,meine,3
+de,unser,unsere,3
+de,uns,unser,3
+de,uns,wir,3
+de,unser,wir,3
+de,der,die,3
+de,welche,welcher,3
+de,welche,welches,3
+de,welcher,welches,3
+de,lehrer,lehrerin,3
+de,pädagoge,pädagogin,3
+de,anhänger,anhängerin,3
+de,dein,dich,3
+de,dein,dir,3
+de,dich,dir,3
+de,dich,du,3
+de,dir,du,3
+de,einspruch,protest,3
+de,einspruch,widerspruch,3
+de,protest,widerspruch,3
+de,burg,schloss,3
+de,döner,kebab,3
+de,sit-ski,sitzski,3
+de,sit-ski,skischlitten,3
+de,sitzski,skischlitten,3
+de,bahnhof,station,3
+de,tattoo,tätowierung,3
+de,fähigkeit,können,2
+de,unfall,zusammenstoß,2
+de,addition,ergänzung,2
+de,addition,gewinn,2
+de,ergänzung,gewinn,2
+de,ergänzung,zugewinn,2
+de,gewinn,zugewinn,2
+de,vereinbarung,vertrag,2
+de,entfernt,fort,2
+de,fort,weg,2
+de,allein,einsam,2
+de,alphabet,buchstabe,2
+de,buchstabe,schriftzeichen,2
+de,ecke,winkel,2
+de,fell,pelz,2
+de,date,rendezvous,2
+de,date,verabredung,2
+de,rendezvous,verabredung,2
+de,auseinandersetzung,streit,2
+de,falsch,schlecht,2
+de,ballon,luftballon,2
+de,band,orchester,2
+de,leine,seil,2
+de,bohle,brett,2
+de,chef,chefin,2
+de,glänzend,hell,2
+de,häuschen,hütte,2
+de,karren,wagen,2
+de,auffangen,fangen,2
+de,bestimmt,gewiss,2
+de,bestimmt,sicher,2
+de,gewiss,sicher,2
+de,kakao,kakaotrunk,2
+de,kakao,schokoladenmilch,2
+de,kakaotrunk,schokoladenmilch,2
+de,schokoladenaufstrich,schokoladencreme,2
+de,pfote,tatze,2
+de,verkäufer,verkäuferin,2
+de,verbinden,verknüpfen,2
+de,behälter,container,2
+de,anwalt,rechtsanwalt,2
+de,anwältin,rechtsanwalt,2
+de,anwältin,rechtsanwältin,2
+de,rechtsanwalt,rechtsanwältin,2
+de,rechtsanwalt,verteidiger,2
+de,rechtsanwältin,verteidiger,2
+de,rechtsanwältin,verteidigerin,2
+de,spielfeld,sportplatz,2
+de,andere,anderer,2
+de,andere,anders,2
+de,anderer,anders,2
+de,behinderung,körperbehinderung,2
+de,führen,lenken,2
+de,lenken,steuern,2
+de,jede,jedes,2
+de,effekt,ergebnis,2
+de,effekt,folge,2
+de,ergebnis,folge,2
+de,ergebnis,wirkung,2
+de,folge,wirkung,2
+de,aufzug,fahrstuhl,2
+de,aufzug,lift,2
+de,fahrstuhl,lift,2
+de,ausleeren,ausschütten,2
+de,ausleeren,entleeren,2
+de,ausschütten,entleeren,2
+de,ausschütten,leeren,2
+de,entleeren,leeren,2
+de,bewertung,wert,2
+de,aufgeregt,gespannt,2
+de,aufregung,erregung,2
+de,dick,fett,2
+de,feldhockey,hockey,2
+de,angeln,fischen,2
+de,pommes,pommes frites,2
+de,gott,göttin,2
+de,lebensmittelgeschäft,lebensmittelladen,2
+de,lebensmittelgeschäft,supermarkt,2
+de,lebensmittelladen,supermarkt,2
+de,gymnastikhalle,turnhalle,2
+de,etwas ungern tun,hassen,2
+de,ihnen,ihr,2
+de,ihnen,sie,2
+de,guten tag,hallo,2
+de,helfen,unterstützen,2
+de,fördern,unterstützen,2
+de,ihr,ihre,2
+de,euch,ihr,2
+de,ihre,ihrer,2
+de,ihre,ihres,2
+de,ihrer,ihres,2
+de,enthalten,halten,2
+de,kornett,trompete,2
+de,eisbecher,eiskrem,2
+de,unbegrenzt,unendlich,2
+de,juwelen,schmuck,2
+de,ermorden,töten,2
+de,führer,führerin,2
+de,führer,leiter,2
+de,führerin,leiter,2
+de,führerin,leiterin,2
+de,leiter,reiseführer,2
+de,leiterin,reiseführer,2
+de,leiterin,reiseführerin,2
+de,reiseführer,reiseführerin,2
+de,letzter,zuletzt,2
+de,weide,weideland,2
+de,anheben,heben,2
+de,anheben,hochheben,2
+de,heben,hochheben,2
+de,begrenzung,beschränkung,2
+de,begrenzung,einschränkung,2
+de,beschränkung,einschränkung,2
+de,krebs,languste,2
+de,senden,versenden,2
+de,eng,schmal,2
+de,nie,niemals,2
+de,quatsch,unsinn,2
+de,immer noch,noch,2
+de,immer noch,weiterhin,2
+de,noch,weiterhin,2
+de,alt,gebraucht,2
+de,feier,fest,2
+de,friedlich,gelassen,2
+de,gelassen,ruhig,2
+de,ruhig,still,2
+de,senkrecht,vertikal,2
+de,anlegestelle,mole,2
+de,anlegestelle,pier,2
+de,mole,pier,2
+de,pink,rosa,2
+de,rohr,röhre,2
+de,kochtopf,pfanne,2
+de,kochtopf,topf,2
+de,pfanne,topf,2
+de,chip,kartoffelchip,2
+de,kraft,stärke,2
+de,kraft,macht,2
+de,schwanger,schwangere frau,2
+de,backpflaume,dörrpflaume,2
+de,laufen,rennen,2
+de,das,der,2
+de,das,die,2
+de,wen,wer,2
+de,erinnern,sich erinnern,2
+de,rakete,raumschiff,2
+de,naturwissenschaft,wissenschaft,2
+de,spülbecken,waschbecken,2
+de,rodelschlitten,schlitten,2
+de,gescheit,intelligent,2
+de,gescheit,klug,2
+de,intelligent,klug,2
+de,intelligent,schlau,2
+de,klug,schlau,2
+de,klug,tüchtig,2
+de,schlau,tüchtig,2
+de,duft,geruch,2
+de,imbiss,kleinigkeit zu essen,2
+de,imbiss,snack,2
+de,kleinigkeit zu essen,snack,2
+de,geschäft,laden,2
+de,lagerraum,vorratskammer,2
+de,faden,faser,2
+de,blöde,doof,2
+de,blöde,dumm,2
+de,doof,dumm,2
+de,doof,idiotisch,2
+de,dumm,idiotisch,2
+de,lehrer,pädagoge,2
+de,lehrerin,pädagoge,2
+de,lehrerin,pädagogin,2
+de,mannschaft,team,2
+de,auftauen,schmelzen,2
+de,auftauen,tauen,2
+de,schmelzen,tauen,2
+de,therapeut,therapeutin,2
+de,england,großbritannien,2
+de,meistens,normalerweise,2
+de,anhänger,fan,2
+de,anhängerin,fan,2
+de,anhängerin,fanatiker,2
+de,fan,fanatiker,2
+de,fan,fanatikerin,2
+de,arbeitnehmer,arbeitnehmerin,2
+de,deine,deiner,2
+de,deine,deines,2
+de,deiner,deines,2
+de,lecker,schmackhaft,2
+de,beerdigung,begräbnisfeier,2
+de,begräbnis,begräbnisfeier,2
+de,beerdigung,bestattung,2
+de,begräbnis,bestattung,2
+de,namensgebung,taufe,2
+de,ankündigung,bekanntmachung,2
+de,gewaltig,riesig,2
+de,apotheker,apothekerin,2
+de,psychologielehrer,psychologielehrerin,2
+de,riemen,ruder,2
+de,heilkraut,kräuter,2
+de,frischkäse,quark,2
+de,frischkäse,weichkäse,2
+de,quark,weichkäse,2
+de,agieren,demonstrieren,2
+de,befürworten,vertreten,2
+de,plädieren,verteidigen,2
+de,flur,korridor,2
+de,abstand,distanz,2
+de,spannungsmesser,voltmeter,2
+de,horizantal,waagerecht,2
+de,dienstleistung,service,2
+de,behelfsheim,übergangswohnung,2
+de,geschwindigkeit,schnelligkeit,2
+de,geschwindigkeit,tempo,2
+de,schnelligkeit,tempo,2
+de,furchtlos,mutig,2
+de,furchtlos,tapfer,2
+de,mutig,tapfer,2
+de,mutig,unerschrocken,2
+de,tapfer,unerschrocken,2
+de,mechaniker,mechanikerin,2
+de,alb,elfe,2
+de,auslesen,exportieren,2
+de,funktionell,funktionstüchtig,2
+de,jagen,verfolgen,2
+de,philosoph,philosophin,2
+de,abdruck,aufdruck,2
+de,abdruck,spur,2
+de,aufdruck,spur,2
+de,troll,waldschrat,2
+de,bremse,rollstuhlbremse,2
+de,horn,jagdhorn,2
+de,horn,signalhorn,2
+de,jagdhorn,signalhorn,2
+de,jagdhorn,waldhorn,2
+de,signalhorn,waldhorn,2
+de,horn,waldhorn,2
+de,klarinette,rohrblattinstrument,2
+de,bassfagott,kontrafagott,2
+de,ried,schilfrohr,2
+de,vibraphon,xylophon,2
+de,grundgesetz,verfassung,2
+de,dasein,existenz,2
+de,fundamentalist,fundamentalistin,2
+de,medizinische behandlung,ärztliche behandlung,2
+de,purzelbaum,salto,2
+de,dehnen,strecken,2
+de,babyflasche,nuckelflasche,2
+de,schmied,schmiedin,2
+de,scheitern,versagen,2
+de,sendung,übertragung,2
+de,bestechlichkeit,korruption,2
+de,bevollmächtigung,ermächtigung,2
+de,tourist,touristin,2
+de,endlosigkeit,ewigkeit,2
+de,endlosigkeit,unendlichkeit,2
+de,ewigkeit,unendlichkeit,2
+de,grenzenlosigkeit,unendlichkeit,2
+de,abgelegenheit,entferntheit,2
+de,kirchenruine,tempelruine,2
+de,heiligabend,heiliger abend,2
+de,heiligabend,weihnachtsabend,2
+de,heiliger abend,weihnachtsabend,2
+de,mitschüler,mitschülerin,2
+de,handgemachte figur,handwerk,2
+de,dichte,dichtheit,2
+de,dichte,konzentration,2
+de,dichtheit,konzentration,2
+de,abschütten,durchsieben,1
+de,abschütten,filtern,1
+de,durchsieben,filtern,1
+de,durchsieben,sieben,1
+de,filtern,sieben,1
+de,ein,eine,1
+de,ein,einer,1
+de,eine,einer,1
+de,eignung,fähigkeit,1
+de,eignung,können,1
+de,von,über,1
+de,auf der anderen seite,herüber,1
+de,auf der anderen seite,hinüber,1
+de,herüber,hinüber,1
+de,herüber,über,1
+de,hinüber,über,1
+de,oberhalb,über,1
+de,durch,von,1
+de,abstinenz,enthaltsamkeit,1
+de,angriff,gewalt,1
+de,angriff,misshandlung,1
+de,gewalt,misshandlung,1
+de,anfall,angriff,1
+de,anfall,anschlag,1
+de,angriff,anschlag,1
+de,accessoire,zubehör,1
+de,anhang,zubehör,1
+de,missgeschick,unfall,1
+de,missgeschick,zufall,1
+de,unfall,zufall,1
+de,autounfall,unfall,1
+de,autounfall,zusammenstoß,1
+de,unfall,unglück,1
+de,fehler,missgeschick,1
+de,schmerz,starker schmerz,1
+de,akne,pickel,1
+de,pickel,pustel,1
+de,aktion,ausführung,1
+de,aktion,handlung,1
+de,ausführung,handlung,1
+de,ausführung,tat,1
+de,handlung,tat,1
+de,aktivität,demonstration,1
+de,aktivität,handlung,1
+de,demonstration,handlung,1
+de,aktivität,männliches geschlecht,1
+de,aktivität,tätigkeit,1
+de,männliches geschlecht,tätigkeit,1
+de,aktiv,energisch,1
+de,aktiv,tätig,1
+de,energisch,tätig,1
+de,addieren,hinzufügen,1
+de,adoleszenz,jugend,1
+de,adoleszenz,jugendalter,1
+de,jugend,jugendalter,1
+de,erwachsen,reif,1
+de,annonce,anzeige,1
+de,annonce,inserat,1
+de,anzeige,inserat,1
+de,anzeige,werbung,1
+de,inserat,werbung,1
+de,inserat,zeitungsannonce,1
+de,werbung,zeitungsannonce,1
+de,werbung,zeitungsanzeige,1
+de,zeitungsannonce,zeitungsanzeige,1
+de,zeitungsannonce,zeitungsinserat,1
+de,zeitungsanzeige,zeitungsinserat,1
+de,empfehlung,rat,1
+de,empfehlung,ratschlag,1
+de,rat,ratschlag,1
+de,angebot,rat,1
+de,angebot,tipp,1
+de,rat,tipp,1
+de,rat,vorschlag,1
+de,tipp,vorschlag,1
+de,anraten,beraten,1
+de,anraten,empfehlen,1
+de,beraten,empfehlen,1
+de,erschrocken,verängstigt,1
+de,erschrocken,ängstlich,1
+de,verängstigt,ängstlich,1
+de,besorgt,ängstlich,1
+de,hinter,nach,1
+de,nach,zu,1
+de,nach,zum,1
+de,zu,zum,1
+de,zu,zur,1
+de,zum,zur,1
+de,noch einmal,nochmals,1
+de,noch einmal,wieder,1
+de,nochmals,wieder,1
+de,gegen,gegenüber,1
+de,gegen,im gegensatz zu,1
+de,gegenüber,im gegensatz zu,1
+de,gegenüber,statt,1
+de,im gegensatz zu,statt,1
+de,damals,derzeitig,1
+de,damals,her,1
+de,derzeitig,her,1
+de,derzeitig,vergangen,1
+de,her,vergangen,1
+de,her,vor,1
+de,vergangen,vor,1
+de,früher als,im vorfeld,1
+de,früher als,vor,1
+de,im vorfeld,vor,1
+de,einwilligen,zustimmen,1
+de,einwilligen,übereinstimmen,1
+de,zustimmen,übereinstimmen,1
+de,billigen,genehmigen,1
+de,billigen,zustimmen,1
+de,genehmigen,zustimmen,1
+de,abmachung,einvernehmen,1
+de,abmachung,vereinbarung,1
+de,einvernehmen,vereinbarung,1
+de,einvernehmen,vertrag,1
+de,vereinbarung,zustimmung,1
+de,vertrag,zustimmung,1
+de,vertrag,übereinkunft,1
+de,zustimmung,übereinkunft,1
+de,förderung,hilfsmittel,1
+de,förderung,unterstützung,1
+de,hilfsmittel,unterstützung,1
+de,hilfe,unterstützung,1
+de,rückhalt,unterstützung,1
+de,atmosphäre,luft,1
+de,alle,alles,1
+de,alle,ganz,1
+de,alles,ganz,1
+de,alles,gesamt,1
+de,ganz,gesamt,1
+de,alles weg,fort,1
+de,alles weg,vorbei,1
+de,fort,vorbei,1
+de,entfernt,weg,1
+de,ab,davon,1
+de,ab,entfernt,1
+de,davon,entfernt,1
+de,davon,fort,1
+de,entfernt,in einer entfernung von,1
+de,fort,in einer entfernung von,1
+de,in einer entfernung von,weg,1
+de,jenseits,vorbei,1
+de,alligator,krokodil,1
+de,allein,nur,1
+de,einsam,nur,1
+de,zusammen mit,zusätzlich,1
+de,alpana,kolam,1
+de,alpana,rangoli,1
+de,kolam,rangoli,1
+de,alphabet,kleinbuchstaben,1
+de,buchstabe,kleinbuchstaben,1
+de,kleinbuchstaben,schriftzeichen,1
+de,alphabet,schriftzeichen,1
+de,obwohl,trotzdem,1
+de,beständig,immer,1
+de,beständig,stets,1
+de,immer,stets,1
+de,immer,ständig,1
+de,stets,ständig,1
+de,andauernd,beständig,1
+de,andauernd,geduldig,1
+de,beständig,geduldig,1
+de,krankenwagen,rettungswagen,1
+de,amenorrhö,ausbleiben der regelblutung,1
+de,amüsieren,erfreuen,1
+de,amüsieren,sich amüsieren,1
+de,erfreuen,sich amüsieren,1
+de,erfreuen,genießen,1
+de,erfreuen,sich erfreuen,1
+de,genießen,sich erfreuen,1
+de,genießen,sich gut unterhalten,1
+de,sich erfreuen,sich gut unterhalten,1
+de,auch,plus,1
+de,auch,und,1
+de,plus,und,1
+de,minus,plus,1
+de,wütend,zornig,1
+de,wütend,ärgerlich,1
+fr,vos,votre,6
+fr,sa,ses,4
+fr,sa,son,4
+fr,ses,son,4
+fr,leur,leurs,4
+fr,chasteté,célibat,3
+fr,chef,patron,3
+fr,ma,mes,3
+fr,ma,mon,3
+fr,mes,mon,3
+fr,nos,notre,3
+fr,nos,nôtre,3
+fr,notre,nôtre,3
+fr,vous,vous-mêmes,3
+fr,seul,solitaire,2
+fr,alphabet,lettres,2
+fr,au loin,loin,2
+fr,groupe musical,orchestre,2
+fr,de,en,2
+fr,au-delà,de l'autre côté de,2
+fr,pouvoir,puissance,2
+fr,attraper,saisir,2
+fr,cher,coûteux,2
+fr,handicap,incapacité,2
+fr,graine_,œuf,2
+fr,attacher,joindre,2
+fr,gras,gros,2
+fr,prendre,voler,2
+fr,halloween,toussaint,2
+fr,elle,il,2
+fr,cor,cornet à piston_,2
+fr,cor,trompette,2
+fr,cornet à piston_,trompette,2
+fr,fantastique,merveilleux,2
+fr,illimité,infini,2
+fr,infini,éternité,2
+fr,directeur,dirigeant_,2
+fr,autoriser,habiliter,2
+fr,arithmétique _,mathématiques,2
+fr,embarcadère,ponton,2
+fr,embarcadère,quai,2
+fr,ponton,quai,2
+fr,arrêt,quai,2
+fr,ping-pong,tennis de table,2
+fr,livre de prières,missel,2
+fr,pourpre_,violet,2
+fr,vrai,véritable,2
+fr,rappeler-,souvenir-,2
+fr,bête,stupide,2
+fr,nous,nous-mêmes,2
+fr,de qui,à qui,2
+fr,catch,lutte,2
+fr,vous,vous-même,2
+fr,diable_,démon,2
+fr,enterrement,funérailles,2
+fr,déclaration,proclamation,2
+fr,go-cart,go-kart,2
+fr,go-cart,karting,2
+fr,go-kart,karting,2
+fr,snowboard,surf des neiges,2
+fr,squash,tennis en salle,2
+fr,militant,partisan,2
+fr,déposition,témoignage,2
+fr,compteur kilométrique,odomètre,2
+fr,ordinateur tablette,tablette pc,2
+fr,ordinateur tablette,tablette électronique,2
+fr,tablette pc,tablette électronique,2
+fr,clarinette_,instrument à anche,2
+fr,vibraphone_,xylophone,2
+fr,fondamentalisme,intégrisme,2
+fr,culbute,saut périlleux_,2
+fr,culbute,tonneau,2
+fr,saut périlleux_,tonneau,2
+fr,gare des trains,gare ferroviaire,2
+fr,jumelles,longue-vue,2
+fr,pension d'invalidité,rente d'invalidité,2
+fr,autorisé,habilité,2
+fr,des,un,1
+fr,des,une,1
+fr,un,une,1
+fr,aptitude,capacité,1
+fr,aptitude,compétence,1
+fr,capacité,compétence,1
+fr,avortement,interruption de grossesse,1
+fr,au sujet de,concernant,1
+fr,au sujet de,à propos de,1
+fr,concernant,à propos de,1
+fr,matière absorbante,éponge,1
+fr,abstinence,chasteté,1
+fr,abstinence,célibat,1
+fr,abstinence sexuelle,chasteté,1
+fr,abstinence sexuelle,célibat,1
+fr,abus,violence,1
+fr,accident,événement imprévisible,1
+fr,compte-rendu,récit,1
+fr,douleur,souffrance,1
+fr,d'un côté à l'autre,à travers,1
+fr,adulte,grande personne,1
+fr,adulte,mature,1
+fr,adulte,mûr,1
+fr,mature,mûr,1
+fr,aller,avancer,1
+fr,affiche,annonce publicitaire,1
+fr,après,derrière,1
+fr,croupe,derrière,1
+fr,croupe,fesses,1
+fr,derrière,fesses,1
+fr,de nouveau,encore,1
+fr,de nouveau,à nouveau,1
+fr,encore,à nouveau,1
+fr,alors,il y a,1
+fr,alors,ensuite,1
+fr,mettre d'accord-,être d'accord,1
+fr,aide technique,support matériel,1
+fr,air,mélodie,1
+fr,air,ton,1
+fr,mélodie,ton,1
+fr,isolé,seul,1
+fr,isolé,solitaire,1
+fr,avec,à l'aide de,1
+fr,bien que,quoique,1
+fr,amuser,distraire,1
+fr,ainsi que,et,1
+fr,ainsi que,plus,1
+fr,et,plus,1
+fr,angle,coin,1
+fr,canidé,chien,1
+fr,cerf,cervidé,1
+fr,chat,félidé,1
+fr,chat,félin,1
+fr,félidé,félin,1
+fr,kangourou,marsupial,1
+fr,rat,rongeur,1
+fr,fourrure,peau,1
+fr,fourrure,pelage,1
+fr,une fois,une seule fois,1
+fr,forces armées,militaire,1
+fr,demander,poser une question,1
+fr,demander,questionner,1
+fr,poser une question,questionner,1
+fr,demander,requérir,1
+fr,demander,solliciter,1
+fr,requérir,solliciter,1
+fr,interroger,interviewer,1
+fr,interroger,questionner,1
+fr,interviewer,questionner,1
+fr,astronaute,cosmonaute,1
+fr,atome,noyau atomique,1
+fr,réveillé,éveillé,1
+fr,loin,éloigné,1
+fr,bébé,nouveau-né,1
+fr,landau,poussette,1
+fr,baby-sitter,gardienne d'enfant,1
+fr,bacon,lard en tranche,1
+fr,badge,insigne,1
+fr,bagage,valise,1
+fr,balcon,loggia,1
+fr,balcon,pergola,1
+fr,loggia,pergola,1
+fr,loggia,porche,1
+fr,pergola,porche,1
+fr,pergola,véranda,1
+fr,porche,véranda,1
+fr,endroit abrité du vent,porche,1
+fr,groupe de musiciens,groupe de musique,1
+fr,groupe de musiciens,groupe musical,1
+fr,groupe de musique,groupe musical,1
+fr,bandage,compresse,1
+fr,bandage,pansement,1
+fr,compresse,pansement,1
+fr,compresse,sparadrap,1
+fr,pansement,sparadrap,1
+fr,bar,café,1
+fr,bar,pub,1
+fr,café,pub,1
+fr,café,snack-bar,1
+fr,grange,écurie,1
+fr,grange,étable,1
+fr,écurie,étable,1
+fr,barrière contraceptive,contraceptif,1
+fr,camp,campement,1
+fr,accumulateur,batterie,1
+fr,accumulateur,pile,1
+fr,batterie,pile,1
+fr,exister,être,1
+fr,bord de l'eau,côte,1
+fr,bord de l'eau,plage,1
+fr,côte,plage,1
+fr,côte,rivage,1
+fr,plage,rivage,1
+fr,plage,rive,1
+fr,rivage,rive,1
+fr,fève,grain,1
+fr,fève,haricot,1
+fr,grain,haricot,1
+fr,céréale,grain,1
+fr,attirant,beau,1
+fr,attirant,joli,1
+fr,beau,joli,1
+fr,beau,magnifique,1
+fr,joli,magnifique,1
+fr,attirant,souhaitable,1
+fr,car,parce que,1
+fr,coléoptère,scarabée,1
+fr,antérieur à,avant,1
+fr,antérieur à,devant,1
+fr,avant,devant,1
+fr,croyance,foi,1
+fr,avoir foi en,croire,1
+fr,carillon,cloche,1
+fr,appartenance,de,1
+fr,de,par,1
+fr,en,par,1
+fr,meilleur,mieux,1
+fr,meilleur que,mieux que,1
+fr,bavette,bavoir,1
+fr,bicyclette,vélo,1
+fr,canard,oiseau aquatique,1
+fr,amer,âpre,1
+fr,corbeau,corneille,1
+fr,couette,couverture,1
+fr,couette,couvre-lit,1
+fr,couverture,couvre-lit,1
+fr,couverture,duvet,1
+fr,couvre-lit,duvet,1
+fr,bloc,brique,1
+fr,cracher,feuler,1
+fr,cracher,souffler,1
+fr,feuler,souffler,1
+fr,bleuet,myrtille,1
+fr,panneau,planche,1
+fr,cuire à l'eau,faire bouillir,1
+fr,chef,directeur,1
+fr,directeur,patron,1
+fr,bouteille,fiole,1
+fr,bouteille,flacon,1
+fr,fiole,flacon,1
+fr,dessous,fond,1
+fr,boyau,intestin,1
+fr,caca,excrément,1
+fr,caca,selles,1
+fr,excrément,selles,1
+fr,boîte,cube,1
+fr,briser,casser,1
+fr,briser,déchirer,1
+fr,casser,déchirer,1
+fr,casser,fracturer,1
+fr,déchirer,fracturer,1
+fr,cassable,fragile,1
+fr,poitrine,seins,1
+fr,poitrine,torse,1
+fr,brillant,clair,1
+fr,brillant,lumineux,1
+fr,clair,lumineux,1
+fr,brillant,lustre,1
+fr,clair,limpide,1
+fr,clair,net,1
+fr,limpide,net,1
+fr,limpide,transparent,1
+fr,net,transparent,1
+fr,amener,apporter,1
+fr,amener,porter,1
+fr,amener,transporter,1
+fr,porter,transporter,1
+fr,bison,buffle,1
+fr,bulbe,oignon,1
+fr,constellation du taureau,taureau,1
+fr,brûlé,incendié,1
+fr,ensevelir,enterrer,1
+fr,arbuste,buisson,1
+fr,arbuste,taillis,1
+fr,buisson,taillis,1
+fr,cependant,mais,1
+fr,cependant,toutefois,1
+fr,mais,toutefois,1
+fr,bouton,pustule,1
+fr,dans,en,1
+fr,cabane,cabine,1
+fr,cabane,chalet,1
+fr,cabine,chalet,1
+fr,cake,gâteau,1
+fr,barre,cake,1
+fr,appareil photographique,caméra,1
+fr,camping-car,caravane,1
+fr,pouvoir,être capable de,1
+fr,canette,cylindre,1
+fr,bougie,chandelle,1
+fr,bonbon,caramel,1
+fr,bâton,canne,1
+fr,jeu de cartes,partie de cartes,1
+fr,attentif,prudent,1
+fr,attentif,vigilant,1
+fr,carotte,légume poussant sous terre,1
+fr,couffin,porte-bébé,1
+fr,carriole,charrette,1
+fr,cassette vidéo,vidéocassette,1
+fr,attraper,empoigner,1
+fr,empoigner,saisir,1
+fr,causer provoquer,occasionner,1
+fr,causé par,provoqué par,1
+fr,caverne,grotte,1
+fr,céleri,céleri-rave,1
+fr,cent,centime,1
+fr,certain,sûr,1
+fr,charité,secours,1
+fr,kheshvan,markheshvan,1
+fr,commode,confortable,1
+fr,cheminée,feu ouvert,1
+fr,chipmunk,tamia,1
+fr,boisson chocolatée,chocolat,1
+fr,cacao,chocolat,1
+fr,choco,chocolat à tartiner,1
+fr,étouffer-,étrangler-,1
+fr,houmach,pentateuque,1
+fr,mosquée,synagogue,1
+fr,mosquée,temple,1
+fr,synagogue,temple,1
+fr,synagogue,église,1
+fr,temple,église,1
+fr,cercle,rond,1
+fr,cercle,club,1
+fr,griffe,serre,1
+fr,grattement,griffe,1
+fr,employé commercial,employé de banque,1
+fr,tissu,étoffe,1
+fr,charbon,houille,1
+fr,manteau,parka,1
+fr,manteau,pull,1
+fr,parka,pull,1
+fr,parka,veste,1
+fr,pull,veste,1
+fr,pull,veston,1
+fr,veste,veston,1
+fr,froid,glacé,1
+fr,froid,glacial,1
+fr,coiffer,coiffer-,1
+fr,coiffer,peigner,1
+fr,coiffer-,peigner,1
+fr,coiffer-,peigner-,1
+fr,peigner,peigner-,1
+fr,association,combinaison,1
+fr,association,connexion,1
+fr,combinaison,connexion,1
+fr,combinaison,liaison,1
+fr,connexion,liaison,1
+fr,connexion,union,1
+fr,liaison,union,1
+fr,combinaison,jupon,1
+fr,associer,combiner,1
+fr,associer,connecter,1
+fr,combiner,connecter,1
+fr,combiner,lier,1
+fr,connecter,lier,1
+fr,connecter,unir,1
+fr,lier,unir,1
+fr,approcher-,arriver,1
+fr,approcher-,venir,1
+fr,arriver,venir,1
+fr,concourir,faire concurrence-,1
+fr,concourir,faire la course,1
+fr,faire concurrence-,faire la course,1
+fr,faire concurrence-,rivaliser,1
+fr,faire la course,rivaliser,1
+fr,conception,fécondation,1
+fr,béton,ciment,1
+fr,condom,préservatif,1
+fr,bol,contenant,1
+fr,bol,récipient,1
+fr,contenant,récipient,1
+fr,continuer,poursuivre,1
+fr,poursuivre,suivre,1
+fr,contrôler-,dominer-,1
+fr,cuire,cuisiner,1
+fr,cuisiner,préparer le repas,1
+fr,frais,nouveau,1
+fr,copie,duplication,1
+fr,copie,répétition,1
+fr,duplication,répétition,1
+fr,farine de maïs,fécule de maïs,1
+fr,farine de maïs,semoule de maïs,1
+fr,fécule de maïs,semoule de maïs,1
+fr,bon,correct,1
+fr,bon,juste,1
+fr,correct,juste,1
+fr,juste,équitable,1
+fr,costume,déguisement,1
+fr,costume,ensemble,1
+fr,costume,habit,1
+fr,ensemble,habit,1
+fr,canapé,divan,1
+fr,court,terrain de sport,1
+fr,cousin,cousine,1
+fr,crampe,spasme,1
+fr,airelle,canneberge,1
+fr,tomber,écraser-,1
+fr,chuter,tomber,1
+fr,accident de voiture,collision,1
+fr,cogner,percuter,1
+fr,cogner,taper,1
+fr,cogner,heurter,1
+fr,chute,fracas,1
+fr,choc,chute,1
+fr,création,nature,1
+fr,créature,être vivant,1
+fr,croiser,franchir,1
+fr,croiser,traverser,1
+fr,franchir,traverser,1
+fr,passer à travers,pénétrer,1
+fr,passer à travers,traverser,1
+fr,pénétrer,traverser,1
+fr,broyer,écraser,1
+fr,casser en morceaux,écraser,1
+fr,chope,tasse,1
+fr,actuel,courant,1
+fr,actuel,présent,1
+fr,courant,présent,1
+fr,cadeau,présent,1
+fr,couper,découper,1
+fr,couper,trancher,1
+fr,coutellerie,couverts,1
+fr,défunt,mort,1
+fr,décoration,garniture,1
+fr,décoration,ornement,1
+fr,garniture,ornement,1
+fr,frire,plonger dans la friture,1
+fr,frire,rissoler,1
+fr,frire,sauter,1
+fr,rissoler,sauter,1
+fr,détruire,supprimer,1
+fr,couche,lange,1
+fr,faire régime,faire un régime,1
+fr,direction,orientation,1
+fr,direction,point cardinal,1
+fr,orientation,point cardinal,1
+fr,conduite,direction,1
+fr,conseil d'administration,direction,1
+fr,disco,discothèque,1
+fr,gêne,inconfort,1
+fr,confusion,embarras,1
+fr,confusion,gêne,1
+fr,embarras,gêne,1
+fr,discuter de,débattre,1
+fr,conversation,discussion,1
+fr,antipathie,aversion,1
+fr,détester,ne pas aimer,1
+fr,détester,mépriser,1
+fr,détester,haïr,1
+fr,agir,faire,1
+fr,fabriquer,faire,1
+fr,docteur,médecin,1
+fr,dauphin,marsouin,1
+fr,mulet,âne,1
+fr,en bas,vers le bas,1
+fr,peignoir,robe de chambre,1
+fr,ivre,saoul,1
+fr,sec,sèche,1
+fr,sol,terre,1
+fr,plancher,sol,1
+fr,jour de pâques,pâques,1
+fr,formation,instruction,1
+fr,formation,éducation,1
+fr,instruction,éducation,1
+fr,conséquence,effet,1
+fr,conséquence,résultat,1
+fr,lampe,lampe électrique,1
+fr,chaise roulante électrique,fauteuil roulant motorisé,1
+fr,chaise roulante électrique,fauteuil roulant électrique,1
+fr,fauteuil roulant motorisé,fauteuil roulant électrique,1
+fr,câble électrique,fil électrique,1
+fr,ascenseur,élévateur,1
+fr,confus,embarrassé,1
+fr,confus,gêné,1
+fr,embarrassé,gêné,1
+fr,embarrassant,gênant,1
+fr,gênant,pénible,1
+fr,compassion,empathie,1
+fr,jeter,vider,1
+fr,enclos,espace délimité,1
+fr,enclos,paddock,1
+fr,but,fin,1
+fr,fin,mince,1
+fr,amuser-,plaire-,1
+fr,absorber,entrer,1
+fr,absorber,pénétrer,1
+fr,entrer,pénétrer,1
+fr,envieux,jaloux,1
+fr,immortalité,vie éternelle,1
+fr,apprécier,estimer,1
+fr,aimer,apprécier,1
+fr,test,évaluation,1
+fr,manifestation,événement,1
+fr,apparition,manifestation,1
+fr,arbre à feuilles persistantes,sapin,1
+fr,enchanté,enthousiasmé,1
+fr,exaltation,extase,1
+fr,exaltation,ravissement,1
+fr,extase,ravissement,1
+fr,exercer,faire de l'exercice,1
+fr,exercer,pratiquer,1
+fr,exercer,répéter,1
+es,su,suyo,6
+es,fuera de,salida,4
+es,a mí,yo,3
+es,sus,suyos,3
+es,manguera,tubería,3
+es,a ellos,ellos,3
+es,a ellos,se,3
+es,ellos,se,3
+es,castidad,celibato,2
+es,alfabeto,letras,2
+es,adentro,interior,2
+es,a la distancia,lejos,2
+es,banda,orquesta,2
+es,ave,pájaro,2
+es,jefe,supervisor,2
+es,llevar,mover,2
+es,coche,vehículo,2
+es,director,guía,2
+es,director,líder,2
+es,guía,líder,2
+es,bien,bueno,2
+es,bueno,ok,2
+es,campo,pista,2
+es,huevo,óvulo,2
+es,inmortalidad,vida eterna,2
+es,conectar,enchufar,2
+es,gordo,grueso,2
+es,campo de hockey,hockey,2
+es,arreglar,reparar,2
+es,aderezo,condimento,2
+es,aderezo,salsa,2
+es,condimento,salsa,2
+es,condimento,saborizante,2
+es,almacén,tienda,2
+es,balonmano,handball,2
+es,corneta,trompeta,2
+es,eternidad,infinito,2
+es,cocina,preparación,2
+es,bajo,corto,2
+es,hombre,masculino,2
+es,mi,mío,2
+es,nuestro,nuestros,2
+es,púrpura,violeta,2
+es,quién,qué,2
+es,naturalismo,religión,2
+es,mirar,ver,2
+es,lento,poco a poco,2
+es,desconocido,extraño,2
+es,educador,maestro,2
+es,educador,pedagogo,2
+es,maestro,pedagogo,2
+es,a nosotros,nosotros,2
+es,ping pong,tenis de mesa,2
+es,castillo,palacio,2
+es,clarinete,instrumento de lengüeta,2
+es,distrito,vecindario,2
+es,vibráfono,xilófono,2
+es,constipación,estreñimiento,2
+es,binoculares,prismáticos,2
+es,alquilar,arrendar,2
+es,ruina de iglesia,ruina de templo,2
+es,por ciento,porcentaje,1
+es,qué,signo de interrogación,1
+es,punto,punto decimal,1
+es,punto,punto y aparte,1
+es,punto decimal,punto y aparte,1
+es,cualquier,cualquiera,1
+es,cualquier,un,1
+es,cualquiera,un,1
+es,cualquiera,una,1
+es,un,una,1
+es,ella,una,1
+es,ella,él,1
+es,una,él,1
+es,capacidad,habilidad,1
+es,capacidad,potencial,1
+es,habilidad,potencial,1
+es,con respecto a,de,1
+es,con respecto a,en relación con,1
+es,de,en relación con,1
+es,de,sobre,1
+es,en relación con,sobre,1
+es,de,pertenece a,1
+es,de,desde,1
+es,esponja,material absorbente,1
+es,abstinencia,castidad,1
+es,abstinencia,celibato,1
+es,abuso,agresión,1
+es,abuso,violencia,1
+es,agresión,violencia,1
+es,accidente,acontecimiento,1
+es,accidente,posibilidad,1
+es,acontecimiento,posibilidad,1
+es,cuenta,número,1
+es,acción,acto,1
+es,acción,hecho,1
+es,acto,hecho,1
+es,actividad,género masculino,1
+es,activa,activo,1
+es,agregar,ganar,1
+es,adición,ganancia,1
+es,adulto,persona mayor,1
+es,adulto,maduro,1
+es,avanzar,ir,1
+es,caminar,ir,1
+es,anuncio,signo,1
+es,anuncio,proclamación,1
+es,asesoramiento,consejo,1
+es,asesoramiento,recomendación,1
+es,consejo,recomendación,1
+es,aconsejar,asesorar,1
+es,aconsejar,recomendar,1
+es,asesorar,recomendar,1
+es,asustado,aterrado,1
+es,asustado,temeroso,1
+es,aterrado,temeroso,1
+es,atrás,después,1
+es,atrás,detrás,1
+es,después,detrás,1
+es,atrasado,retrasado,1
+es,atrasado,tarde,1
+es,retrasado,tarde,1
+es,de nuevo,otra vez,1
+es,contra,opuesto a,1
+es,opuesto a,significado opuesto,1
+es,entonces,hace,1
+es,entonces,luego,1
+es,entonces,más tarde,1
+es,luego,más tarde,1
+es,acordar,estar de acuerdo,1
+es,ayuda,dispositivo,1
+es,asistencia,ayuda,1
+es,ayuda,servicio,1
+es,aire,atmósfera,1
+es,avión,jet,1
+es,bebida alcohólica,licor,1
+es,cada,toda,1
+es,cada,todo,1
+es,toda,todo,1
+es,cada,cada una,1
+es,cada,cada uno,1
+es,cada una,cada uno,1
+es,todo desapareció,todo se fue,1
+es,todo desapareció,todos se fueron,1
+es,todo se fue,todos se fueron,1
+es,caimán,cocodrilo,1
+es,solitario,solo,1
+es,solitario,único,1
+es,solo,único,1
+es,en compañía de,junto con,1
+es,alpana,rangoli,1
+es,aunque,si bien,1
+es,por siempre,siempre,1
+es,agradar,divertir,1
+es,agradar,entretener,1
+es,divertir,entretener,1
+es,además,más,1
+es,además,también,1
+es,más,también,1
+es,más,máximo,1
+es,comparativo,más,1
+es,con enfado,enfadado,1
+es,con enfado,enojado,1
+es,enfadado,enojado,1
+es,animal,bestia,1
+es,animal,ovino,1
+es,canino,cánido,1
+es,canino,perro,1
+es,cánido,perro,1
+es,ciervo,cérvido,1
+es,ciervo,venado,1
+es,cérvido,venado,1
+es,felino  félido,gato,1
+es,canguro,mamífero,1
+es,canguro,marsupial,1
+es,mamífero,marsupial,1
+es,mamífero,marsupio,1
+es,marsupial,marsupio,1
+es,rata,roedor,1
+es,cuero,piel de animal,1
+es,lagartija,reptil,1
+es,ansioso,con ansiedad,1
+es,alguien,alguno,1
+es,algo,cualquier cosa,1
+es,en algún momento,en cualquier momento,1
+es,en algún lugar,en cualquier lugar,1
+es,arrepentirse,disculparse,1
+es,bata,delantal,1
+es,bata,mameluco,1
+es,delantal,mameluco,1
+es,delantal,mono,1
+es,mameluco,mono,1
+es,gorila,mono,1
+es,gorila,primate,1
+es,mono,primate,1
+es,bata,batón,1
+es,bata,salto de cama,1
+es,batón,salto de cama,1
+es,discutir,disputar,1
+es,discutir,reñir,1
+es,disputar,reñir,1
+es,conversar,debatir,1
+es,conversar,discutir,1
+es,debatir,discutir,1
+es,discusiones,disputas,1
+es,discusiones,riñas,1
+es,disputas,riñas,1
+es,fuerzas armadas,militar,1
+es,galería de arte,museo,1
+es,dar respiración artificial,resucitar,1
+es,dar respiración artificial,revivir,1
+es,resucitar,revivir,1
+es,astronauta,cosmonauta,1
+es,adentro,en,1
+es,en,interior,1
+es,distante,lejos,1
+es,carrito de bebé,cochecito,1
+es,carrito de bebé,sillita de paseo,1
+es,cochecito,sillita de paseo,1
+es,bolso,mochila,1
+es,guardar,respaldar,1
+es,bolso,equipaje,1
+es,bolso,maleta,1
+es,equipaje,maleta,1
+es,bolso,cartera,1
+es,bolso,monedero,1
+es,cartera,monedero,1
+es,cocinar,hornear,1
+es,cocinar,preparar comida,1
+es,balcón,galería,1
+es,bola,pelota,1
+es,globo,mundo,1
+es,globo,tierra,1
+es,mundo,tierra,1
+es,banana,plátano,1
+es,apósito,vendaje,1
+es,banco,cardumen,1
+es,bar,pub,1
+es,bar,taberna,1
+es,pub,taberna,1
+es,bar,cafetería,1
+es,bar,café,1
+es,cafetería,café,1
+es,barbero,peluquero,1
+es,barbería,peluquería,1
+es,cobertizo,establo,1
+es,cobertizo,granero,1
+es,establo,granero,1
+es,caballeriza,establo,1
+es,cuarto de baño,servicio,1
+es,estar,existir,1
+es,estar,ser,1
+es,existir,ser,1
+es,criatura,ser,1
+es,estar,permanecer,1
+es,costa,orilla,1
+es,costa,playa,1
+es,orilla,playa,1
+es,orilla,ribera,1
+es,playa,ribera,1
+es,alubia,grano,1
+es,cereal,grano,1
+es,atractivo,bonito,1
+es,atractivo,guapo,1
+es,bonito,guapo,1
+es,bonito,hermoso,1
+es,guapo,hermoso,1
+es,fantástico,hermoso,1
+es,carne de res,filete,1
+es,antes,antes de,1
+es,antes,delante,1
+es,antes de,delante,1
+es,antes de,frente a,1
+es,delante,frente a,1
+es,anterior,antes,1
+es,anterior,primero,1
+es,antes,primero,1
+es,campana,timbre,1
+es,campana,carillón,1
+es,cinturón,faja,1
+es,el mejor,superlativo,1
+es,bindi,tika,1
+es,ave,ave marina,1
+es,ave,pato,1
+es,ave marina,pato,1
+es,amargo,fuerte,1
+es,amargo,ácido,1
+es,fuerte,ácido,1
+es,cuervo,mirlo,1
+es,pizarra,pizarrón,1
+es,pizarra,tablero,1
+es,pizarrón,tablero,1
+es,acolchado,edredón,1
+es,acolchado,manta,1
+es,edredón,manta,1
+es,bloque,ladrillo,1
+es,barco,bote,1
+es,bote,jarra,1
+es,bote,lata,1
+es,jarra,lata,1
+es,cuerpo,torso,1
+es,cadáver,cuerpo,1
+es,calavera,cuerpo,1
+es,fogata,hoguera,1
+es,botella,frasco,1
+es,base,fondo,1
+es,defecación,movimiento intestinal,1
+es,caja,cubo,1
+es,muchacho,niño,1
+es,chico,joven,1
+es,chico,niño,1
+es,joven,niño,1
+es,bracha,pequeña plegaria,1
+es,fracturar,rasgar,1
+es,fracturar,romper,1
+es,rasgar,romper,1
+es,frágil,rompible,1
+es,astuto,brillante,1
+es,astuto,inteligente,1
+es,brillante,inteligente,1
+es,llevar,tomar,1
+es,mover,tomar,1
+es,mover,traer,1
+es,tomar,traer,1
+es,asar,cocinar a la parrilla,1
+es,bisonte,búfalo,1
+es,andén para autobús,parada de autobús,1
+es,el comercio,negocio,1
+es,excepto,pero,1
+es,por,por medio de,1
+es,a fin de,para,1
+es,a fin de,por,1
+es,para,por,1
+es,pastel,torta,1
+es,barra,pastel,1
+es,caravana,casa rodante,1
+es,caravana,rulot,1
+es,casa rodante,rulot,1
+es,autocaravana,camper,1
+es,autocaravana,casa rodante,1
+es,camper,casa rodante,1
+es,poder,ser capaz de,1
+es,cilindro,lata,1
+es,bastón,caña,1
+es,bastón,palo,1
+es,caña,palo,1
+es,leño,palo,1
+es,leño,tronco,1
+es,palo,tronco,1
+es,cañón,pistola,1
+es,arma de fuego,pistola,1
+es,automóvil,coche,1
+es,automóvil,vehículo,1
+es,coche,vagón,1
+es,vagón,vehículo,1
+es,cartas,tarjetas,1
+es,vegetal,zanahoria,1
+es,colinabo,vegetal,1
+es,cebolla,vegetal,1
+es,llevar,transportar,1
+es,mover,transportar,1
+es,mover,moverse,1
+es,capazo,cuna portátil,1
+es,carreta,carruaje,1
+es,casete,videocinta,1
+es,escayola,férula,1
+es,coger,recoger,1
+es,coger,tomar,1
+es,recoger,tomar,1
+es,caries,cavidad,1
+es,centavo,ciento,1
+es,centavo,céntimo,1
+es,ciento,céntimo,1
+es,cierto,real,1
+es,cierto,realmente,1
+es,real,realmente,1
+es,real,sinceridad,1
+es,realmente,sinceridad,1
+es,realmente,veraz,1
+es,sinceridad,veraz,1
+es,cierto,seguro,1
+es,asiento,silla,1
+es,asiento,sentada,1
+es,alteración,cambio,1
+es,alterar,cambiar,1
+es,cambiar,intercambiar,1
+es,cambiar,conjurar,1
+es,cambiar,transformar,1
+es,conjurar,transformar,1
+es,cómoda,tocador,1
+es,avícola,pollo,1
+es,chimenea,hogar,1
+es,chispas de chocolate,chocolate,1
+es,cacao,polvo de cacao,1
+es,cacao,sabor a chocolate,1
+es,polvo de cacao,sabor a chocolate,1
+es,elección,selección,1
+es,amordazar,estrangular,1
+es,elegir,seleccionar,1
+es,cortar,trozar,1
+es,chumash,pentateuco,1
+es,iglesia,mezquita,1
+es,iglesia,templo,1
+es,mezquita,templo,1
+es,clase,conocimiento,1
+es,clase,tipo,1
+es,clase,conferencia,1
+es,clase,lección,1
+es,limpiar,lustrar,1
+es,limpiar,quitar el polvo,1
+es,lustrar,quitar el polvo,1
+es,claro,transparente,1
+es,aparente,aparentemente,1
+es,aparente,claro,1
+es,aparentemente,claro,1
+es,aparentemente,evidentemente,1
+es,claro,evidentemente,1
+es,claro,sencillamente,1
+es,evidentemente,sencillamente,1
+es,subir,trepar,1
+es,clínica,hospital,1
+es,reloj,reloj de pulsera,1
+es,cerrar,encerrar,1
+es,bloquear,cerrar,1
+es,material textil,paño,1
+es,material textil,red,1
+es,paño,red,1
+es,paño,tela,1
+es,red,tela,1
+es,red,red de captura,1
+es,ropa,vestimenta,1
+es,abrigo chaqueta,jersey,1
+es,combinación,relación,1
+es,combinación,enagua,1
+es,combinación,viso,1
+es,enagua,viso,1
+es,combinar,relacionar,1
+es,combinar,vincular,1
+es,relacionar,vincular,1
+es,acercarse,aproximarse,1
+es,acercarse,llegar,1
+es,aproximarse,llegar,1
+es,aproximarse,venir,1
+es,llegar,venir,1
+es,detener,llegar,1
+es,detener,parar,1
+es,llegar,parar,1
+es,cómodo,relajado,1
+es,calmado,relajado,1
+es,calmado,tranquilo,1
+es,relajado,tranquilo,1
+es,computadora,ordenador,1
+es,concepción,fertilización,1
+es,concepción,huevo fertilizado,1
+es,fertilización,huevo fertilizado,1
+es,cemento,hormigón,1
+es,amable,considerado,1
+es,amable,amablemente,1
+es,bol,contenedor,1
+es,continuar,pasar,1
+es,copia,duplicado,1
+es,esquina,rincón,1
+es,bueno,correcto,1
+es,bueno,exacto,1
+es,correcto,exacto,1
+es,bien,está bien,1
+es,bueno,está bien,1
+es,está bien,ok,1
+es,apetitoso,bueno,1
+es,apetitoso,sabroso,1
+es,bueno,sabroso,1
+es,bien,ok,1
+es,disfraz,traje,1
+es,asesor,consejero,1
+es,asesor,consultor,1
+es,consejero,consultor,1
+es,estado,país,1
+es,condado,estado,1
+es,condado,provincia,1
+es,estado,provincia,1
+es,estado,región,1
+es,provincia,región,1
+es,campiña,campo,1
+es,choque,colisión,1
+es,chocar,colisionar,1
+es,budín,crema,1
+es,creación,naturaleza,1
+es,creación,producción,1
+es,creativa,creativo,1
+es,cristianismo,cruz,1
+es,aplastar,hacer puré,1
+es,curva,línea curva,1
+es,querida,querido,1
+es,decoración,ornamento,1
+es,disminuir,reducir,1
+es,freír,saltear,1
+es,escritorio,mesa de trabajo,1
+es,anular,cancelar,1
+es,anular,destruir,1
+es,cancelar,destruir,1
+nl,mens,persoon,6
+nl,rekenen,wiskunde,4
+nl,hen,zij,4
+nl,erin,in,4
+nl,erin,ingang,4
+nl,in,ingang,4
+nl,eruit,uit,4
+nl,eruit,uitgang,4
+nl,uit,uitgang,4
+nl,dat,die,4
+nl,hun,van hen,4
+nl,bepleiten,pleiten,4
+nl,niets,niks,3
+nl,van,vanuit,3
+nl,koppel,paar,3
+nl,familie,gezin,3
+nl,genitaliën,geslachtsdelen,3
+nl,grootvader,opa,3
+nl,grootmoeder,oma,3
+nl,ons,onze,3
+nl,pingpong,tafeltennis,3
+nl,juf,leerkracht,3
+nl,juf,leraar,3
+nl,leerkracht,leraar,3
+nl,leerkracht,onderwijzer,3
+nl,leraar,onderwijzer,3
+nl,leraar,onderwijzeres,3
+nl,onderwijzer,onderwijzeres,3
+nl,jullie,uw,3
+nl,jouw,uw,3
+nl,schoonbroer,zwager,3
+nl,actie,handeling,2
+nl,hulp,steun,2
+nl,ondersteuning,steun,2
+nl,alfabet,letters,2
+nl,eens,ooit,2
+nl,en,plus,2
+nl,van,weg,2
+nl,vanuit,weg,2
+nl,straat,weg,2
+nl,basketbal,korfbal,2
+nl,verder dan,voorbij,2
+nl,bodem,onderkant,2
+nl,buis,darm,2
+nl,buis,pijp,2
+nl,darm,pijp,2
+nl,darm,tube,2
+nl,pijp,tube,2
+nl,bezem,borstel,2
+nl,rekenen,rekenles,2
+nl,rekenles,wiskunde,2
+nl,bewegen,verplaatsen,2
+nl,selder,selderij,2
+nl,begraafplaats,kerkhof,2
+nl,rustig,vredig,2
+nl,kil,koel,2
+nl,paar,stel,2
+nl,kozijn,neef,2
+nl,beker,kopje,2
+nl,beker,mok,2
+nl,kopje,mok,2
+nl,kopje,tas,2
+nl,mok,tas,2
+nl,verwijderen,weghalen,2
+nl,anders,verschillend,2
+nl,beperking,handicap,2
+nl,ledigen,leegmaken,2
+nl,evaluatie,waarde,2
+nl,herstellen,repareren,2
+nl,herstellen,opnieuw doen,2
+nl,friet,frieten,2
+nl,friet,patates frites,2
+nl,frieten,patates frites,2
+nl,bijeenkomst,samenkomst,2
+nl,gymzaal,sportzaal,2
+nl,hem,hij,2
+nl,allerheiligen,halloween,2
+nl,gehoorgestoord,slechthorend,2
+nl,ondersteunen,steunen,2
+nl,bevatten,houden,2
+nl,bevatten,vasthouden,2
+nl,houden,vasthouden,2
+nl,hoorn,trompet,2
+nl,onbegrensd,oneindig,2
+nl,katje,poesje,2
+nl,wei,weide,2
+nl,directeur,leider,2
+nl,afstand,lengte,2
+nl,geneesmiddel,medicijn,2
+nl,mentale handicap,verstandelijke beperking,2
+nl,ons,wij,2
+nl,fysich gehandicapt,lichamelijk beperking,2
+nl,fysich gehandicapt,motorische beperking,2
+nl,lichamelijk beperking,motorische beperking,2
+nl,aanlegsteiger,pier,2
+nl,kracht,vermogen,2
+nl,protesteren,weerstand bieden,2
+nl,purper,violet,2
+nl,braam,braambes,2
+nl,ijskast,koelkast,2
+nl,herinneren,zich herinneren,2
+nl,bolletje,broodje,2
+nl,wet,wetboek,2
+nl,hollen,rennen,2
+nl,gelijk,hetzelfde,2
+nl,dressing,saus,2
+nl,schouwburg,theater,2
+nl,langzaam,traag,2
+nl,onbekende,vreemdeling,2
+nl,dom,idioot,2
+nl,dom,stom,2
+nl,idioot,stom,2
+nl,racketsport,tennis,2
+nl,braken,overgeven,2
+nl,loon,wedde,2
+nl,looprek,rollator,2
+nl,verlangen,wens,2
+nl,je,jij,2
+nl,peddel,roeispaan,2
+nl,telescoop,verrekijker,2
+nl,rechtsbijstand,rechtshulp,2
+nl,protest,verzet,2
+nl,sportles,turnles,2
+nl,toneelstuk,voorstelling,2
+nl,tablet,tablet computer,2
+nl,drum,trommel,2
+nl,constipatie,verstopping,2
+nl,fanaat,fanaticus,2
+nl,rekken,uitrekken,2
+nl,nicotineverslaving,rookverslaving,2
+nl,corruptie,omkoping,2
+nl,bemanning,boordpersoneel,2
+nl,in staat stellen,machtigen,2
+nl,speech,toespraak,2
+nl,ontslag geven,ontslag krijgen,2
+nl,ontslag geven,ontslagen,2
+nl,ontslag krijgen,ontslagen,2
+nl,klasgenoot,medeleerling,2
+nl,balanceren,evenwicht houden,2
+nl,percentage,procent,1
+nl,prik,punt,1
+nl,deelteken,dubbelpunt,1
+nl,afgieten,zeven,1
+nl,kunde,vaardigheid,1
+nl,abortus,zwangerschapsonderbreking,1
+nl,abortus,miskraam,1
+nl,boven,over,1
+nl,absorberend materiaal,spons,1
+nl,nota,rekening,1
+nl,factuur,rekening,1
+nl,acne,jeugdpuistjes,1
+nl,actie,daad,1
+nl,daad,handeling,1
+nl,activiteit,daad,1
+nl,optellen,toevoegen,1
+nl,optelling,toevoeging,1
+nl,additief,toevoeging,1
+nl,gaan,vooruitgaan,1
+nl,gaan,vertrekken,1
+nl,gaan,weggaan,1
+nl,vertrekken,weggaan,1
+nl,gaan,lopen,1
+nl,gaan,stappen,1
+nl,lopen,stappen,1
+nl,lopen,wandelen,1
+nl,stappen,wandelen,1
+nl,advies,raad,1
+nl,adviseren,raad geven,1
+nl,bang,geschrokken,1
+nl,angstig,bang,1
+nl,achter,na,1
+nl,middag,namiddag,1
+nl,12 uur,middag,1
+nl,nog,opnieuw,1
+nl,nog,weer,1
+nl,opnieuw,weer,1
+nl,dan,vroeger,1
+nl,akkoord gaan,het eens zijn,1
+nl,contract,overeenkomst,1
+nl,hulp,ondersteuning,1
+nl,hemel,lucht,1
+nl,luchthaven,vliegveld,1
+nl,alles,geheel,1
+nl,alles,heel,1
+nl,geheel,heel,1
+nl,heel,veel,1
+nl,met,samen met,1
+nl,altijd,ooit,1
+nl,ambulance,ziekenwagen,1
+nl,amuseren,vermaken,1
+nl,en,van,1
+nl,plus,van,1
+nl,boos,kwaad,1
+nl,boos,woedend,1
+nl,kwaad,woedend,1
+nl,kwaad,woest,1
+nl,woedend,woest,1
+nl,beest,dier,1
+nl,dier,knuffeldier,1
+nl,huisdier,troeteldier,1
+nl,kat,poes,1
+nl,dierenhuid,vel,1
+nl,hagedis,reptiel,1
+nl,gedenkdag,jubileum,1
+nl,bezorgd,ongerust,1
+nl,appartement,flat,1
+nl,excuseren,verontschuldigen,1
+nl,aankomst,komst,1
+nl,aankomst,einde,1
+nl,aankomst,stop,1
+nl,einde,stop,1
+nl,overall,schort,1
+nl,debateren,discussiëren,1
+nl,debateren,discuteren,1
+nl,discussiëren,discuteren,1
+nl,bespreken,converseren,1
+nl,bespreken,debateren,1
+nl,converseren,debateren,1
+nl,debat,discussie,1
+nl,fauteuil,leunstoel,1
+nl,fauteuil,sofa,1
+nl,fauteuil,zetel,1
+nl,sofa,zetel,1
+nl,leger,militairen,1
+nl,om,omheen,1
+nl,om,rondom,1
+nl,omheen,rondom,1
+nl,om,voor,1
+nl,kunst,papierkunst,1
+nl,handwerk,kunst,1
+nl,slapend,slaperig,1
+nl,astronaut,ruimtevaarder,1
+nl,bovenop,op,1
+nl,van,vanaf,1
+nl,vanaf,vanuit,1
+nl,vanuit,weg van,1
+nl,weg,weg van,1
+nl,buggy,kinderwagen,1
+nl,buggy,wandelwagen,1
+nl,kinderwagen,wandelwagen,1
+nl,babysitter,oppas,1
+nl,achteruit,naar achteren,1
+nl,achteruit,terug,1
+nl,naar achteren,terug,1
+nl,fout,immoreel,1
+nl,fout,slecht,1
+nl,immoreel,slecht,1
+nl,badge,insigne,1
+nl,koffer,valies,1
+nl,bakken,roosteren,1
+nl,bakken,braden,1
+nl,band,fanfare,1
+nl,band,orkest,1
+nl,fanfare,orkest,1
+nl,band,muziekgroep,1
+nl,band,popgroep,1
+nl,muziekgroep,popgroep,1
+nl,rekverband,verband,1
+nl,bank,zetel,1
+nl,bank,zitbank,1
+nl,zetel,zitbank,1
+nl,bar,café,1
+nl,bar,kroeg,1
+nl,café,kroeg,1
+nl,ontmoetingsplaats,trefpunt,1
+nl,ontmoetingsplaats,verzamelplaats,1
+nl,trefpunt,verzamelplaats,1
+nl,bat,knuppel,1
+nl,accu,batterij,1
+nl,haar,zijn,1
+nl,boon,sperzieboon,1
+nl,boon,gedroogde bonen,1
+nl,aantrekkelijk,knap,1
+nl,aantrekkelijk,mooi,1
+nl,knap,mooi,1
+nl,intelligent,knap,1
+nl,intelligent,slim,1
+nl,knap,slim,1
+nl,beginnen,starten,1
+nl,begin,start,1
+nl,geloof,godsdienst,1
+nl,geloof,religie,1
+nl,godsdienst,religie,1
+nl,bel,zoemer,1
+nl,bes,vossebes,1
+nl,in het midden van,tussen,1
+nl,slab,slabbetje,1
+nl,huisvogel,tamme vogel,1
+nl,eend,watervogel,1
+nl,bevalling,geboorte,1
+nl,anticonceptiepil,de pil,1
+nl,kraai,merel,1
+nl,schoolbord,whiteboard,1
+nl,dekbed,deken,1
+nl,dekbedhoes,deken,1
+nl,dekbedhoes,hoeslaken,1
+nl,deken,hoeslaken,1
+nl,deken,laken,1
+nl,hoeslaken,laken,1
+nl,blok,kubus,1
+nl,blauwe vogel,siali,1
+nl,boot,schip,1
+nl,lichaam,lijf,1
+nl,baas,opzichter,1
+nl,baas,supervisor,1
+nl,fles,zuigfles,1
+nl,poep,stoelgang,1
+nl,achterwerk,billen,1
+nl,achterwerk,poep,1
+nl,billen,poep,1
+nl,poep,uitwerpselen,1
+nl,stok,tak,1
+nl,brood,gesneden brood,1
+nl,breken,kapot gooien,1
+nl,helder,stralend,1
+nl,brengen,dragen naar,1
+nl,brengen,verplaatsen,1
+nl,dragen naar,verplaatsen,1
+nl,barbecuen,grillen,1
+nl,gebroken,kapot,1
+nl,gebroken,stuk,1
+nl,kapot,stuk,1
+nl,deel,gedeelte,1
+nl,deel,stuk,1
+nl,gedeelte,stuk,1
+nl,bezem,stoffer,1
+nl,borstel,stoffer,1
+nl,borstel,veegborstel,1
+nl,stoffer,veegborstel,1
+nl,borstel,paardenborstel,1
+nl,borstel,rosborstel,1
+nl,paardenborstel,rosborstel,1
+nl,boenen,borstelen,1
+nl,boenen,kuisen,1
+nl,borstelen,kuisen,1
+nl,borstelen,vegen,1
+nl,kuisen,vegen,1
+nl,gasbel,luchtbel,1
+nl,bizon,buffel,1
+nl,brandend,vurig,1
+nl,boeren,oprispen,1
+nl,autobus,bus,1
+nl,bushalte,halte,1
+nl,mot,vlinder,1
+nl,gesel,knoop,1
+nl,gesel,zweep,1
+nl,knoop,zweep,1
+nl,huisje,hut,1
+nl,hut,kajuit,1
+nl,cafetaria,snackbar,1
+nl,camera,fototoestel,1
+nl,camper,caravan,1
+nl,camper,mobilhome,1
+nl,caravan,mobilhome,1
+nl,lekkers,snoep,1
+nl,kaarten,speelkaarten,1
+nl,verplaatsen,vervoeren,1
+nl,aanhangwagen,kar,1
+nl,grafveld,kerkhof,1
+nl,borst,borstkas,1
+nl,ladenblok,ladenkast,1
+nl,schoorsteen,schouw,1
+nl,aardeekhoorn,gestreepte eekhoorn,1
+nl,chocoladedrank,chocolademelk,1
+nl,cacao,chocoladepoeder,1
+nl,choco,chocoladepasta,1
+nl,kiezen,selecteren,1
+nl,kerst,kerstmis,1
+nl,kerk,moskee,1
+nl,kerk,tempel,1
+nl,moskee,tempel,1
+nl,klauw,poot,1
+nl,proper,schoon,1
+nl,proper-,schoon,1
+nl,poetsen,schoonmaken,1
+nl,opblinken,poetsen,1
+nl,doorzichtig,transparant,1
+nl,verkoopster,verkoper,1
+nl,verkoopster,winkelbediende,1
+nl,verkoper,winkelbediende,1
+nl,klok,uurwerk,1
+nl,dichtdoen,sluiten,1
+nl,op slot doen,sluiten,1
+nl,stof,weefsel,1
+nl,kleding,kleren,1
+nl,jas,sweater,1
+nl,jas,trui,1
+nl,sweater,trui,1
+nl,pull,pullover,1
+nl,pull,trui,1
+nl,pullover,trui,1
+nl,geldstuk,munt,1
+nl,combinatie,verbinding,1
+nl,aansluiting,verbinding,1
+nl,combineren,verbinden,1
+nl,comfortabel,rustig,1
+nl,rustig,sereen,1
+nl,sereen,vredig,1
+nl,rustig,stil,1
+nl,stil,vredig,1
+nl,attent,voorkomend,1
+nl,attent,vriendelijk,1
+nl,voorkomend,vriendelijk,1
+nl,behulpzaam,vriendelijk,1
+nl,houder,kom,1
+nl,houder,mand,1
+nl,kom,mand,1
+nl,doorgaan,voortgaan,1
+nl,doordringen,doorgaan,1
+nl,doordringen,doorheen gaan,1
+nl,doorgaan,doorheen gaan,1
+nl,klaarmaken,koken,1
+nl,koek,koekje,1
+nl,correct,goed,1
+nl,correct,juist,1
+nl,goed,juist,1
+nl,aardig,goed,1
+nl,aardig,lief,1
+nl,goed,lief,1
+nl,goed,moreel,1
+nl,onderscheiding,prijs,1
+nl,onderscheiding,trofee,1
+nl,prijs,trofee,1
+nl,kostuum,verkleedkleren,1
+nl,kostuum,pak,1
+nl,consulent,raadsman,1
+nl,pleitbezorger,raadsman,1
+nl,pleitbezorger,verdedigend advocaat,1
+nl,raadsman,verdedigend advocaat,1
+nl,raadsman,verdediger,1
+nl,verdedigend advocaat,verdediger,1
+nl,land,staat,1
+nl,koppel,stel,1
+nl,echtpaar,koppel,1
+nl,kozijn,nicht,1
+nl,neef,nicht,1
+nl,kramp,spasme,1
+nl,kramp,spierpijn,1
+nl,spasme,spierpijn,1
+nl,cranberry,veenbes,1
+nl,hijskraan,kraan,1
+nl,aanrijding,auto-ongeluk,1
+nl,aanrijding,botsing,1
+nl,auto-ongeluk,botsing,1
+nl,vliegtuigcrash,vliegtuigongeluk,1
+nl,creëren,scheppen,1
+nl,creatie,natuur,1
+nl,creatie,schepping,1
+nl,natuur,schepping,1
+nl,levend wezen,schepsel,1
+nl,bestaand,schepsel,1
+nl,bestaand,wezen,1
+nl,schepsel,wezen,1
+nl,maanvormig,sikkelvormig,1
+nl,christelijk,kruis,1
+nl,huilen,wenen,1
+nl,beker,trofee,1
+nl,beker,urn,1
+nl,trofee,urn,1
+nl,trofee,vaas,1
+nl,urn,vaas,1
+nl,handtas,tas,1
+nl,tas,zak,1
+nl,curve,ronding,1
+nl,afspraakje,date,1
+nl,dag,tot later,1
+nl,dag,tot weeziens,1
+nl,tot later,tot weeziens,1
+nl,tot later,tot ziens,1
+nl,tot weeziens,tot ziens,1
+nl,tot weeziens,vaarwel,1
+nl,tot ziens,vaarwel,1
+nl,dag,hallo,1
+nl,dagcentrum,dagverblijf,1
+nl,beste,lieve,1
+nl,beslissen,besluiten,1
+nl,beslissing,besluit,1
+nl,krimpen,verkleinen,1
+nl,flosdraad,tandenstoker,1
+nl,flosdraad,tandzijde,1
+nl,tandenstoker,tandzijde,1
+nl,depressie,neerslachtigheid,1
+nl,afdalen,naar beneden gaan,1
+nl,beschrijven,omschrijven,1
+nl,bureau,werktafel,1
+nl,dessert,nagerecht,1
+nl,dessert,toetje,1
+nl,nagerecht,toetje,1
+nl,vernietigen,verwijderen,1
+nl,delete,verwijderen,1
+nl,diamant,ruit,1
+nl,raam,ruit,1
+nl,raam,venster,1
+nl,ruit,venster,1
+nl,doodgaan,overlijden,1
+nl,doodgaan,sterven,1
+nl,overlijden,sterven,1
+nl,dieet houden,diëten,1
+nl,dieet houden,lijnen,1
+nl,diëten,lijnen,1
