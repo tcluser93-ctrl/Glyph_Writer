@@ -1,0 +1,5285 @@
+lemma,pos,freq
+personnage imaginaire,PREP,24
+personne,PREP,8
+animal,VERB,7
+votre,PREP,6
+vos,PREP,6
+son,PREP,5
+crème glacée,VERB,5
+infini,ADJ,5
+quai,VERB,5
+voile,VERB,5
+vous,PREP,5
+tennis de plage,VERB,4
+oiseau,VERB,4
+chocolat,VERB,4
+famille,PREP,4
+attacher,PRON,4
+au revoir,OTHER,4
+sa,PREP,4
+ses,PREP,4
+réception,VERB,4
+tennis de table,VERB,4
+que,NOUN,4
+briller,PRON,4
+tennis,VERB,4
+leur,PREP,4
+leurs,PREP,4
+funérailles,VERB,4
+psychologue,PREP,4
+défendre,PRON,4
+clavier,VERB,4
+célibat,VERB,3
+chasteté,VERB,3
+angle,VERB,3
+avocat,VERB,3
+loin,NOUN,3
+bébé,PREP,3
+groupe musical,PREP,3
+café,VERB,3
+de,OTHER,3
+souffler,PRON,3
+chef,PREP,3
+patron,PREP,3
+taureau,VERB,3
+en,NOUN,3
+pouvoir,PRON,3
+griffe,VERB,3
+froid,ADJ,3
+frais,ADJ,3
+couple,PREP,3
+court,VERB,3
+cogner,PRON,3
+chute,VERB,3
+écraser,PRON,3
+présent,ADJ,3
+couper,PRON,3
+mort,ADJ,3
+cher,OTHER,3
+direction,VERB,3
+détester,PRON,3
+sec,ADJ,3
+élévateur,VERB,3
+fin,VERB,3
+pêche,VERB,3
+assaisonnement,VERB,3
+fleur,VERB,3
+voler,PRON,3
+qualité,VERB,3
+grand-mère,PREP,3
+il,PREP,3
+elle,PREP,3
+bonjour,OTHER,3
+casque,VERB,3
+soutenir,PRON,3
+je,PREP,3
+cours,VERB,3
+directeur,PREP,3
+autoriser,PRON,3
+bande,VERB,3
+droit,ADJ,3
+perdre,PRON,3
+mariage,VERB,3
+méchant,ADJ,3
+mon,PREP,3
+ma,PREP,3
+mes,PREP,3
+notre,PREP,3
+nos,PREP,3
+nôtre,PREP,3
+sortie,NOUN,3
+ovale,VERB,3
+pardon,OTHER,3
+répéter,PRON,3
+public,ADJ,3
+qui,NOUN,3
+lequel,NOUN,3
+religion_,VERB,3
+religieux,ADJ,3
+balance,VERB,3
+salut,VERB,3
+traîneau,VERB,3
+magasin,VERB,3
+étranger,PREP,3
+sangle,VERB,3
+délicieux,ADJ,3
+queue,VERB,3
+enseignant,PREP,3
+équipe,PREP,3
+thérapeute,PREP,3
+ils,NOUN,3
+légume,VERB,3
+nous,PREP,3
+poids,VERB,3
+vous-mêmes,PREP,3
+jeune,ADJ,3
+cérémonie religieuse,VERB,3
+enterrement,VERB,3
+ski,VERB,3
+équipage,VERB,3
+saint,ADJ,3
+ancêtre,PREP,3
+vanille,VERB,3
+curry,VERB,3
+centre d'activités,VERB,3
+partisan,PREP,3
+défense,VERB,3
+témoignage,VERB,3
+loi,VERB,3
+crécelle,VERB,3
+pédagogue,PREP,3
+flûte,VERB,3
+kebab,VERB,3
+ski assis,VERB,3
+fanatique,ADJ,3
+pari,VERB,3
+bonsoir,NOUN,3
+autorisation,VERB,3
+point,NOUN,2
+un,NOUN,2
+accident,VERB,2
+douleur,VERB,2
+à travers,NOUN,2
+adulte,PREP,2
+aller,PRON,2
+conseiller,PRON,2
+derrière,NOUN,2
+alors,NOUN,2
+air,VERB,2
+seul,ADJ,2
+solitaire,ADJ,2
+avec,NOUN,2
+alphabet,VERB,2
+lettres,VERB,2
+plus,NOUN,2
+peau,VERB,2
+fourrure,VERB,2
+anniversaire,VERB,2
+une fois,NOUN,2
+rendez-vous,VERB,2
+demander,PRON,2
+questionner,PRON,2
+atome,VERB,2
+au loin,NOUN,2
+badminton,VERB,2
+porche,VERB,2
+orchestre,PREP,2
+écurie,VERB,2
+baseball,VERB,2
+camp,VERB,2
+basketball,VERB,2
+haricot,VERB,2
+grain,VERB,2
+attirant,ADJ,2
+croyance,VERB,2
+cloche,VERB,2
+au-delà,ADJ,2
+de l'autre côté de,ADJ,2
+canard,VERB,2
+noir_,NOUN,2
+bloc,VERB,2
+bleu_,NOUN,2
+planche,VERB,2
+nœud,VERB,2
+bowling,VERB,2
+boxe,VERB,2
+poitrine,VERB,2
+pont,VERB,2
+brillant,ADJ,2
+clair,ADJ,2
+lumineux,ADJ,2
+amener,PRON,2
+brun_,NOUN,2
+brosse,VERB,2
+bulbe,VERB,2
+brûlé,ADJ,2
+enterrer,PRON,2
+arrêt de bus,VERB,2
+bouton,VERB,2
+cabine,VERB,2
+cake,VERB,2
+camping-car,VERB,2
+bonbon,VERB,2
+canne,VERB,2
+jeu de cartes,VERB,2
+attentif,ADJ,2
+transporter,PRON,2
+attraper,PRON,2
+saisir,PRON,2
+céleri,VERB,2
+céréale,VERB,2
+certain,ADJ,2
+bon marché,ADJ,2
+commode,VERB,2
+poulet,VERB,2
+cheminée,VERB,2
+arôme de chocolat,VERB,2
+choco,VERB,2
+chrétien,ADJ,2
+synagogue,VERB,2
+rond,VERB,2
+cercle,VERB,2
+classe,VERB,2
+serre,VERB,2
+propre,ADJ,2
+combinaison,VERB,2
+union,VERB,2
+connexion,VERB,2
+ordinateur,VERB,2
+chef d'orchestre,PREP,2
+poursuivre,PRON,2
+cuisiner,PRON,2
+copie,VERB,2
+coin,VERB,2
+juste,ADJ,2
+bon,ADJ,2
+costume,VERB,2
+spasme,VERB,2
+tomber,PRON,2
+croquet,VERB,2
+croix,VERB,2
+traverser,PRON,2
+tasse,VERB,2
+sombre,ADJ,2
+fille,PREP,2
+décoration,VERB,2
+frire,PRON,2
+danemark,VERB,2
+bureau,VERB,2
+supprimer,PRON,2
+dinosaure,VERB,2
+handicap,VERB,2
+incapacité,VERB,2
+gêne,VERB,2
+faire,PRON,2
+poupée,VERB,2
+haricot sec,VERB,2
+sécher,PRON,2
+appareil auditif,VERB,2
+gagner,PRON,2
+sol,VERB,2
+facile,ADJ,2
+conséquence,VERB,2
+œuf,VERB,2
+graine_,VERB,2
+gênant,ADJ,2
+vide,ADJ,2
+vider,PRON,2
+enclos,VERB,2
+pénétrer,PRON,2
+jaloux,ADJ,2
+vie éternelle,VERB,2
+apprécier,PRON,2
+évaluation,VERB,2
+manifestation,VERB,2
+exercer,PRON,2
+espérer,PRON,2
+anticiper,PRON,2
+espérance,VERB,2
+coûteux,ADJ,2
+jeûne,VERB,2
+joindre,PRON,2
+attache,VERB,2
+gros,ADJ,2
+gras,ADJ,2
+peu de,ADJ,2
+champ,VERB,2
+hockey sur gazon,VERB,2
+film,VERB,2
+poisson,VERB,2
+inflammable,ADJ,2
+combustible,ADJ,2
+suivre,PRON,2
+football,VERB,2
+pour,NOUN,2
+nouveau,ADJ,2
+sauter,PRON,2
+réunion,VERB,2
+conférence,VERB,2
+cadeau,VERB,2
+verre,VERB,2
+but,VERB,2
+golf,VERB,2
+oie,VERB,2
+grand-père,PREP,2
+tombe,VERB,2
+excellence,VERB,2
+vert_,NOUN,2
+épicerie,VERB,2
+plusieurs,VERB,2
+pousser,PRON,2
+fusil,VERB,2
+gymnase,VERB,2
+tapis de gym,VERB,2
+cheveux,VERB,2
+halloween,VERB,2
+toussaint,VERB,2
+hamburger,VERB,2
+handball,VERB,2
+objet artisanal,VERB,2
+accrocher,PRON,2
+port,VERB,2
+dur,ADJ,2
+haïr,PRON,2
+avoir,PRON,2
+malentendant,ADJ,2
+hérisson,VERB,2
+soutien,VERB,2
+taper,PRON,2
+miel,VERB,2
+souhaiter,PRON,2
+trompette,VERB,2
+cor,VERB,2
+cornet à piston_,VERB,2
+corne,VERB,2
+chaud,ADJ,2
+comment,NOUN,2
+époux,PREP,2
+glace,VERB,2
+hockey sur glace,VERB,2
+glacial,ADJ,2
+important,ADJ,2
+dans,NOUN,2
+augmenter,PRON,2
+illimité,ADJ,2
+jésus-christ,PREP,2
+juif,ADJ,2
+gentil,ADJ,2
+cuisine,VERB,2
+cerf-volant,VERB,2
+chaton,VERB,2
+savoir,PRON,2
+travail,VERB,2
+échelle,VERB,2
+agneau,VERB,2
+mouton,VERB,2
+langue,VERB,2
+dernier,ADJ,2
+rire,PRON,2
+dirigeant_,PREP,2
+feuille,VERB,2
+apprendre,PRON,2
+moins,ADJ,2
+salade,VERB,2
+bibliothèque,VERB,2
+mensonge,VERB,2
+mentir,PRON,2
+aimer,PRON,2
+lion,VERB,2
+maquillage,VERB,2
+petit,ADJ,2
+perte,VERB,2
+bas,ADJ,2
+homme,PREP,2
+matière,VERB,2
+mathématiques,VERB,2
+arithmétique _,VERB,2
+mesure,VERB,2
+menstruation,VERB,2
+handicapé mental,ADJ,2
+manège,VERB,2
+métal,VERB,2
+esprit,VERB,2
+flèche,VERB,2
+salle de récréation,VERB,2
+argent,VERB,2
+musulman,ADJ,2
+le plus,ADJ,2
+souris,VERB,2
+bouger,PRON,2
+muscle,VERB,2
+instrument de musique,VERB,2
+devoir,PRON,2
+cou,VERB,2
+ni,NOUN,2
+neveu,PREP,2
+jamais,ADJ,2
+nièce,PREP,2
+rien,NOUN,2
+observer,PRON,2
+mer,VERB,2
+vieux,ADJ,2
+oignon,VERB,2
+opinion,VERB,2
+opposition,VERB,2
+orange_,NOUN,2
+autre,PREP,2
+extérieur,NOUN,2
+pénible,ADJ,2
+parent,PREP,2
+paix,VERB,2
+tranquille,ADJ,2
+handicapé physique,ADJ,2
+ponton,VERB,2
+embarcadère,VERB,2
+porc,VERB,2
+pilote,PREP,2
+ping-pong,VERB,2
+rose_,NOUN,2
+tuyau,VERB,2
+place,VERB,2
+arrêt,VERB,2
+jeu,VERB,2
+montrer,PRON,2
+piscine,VERB,2
+pauvre,ADJ,2
+porc-épic,VERB,2
+casserole,VERB,2
+livre de prières,VERB,2
+missel,VERB,2
+précédent,ADJ,2
+problème,VERB,2
+protéger,PRON,2
+protection,VERB,2
+protester,PRON,2
+région,VERB,2
+pruneau,VERB,2
+tirer,PRON,2
+violet,NOUN,2
+pourpre_,NOUN,2
+silencieux,ADJ,2
+raisins secs,VERB,2
+vrai,ADJ,2
+véritable,ADJ,2
+cd,VERB,2
+rouge_,NOUN,2
+réfrigérateur,VERB,2
+souvenir-,PRON,2
+rappeler-,PRON,2
+vers,VERB,2
+riche,ADJ,2
+savoureux,ADJ,2
+route_,VERB,2
+cheval à bascule,VERB,2
+tourner,PRON,2
+voilier,VERB,2
+sandwich,VERB,2
+sauce,VERB,2
+foulard,VERB,2
+école,VERB,2
+science,VERB,2
+résultat,VERB,2
+scorpion,VERB,2
+semence,VERB,2
+centre commercial,VERB,2
+théâtre,VERB,2
+côté,VERB,2
+désignation,VERB,2
+signature,VERB,2
+planche à roulettes,VERB,2
+lent,ADJ,2
+sentir,PRON,2
+casse-croûte,VERB,2
+raquette de neige,VERB,2
+sonner,PRON,2
+spaghetti,VERB,2
+handicapé de la parole,ADJ,2
+cracher,PRON,2
+sport,VERB,2
+bâton,VERB,2
+étaler,PRON,2
+carré,VERB,2
+étoile de david,VERB,2
+étoile de mer,VERB,2
+pierre,VERB,2
+arrêter,PRON,2
+vent,VERB,2
+histoire,VERB,2
+fort,ADJ,2
+stupide,ADJ,2
+bête,ADJ,2
+réussite,VERB,2
+ensemble,VERB,2
+surprendre,PRON,2
+interrupteur,VERB,2
+température,VERB,2
+ces,NOUN,2
+elles,NOUN,2
+jeter,PRON,2
+surface,VERB,2
+serviette de bain,VERB,2
+jouet,VERB,2
+ennui,VERB,2
+dinde,VERB,2
+tour,VERB,2
+déplier,PRON,2
+de haut en bas,NOUN,2
+ustensile de cuisine,VERB,2
+véhicule,VERB,2
+malvoyant,ADJ,2
+taille,VERB,2
+marcher,PRON,2
+déambulateur,VERB,2
+désirer,PRON,2
+nous-mêmes,PREP,2
+weekend,VERB,2
+bienvenue,OTHER,2
+accueil,OTHER,2
+humide,ADJ,2
+quel,NOUN,2
+quand,NOUN,2
+où,NOUN,2
+de qui,NOUN,2
+à qui,NOUN,2
+hiver,VERB,2
+bois,VERB,2
+inquiétude,VERB,2
+lutte,VERB,2
+catch,VERB,2
+cour,VERB,2
+jaune_,NOUN,2
+vous-même,PREP,2
+croyant,PREP,2
+démon,PREP,2
+diable_,PREP,2
+ange_,PREP,2
+brioche,VERB,2
+cacao,VERB,2
+surnaturel,VERB,2
+âme,VERB,2
+prédire,PRON,2
+apparition,VERB,2
+réfléchir,PRON,2
+baptême,VERB,2
+célébration,VERB,2
+résurrection,VERB,2
+éternel,ADJ,2
+interroger,PRON,2
+proclamation,VERB,2
+déclaration,VERB,2
+évangéliser,PRON,2
+énorme,ADJ,2
+géant,ADJ,2
+métier,VERB,2
+signer,PRON,2
+psychologie,VERB,2
+scientifique,PREP,2
+enseignant en psychologie,PREP,2
+canotage,VERB,2
+vélo de montagne,VERB,2
+go-cart,VERB,2
+go-kart,VERB,2
+karting,VERB,2
+saut en longueur,VERB,2
+chaîne,VERB,2
+fléchettes,VERB,2
+snowboard,VERB,2
+surf des neiges,VERB,2
+planche à voile,VERB,2
+ski nautique,VERB,2
+canoë,VERB,2
+aviron,VERB,2
+natation,VERB,2
+squash,VERB,2
+tennis en salle,VERB,2
+crosse,VERB,2
+montgolfière,VERB,2
+entrée,VERB,2
+pâte,VERB,2
+cannelle,VERB,2
+gingembre,VERB,2
+sève,VERB,2
+dégoûtant,ADJ,2
+sucette,VERB,2
+ouvre-boîte,VERB,2
+couronne,VERB,2
+cancer,VERB,2
+loki,PREP,2
+appeler,PRON,2
+accusation,VERB,2
+accuser,PRON,2
+agir en faveur de,PRON,2
+militant,PREP,2
+plaider,PRON,2
+coton,VERB,2
+distance,VERB,2
+lin,VERB,2
+homme de loi,PREP,2
+math _,VERB,2
+compteur kilométrique,VERB,2
+odomètre,VERB,2
+crevette,VERB,2
+protestation,VERB,2
+religion,VERB,2
+service,VERB,2
+soie,VERB,2
+vitesse,VERB,2
+déposition,VERB,2
+taxe,VERB,2
+attachement,VERB,2
+mûre,VERB,2
+bouddhiste,ADJ,2
+mécanicien,PREP,2
+château,VERB,2
+jeu de construction,VERB,2
+lâche,PREP,2
+débarquer,PRON,2
+document,VERB,2
+tragédie,VERB,2
+exporter,PRON,2
+fichier,VERB,2
+importer,PRON,2
+internet_,VERB,2
+intranet_,VERB,2
+sirène,PREP,2
+crêpe,VERB,2
+voyageur,VERB,2
+philosophe,PREP,2
+refaire,PRON,2
+prendre,PRON,2
+voleur,PREP,2
+ruine,VERB,2
+tablette pc,VERB,2
+tablette électronique,VERB,2
+ordinateur tablette,VERB,2
+annuler,PRON,2
+virus,VERB,2
+amplificateur_,VERB,2
+basson_,VERB,2
+carillon,VERB,2
+gong,VERB,2
+arc,VERB,2
+frein,VERB,2
+clairon_,VERB,2
+épuisé,ADJ,2
+calme,VERB,2
+castagnettes_,VERB,2
+instrument à anche,VERB,2
+clarinette_,VERB,2
+contrebasson_,VERB,2
+tambour_,VERB,2
+passionné,ADJ,2
+enthousiasme,VERB,2
+cor d'harmonie_,VERB,2
+échouer,PRON,2
+hochet,VERB,2
+hautbois_,VERB,2
+flûte de pan,VERB,2
+piano_,VERB,2
+flûte piccolo_,VERB,2
+tube,VERB,2
+saxophone_,VERB,2
+corde,VERB,2
+tambourin_,VERB,2
+triangle _,VERB,2
+tuba_,VERB,2
+xylophone,VERB,2
+vibraphone_,VERB,2
+ascension,VERB,2
+explosif,VERB,2
+constipation_,VERB,2
+guérir,PRON,2
+intérieur,ADJ,2
+séchoir,VERB,2
+existence_,VERB,2
+intégrisme,VERB,2
+fondamentalisme,VERB,2
+fondamentaliste,PREP,2
+grogner,PRON,2
+harnacher,PRON,2
+homosexuel,ADJ,2
+trottoir,VERB,2
+placenta,VERB,2
+programme,VERB,2
+protégé,ADJ,2
+éruption,VERB,2
+atelier de réparation,VERB,2
+culbute,VERB,2
+tonneau,VERB,2
+saut périlleux_,VERB,2
+étirer,PRON,2
+gare des trains,VERB,2
+gare ferroviaire,VERB,2
+dépendance,VERB,2
+alcoolisme,VERB,2
+parier,PRON,2
+jumelles,VERB,2
+longue-vue,VERB,2
+tétine,VERB,2
+contrôle,VERB,2
+pension d'invalidité,VERB,2
+rente d'invalidité,VERB,2
+domino,VERB,2
+orfèvre,PREP,2
+bonne nuit,NOUN,2
+message,VERB,2
+dépendance au tabac_,VERB,2
+robinet_,VERB,2
+large bande,VERB,2
+corruption,VERB,2
+dvd,VERB,2
+habiliter,PRON,2
+autorisé,ADJ,2
+habilité,ADJ,2
+gps,VERB,2
+indicateur,OTHER,2
+mouvement_,VERB,2
+puissance,VERB,2
+puissant,ADJ,2
+récepteur,VERB,2
+louer,PRON,2
+antenne parabolique_,VERB,2
+récepteur parabolique_,VERB,2
+touriste,PREP,2
+merveilleux,ADJ,2
+fantastique,ADJ,2
+désir,VERB,2
+freiner,PRON,2
+défense orale,VERB,2
+éternité,VERB,2
+éloignement,VERB,2
+possession,VERB,2
+petitesse,VERB,2
+point d'exclamation,NOUN,1
+pourcent,VERB,1
+point d'interrogation,VERB,1
+virgule,NOUN,1
+deux-points,NOUN,1
+zéro,NOUN,1
+deux,NOUN,1
+trois,NOUN,1
+quatre,NOUN,1
+cinq,NOUN,1
+six,NOUN,1
+sept,NOUN,1
+huit,NOUN,1
+neuf,NOUN,1
+indicateur de verbe,OTHER,1
+indicateur du verbe à la voix active,OTHER,1
+indicateur du conditionnel,OTHER,1
+indicateur d'évaluation après le fait,OTHER,1
+indicateur d'évaluation avant le fait,OTHER,1
+indicateur de description,OTHER,1
+indicateur de verbe au futur,OTHER,1
+indicateur conditionnel futur,OTHER,1
+indicateur futur passif,OTHER,1
+indicateur conditionnel futur passif,OTHER,1
+indicateur du verbe à la voix passive,OTHER,1
+indicateur du verbe au passé,OTHER,1
+indicateur du conditionnel passé,OTHER,1
+indicateur du conditionnel passé passif,OTHER,1
+indicateur du passé passif,OTHER,1
+indicateur du conditionnel présent passif,OTHER,1
+indicateur d'objet,OTHER,1
+indicateur d'objet pluriel,OTHER,1
+indicateur du pluriel,OTHER,1
+une,NOUN,1
+des,NOUN,1
+capacité,VERB,1
+aptitude,VERB,1
+compétence,VERB,1
+avortement,VERB,1
+interruption de grossesse,VERB,1
+à propos de,NOUN,1
+au sujet de,NOUN,1
+concernant,NOUN,1
+éponge,VERB,1
+matière absorbante,VERB,1
+abstinence,VERB,1
+abus,VERB,1
+violence,VERB,1
+accessoire,VERB,1
+événement imprévisible,VERB,1
+compte-rendu,VERB,1
+récit,VERB,1
+acné,VERB,1
+d'un côté à l'autre,NOUN,1
+action,VERB,1
+activité,VERB,1
+actif,ADJ,1
+adar,VERB,1
+ajouter,PRON,1
+addition,VERB,1
+adolescence,VERB,1
+grande personne,PREP,1
+mature,ADJ,1
+mûr,ADJ,1
+avancer,PRON,1
+annonce publicitaire,VERB,1
+affiche,VERB,1
+conseil,VERB,1
+effrayé,ADJ,1
+après,NOUN,1
+après-midi,VERB,1
+encore,NOUN,1
+de nouveau,NOUN,1
+à nouveau,NOUN,1
+contre,NOUN,1
+il y a,NOUN,1
+être d'accord,PRON,1
+mettre d'accord-,PRON,1
+accord,VERB,1
+aide technique,VERB,1
+support matériel,VERB,1
+avion,VERB,1
+aéroport,VERB,1
+boisson alcoolisée,VERB,1
+tout,NOUN,1
+plus rien,NOUN,1
+alligator,VERB,1
+alpana,VERB,1
+bien que,NOUN,1
+quoique,NOUN,1
+toujours,ADJ,1
+ambulance,VERB,1
+aménorrhée,VERB,1
+amphibien,VERB,1
+amuser,PRON,1
+distraire,PRON,1
+relation sexuelle anale,VERB,1
+et,NOUN,1
+ainsi que,NOUN,1
+ange,PREP,1
+fâché,ADJ,1
+chien,VERB,1
+canidé,VERB,1
+cerf,VERB,1
+cervidé,VERB,1
+chat,VERB,1
+félin,VERB,1
+félidé,VERB,1
+kangourou,VERB,1
+marsupial,VERB,1
+rat,VERB,1
+rongeur,VERB,1
+cheville,VERB,1
+réponse,VERB,1
+répondre,PRON,1
+fourmi,VERB,1
+anus,VERB,1
+anxiété,VERB,1
+anxieux,ADJ,1
+quelqu'un,PREP,1
+quelque chose,NOUN,1
+quelque part,NOUN,1
+appartement,VERB,1
+excuser-,PRON,1
+pomme,VERB,1
+approche,VERB,1
+approuver,PRON,1
+abricot,VERB,1
+avril,VERB,1
+tablier,VERB,1
+architecte,PREP,1
+disputer-,PRON,1
+dispute,VERB,1
+bras,VERB,1
+fauteuil,VERB,1
+militaire,VERB,1
+forces armées,VERB,1
+autour de,NOUN,1
+art,VERB,1
+galerie d'art,VERB,1
+insémination artificielle,VERB,1
+respiration artificielle,VERB,1
+pratiquer la respiration artificielle,PRON,1
+cendres,VERB,1
+cendrier,VERB,1
+poser une question,PRON,1
+endormi,ADJ,1
+astronaute,PREP,1
+cosmonaute,PREP,1
+chez,NOUN,1
+crise,VERB,1
+attention,VERB,1
+août,VERB,1
+tante,PREP,1
+automne_,VERB,1
+automne,VERB,1
+av,VERB,1
+éveillé,ADJ,1
+réveillé,ADJ,1
+nouveau-né,PREP,1
+landau,VERB,1
+poussette,VERB,1
+pédiatrie,VERB,1
+baby-sitter,PREP,1
+gardienne d'enfant,PREP,1
+dos,VERB,1
+va-et-vient,NOUN,1
+sac à dos,VERB,1
+reculer,PRON,1
+en arrière,NOUN,1
+lard en tranche,VERB,1
+bacon,VERB,1
+mauvais,ADJ,1
+badge,VERB,1
+insigne,VERB,1
+bagage,VERB,1
+valise,VERB,1
+cuire au four,PRON,1
+balcon,VERB,1
+véranda,VERB,1
+loggia,VERB,1
+pergola,VERB,1
+balle,VERB,1
+ballon,VERB,1
+banane,VERB,1
+pansement,VERB,1
+sparadrap,VERB,1
+bandage,VERB,1
+compresse,VERB,1
+banque,VERB,1
+bar,VERB,1
+pub,VERB,1
+coiffeur,PREP,1
+salon de coiffure,VERB,1
+grange,VERB,1
+étable,VERB,1
+contraceptif,VERB,1
+barrière contraceptive,VERB,1
+batte,VERB,1
+chauve-souris,VERB,1
+salle de bain,VERB,1
+pile,VERB,1
+batterie,VERB,1
+accumulateur,VERB,1
+être,PRON,1
+exister,PRON,1
+plage,VERB,1
+bord de l'eau,VERB,1
+côte,VERB,1
+rive,VERB,1
+rivage,VERB,1
+fève,VERB,1
+ours,VERB,1
+barbe,VERB,1
+beau,ADJ,1
+magnifique,ADJ,1
+joli,ADJ,1
+castor,VERB,1
+parce que,NOUN,1
+car,NOUN,1
+devenir,PRON,1
+lit,VERB,1
+chambre à coucher,VERB,1
+abeille,VERB,1
+viande de boeuf,VERB,1
+bière,VERB,1
+betterave rouge,VERB,1
+scarabée,VERB,1
+coléoptère,VERB,1
+avant,NOUN,1
+devant,NOUN,1
+antérieur à,NOUN,1
+commencer,PRON,1
+commencement,VERB,1
+comportement,VERB,1
+foi,VERB,1
+croire,PRON,1
+avoir foi en,PRON,1
+appartenance,OTHER,1
+ceinture,VERB,1
+banc,VERB,1
+baie,VERB,1
+meilleur,ADJ,1
+mieux,ADJ,1
+meilleur que,ADJ,1
+mieux que,ADJ,1
+entre,NOUN,1
+bavoir,VERB,1
+bavette,VERB,1
+vélo,VERB,1
+bicyclette,VERB,1
+grand,ADJ,1
+bindi,VERB,1
+oiseau aquatique,VERB,1
+naissance,VERB,1
+naissance_,VERB,1
+contraception,VERB,1
+pilule contraceptive,VERB,1
+mordre,PRON,1
+amer,ADJ,1
+âpre,ADJ,1
+corbeau,VERB,1
+corneille,VERB,1
+tableau noir,VERB,1
+vessie,VERB,1
+couverture,VERB,1
+couette,VERB,1
+duvet,VERB,1
+couvre-lit,VERB,1
+saigner,PRON,1
+aveugle,ADJ,1
+symbole bliss,VERB,1
+partie de symbole bliss,OTHER,1
+centre de ressources bliss,VERB,1
+brique,VERB,1
+sang,VERB,1
+myrtille,VERB,1
+bleuet,VERB,1
+oiseau bleu,VERB,1
+panneau,VERB,1
+bateau,VERB,1
+corps,VERB,1
+cuire à l'eau,PRON,1
+faire bouillir,PRON,1
+bouillir,PRON,1
+os,VERB,1
+feu de joie,VERB,1
+livre,VERB,1
+botte,VERB,1
+emprunter,PRON,1
+tous les deux,NOUN,1
+bouteille,VERB,1
+flacon,VERB,1
+fiole,VERB,1
+dessous,VERB,1
+fond,VERB,1
+boyau,VERB,1
+intestin,VERB,1
+selles,VERB,1
+excrément,VERB,1
+caca,VERB,1
+boîte,VERB,1
+cube,VERB,1
+garçon,PREP,1
+soutien-gorge,VERB,1
+aide technique médicale,VERB,1
+berakhah,VERB,1
+brahma,PREP,1
+cerveau,VERB,1
+branche,VERB,1
+pain,VERB,1
+casser,PRON,1
+briser,PRON,1
+fracturer,PRON,1
+déchirer,PRON,1
+cassable,ADJ,1
+fragile,ADJ,1
+petit déjeuner,VERB,1
+seins,VERB,1
+respiration,VERB,1
+respirer,PRON,1
+apporter,PRON,1
+brocoli,VERB,1
+griller,PRON,1
+cassé,ADJ,1
+balai,VERB,1
+frère,PREP,1
+brosser,PRON,1
+brosser les dents-,PRON,1
+chou de bruxelles,VERB,1
+bulle,VERB,1
+buffle,VERB,1
+bison,VERB,1
+brûler,PRON,1
+incendié,ADJ,1
+roter,PRON,1
+bus,VERB,1
+chauffeur de bus,PREP,1
+buisson,VERB,1
+taillis,VERB,1
+arbuste,VERB,1
+commerce,VERB,1
+mais,NOUN,1
+cependant,NOUN,1
+toutefois,NOUN,1
+beurre,VERB,1
+papillon,VERB,1
+fesses,VERB,1
+croupe,VERB,1
+acheter,PRON,1
+par,NOUN,1
+chou,VERB,1
+cabane,VERB,1
+chalet,VERB,1
+césarienne,VERB,1
+snack-bar,VERB,1
+cage,VERB,1
+gâteau,VERB,1
+calculer,PRON,1
+calculatrice,VERB,1
+calendrier,VERB,1
+chameau,VERB,1
+appareil photographique,VERB,1
+caméra,VERB,1
+campement,VERB,1
+caravane,VERB,1
+être capable de,PRON,1
+cylindre,VERB,1
+canette,VERB,1
+canada,VERB,1
+bougie,VERB,1
+chandelle,VERB,1
+canon,VERB,1
+voiture,VERB,1
+prudent,ADJ,1
+carotte,VERB,1
+légume poussant sous terre,VERB,1
+couffin,VERB,1
+porte-bébé,VERB,1
+charrette,VERB,1
+carriole,VERB,1
+vidéocassette,VERB,1
+cassette vidéo,VERB,1
+plâtre,VERB,1
+chenille,VERB,1
+chou-fleur,VERB,1
+cause,VERB,1
+causer provoquer,PRON,1
+occasionner,PRON,1
+causé par,PRON,1
+provoqué par,PRON,1
+caverne,VERB,1
+grotte,VERB,1
+carie,VERB,1
+plafond,VERB,1
+cimetière,VERB,1
+cent,VERB,1
+centime,VERB,1
+siècle,VERB,1
+col de l'utérus,VERB,1
+chaise,VERB,1
+challah,VERB,1
+caméléon,VERB,1
+changement,VERB,1
+changer,PRON,1
+hanoukkah,VERB,1
+charité,VERB,1
+secours,VERB,1
+joue,VERB,1
+fromage,VERB,1
+produit chimique,VERB,1
+cerises,VERB,1
+markheshvan,VERB,1
+kheshvan,VERB,1
+torse,VERB,1
+mâcher,PRON,1
+enfant,PREP,1
+abus d'enfant,VERB,1
+menton,VERB,1
+tamia,VERB,1
+chipmunk,VERB,1
+boisson chocolatée,VERB,1
+choix,VERB,1
+chorale,PREP,1
+étouffer-,PRON,1
+étrangler-,PRON,1
+choisir,PRON,1
+hacher,PRON,1
+noël,VERB,1
+houmach,VERB,1
+pentateuque,VERB,1
+église,VERB,1
+mosquée,VERB,1
+temple,VERB,1
+cigarette,VERB,1
+circoncision,VERB,1
+citoyen,VERB,1
+ville,VERB,1
+nettoyer,PRON,1
+transparent,ADJ,1
+limpide,ADJ,1
+net,ADJ,1
+employé de banque,PREP,1
+employé commercial,PREP,1
+grimper,PRON,1
+centre hospitalier,VERB,1
+clitoris,VERB,1
+horloge,VERB,1
+fermer,PRON,1
+tissu,VERB,1
+étoffe,VERB,1
+vêtement,VERB,1
+nuage,VERB,1
+nuageux,ADJ,1
+club,VERB,1
+charbon,VERB,1
+houille,VERB,1
+manteau,VERB,1
+veste,VERB,1
+pull,VERB,1
+veston,VERB,1
+parka,VERB,1
+noix de coco,VERB,1
+pièce de monnaie,VERB,1
+glacé,ADJ,1
+couleur,VERB,1
+peigne,VERB,1
+peigner,PRON,1
+peigner-,PRON,1
+coiffer,PRON,1
+coiffer-,PRON,1
+association,VERB,1
+liaison,VERB,1
+combiner,PRON,1
+associer,PRON,1
+unir,PRON,1
+connecter,PRON,1
+lier,PRON,1
+indicateur d'association,OTHER,1
+venir,PRON,1
+arriver,PRON,1
+approcher-,PRON,1
+comète,VERB,1
+consoler,PRON,1
+confortable,ADJ,1
+commandements,VERB,1
+communiquer,PRON,1
+communication,VERB,1
+comparer,PRON,1
+concourir,PRON,1
+faire la course,PRON,1
+rivaliser,PRON,1
+faire concurrence-,PRON,1
+compositeur,PREP,1
+conception,VERB,1
+fécondation,VERB,1
+salle de concert,VERB,1
+béton,VERB,1
+ciment,VERB,1
+préservatif,VERB,1
+condom,VERB,1
+cône,VERB,1
+conscience,VERB,1
+prévenant,ADJ,1
+récipient,VERB,1
+contenant,VERB,1
+bol,VERB,1
+continuer,PRON,1
+contraction utérine,VERB,1
+contraster,PRON,1
+contrôler-,PRON,1
+dominer-,PRON,1
+cuire,PRON,1
+biscuit,VERB,1
+maïs,VERB,1
+farine de maïs,VERB,1
+fécule de maïs,VERB,1
+semoule de maïs,VERB,1
+correct,ADJ,1
+coût,VERB,1
+déguisement,VERB,1
+canapé,VERB,1
+divan,VERB,1
+tousser,PRON,1
+compter,PRON,1
+pays,VERB,1
+campagne,VERB,1
+cousin,PREP,1
+cousine,PREP,1
+vache,VERB,1
+artisanat,VERB,1
+crampe,VERB,1
+airelle,VERB,1
+canneberge,VERB,1
+grue,VERB,1
+collision frontale,VERB,1
+écraser-,PRON,1
+accident d'avion,VERB,1
+accident de voiture,VERB,1
+collision,VERB,1
+percuter,PRON,1
+fracas,VERB,1
+ramper,PRON,1
+crayon de couleur,VERB,1
+crème fraîche,VERB,1
+créer,PRON,1
+création,VERB,1
+nature,VERB,1
+créatif,ADJ,1
+créature,VERB,1
+être vivant,VERB,1
+croissant,VERB,1
+crocheter,PRON,1
+franchir,PRON,1
+croiser,PRON,1
+entre-jambes,VERB,1
+béquilles,VERB,1
+pleurer,PRON,1
+cristal,VERB,1
+concombre,VERB,1
+chope,VERB,1
+armoire,VERB,1
+groseilles,VERB,1
+actuel,ADJ,1
+courant,ADJ,1
+actualité,VERB,1
+rideau,VERB,1
+courbe,VERB,1
+découper,PRON,1
+couverts,VERB,1
+coutellerie,VERB,1
+danser,PRON,1
+danger,VERB,1
+dangereux,ADJ,1
+rendez-vous amoureux,VERB,1
+datte,VERB,1
+jour,VERB,1
+service d'accueil de jour,VERB,1
+centre d'accueil de jour,VERB,1
+sourd,ADJ,1
+décennie,VERB,1
+décembre,VERB,1
+décider,PRON,1
+décision,VERB,1
+diminuer,PRON,1
+profond,ADJ,1
+plonger dans la friture,PRON,1
+fil dentaire,VERB,1
+dentiste,PREP,1
+déodorant,VERB,1
+départ,VERB,1
+dépression,VERB,1
+descendre,PRON,1
+décrire,PRON,1
+souhaitable,ADJ,1
+dessert,VERB,1
+détruire,PRON,1
+développer,PRON,1
+développement,VERB,1
+dhoti,VERB,1
+losange,VERB,1
+lange,VERB,1
+couche,VERB,1
+diaphragme,VERB,1
+mourir,PRON,1
+régime,VERB,1
+faire régime,PRON,1
+faire un régime,PRON,1
+différence,NOUN,1
+difficile,ADJ,1
+creuser,PRON,1
+digérer,PRON,1
+digestion,VERB,1
+salle à manger,VERB,1
+orientation,VERB,1
+point cardinal,VERB,1
+sale,ADJ,1
+disque,VERB,1
+discothèque,VERB,1
+disco,VERB,1
+inconfort,VERB,1
+discuter de,PRON,1
+débattre,PRON,1
+discussion,VERB,1
+conversation,VERB,1
+assiette,VERB,1
+aversion,VERB,1
+antipathie,VERB,1
+ne pas aimer,PRON,1
+diviser,PRON,1
+division,VERB,1
+divorce,VERB,1
+divorcer,PRON,1
+agir,PRON,1
+docteur,PREP,1
+médecin,PREP,1
+dollar,VERB,1
+dauphin,VERB,1
+marsouin,VERB,1
+âne,VERB,1
+mulet,VERB,1
+porte,VERB,1
+douter,PRON,1
+en bas,NOUN,1
+vers le bas,NOUN,1
+vers le bas et en arrière,NOUN,1
+vers le bas et en avant,NOUN,1
+égoutter,PRON,1
+dessiner,PRON,1
+tiroir,VERB,1
+rêver,PRON,1
+robe,VERB,1
+habiller-,PRON,1
+déguiser-,PRON,1
+peignoir,VERB,1
+robe de chambre,VERB,1
+boisson,VERB,1
+boire,PRON,1
+conduire,PRON,1
+chauffeur,PREP,1
+dromadaire,VERB,1
+saoul,ADJ,1
+ivre,ADJ,1
+camion benne,VERB,1
+durga,PREP,1
+pendant,NOUN,1
+chaque,NOUN,1
+oreille,VERB,1
+tôt,ADJ,1
+protège-oreille,VERB,1
+écouteurs,VERB,1
+planète terre,VERB,1
+terre,VERB,1
+est,VERB,1
+jour de pâques,VERB,1
+pâques,VERB,1
+de l'est,ADJ,1
+manger,PRON,1
+instruction,VERB,1
+éducation,VERB,1
+formation,VERB,1
+anguille,VERB,1
+effet,VERB,1
+aubergine,VERB,1
+l'un ou l'autre,NOUN,1
+éjaculation,VERB,1
+coude,VERB,1
+électrique,ADJ,1
+électricité,VERB,1
+lampe,VERB,1
+lampe électrique,VERB,1
+chaise roulante électrique,VERB,1
+fauteuil roulant électrique,VERB,1
+fauteuil roulant motorisé,VERB,1
+fil électrique,VERB,1
+câble électrique,VERB,1
+radiation électromagnétique,VERB,1
+éléphant,VERB,1
+ascenseur,VERB,1
+elloul,VERB,1
+embarrassé,ADJ,1
+gêné,ADJ,1
+confus,ADJ,1
+embarrassant,ADJ,1
+embarras,VERB,1
+confusion,VERB,1
+embryon,VERB,1
+urgence,VERB,1
+empathie,VERB,1
+compassion,VERB,1
+espace délimité,VERB,1
+énergie solaire,VERB,1
+fiancé,ADJ,1
+plaire-,PRON,1
+amuser-,PRON,1
+assez,ADJ,1
+entrer,PRON,1
+absorber,PRON,1
+envieux,ADJ,1
+environnement,VERB,1
+égaler,PRON,1
+érection,VERB,1
+etrog,VERB,1
+évaluer,PRON,1
+estimer,PRON,1
+soir,VERB,1
+soir du sabbath,VERB,1
+événement,VERB,1
+n'importe quand,ADJ,1
+arbre à feuilles persistantes,VERB,1
+sapin,VERB,1
+tout le monde,NOUN,1
+échanger,PRON,1
+enchanté,ADJ,1
+enthousiasmé,ADJ,1
+exaltation,VERB,1
+ravissement,VERB,1
+extase,VERB,1
+exclure,PRON,1
+excuse,VERB,1
+excuser,PRON,1
+faire de l'exercice,PRON,1
+exhibitionnisme,VERB,1
+sortir,PRON,1
+attendre à-,PRON,1
+attentes,VERB,1
+anticipation,VERB,1
+expliquer,PRON,1
+exploser,PRON,1
+explosion,VERB,1
+œil,VERB,1
+sourcil,VERB,1
+crayon à sourcils,VERB,1
+paupière,VERB,1
+maquillage pour le yeux,VERB,1
+fard pour les yeux,VERB,1
+figure,VERB,1
+visage,VERB,1
+fait,VERB,1
+usine,VERB,1
+fabrique,VERB,1
+falafel,VERB,1
+chuter,PRON,1
+trompe de fallope,VERB,1
+planning familial,VERB,1
+centre de planning familial,VERB,1
+éventail,VERB,1
+éloigné,ADJ,1
+ferme,VERB,1
+fermier,PREP,1
+annexer,PRON,1
+fermeture,VERB,1
+fermoir,VERB,1
+velcro,VERB,1
+père,PREP,1
+papa,PREP,1
+favori,ADJ,1
+préféré,ADJ,1
+craindre,PRON,1
+avoir peur,PRON,1
+plume,VERB,1
+février,VERB,1
+nourrir,PRON,1
+donner à manger,PRON,1
+ressentir,PRON,1
+sentiment,VERB,1
+émotion,VERB,1
+féminin,ADJ,1
+femelle,VERB,1
+barrière,VERB,1
+clôture,VERB,1
+fertile,ADJ,1
+fertilité,VERB,1
+fécondité,VERB,1
+fœtus,VERB,1
+fidélité,VERB,1
+loyauté,VERB,1
+battre-,PRON,1
+combattre-,PRON,1
+remplir,PRON,1
+finalement,ADJ,1
+enfin,ADJ,1
+trouver,PRON,1
+doigt,VERB,1
+finir,PRON,1
+terminer,PRON,1
+achever,PRON,1
+finlande,VERB,1
+feu,VERB,1
+pompier,PREP,1
+feu ouvert,VERB,1
+camion de pompiers,VERB,1
+premier,ADJ,1
+pêcher,PRON,1
+bricoler,PRON,1
+réparer,PRON,1
+drapeau,VERB,1
+flamme,VERB,1
+lampe de poche,VERB,1
+torche,VERB,1
+lanterne,VERB,1
+plat,ADJ,1
+arôme,VERB,1
+puce,VERB,1
+flotter,PRON,1
+inondation,VERB,1
+flot,VERB,1
+afflux,VERB,1
+plancher,VERB,1
+revêtement de sol,VERB,1
+farine,VERB,1
+fleur sauvage,VERB,1
+mouche,VERB,1
+volant,ADJ,1
+brouillard,VERB,1
+plier,PRON,1
+nourriture,VERB,1
+aliment,VERB,1
+boulette de nourriture,VERB,1
+pied,VERB,1
+forcé,ADJ,1
+obligé,ADJ,1
+front,VERB,1
+prépuce,VERB,1
+forêt,VERB,1
+oublier,PRON,1
+pardonner,PRON,1
+fourchette,VERB,1
+en avant,NOUN,1
+vers l'avant,NOUN,1
+mère de famille d'accueil,PREP,1
+parent nourricier,PREP,1
+parent adoptif,PREP,1
+collation de 4 heures,VERB,1
+renard,VERB,1
+libre,ADJ,1
+liberté,VERB,1
+geler,PRON,1
+solidifier-,PRON,1
+frites,VERB,1
+vendredi,VERB,1
+ami,PREP,1
+grenouille,VERB,1
+crapaud,VERB,1
+aliment surgelé,VERB,1
+fruit,VERB,1
+jus de fruit,VERB,1
+yaourt aux fruits,VERB,1
+frustré,ADJ,1
+frustrant,ADJ,1
+frustration,VERB,1
+rissoler,PRON,1
+plein,ADJ,1
+amusant,ADJ,1
+comique,ADJ,1
+pelage,VERB,1
+meuble,VERB,1
+futur,VERB,1
+partie de jeu,VERB,1
+ganesh,PREP,1
+garage,VERB,1
+poubelle,VERB,1
+jardin,VERB,1
+ail,VERB,1
+gaz,VERB,1
+essence,VERB,1
+réunir,PRON,1
+assemblée,VERB,1
+sexe,VERB,1
+genre,VERB,1
+indéfini,ADJ,1
+généralisation,VERB,1
+organes génitaux,VERB,1
+organes génitaux féminins,VERB,1
+organes génitaux masculins,VERB,1
+gerbille,VERB,1
+cochon d'inde,VERB,1
+hamster,VERB,1
+recevoir,PRON,1
+procurer-,PRON,1
+fantôme,PREP,1
+girafe,VERB,1
+donner,PRON,1
+lunettes,VERB,1
+verrerie,VERB,1
+articles de verrerie,VERB,1
+gant de sport,VERB,1
+gant,VERB,1
+mitaine,VERB,1
+moufle,VERB,1
+colle,VERB,1
+coller,PRON,1
+partir,PRON,1
+aller-,PRON,1
+quitter,PRON,1
+dieu,PREP,1
+poisson domestique,VERB,1
+poisson rouge,VERB,1
+vendredi saint,VERB,1
+bonté,VERB,1
+bienveillance,VERB,1
+valeur,VERB,1
+marchandise,VERB,1
+contenu,VERB,1
+marmotte,VERB,1
+gopher,VERB,1
+gouverner,PRON,1
+gouvernment,VERB,1
+grand-papa,PREP,1
+papi,PREP,1
+grand- père,PREP,1
+grand-maman,PREP,1
+mami,PREP,1
+grand-parent,PREP,1
+jus de raisin,VERB,1
+pamplemousse,VERB,1
+raisin,VERB,1
+herbe,VERB,1
+sauterelle,VERB,1
+grillon,VERB,1
+gris,NOUN,1
+oignon vert,VERB,1
+petit oignon,VERB,1
+groupe de personnes,PREP,1
+groupe de,VERB,1
+bosquet,VERB,1
+grandir,PRON,1
+tour de garde,VERB,1
+deviner,PRON,1
+culpabilité,VERB,1
+coupable,ADJ,1
+mouette,VERB,1
+goéland,VERB,1
+arme à feu,VERB,1
+haggadah,VERB,1
+grêle,VERB,1
+poils,VERB,1
+halvah,VERB,1
+hamentasch,VERB,1
+oreilles d'aman,VERB,1
+marteau,VERB,1
+maillet,VERB,1
+main,VERB,1
+sac à main,VERB,1
+pistolet,VERB,1
+révolver,VERB,1
+mouchoir,VERB,1
+pendre,PRON,1
+suspendre,PRON,1
+passer-,PRON,1
+produire-,PRON,1
+joie,VERB,1
+plaisir,VERB,1
+joyeux,ADJ,1
+heureux,ADJ,1
+harcèlement,VERB,1
+harmonie,VERB,1
+entente,VERB,1
+moisson,VERB,1
+récolte,VERB,1
+chapeau,VERB,1
+havdalah,VERB,1
+faucon,VERB,1
+aigle,VERB,1
+on,PREP,1
+tête,VERB,1
+santé,VERB,1
+en bonne santé,ADJ,1
+entendre,PRON,1
+écouter,PRON,1
+cœur,VERB,1
+chaleur,VERB,1
+chauffer,PRON,1
+lourd,ADJ,1
+talon,VERB,1
+hélicoptère,VERB,1
+aide,VERB,1
+support,VERB,1
+aider,PRON,1
+assistant,PREP,1
+ici,NOUN,1
+hétérosexualité,VERB,1
+cacher,PRON,1
+dissimuler,PRON,1
+haut,ADJ,1
+colline,VERB,1
+hanche,VERB,1
+hippopotame,VERB,1
+passe-temps,VERB,1
+marotte,VERB,1
+hobby,VERB,1
+contenir_,PRON,1
+trou,VERB,1
+jour férié,VERB,1
+jour de congé,VERB,1
+chez soi,VERB,1
+foyer,VERB,1
+tour complet,VERB,1
+home run,VERB,1
+circuit,VERB,1
+homosexualité féminine,VERB,1
+homosexualité masculine,VERB,1
+crochet,VERB,1
+sautiller sur un pied,PRON,1
+horizon,VERB,1
+cheval,VERB,1
+raifort,VERB,1
+radis noir,VERB,1
+hôpital,VERB,1
+clinique,VERB,1
+brûlant,ADJ,1
+épicé,ADJ,1
+poivré,ADJ,1
+hot dog,VERB,1
+hôtel,VERB,1
+heure,VERB,1
+maison,VERB,1
+bâtiment,VERB,1
+combien,NOUN,1
+serrer dans ses bras,PRON,1
+étreindre,PRON,1
+humble,ADJ,1
+hoummos,VERB,1
+affamé,ADJ,1
+blesser-,PRON,1
+faire mal-,PRON,1
+mari,PREP,1
+hystérectomie,VERB,1
+moi,PREP,1
+islande,VERB,1
+patins à glace,VERB,1
+gelé,ADJ,1
+idée,VERB,1
+si,NOUN,1
+immoral,ADJ,1
+améliorer,PRON,1
+inceste,VERB,1
+inclure,PRON,1
+incorrect,ADJ,1
+faux,ADJ,1
+fête nationale d'indépendance,VERB,1
+yom ha-atsmaout,VERB,1
+jour de l'indépendance,VERB,1
+bleu indigo,NOUN,1
+stérile,ADJ,1
+injection,VERB,1
+blesser,PRON,1
+insecte,VERB,1
+insecte nuisible,VERB,1
+enseignement,VERB,1
+instructions,VERB,1
+consignes,VERB,1
+mode d'emploi,VERB,1
+intensité,NOUN,1
+intéressant,ADJ,1
+international,ADJ,1
+intimité,VERB,1
+intime,ADJ,1
+inventer,PRON,1
+irlande,VERB,1
+fer à repasser,VERB,1
+repasser,PRON,1
+planche à repasser,VERB,1
+table de repassage,VERB,1
+île,VERB,1
+israël,VERB,1
+évident,ADJ,1
+explicite,ADJ,1
+stérilet,VERB,1
+dispositif intra-utérin,VERB,1
+iyar,VERB,1
+confiture,VERB,1
+gelée de fruits,VERB,1
+marmelade,VERB,1
+janvier,VERB,1
+journée de jérusalem,VERB,1
+jésus,PREP,1
+le christ,PREP,1
+avion à réaction,VERB,1
+bijou,VERB,1
+articulation,VERB,1
+plaisanter,PRON,1
+blaguer,PRON,1
+juillet,VERB,1
+corde à sauter,VERB,1
+juin,VERB,1
+kabbalat sabbath,NOUN,1
+kali,PREP,1
+garder,PRON,1
+conserver,PRON,1
+clef,VERB,1
+kibboutz,VERB,1
+donner un coup de pied,PRON,1
+kiddoush,VERB,1
+tuer,PRON,1
+assassiner,PRON,1
+aimable,ADJ,1
+kislev,VERB,1
+baiser,VERB,1
+bisou,VERB,1
+embrasser,PRON,1
+donner un bisou,PRON,1
+genou,VERB,1
+agenouiller-,PRON,1
+couteau,VERB,1
+épée,VERB,1
+tricoter,PRON,1
+connaissance,VERB,1
+koala,VERB,1
+maquillage à paupières,VERB,1
+lag baomer,VERB,1
+lac,VERB,1
+étang,VERB,1
+lakshmi,PREP,1
+atterrissage,VERB,1
+nuit passée,VERB,1
+nuit dernière,VERB,1
+semaine passée,VERB,1
+semaine dernière,VERB,1
+année passée,VERB,1
+an dernier,VERB,1
+tard,ADJ,1
+en retard,ADJ,1
+blanchisserie,VERB,1
+pelouse,VERB,1
+gazon,VERB,1
+diriger,PRON,1
+le moins,ADJ,1
+cuir,VERB,1
+gauche,ADJ,1
+jambe,VERB,1
+jambes et pieds,VERB,1
+citron,VERB,1
+citronnade,VERB,1
+limonade,VERB,1
+prêter,PRON,1
+longueur,VERB,1
+léopard,VERB,1
+permettre,PRON,1
+permets-nous de,PRON,1
+lettre,VERB,1
+courrier postal,VERB,1
+facteur,PREP,1
+laitue,VERB,1
+allonger-,PRON,1
+coucher-,PRON,1
+vie,VERB,1
+soulever,PRON,1
+lumière,VERB,1
+éclair,VERB,1
+foudre,VERB,1
+citron vert,VERB,1
+lime,VERB,1
+période de temps,VERB,1
+limites,VERB,1
+ligne,VERB,1
+linéaire,ADJ,1
+objet linéaire,VERB,1
+lèvres,VERB,1
+rouge à lèvres,VERB,1
+liste,VERB,1
+vivre,PRON,1
+habiter,PRON,1
+salon,VERB,1
+salle d'attente,VERB,1
+crabe,VERB,1
+crustacé à pinces,VERB,1
+fermer à clef,PRON,1
+serrer,PRON,1
+isolé,ADJ,1
+long,ADJ,1
+plus long,ADJ,1
+le plus long,ADJ,1
+n'avoir pas gagné,PRON,1
+bruyant,ADJ,1
+sonore,ADJ,1
+adorable,ADJ,1
+amour,VERB,1
+affection,VERB,1
+passion,VERB,1
+chance,VERB,1
+chanceux,ADJ,1
+loulav,VERB,1
+3 branches de dattier,VERB,1
+lunch,VERB,1
+repas de midi,VERB,1
+machine,VERB,1
+appareil,VERB,1
+moteur,VERB,1
+magazine,VERB,1
+revue,VERB,1
+périodique,VERB,1
+poster,PRON,1
+envoyer par la poste,PRON,1
+boîte aux lettres,VERB,1
+fabriquer,PRON,1
+imaginaire,ADJ,1
+fabricant,PREP,1
+producteur,PREP,1
+fard pour le visage,VERB,1
+masculin,ADJ,1
+mangue,VERB,1
+fait main,ADJ,1
+artisanal,ADJ,1
+carte géographique,VERB,1
+carte topographique,VERB,1
+feuille d'érable,VERB,1
+mars,VERB,1
+margarine,VERB,1
+marier-,PRON,1
+épouser,PRON,1
+broyer,PRON,1
+masque,VERB,1
+masturbation,VERB,1
+allumette,VERB,1
+maturation,VERB,1
+pain azyme,VERB,1
+mai,VERB,1
+possibilité,VERB,1
+féliciter,PRON,1
+repas,VERB,1
+cruel,ADJ,1
+signifier,PRON,1
+signification,VERB,1
+mesurer,PRON,1
+viande,VERB,1
+boulette de viande,VERB,1
+médical,ADJ,1
+assurance médicale,VERB,1
+médicament,VERB,1
+rencontrer,PRON,1
+rencontre,VERB,1
+meeting,VERB,1
+forum,VERB,1
+livre d'esther,VERB,1
+magila,VERB,1
+melon,VERB,1
+ménopause,VERB,1
+ménorah,VERB,1
+mental,ADJ,1
+intellectuel,ADJ,1
+rationnel,ADJ,1
+métaphore,VERB,1
+mezouzah,VERB,1
+cuire au four micro-ondes,PRON,1
+four micro-ondes,VERB,1
+centre,VERB,1
+milieu,VERB,1
+milieu de l'été,VERB,1
+plein été,VERB,1
+avion militaire,VERB,1
+militaire de réserve,VERB,1
+lait,VERB,1
+laitier,PREP,1
+milkshake,VERB,1
+mine,VERB,1
+ministre du culte,PREP,1
+pasteur,PREP,1
+prêtre,PREP,1
+rabin,PREP,1
+imam,PREP,1
+minute,VERB,1
+fausse-couche,VERB,1
+manquer,PRON,1
+erreur,VERB,1
+faute,VERB,1
+méprise,VERB,1
+mite,VERB,1
+tique,VERB,1
+mélanger,PRON,1
+lundi,VERB,1
+argent liquide,VERB,1
+singe,VERB,1
+primate,VERB,1
+monstre,VERB,1
+félicitations,OTHER,1
+mois,VERB,1
+humeur,VERB,1
+disposition,VERB,1
+lune,VERB,1
+élan,VERB,1
+orignal,VERB,1
+moral,ADJ,1
+matinée,VERB,1
+matin,VERB,1
+mortel,ADJ,1
+moshav,VERB,1
+moustique,VERB,1
+mère,PREP,1
+maman,PREP,1
+montagne,VERB,1
+baie de montagne,VERB,1
+bouche,VERB,1
+circuler,PRON,1
+faire caca,PRON,1
+aller à selles,PRON,1
+salle de cinéma,VERB,1
+beaucoup,ADJ,1
+boue,VERB,1
+multiplication,VERB,1
+multiplier,PRON,1
+multitude,VERB,1
+musée,VERB,1
+champignon,VERB,1
+musique,VERB,1
+groupe de musique,PREP,1
+groupe de musiciens,PREP,1
+note de musique,VERB,1
+musicien,PREP,1
+rat musqué,VERB,1
+être forcé,PRON,1
+clou,VERB,1
+vernis à ongle,VERB,1
+nom,VERB,1
+serviette de table,VERB,1
+étroit,ADJ,1
+vilain,ADJ,1
+désobéissant,ADJ,1
+marine,VERB,1
+près,ADJ,1
+proche,ADJ,1
+à proximité,ADJ,1
+nécessaire,ADJ,1
+gorge,VERB,1
+personne en besoin d'aide,VERB,1
+personne en état de besoin,VERB,1
+avoir besoin,PRON,1
+aiguille,VERB,1
+aiguille de seringue hypodermique,VERB,1
+voisin,PREP,1
+ni l'un ni l'autre,NOUN,1
+aucun,NOUN,1
+pays-bas,VERB,1
+nouvel an,VERB,1
+nouvelles,VERB,1
+journal,VERB,1
+bulletin d'information,VERB,1
+lettre d'information,VERB,1
+prochain,ADJ,1
+suivant,ADJ,1
+semaine prochaine,VERB,1
+année prochaine,VERB,1
+agréable,ADJ,1
+nuit,VERB,1
+mamelon,VERB,1
+nissan,VERB,1
+non,OTHER,1
+aucune personne,PREP,1
+pollution nocturne,VERB,1
+absurdité,VERB,1
+sottise,VERB,1
+non-sens,OTHER,1
+non oral,ADJ,1
+muet,ADJ,1
+nord,VERB,1
+nordique,ADJ,1
+nez,VERB,1
+ne pas,NOUN,1
+négation,NOUN,1
+carnet,VERB,1
+calepin,VERB,1
+bloc-notes,VERB,1
+novembre,VERB,1
+maintenant,NOUN,1
+nulle part,NOUN,1
+énergie nucléaire,VERB,1
+retombées radioactives,VERB,1
+poussières radioactives,VERB,1
+radioactivité,VERB,1
+noyau atomique,VERB,1
+nombre,VERB,1
+infirmière,PREP,1
+noix,VERB,1
+obéir,PRON,1
+remarquer,PRON,1
+océan,VERB,1
+octobre,VERB,1
+progéniture,PREP,1
+descendance,PREP,1
+souvent,ADJ,1
+huile,VERB,1
+lubrifiant,VERB,1
+olive,VERB,1
+sur,NOUN,1
+une seule fois,ADJ,1
+ouvert,ADJ,1
+ouvrir,PRON,1
+ouverture,VERB,1
+opération chirurgicale,VERB,1
+avis,VERB,1
+opossum,VERB,1
+contraire de,OTHER,1
+opposé à,OTHER,1
+ou,NOUN,1
+rapport bucco-génital,VERB,1
+orange,VERB,1
+agrume,VERB,1
+verger,VERB,1
+organiser,PRON,1
+orgasme,VERB,1
+autruche,VERB,1
+dehors,NOUN,1
+excursion,VERB,1
+ovaire,VERB,1
+au-dessus,NOUN,1
+hibou,VERB,1
+chouette,VERB,1
+oiseau nocturne,VERB,1
+posséder,PRON,1
+boeuf,VERB,1
+huître,VERB,1
+coquillage,VERB,1
+seau,VERB,1
+souffrance,VERB,1
+douloureux,ADJ,1
+peinture,VERB,1
+teinture,VERB,1
+peindre,PRON,1
+peintre,PREP,1
+paire,VERB,1
+palmier,VERB,1
+pantalon,VERB,1
+papier,VERB,1
+page,VERB,1
+perruche,VERB,1
+parallèle,VERB,1
+parachutiste,PREP,1
+colis,VERB,1
+paquet,VERB,1
+parc,VERB,1
+perroquet,VERB,1
+salsifis,VERB,1
+scorsonère,VERB,1
+partie de,OTHER,1
+fête,VERB,1
+soirée,VERB,1
+pâque juive,VERB,1
+passé,VERB,1
+patience,VERB,1
+être patient,PRON,1
+patte,VERB,1
+payer,PRON,1
+pacifique,ADJ,1
+paisible,ADJ,1
+paon,VERB,1
+beurre d'arachide,VERB,1
+poire,VERB,1
+pois,VERB,1
+pelure,VERB,1
+peler,PRON,1
+pélican,VERB,1
+crayon,VERB,1
+stylo,VERB,1
+passer à travers,PRON,1
+pingouin,VERB,1
+manchot,VERB,1
+pénis,VERB,1
+poivron,VERB,1
+poivre,VERB,1
+parfum,VERB,1
+senteur,VERB,1
+fragrance,VERB,1
+perpendiculaire,VERB,1
+être humain,PREP,1
+individu,PREP,1
+maladie,VERB,1
+animal familier,VERB,1
+animal de compagnie,VERB,1
+photo,VERB,1
+photographie,VERB,1
+pique-nique,VERB,1
+image,VERB,1
+dessin,VERB,1
+tarte,VERB,1
+cochon,VERB,1
+pilule,VERB,1
+oreiller,VERB,1
+taie d'oreiller,VERB,1
+pustule,VERB,1
+épingle,VERB,1
+ananas,VERB,1
+pipe,VERB,1
+canalisation_,VERB,1
+noyau,VERB,1
+dénoyauter,PRON,1
+pita,VERB,1
+cafetière,VERB,1
+bouilloire,VERB,1
+cruche,VERB,1
+pizza,VERB,1
+endroit,VERB,1
+plan,VERB,1
+planifier,PRON,1
+élaborer,PRON,1
+plante,VERB,1
+plastique,VERB,1
+jouer,PRON,1
+jouer au football,PRON,1
+cour de récréation,VERB,1
+plaine de jeux,VERB,1
+terrain de jeux,VERB,1
+place de jeux,VERB,1
+salle de jeu,VERB,1
+s'il te plaît,OTHER,1
+s'il vous plaît,OTHER,1
+pince,VERB,1
+charrue,VERB,1
+fiche électrique,VERB,1
+prune,VERB,1
+reine-claude,VERB,1
+mirabelle,VERB,1
+poche,VERB,1
+poème,VERB,1
+poésie,VERB,1
+pointe,VERB,1
+pointer,PRON,1
+viser,PRON,1
+point de vue,VERB,1
+poison,VERB,1
+polenta,VERB,1
+police,PREP,1
+officier de police,PREP,1
+pollution,VERB,1
+bassin de natation,VERB,1
+popcorn,VERB,1
+position,VERB,1
+positif,NOUN,1
+peut-être,ADJ,1
+possiblement,ADJ,1
+carte postale,VERB,1
+poste,VERB,1
+pomme de terre,VERB,1
+pomme de terre chips,VERB,1
+livre sterling,VERB,1
+poudre,VERB,1
+poussière,VERB,1
+énergie physique,VERB,1
+pratiquer,PRON,1
+prier,PRON,1
+prière,VERB,1
+siddour,VERB,1
+grossesse,VERB,1
+enceinte,ADJ,1
+enceinte_,ADJ,1
+naissance prématurée,VERB,1
+préparer,PRON,1
+préparer le repas,PRON,1
+prétendre,PRON,1
+feindre,PRON,1
+prison,VERB,1
+privé,ADJ,1
+probable,ADJ,1
+projecteur,VERB,1
+promettre,PRON,1
+prostitution,VERB,1
+prendre soin de,PRON,1
+couvrir,PRON,1
+fier,ADJ,1
+province,VERB,1
+comté,VERB,1
+département,VERB,1
+arrondissement,VERB,1
+canton,VERB,1
+puberté,VERB,1
+poils du pubis,VERB,1
+poils pubiens,VERB,1
+lieu public,VERB,1
+espace public,VERB,1
+traîner,PRON,1
+piquer,PRON,1
+marionnette,VERB,1
+chiot,VERB,1
+fête de pourim,VERB,1
+porte-monnaie,VERB,1
+bourse,VERB,1
+poser,PRON,1
+mettre,PRON,1
+puzzle,VERB,1
+pyjama,VERB,1
+chemise de nuit,VERB,1
+pyramide,VERB,1
+question,VERB,1
+rapide,ADJ,1
+lapin,VERB,1
+lièvre,VERB,1
+rage,VERB,1
+raton laveur,VERB,1
+course,VERB,1
+concours,VERB,1
+raquette,VERB,1
+radio_,VERB,1
+radis,VERB,1
+pluie,VERB,1
+pleuvoir,PRON,1
+vêtement de pluie,VERB,1
+imperméable,VERB,1
+pluvieux,ADJ,1
+cultiver,PRON,1
+faire pousser,PRON,1
+râteau,VERB,1
+viol,VERB,1
+framboise,VERB,1
+cru,ADJ,1
+lire,PRON,1
+prêt,ADJ,1
+réel,ADJ,1
+récent,ADJ,1
+recette de cuisine,VERB,1
+disque de musique,VERB,1
+disque compact,VERB,1
+tourne-disque,VERB,1
+lecteur de disque compact,VERB,1
+lecteur cd,VERB,1
+rectangle,VERB,1
+rectangulaire,ADJ,1
+oblong,ADJ,1
+regretter,PRON,1
+renne,VERB,1
+caribou,VERB,1
+plus petit que,NOUN,1
+plus grand que,NOUN,1
+journée du souvenir,VERB,1
+jour du souvenir,VERB,1
+copier,PRON,1
+reproduire,PRON,1
+dupliquer,PRON,1
+reproduction,VERB,1
+requérir,PRON,1
+solliciter,PRON,1
+en vouloir,PRON,1
+éprouver de la rancune,PRON,1
+résident,PREP,1
+institution résidentielle,VERB,1
+établissement de logement,VERB,1
+home,VERB,1
+internat,VERB,1
+centre de ressources,VERB,1
+centre de documentation,VERB,1
+centre d'échange,VERB,1
+respect,VERB,1
+admiration,VERB,1
+repos,VERB,1
+reposer-,PRON,1
+pause,VERB,1
+période de repos,VERB,1
+restaurant,VERB,1
+cafétaria,VERB,1
+cantine,VERB,1
+mess,VERB,1
+retour,VERB,1
+retourner,PRON,1
+revenir,PRON,1
+rhinocéros,VERB,1
+rime,VERB,1
+méthode contraceptive naturelle ogino,VERB,1
+ruban,VERB,1
+riz,VERB,1
+goûteux,ADJ,1
+pousse-pousse,VERB,1
+carabine,VERB,1
+angle droit,VERB,1
+anneau,VERB,1
+monter,PRON,1
+rivière,VERB,1
+géocoucou,VERB,1
+autruche nord-américaine,VERB,1
+fusée,VERB,1
+véhicule spatial,VERB,1
+fauteuil à bascule,VERB,1
+petit pain,VERB,1
+faire du patin à roulettes,PRON,1
+patins à roulettes,VERB,1
+toit,VERB,1
+pièce,VERB,1
+racine,VERB,1
+rosh ha-shanah,VERB,1
+pain grillé plat et rond,VERB,1
+fard à joue,VERB,1
+frotter,PRON,1
+frictionner,PRON,1
+carpette,VERB,1
+descente de lit,VERB,1
+règlement,VERB,1
+règle,VERB,1
+règle à mesurer,VERB,1
+courir,PRON,1
+jour de repos,VERB,1
+sabbath,VERB,1
+sac,VERB,1
+triste,ADJ,1
+malheureux,ADJ,1
+tristesse,VERB,1
+malheur,VERB,1
+en sécurité,ADJ,1
+sécurité,VERB,1
+marin,PREP,1
+salive,VERB,1
+crachat,VERB,1
+sel marin,VERB,1
+salé,ADJ,1
+égalité,NOUN,1
+même son,OTHER,1
+sable,VERB,1
+sandale,VERB,1
+bac à sable,VERB,1
+serviette hygiénique,VERB,1
+sari,VERB,1
+satisfaction,VERB,1
+samedi,VERB,1
+choucroute,VERB,1
+sauna,VERB,1
+saucisse,VERB,1
+saucisse de francfort,VERB,1
+scie,VERB,1
+dire,PRON,1
+exprimer,PRON,1
+parler,PRON,1
+écharpe,VERB,1
+paysage,VERB,1
+décor,VERB,1
+toit de la soukka en branchages,VERB,1
+horaire,VERB,1
+emploi du temps,VERB,1
+calendrier de réunions,VERB,1
+corps de la connaissance,VERB,1
+ciseaux,VERB,1
+paire de ciseaux,VERB,1
+score,VERB,1
+vis,VERB,1
+tournevis,VERB,1
+scrotum,VERB,1
+chercher partout,PRON,1
+fouiller,PRON,1
+seconde,VERB,1
+deuxième,ADJ,1
+second,ADJ,1
+secret,VERB,1
+secrétaire,PREP,1
+voir,PRON,1
+regarder,PRON,1
+revoir,OTHER,1
+graine,VERB,1
+sembler,PRON,1
+paraître,PRON,1
+avoir l'air,PRON,1
+balançoire à bascule,VERB,1
+soi,PREP,1
+soi-même,PREP,1
+automutilation,VERB,1
+maîtrise de soi,VERB,1
+égoïste,ADJ,1
+égocentrique,ADJ,1
+vendre,PRON,1
+sperme,VERB,1
+vésicule séminale,VERB,1
+bourse séminale,VERB,1
+envoyer,PRON,1
+phrase,VERB,1
+septembre,VERB,1
+coudre,PRON,1
+machine à coudre,VERB,1
+désir sexuel,VERB,1
+pulsion sexuelle,VERB,1
+libido,VERB,1
+abus sexuel,VERB,1
+violence sexuelle,VERB,1
+excitation sexuelle,VERB,1
+harcèlement sexuel,VERB,1
+rapport sexuel,VERB,1
+relation sexuelle,VERB,1
+plaisir sexuel,VERB,1
+sexualité,VERB,1
+secouer,PRON,1
+agiter,PRON,1
+peu profond,ADJ,1
+salutation,VERB,1
+honte,VERB,1
+shampooing,VERB,1
+trèfle,VERB,1
+forme,VERB,1
+partager,PRON,1
+requin,VERB,1
+aiguisé,ADJ,1
+acéré,ADJ,1
+acide,ADJ,1
+aigre,ADJ,1
+raser-,PRON,1
+rasoir,VERB,1
+savon à barbe,VERB,1
+shavouot,VERB,1
+drap de lit,VERB,1
+shekel,VERB,1
+étagère,VERB,1
+coquille,VERB,1
+abri,VERB,1
+refuge,VERB,1
+chemise,VERB,1
+shiva,PREP,1
+chaussure,VERB,1
+shofar,VERB,1
+short,VERB,1
+épaule,VERB,1
+crier fort,PRON,1
+pelle,VERB,1
+faire voir,PRON,1
+douche,VERB,1
+doucher-,PRON,1
+salle d'exposition,VERB,1
+shevat,VERB,1
+frère ou sœur,PREP,1
+fratrie,PREP,1
+malade,ADJ,1
+passoire,VERB,1
+tamis,VERB,1
+annonce,VERB,1
+publicité,VERB,1
+panneau publicitaire,VERB,1
+cachet,VERB,1
+tampon,VERB,1
+silence,VERB,1
+simchat torah,VERB,1
+semblable,OTHER,1
+aspect similaire,OTHER,1
+son semblable,OTHER,1
+mijoter,PRON,1
+frémir,PRON,1
+péché,VERB,1
+pécher,PRON,1
+chanter,PRON,1
+chanteur,PREP,1
+bain,VERB,1
+toilette,VERB,1
+lavage,VERB,1
+pécheur,PREP,1
+sœur,PREP,1
+asseoir-,PRON,1
+sivan,VERB,1
+skateboard,VERB,1
+squelette,VERB,1
+chaussure de skis,VERB,1
+bâtons de ski,VERB,1
+jupe,VERB,1
+skis,VERB,1
+couvre-chef juif,VERB,1
+kippa,VERB,1
+moufette,VERB,1
+ciel,VERB,1
+sommeil,VERB,1
+dormir,PRON,1
+sac de couchage,VERB,1
+toboggan,VERB,1
+jupon,VERB,1
+pantoufle,VERB,1
+intelligent,ADJ,1
+casser en morceaux,PRON,1
+odeur,VERB,1
+flairer,PRON,1
+dégager une odeur,PRON,1
+sentir mauvais,PRON,1
+puer,PRON,1
+sourire,PRON,1
+fumée,VERB,1
+fumer,PRON,1
+lisse,ADJ,1
+snack,VERB,1
+escargot,VERB,1
+serpent,VERB,1
+serpent d'eau,VERB,1
+éternuer,PRON,1
+neige,VERB,1
+neiger,PRON,1
+boule de neige,VERB,1
+flocon de neige,VERB,1
+flocon,VERB,1
+bonhomme de neige,VERB,1
+tempête de neige,VERB,1
+vêtement de neige,VERB,1
+savon,VERB,1
+assistant social,PREP,1
+boisson gazeuse,VERB,1
+soda,VERB,1
+mou,ADJ,1
+soldat,PREP,1
+solide,VERB,1
+résoudre,PRON,1
+quelques,ADJ,1
+un peu,ADJ,1
+environ,ADJ,1
+parfois,ADJ,1
+fils,PREP,1
+chanson,VERB,1
+oiseau chanteur,VERB,1
+bientôt,ADJ,1
+plaie,VERB,1
+désolé,OTHER,1
+navré,OTHER,1
+soufganiot,VERB,1
+tinter,PRON,1
+soupe,VERB,1
+sud,VERB,1
+sudiste,ADJ,1
+du sud,ADJ,1
+espace,VERB,1
+volume,VERB,1
+spécial,ADJ,1
+spécifique,ADJ,1
+spermatozoïde,VERB,1
+spermicide,VERB,1
+pot à épices,VERB,1
+araignée,VERB,1
+spirale,VERB,1
+éclabousser,PRON,1
+cuiller,VERB,1
+cuillère,VERB,1
+tache,VERB,1
+conjoint,PREP,1
+colocataire,PREP,1
+tartinade,VERB,1
+tartiner,PRON,1
+printemps_,VERB,1
+printemps,VERB,1
+courge,VERB,1
+citrouille,VERB,1
+écureuil,VERB,1
+personnel d'assistance,PREP,1
+personnel d'aide,PREP,1
+escalier,VERB,1
+timbre,VERB,1
+être debout,PRON,1
+mettre debout,PRON,1
+verticalisateur,VERB,1
+étoile,VERB,1
+rester,PRON,1
+vapeur,VERB,1
+passer à la vapeur,PRON,1
+cuire à la vapeur,PRON,1
+bain à vapeur,VERB,1
+bain de vapeur,VERB,1
+acier,VERB,1
+tige,VERB,1
+beau-père,PREP,1
+belle-mère,PREP,1
+stérilisation,VERB,1
+bûche,VERB,1
+chaussette,VERB,1
+ventre,VERB,1
+rocher,VERB,1
+réserve,VERB,1
+grand vent,VERB,1
+coup de vent,VERB,1
+rafale de vent,VERB,1
+conte,VERB,1
+anecdote,VERB,1
+four,VERB,1
+fourneau,VERB,1
+cuisinière,VERB,1
+chauffage,VERB,1
+étrange,ADJ,1
+insolite,ADJ,1
+bizarre,ADJ,1
+courroie,VERB,1
+lanière,VERB,1
+paille,VERB,1
+chalumeau,VERB,1
+fraise,VERB,1
+rue,VERB,1
+caresser,PRON,1
+structure,VERB,1
+étudiant,PREP,1
+élève,PREP,1
+soustraire,PRON,1
+soustraction,VERB,1
+réussir,PRON,1
+tout à coup,ADJ,1
+soudainement,ADJ,1
+brusquement,ADJ,1
+sucre,VERB,1
+édulcorant,VERB,1
+suggérer,PRON,1
+suggestion,VERB,1
+habit,VERB,1
+soukka,VERB,1
+soukkot,VERB,1
+été_,VERB,1
+été,VERB,1
+colonie de vacances,VERB,1
+camp de vacances,VERB,1
+soleil,VERB,1
+crème solaire,VERB,1
+produit solaire,VERB,1
+écran total,VERB,1
+dimanche,VERB,1
+ensoleillé,ADJ,1
+lever du soleil,VERB,1
+coucher du soleil,VERB,1
+souper,VERB,1
+repas du soir,VERB,1
+supporter financièrement,PRON,1
+étonner,PRON,1
+avaler,PRON,1
+marais,VERB,1
+marécage,VERB,1
+cygne,VERB,1
+transpirer,PRON,1
+transpiration,VERB,1
+sueur,VERB,1
+sucré,ADJ,1
+sucrerie,VERB,1
+pâtisserie,VERB,1
+patate douce,VERB,1
+petit ami,PREP,1
+petit copain,PREP,1
+copain,PREP,1
+nager,PRON,1
+maillot de bain,VERB,1
+balançoire,VERB,1
+balancer-,PRON,1
+commutateur,VERB,1
+actionner l'interrupteur,PRON,1
+tableau de symboles,VERB,1
+seringue,VERB,1
+jeu de table,VERB,1
+jeu de société,VERB,1
+table,VERB,1
+nappe,VERB,1
+crème de sésame,VERB,1
+porter,PRON,1
+enlever,PRON,1
+retirer,PRON,1
+emporter,PRON,1
+décoller,VERB,1
+talc,VERB,1
+tallith,VERB,1
+tamouz,VERB,1
+mandarine,VERB,1
+clémentine,VERB,1
+tank,VERB,1
+char,VERB,1
+blindé,VERB,1
+enregistreur,VERB,1
+goût,VERB,1
+goûter,PRON,1
+taxi,VERB,1
+chauffeur de taxi,PREP,1
+thé,VERB,1
+enseigner,PRON,1
+taquiner,PRON,1
+adolescent,PREP,1
+dents,VERB,1
+téléphone,VERB,1
+télévision,VERB,1
+collation de 10 heures,VERB,1
+tente,VERB,1
+termite,VERB,1
+terrifié,ADJ,1
+terroriste,PREP,1
+terroriser,PRON,1
+test,VERB,1
+testicule,VERB,1
+tevet,VERB,1
+tefilin,VERB,1
+remercier,PRON,1
+remerciement,OTHER,1
+action de grâce,VERB,1
+cela,NOUN,1
+ça,NOUN,1
+dommage,OTHER,1
+tant pis,OTHER,1
+dégeler,PRON,1
+fondre,PRON,1
+le,NOUN,1
+la,NOUN,1
+les,NOUN,1
+ensuite,NOUN,1
+là,NOUN,1
+donc,NOUN,1
+par conséquent,NOUN,1
+thermomètre,VERB,1
+thermos,VERB,1
+elles-mêmes,PREP,1
+eux-mêmes,PREP,1
+mince,ADJ,1
+chose,VERB,1
+penser,PRON,1
+assoiffé,ADJ,1
+ceci,NOUN,1
+ce,NOUN,1
+cette semaine-ci,VERB,1
+cette année-ci,VERB,1
+ceux-là,NOUN,1
+lancer,PRON,1
+pouce,VERB,1
+tonnerre,VERB,1
+jeudi,VERB,1
+ticket,VERB,1
+cravate,VERB,1
+tigre,VERB,1
+temps,VERB,1
+marcher sur la pointe des pieds,PRON,1
+pneu,VERB,1
+fatigué,ADJ,1
+tishah be-av,VERB,1
+tishri,VERB,1
+mouchoir en papier,VERB,1
+pain grillé,VERB,1
+toast,VERB,1
+griller du pain,PRON,1
+grille-pain,VERB,1
+tabac,VERB,1
+aujourd'hui,VERB,1
+orteil,VERB,1
+toilettes,VERB,1
+papier toilette,VERB,1
+tomate,VERB,1
+demain,VERB,1
+demain soir,VERB,1
+ce soir,VERB,1
+trop,ADJ,1
+outil,VERB,1
+brosse à dents,VERB,1
+dentifrice,VERB,1
+dessus,VERB,1
+toupie,VERB,1
+torah,VERB,1
+toucher,PRON,1
+animal en peluche,VERB,1
+tracteur,VERB,1
+trafic,VERB,1
+circulation,VERB,1
+train,VERB,1
+trampoline,VERB,1
+traduire,PRON,1
+interpréter,PRON,1
+travestie,PREP,1
+travesti,PREP,1
+voyager,PRON,1
+plateau,VERB,1
+gâterie,VERB,1
+arbre,VERB,1
+triangle,VERB,1
+triangulaire,ADJ,1
+tricycle,VERB,1
+voyage,VERB,1
+camion,VERB,1
+véridique,ADJ,1
+tronc,VERB,1
+fier-,PRON,1
+avoir confiance,PRON,1
+confiance,VERB,1
+vérité,VERB,1
+essayer,PRON,1
+tou bichvat,VERB,1
+ligature des trompes,VERB,1
+mardi,VERB,1
+ton,VERB,1
+mélodie,VERB,1
+dindon,VERB,1
+pivoter,PRON,1
+navet,VERB,1
+tortue,VERB,1
+scintiller,PRON,1
+type,VERB,1
+sorte,VERB,1
+imprimante,VERB,1
+machine à écrire,VERB,1
+berk,OTHER,1
+laid,ADJ,1
+moche,ADJ,1
+cordon ombilical,VERB,1
+parapluie,VERB,1
+oncle,PREP,1
+inconfortable,ADJ,1
+sous,NOUN,1
+en dessous,NOUN,1
+abri souterrain,VERB,1
+caleçon,VERB,1
+slip,VERB,1
+chemisette,VERB,1
+maillot de corps,VERB,1
+comprendre,PRON,1
+sous-vêtement,VERB,1
+chômage,VERB,1
+objet suspect,VERB,1
+exemplaire unique,VERB,1
+royaume-uni,VERB,1
+united kingdom,VERB,1
+université,VERB,1
+sauf,NOUN,1
+à moins,NOUN,1
+jusque,NOUN,1
+jusqu'à,NOUN,1
+en haut,NOUN,1
+vers le haut,NOUN,1
+troublé,ADJ,1
+dérangé,ADJ,1
+perturbé,ADJ,1
+en haut et en arrière,NOUN,1
+en haut et en avant,NOUN,1
+urètre,VERB,1
+uriner,PRON,1
+faire pipi,PRON,1
+urine,VERB,1
+pipi,VERB,1
+utiliser,PRON,1
+habituellement,ADJ,1
+utérus,VERB,1
+vacances,VERB,1
+vagin,VERB,1
+carte de la saint-valentin,VERB,1
+jour de la saint-valentin,VERB,1
+vallée,VERB,1
+camionnette,VERB,1
+fourgon,VERB,1
+canal déférent,VERB,1
+vasectomie,VERB,1
+veau,VERB,1
+échalotte,VERB,1
+magnétoscope,VERB,1
+village,VERB,1
+vinaigre,VERB,1
+virginité,VERB,1
+vishnou,PREP,1
+visiter,PRON,1
+rendre visite,PRON,1
+visiteur,PREP,1
+volcan,VERB,1
+bénévole,PREP,1
+vomir,PRON,1
+voyeurisme,VERB,1
+vautour,VERB,1
+vulve,VERB,1
+petit bassin,VERB,1
+pataugeoire,VERB,1
+gage,VERB,1
+salaire,VERB,1
+wagon,VERB,1
+attendre,PRON,1
+aller à pied,PRON,1
+trotteur,VERB,1
+mur,VERB,1
+baguette magique,VERB,1
+vouloir,PRON,1
+guerre,VERB,1
+laver,PRON,1
+lavable,ADJ,1
+gant de toilette,VERB,1
+machine à laver,VERB,1
+machine à laver le linge,VERB,1
+lave-linge,VERB,1
+déchet,VERB,1
+montre,VERB,1
+vigilant,ADJ,1
+eau,VERB,1
+fluide,VERB,1
+liquide,VERB,1
+faible,ADJ,1
+temps météorologique,VERB,1
+tisser,PRON,1
+mercredi,VERB,1
+semaine,VERB,1
+peser,PRON,1
+ouest,VERB,1
+occidental,ADJ,1
+de l'ouest,ADJ,1
+mouillé,ADJ,1
+aqueux,ADJ,1
+baleine,VERB,1
+quelle sorte de,NOUN,1
+quoi,NOUN,1
+roue,VERB,1
+chaise roulante,VERB,1
+chuchoter,PRON,1
+siffler,PRON,1
+blanc_,NOUN,1
+dont,NOUN,1
+pourquoi,NOUN,1
+large,ADJ,1
+épouse,PREP,1
+remuer,PRON,1
+tortiller,PRON,1
+ondulé,ADJ,1
+remuant,ADJ,1
+qui se tortille,ADJ,1
+fenêtre,VERB,1
+fenêtre munie de barreaux,VERB,1
+vin,VERB,1
+aile,VERB,1
+cligner,PRON,1
+faire un clin d'oeil,PRON,1
+hiver_,VERB,1
+essuyer,PRON,1
+fil métallique,VERB,1
+fil de fer,VERB,1
+câble métallique,VERB,1
+à l'aide de,NOUN,1
+loup,VERB,1
+femme,PREP,1
+laine,VERB,1
+mot,VERB,1
+travailler,PRON,1
+œuvre,VERB,1
+travail d'art,VERB,1
+cahier,VERB,1
+travailleur,PREP,1
+ouvrier,PREP,1
+monde,VERB,1
+ver de terre,VERB,1
+souci,VERB,1
+tracas,VERB,1
+inquiéter-,PRON,1
+soucier-,PRON,1
+wow,OTHER,1
+super,OTHER,1
+cool,OTHER,1
+poignet,VERB,1
+écrire,PRON,1
+yahrzeit,VERB,1
+anniversaire du décès,VERB,1
+préau,VERB,1
+bâiller,PRON,1
+année,VERB,1
+hurler,PRON,1
+yen,VERB,1
+oui,OTHER,1
+hier,VERB,1
+yaourt,VERB,1
+yoghourt,VERB,1
+kippour,VERB,1
+tu,PREP,1
+à votre service,OTHER,1
+de rien,OTHER,1
+zèbre,VERB,1
+zoo,VERB,1
+immortalité,VERB,1
+tartinade liquide,VERB,1
+sel,VERB,1
+miroir,VERB,1
+bocal,VERB,1
+boîte cylindrique,VERB,1
+ensevelir,PRON,1
+rugby,VERB,1
+football américain,VERB,1
+judo,VERB,1
+calèche,VERB,1
+attelage,VERB,1
+carrosse,VERB,1
+collation,VERB,1
+monothéisme,VERB,1
+polythéisme,VERB,1
+christianisme,VERB,1
+chrétienté,VERB,1
+judaïsme,VERB,1
+islam,VERB,1
+eglise orthodoxe orientale,VERB,1
+mahomet,PREP,1
+allah,PREP,1
+vatican,VERB,1
+cité du vatican,VERB,1
+eglise catholique romaine,VERB,1
+protestantisme,VERB,1
+grâce,VERB,1
+divin,ADJ,1
+bandy,VERB,1
+messie,PREP,1
+marie,PREP,1
+joseph,PREP,1
+saint joseph,PREP,1
+prophétie,VERB,1
+prophétiser,PRON,1
+prophète,PREP,1
+chef religieux,PREP,1
+évêque,PREP,1
+pape,PREP,1
+diffuser,PRON,1
+disséminer,PRON,1
+disperser,PRON,1
+apôtre,PREP,1
+missionnaire,PREP,1
+ramure,VERB,1
+enfer,VERB,1
+adam,PREP,1
+eve,PREP,1
+noé,PREP,1
+abraham,PREP,1
+moïse,PREP,1
+livre saint,VERB,1
+bible,VERB,1
+ancien testament,VERB,1
+nouveau testament,VERB,1
+coran,VERB,1
+livre de cantiques,VERB,1
+hymne,VERB,1
+psaume,VERB,1
+cantique,VERB,1
+évangile,VERB,1
+apparaître,PRON,1
+disparition,VERB,1
+disparaître,PRON,1
+sainteté,VERB,1
+sanctifier,PRON,1
+consacrer,PRON,1
+enfant saint,PREP,1
+caractère sacré de la vie,VERB,1
+ville sainte,VERB,1
+sainte-famille,PREP,1
+parent célibataire,PREP,1
+mère célibataire,PREP,1
+père célibataire,PREP,1
+famille monoparentale,PREP,1
+groupe de résidents,PREP,1
+événement religieux,VERB,1
+cérémonie,VERB,1
+méditer,PRON,1
+songer,PRON,1
+perspicacité,VERB,1
+avouer,PRON,1
+événement chrétien,VERB,1
+événement saint,VERB,1
+sacrement,VERB,1
+sacrement du baptême,VERB,1
+sacrement de confirmation,VERB,1
+sacrement de communion,VERB,1
+eucharistie,VERB,1
+sacrement de l'absolution,VERB,1
+sacrement de l'ordination sacerdotale,VERB,1
+sacrement du mariage,VERB,1
+sacrement des malades,VERB,1
+onction des malades,VERB,1
+confirmation,VERB,1
+bat mitsvah,VERB,1
+bar mitsvah,VERB,1
+cérémonie de la circoncision,VERB,1
+cercueil,VERB,1
+mausolée,VERB,1
+disperser les cendres,PRON,1
+urne funéraire,VERB,1
+urne,VERB,1
+vase,VERB,1
+coupe,VERB,1
+tombeau,VERB,1
+pierre tombale,VERB,1
+incinération,VERB,1
+incinérer,PRON,1
+festivités,VERB,1
+réjouissances,VERB,1
+assemblée religieuse,VERB,1
+affreux,ADJ,1
+horrible,ADJ,1
+miséricorde,VERB,1
+impardonnable,ADJ,1
+shiva_,VERB,1
+être en deuil,PRON,1
+mystère,VERB,1
+mystérieux,ADJ,1
+miracle,VERB,1
+vision,VERB,1
+athéisme,VERB,1
+foi chrétienne,VERB,1
+espérance chrétienne,VERB,1
+amour chrétien,VERB,1
+charité chrétienne,VERB,1
+pauvreté,VERB,1
+appauvrir,PRON,1
+abstention,VERB,1
+obéissance,VERB,1
+prêcher,PRON,1
+persuader,PRON,1
+convaincre,PRON,1
+amen,OTHER,1
+défunt,PREP,1
+défunts,PREP,1
+morts,PREP,1
+cadavre,VERB,1
+corps sans vie,VERB,1
+rituel,VERB,1
+persévérance,VERB,1
+persévérer,PRON,1
+convertir-,PRON,1
+conversion,VERB,1
+jeûner,PRON,1
+ramadan,VERB,1
+aïeul,PREP,1
+aïeule,PREP,1
+omniscient,ADJ,1
+tout-puissant,ADJ,1
+sans fin,ADJ,1
+interminable,ADJ,1
+supplier,PRON,1
+implorer,PRON,1
+commander,PRON,1
+exiger,PRON,1
+réclamer,PRON,1
+proclamer,PRON,1
+déclarer,PRON,1
+tract,VERB,1
+dépliant,VERB,1
+prospectus,VERB,1
+folder,VERB,1
+correction,VERB,1
+justesse,VERB,1
+excellent,ADJ,1
+perfection,VERB,1
+parfait,ADJ,1
+idéal,ADJ,1
+prêcher l'evangile,PRON,1
+noyer-,PRON,1
+noyer,PRON,1
+désert,VERB,1
+région sauvage,VERB,1
+région inhabitée,VERB,1
+immense,ADJ,1
+gigantesque,ADJ,1
+manne céleste,VERB,1
+inhabité,ADJ,1
+filet de pêche,VERB,1
+encens,VERB,1
+vocation,VERB,1
+profession,VERB,1
+carrière,VERB,1
+agacer,PRON,1
+lampe à huile,VERB,1
+verre à vin,VERB,1
+calice,VERB,1
+burettes,VERB,1
+patène,VERB,1
+hostie,VERB,1
+autel,VERB,1
+nappe d'autel,VERB,1
+habit sacerdotal,VERB,1
+sapin de noël,VERB,1
+interview,VERB,1
+interrogatoire,VERB,1
+interrogation,VERB,1
+interviewer,PRON,1
+intervieweur,PREP,1
+universel,ADJ,1
+mondial,ADJ,1
+pardonné,ADJ,1
+langue des signes,VERB,1
+polder,VERB,1
+cellule,VERB,1
+euro,VERB,1
+astronomie,VERB,1
+économie,VERB,1
+chimie,VERB,1
+biochimie,VERB,1
+biologie,VERB,1
+botanique,VERB,1
+anthropologie,VERB,1
+zoologie,VERB,1
+géologie,VERB,1
+sociologie,VERB,1
+archéologie,VERB,1
+météorologie,VERB,1
+physique,VERB,1
+linguistique,VERB,1
+savant,PREP,1
+académicien,PREP,1
+astronome,PREP,1
+économiste,PREP,1
+chimiste,PREP,1
+biochimiste,PREP,1
+biologiste,PREP,1
+botaniste,PREP,1
+zoologue,PREP,1
+géologue,PREP,1
+sociologue,PREP,1
+historien,PREP,1
+archéologue,PREP,1
+météorologue,PREP,1
+linguiste,PREP,1
+mathématicien,PREP,1
+pédiatre,PREP,1
+chirurgien,PREP,1
+oto-rhino-laryngologue,PREP,1
+orl,PREP,1
+orthopédiste,PREP,1
+ophtalmologue,PREP,1
+oculiste,PREP,1
+médecin en rééducation fonctionnelle,PREP,1
+médecin en réhabilitation,PREP,1
+gynécologue,PREP,1
+médecin généraliste,PREP,1
+cardiologue,PREP,1
+neurologue,PREP,1
+psychiatre,PREP,1
+système nerveux central,VERB,1
+thérapie,VERB,1
+logopède,PREP,1
+orthophoniste,PREP,1
+ergothérapeute,PREP,1
+kinésithérapeute,PREP,1
+physiothérapeute,PREP,1
+audiologue,PREP,1
+audiologiste,PREP,1
+orthoptiste,PREP,1
+thérapeute en communication,PREP,1
+podologue,PREP,1
+podologiste,PREP,1
+chiropodiste,PREP,1
+hydrothérapeute,PREP,1
+musicothérapeute,PREP,1
+thérapeute de danse,PREP,1
+ostéopathe,PREP,1
+chiropracteur,PREP,1
+chiropraticien,PREP,1
+masseur,PREP,1
+aromathérapeute,PREP,1
+réflexologue,PREP,1
+acupuncteur,PREP,1
+massage,VERB,1
+mode de vie,VERB,1
+culture,VERB,1
+peuple,VERB,1
+tribu,VERB,1
+clan,VERB,1
+nation,VERB,1
+musique folklorique,VERB,1
+génocide,VERB,1
+holocauste,VERB,1
+fichu,VERB,1
+hijab,VERB,1
+bombe d'équitation,VERB,1
+casque de hockey,VERB,1
+casque de cycliste,VERB,1
+genouillère,VERB,1
+coudière,VERB,1
+protège-coude,VERB,1
+masque de protection,VERB,1
+armure,VERB,1
+casquette,VERB,1
+nom bliss,VERB,1
+sports de balle,VERB,1
+sports nautiques,VERB,1
+sport de contact,VERB,1
+athlétisme,VERB,1
+sport équestre,VERB,1
+sports d'hiver,VERB,1
+sport moteur,VERB,1
+sport de montagne,VERB,1
+sport aérien,VERB,1
+tir,VERB,1
+gymnastique,VERB,1
+sport cérébral,VERB,1
+sport de table,VERB,1
+stickball,VERB,1
+volleyball,VERB,1
+water-polo,VERB,1
+pétanque,VERB,1
+ballon de rugby,VERB,1
+ballon de football américain,VERB,1
+cricket,VERB,1
+guichet,VERB,1
+motocyclette,VERB,1
+moto,VERB,1
+scooter,VERB,1
+vélomoteur,VERB,1
+trottinette,VERB,1
+scooter électrique  à 3 roues,VERB,1
+vélo manuel,VERB,1
+vélo couché,VERB,1
+bicyclette tandem,VERB,1
+vélo tout terrain,VERB,1
+vélo chaise roulante,VERB,1
+verticalisateur sur roues,VERB,1
+side-car,VERB,1
+cyclisme,VERB,1
+course cycliste,VERB,1
+motocyclisme,VERB,1
+motocross,VERB,1
+course de moto,VERB,1
+side-car motocyclisme,VERB,1
+course automobile,VERB,1
+formule 1,VERB,1
+rouler à vélo,PRON,1
+faire du vélo,PRON,1
+aller en voiture,PRON,1
+promener en voiture-,PRON,1
+aller en avion,PRON,1
+aller à cheval,PRON,1
+promener à cheval-,PRON,1
+monter à cheval,PRON,1
+escrime,VERB,1
+arts martiaux,VERB,1
+course à pied,VERB,1
+course de haies,VERB,1
+course d'obstacles,VERB,1
+relais,VERB,1
+sport de relais,VERB,1
+saut en hauteur,VERB,1
+saut à la perche,VERB,1
+lancer du poids,VERB,1
+lancer du disque,VERB,1
+lancer du marteau,VERB,1
+lancer du javelot,VERB,1
+javelot,VERB,1
+lance,VERB,1
+arc et flèche,VERB,1
+tir à l'arc,VERB,1
+sport multiple,VERB,1
+triathlon,VERB,1
+haltérophilie,VERB,1
+patinage,VERB,1
+patinage de vitesse,VERB,1
+patinage artistique,VERB,1
+descente en slalom,VERB,1
+ski de descente,VERB,1
+ski de fond,VERB,1
+saut à skis,VERB,1
+ski acrobatique,VERB,1
+ski artistique,VERB,1
+luge,VERB,1
+bobsleigh,VERB,1
+traîneau de chien,VERB,1
+course de chevaux avec traîneau,VERB,1
+course de chiens de traîneau,VERB,1
+chien de luge,VERB,1
+curling,VERB,1
+vague,VERB,1
+planche de surf,VERB,1
+surf,VERB,1
+jet-ski,VERB,1
+sport bateau à moteur,VERB,1
+plongeon synchronisé,VERB,1
+plongeon,VERB,1
+nage synchronisée,VERB,1
+plongée sous-marine,VERB,1
+mât,VERB,1
+bôme,VERB,1
+proue,VERB,1
+poupe,VERB,1
+quille,VERB,1
+coque,VERB,1
+gouvernail,VERB,1
+rame,VERB,1
+pagaie simple,VERB,1
+rames,VERB,1
+pagaie double,VERB,1
+cargo,VERB,1
+bateau-citerne,VERB,1
+pétrolier,VERB,1
+péniche,VERB,1
+voilier à plusieurs mâts,VERB,1
+goélette,VERB,1
+bateau à moteur,VERB,1
+canot automobile,VERB,1
+barque,VERB,1
+skiff,VERB,1
+canot,VERB,1
+kayak,VERB,1
+canot de sauvetage,VERB,1
+remorqueur,VERB,1
+bateau pousseur,VERB,1
+bateau de croisière,VERB,1
+ferry,VERB,1
+bateau à vapeur,VERB,1
+aéroglisseur,VERB,1
+canot pneumatique,VERB,1
+catamaran,VERB,1
+pédalo,VERB,1
+péniche aménagée,VERB,1
+bateau-logement,VERB,1
+hangar à bateau,VERB,1
+cavalier,PREP,1
+jockey,PREP,1
+sulky,VERB,1
+course de chevaux,VERB,1
+course d'attelage,VERB,1
+saut d'obstacles,VERB,1
+dressage,VERB,1
+polo,VERB,1
+billard,VERB,1
+billard américain,VERB,1
+planeur,VERB,1
+hydravion,VERB,1
+parachute,VERB,1
+parachutisme,VERB,1
+alpinisme,VERB,1
+escalade,VERB,1
+descente en rappel,VERB,1
+mur d'escalade,VERB,1
+parachutisme ascentionnel,VERB,1
+parachutisme à skis,VERB,1
+paraski,VERB,1
+deltaplane,VERB,1
+vol à voile,VERB,1
+à l'intérieur,VERB,1
+amuse-gueule,VERB,1
+hors-d'oeuvre,VERB,1
+plat principal,VERB,1
+burger de poisson,VERB,1
+gâteau de fête,VERB,1
+petit pain sucré,VERB,1
+petit pain très sucré,VERB,1
+madeleine,VERB,1
+beignet,VERB,1
+bagel,VERB,1
+petit pain en couronne,VERB,1
+gaufre,VERB,1
+boulette de poisson,VERB,1
+boulette de pâte,VERB,1
+pâte alimentaire,VERB,1
+macaroni,VERB,1
+farfalle,VERB,1
+rotelle,VERB,1
+rotelline,VERB,1
+lasagne,VERB,1
+ravioli,VERB,1
+farine de riz,VERB,1
+nouilles de riz,VERB,1
+pâtes chinoises,VERB,1
+œuf cuit,VERB,1
+œuf frit,VERB,1
+omelette,VERB,1
+œuf brouillé,VERB,1
+œuf poché,VERB,1
+salade de fruits,VERB,1
+salade de crustacés,VERB,1
+salade de pâtes,VERB,1
+pudding,VERB,1
+crème,VERB,1
+christmas pudding,VERB,1
+écorce,VERB,1
+sauce vanillée,VERB,1
+sauce vanille,VERB,1
+sauce au gingembre,VERB,1
+assaisonnement d'herbes en poudre,VERB,1
+assaisonnement aux herbes,VERB,1
+sauce aux herbes,VERB,1
+sauce pour salade,VERB,1
+vinaigrette,VERB,1
+poivre en poudre,VERB,1
+sauce au poivre,VERB,1
+moutarde,VERB,1
+moutarde en poudre,VERB,1
+sauce moutarde,VERB,1
+arôme de sirop d'érable,VERB,1
+sirop,VERB,1
+sirop de sève,VERB,1
+sirop d'érable,VERB,1
+sirop de maïs,VERB,1
+cacao sucré,VERB,1
+chocolat liquide,VERB,1
+sauce chocolat,VERB,1
+chocolat vermicelle,VERB,1
+chocolat granulé,VERB,1
+boisson sucrée,VERB,1
+vin mousseux,VERB,1
+champagne,VERB,1
+cidre,VERB,1
+juteux,ADJ,1
+vinaigré,ADJ,1
+frit,ADJ,1
+succulent,ADJ,1
+fade,ADJ,1
+insipide,ADJ,1
+sans goût,ADJ,1
+écoeurant,ADJ,1
+viande surgelée,VERB,1
+poisson surgelé,VERB,1
+yaourt surgelé,VERB,1
+fromage à pâte dure,VERB,1
+fromage à pâte molle,VERB,1
+fromage à tartiner,VERB,1
+fromage frais,VERB,1
+grumeau,VERB,1
+morceau,VERB,1
+grumeleux,ADJ,1
+en grumeaux,ADJ,1
+fromage blanc granuleux,VERB,1
+cottage,VERB,1
+glace à l'eau,VERB,1
+glace en bâtonnet,VERB,1
+sorbet,VERB,1
+barre,VERB,1
+barre sucrée,VERB,1
+barre de chocolat,VERB,1
+considérer,PRON,1
+caramel,VERB,1
+sucreries,VERB,1
+bonbons,VERB,1
+douceurs,VERB,1
+mélange,VERB,1
+mixture,VERB,1
+pâte à frire,VERB,1
+ingrédient,VERB,1
+tranche,VERB,1
+trancher,PRON,1
+en tranches,ADJ,1
+reflet,VERB,1
+réflexion,VERB,1
+réflecteur,VERB,1
+catadioptre,VERB,1
+lustre,VERB,1
+reluire,PRON,1
+luisant,ADJ,1
+reluisant,ADJ,1
+polir,PRON,1
+cirer,PRON,1
+cireuse,VERB,1
+aspirateur,VERB,1
+mixer,VERB,1
+malaxer,VERB,1
+appareil ménager,VERB,1
+outil servant à ouvrir,VERB,1
+ouvre-bouteille,VERB,1
+ustensile de nettoyage,VERB,1
+outil de nettoyage,VERB,1
+lavette,VERB,1
+torchon,VERB,1
+râpe,VERB,1
+batteur,VERB,1
+tire-bouchon,VERB,1
+pinces de cuisine,VERB,1
+casse-noix,VERB,1
+aide technique pour saisir,VERB,1
+pince de préhension,VERB,1
+cuiller mesurette,VERB,1
+cuillère à mesure,VERB,1
+cuiller à café,VERB,1
+cuiller à soupe,VERB,1
+grande cuiller,VERB,1
+cuiller de service,VERB,1
+cuillère à servir,VERB,1
+cuiller à mélanger,VERB,1
+louche,VERB,1
+entonnoir,VERB,1
+platine,VERB,1
+plat à four,VERB,1
+dessus de cuisinière,VERB,1
+saucière,VERB,1
+casserole électrique,VERB,1
+poêle à frire,VERB,1
+wok,VERB,1
+couvercle,VERB,1
+marmite,VERB,1
+friteuse,VERB,1
+casserole à vapeur,VERB,1
+casserole à pression,VERB,1
+marmite à vapeur,VERB,1
+bouilloire électrique,VERB,1
+bocal de conservation,VERB,1
+bocal en verre,VERB,1
+boîte en fer,VERB,1
+boîte de conserve,VERB,1
+boîte à biscuits,VERB,1
+rouleau à pâtisserie,VERB,1
+chauffe-plats,VERB,1
+réchaud,VERB,1
+tapis de protection de la table,VERB,1
+sous-plat,VERB,1
+dessous de plat,VERB,1
+gant isolant,VERB,1
+manique,VERB,1
+gant en caoutchouc,VERB,1
+équateur,VERB,1
+pôle sud,VERB,1
+pôle nord,VERB,1
+continent,VERB,1
+afrique,VERB,1
+antarctique,VERB,1
+asie,VERB,1
+australie,VERB,1
+europe,VERB,1
+amérique du nord,VERB,1
+amérique du sud,VERB,1
+belgique,VERB,1
+angleterre,VERB,1
+rose,VERB,1
+norvège,VERB,1
+fjord,VERB,1
+ecosse,VERB,1
+afrique du sud,VERB,1
+springbok,VERB,1
+suède,VERB,1
+pays scandinaves,VERB,1
+pays nordiques,VERB,1
+tremblement de terre,VERB,1
+dérive de continent,VERB,1
+dérive continentale,VERB,1
+déplacement continental,VERB,1
+chute d'eau,VERB,1
+cascade,VERB,1
+rapides,VERB,1
+raz-de-marée,VERB,1
+crique,VERB,1
+bras de mer,VERB,1
+bras d'eau,VERB,1
+marée,VERB,1
+marée basse,VERB,1
+marée haute,VERB,1
+bord de mer,VERB,1
+source,VERB,1
+source chaude,VERB,1
+constellation,VERB,1
+année-lumière,VERB,1
+téléscope,VERB,1
+astrologie,VERB,1
+prévisions météorologiques,VERB,1
+bélier,VERB,1
+constellation du taureau,VERB,1
+vierge,VERB,1
+sagittaire,VERB,1
+capricorne,VERB,1
+verseau,VERB,1
+poissons,VERB,1
+dieu nordique,PREP,1
+odin,PREP,1
+frigg,PREP,1
+thor,PREP,1
+sif,PREP,1
+mjolnir,PREP,1
+gémeaux,VERB,1
+balder,PREP,1
+frey,PREP,1
+freya,PREP,1
+tyr,PREP,1
+aegir,PREP,1
+hugin et munin,VERB,1
+sleipnir,VERB,1
+saehrimnir,VERB,1
+serpent de midgard,VERB,1
+valhalla,VERB,1
+viking,PREP,1
+drakkar,VERB,1
+alphabet runique,VERB,1
+sacrifier,PRON,1
+offrir,PRON,1
+sacrifice,VERB,1
+cérémonie de sacrifice,VERB,1
+planète,VERB,1
+bowling sur gazon,VERB,1
+boulingrin,VERB,1
+système solaire,VERB,1
+cosse,VERB,1
+gousse,VERB,1
+selle,VERB,1
+terrain de sport,VERB,1
+sépulture,VERB,1
+astrologue,PREP,1
+beauté,VERB,1
+téléphoner,PRON,1
+chocolat à tartiner,VERB,1
+cuisinier,PREP,1
+chef cuisinier,PREP,1
+plat chaud,VERB,1
+travail culinaire,VERB,1
+saleté,VERB,1
+crasse,VERB,1
+doute,VERB,1
+hésitation,VERB,1
+peur,VERB,1
+préoccupation,VERB,1
+conduite,VERB,1
+impératif,VERB,1
+automutilant,ADJ,1
+intelligence,VERB,1
+incertain,ADJ,1
+plainte,VERB,1
+porter plainte,PRON,1
+exécuter,PRON,1
+action en faveur,VERB,1
+centre de loisirs,VERB,1
+altimètre,VERB,1
+anémomètre,VERB,1
+un jour ou l'autre,VERB,1
+un de ces jours,VERB,1
+immeuble d'appartements,VERB,1
+archipel,VERB,1
+appréhender,PRON,1
+grenier,VERB,1
+boulangerie,VERB,1
+baromètre,VERB,1
+sous-sol,VERB,1
+cave,VERB,1
+cours de biologie,VERB,1
+bliss,VERB,1
+langue bliss,VERB,1
+symbolique bliss,VERB,1
+cours de bliss,VERB,1
+être en pension,PRON,1
+librairie,VERB,1
+bronze,VERB,1
+âge de bronze,VERB,1
+boucherie,VERB,1
+centre d'accueil,VERB,1
+cours de chimie,VERB,1
+auxiliaire de justice,PREP,1
+assistant en justice,PREP,1
+magasin de vêtements,VERB,1
+coq,VERB,1
+coquelet,VERB,1
+cabillaud,VERB,1
+morue,VERB,1
+tour de contrôle,VERB,1
+cuivre,VERB,1
+corridor,VERB,1
+hall,VERB,1
+compte,VERB,1
+palais de justice,VERB,1
+écrevisse,VERB,1
+jour et nuit,VERB,1
+24 h,VERB,1
+centre de jour,VERB,1
+soin,VERB,1
+prendre soin,PRON,1
+défendre en justice,PRON,1
+protecteur,PREP,1
+défenseur,PREP,1
+déflation,VERB,1
+manifester,PRON,1
+manifestion,VERB,1
+grand magasin,VERB,1
+remise,VERB,1
+rabais,VERB,1
+ristourne,VERB,1
+soldes,VERB,1
+magasin à prix réduits,VERB,1
+solderie,VERB,1
+pharmacie,VERB,1
+corniche,VERB,1
+cours d'économie,VERB,1
+compteur électrique,VERB,1
+école primaire,VERB,1
+cours d'anglais,VERB,1
+anglais,VERB,1
+preuve,VERB,1
+équitable,ADJ,1
+amende,VERB,1
+contravention,VERB,1
+poisson plat,VERB,1
+étage,VERB,1
+niveau,VERB,1
+étage 42,VERB,1
+rez-de-chaussée,VERB,1
+magasin de fleurs,VERB,1
+fondations,VERB,1
+jauge à essence,VERB,1
+jardinerie,VERB,1
+jauge,VERB,1
+géographie,VERB,1
+cours de géographie,VERB,1
+cours de géologie,VERB,1
+boutique de cadeaux,VERB,1
+chèvre,VERB,1
+dieu le père,PREP,1
+dieu le fils,PREP,1
+or,VERB,1
+magasin de primeurs,VERB,1
+magasin de fruits et légumes,VERB,1
+magasin d'alimentation,VERB,1
+gouttière,VERB,1
+demi-heure,VERB,1
+vestibule,VERB,1
+couloir,VERB,1
+magasin d'artisanat,VERB,1
+boutique d'artisanat,VERB,1
+cours de calligraphie,VERB,1
+magasin de diététique,VERB,1
+cours d'hébreu,VERB,1
+hébreu,VERB,1
+plante aromatique,VERB,1
+herbe aromatique,VERB,1
+cours d'histoire,VERB,1
+professeur d'histoire,PREP,1
+saint-esprit,PREP,1
+sainte-trinité,VERB,1
+horizontal,ADJ,1
+horizontale,VERB,1
+illégal,ADJ,1
+inflation,VERB,1
+innocence,VERB,1
+innocent,ADJ,1
+non coupable,ADJ,1
+fer,VERB,1
+âge du fer,VERB,1
+méduse,VERB,1
+juge,PREP,1
+juger,PRON,1
+jugement,VERB,1
+juridique,ADJ,1
+jury,VERB,1
+justice,VERB,1
+cours de langue,VERB,1
+législation,VERB,1
+code,VERB,1
+avocat de la défense,PREP,1
+plomb,VERB,1
+légal,ADJ,1
+conseil juridique,PREP,1
+loisirs,VERB,1
+luxmètre,VERB,1
+phare,VERB,1
+magasin de spiritueux,VERB,1
+homard,VERB,1
+marché,VERB,1
+mercure,VERB,1
+métropole,VERB,1
+grande ville,VERB,1
+minuit,VERB,1
+immeuble à plusieurs étages,VERB,1
+immeuble à plusieurs logements,VERB,1
+attribution d'un nom,VERB,1
+baptême religieux,VERB,1
+midi,VERB,1
+greffier,PREP,1
+notaire,PREP,1
+juriste,PREP,1
+pieuvre,VERB,1
+jauge à huile,VERB,1
+immeuble à un niveau,VERB,1
+bungalow,VERB,1
+maison de plain-pied,VERB,1
+pair,PREP,1
+égal,PREP,1
+confrère,PREP,1
+plumier,VERB,1
+trousse,VERB,1
+cours de physique,VERB,1
+pression,VERB,1
+jauge de pression,VERB,1
+manomètre,VERB,1
+hausse des prix,VERB,1
+promouvoir,PRON,1
+favoriser,PRON,1
+promotion,VERB,1
+procureur,PREP,1
+résister,PRON,1
+résistance,VERB,1
+rapporteur,VERB,1
+quart d'heure,VERB,1
+pluviomètre,VERB,1
+cours de lecture,VERB,1
+leçon de lecture,VERB,1
+cours de religion,VERB,1
+confession,VERB,1
+service religieux,VERB,1
+maison attenante,VERB,1
+maison mitoyenne,VERB,1
+vente,VERB,1
+saumon,VERB,1
+bascule,VERB,1
+saison,VERB,1
+empoigner,PRON,1
+maison jumelée,VERB,1
+prononcer la sentence,PRON,1
+condamner,PRON,1
+crustacé sans pince,VERB,1
+atelier protégé,VERB,1
+banc de poissons,VERB,1
+achat par correspondance,VERB,1
+temps de pause à la maison,VERB,1
+gratte-ciel,VERB,1
+compteur de vitesse,VERB,1
+leçon de sport,VERB,1
+magasin de sport,VERB,1
+âge de pierre,VERB,1
+cours de suédois,VERB,1
+suédois,VERB,1
+magasin de confiserie,VERB,1
+synthétique,VERB,1
+impôt,VERB,1
+taxe gouvernementale,VERB,1
+taxe sur biens immobiliers,VERB,1
+impôts fonciers,VERB,1
+tva,VERB,1
+taxe provinciale,VERB,1
+taxe régionale,VERB,1
+témoigner,PRON,1
+déposer,PRON,1
+sablier,VERB,1
+minuteur,VERB,1
+chronomètre,VERB,1
+étain,VERB,1
+magasin de jouets,VERB,1
+procès,VERB,1
+immeuble à 2 étages,VERB,1
+injuste inéquitable,ADJ,1
+tour de guet,VERB,1
+tour d'observation,VERB,1
+tour panoramique,VERB,1
+compteur d'eau,VERB,1
+château d'eau,VERB,1
+vertical,ADJ,1
+verticale,VERB,1
+témoin,PREP,1
+lieu de travail,VERB,1
+cours d'écriture,VERB,1
+dans un véhicule,ADJ,1
+à bord,ADJ,1
+adresse postale,VERB,1
+antivirus,VERB,1
+à terre,ADJ,1
+distributeur de billets,VERB,1
+atm,VERB,1
+attaché,ADJ,1
+joint,ADJ,1
+annexe,VERB,1
+pièce jointe,VERB,1
+supprimer en revenant en arrière,PRON,1
+boulanger,PREP,1
+piscine de balles,VERB,1
+ballet,VERB,1
+carte bancaire,VERB,1
+brouette,VERB,1
+charrette à bras,VERB,1
+brave,ADJ,1
+courageux,ADJ,1
+maçon,PREP,1
+serviette,VERB,1
+porte-documents,VERB,1
+brontosaure,VERB,1
+bouddha,PREP,1
+bouddhisme,VERB,1
+budget,VERB,1
+boucher,PREP,1
+voie routière,VERB,1
+carte,VERB,1
+partie de cartes,VERB,1
+cartographe,PREP,1
+cartographie,VERB,1
+dessin animé,VERB,1
+plat au four,VERB,1
+gratin,VERB,1
+palais,VERB,1
+palais royal,VERB,1
+causalité,VERB,1
+ingénieur civil,PREP,1
+clown,PREP,1
+avoir froid,PRON,1
+comédie,VERB,1
+centre communautaire,VERB,1
+hôtel de ville,VERB,1
+mairie,VERB,1
+valisette d'ordinateur,VERB,1
+sacoche d'ordinateur,VERB,1
+jeu informatique,VERB,1
+jeu d'ordinateur,VERB,1
+périphérique,VERB,1
+écran,VERB,1
+moniteur,VERB,1
+concert,VERB,1
+faire surgir,PRON,1
+changer en,PRON,1
+transformer,PRON,1
+cubes,VERB,1
+blocs,VERB,1
+légo,VERB,1
+photocopieuse,VERB,1
+copieur,VERB,1
+photocopieur,VERB,1
+corail,VERB,1
+récif de corail,VERB,1
+barrière de corail,VERB,1
+téléphone sans fil,VERB,1
+courage,VERB,1
+poltron,PREP,1
+lâcheté,VERB,1
+devise,VERB,1
+unité monétaire,VERB,1
+couper-coller,PRON,1
+oser,PRON,1
+donnée informatique,VERB,1
+concepteur,PREP,1
+créateur,PREP,1
+ordinateur de bureau,VERB,1
+détacher,PRON,1
+roue de dharma,VERB,1
+viande en morceaux,VERB,1
+carbonnade,VERB,1
+digital,ADJ,1
+numérique,ADJ,1
+mémoire informatique,VERB,1
+mémoire numérique,VERB,1
+chiffre numérique,NOUN,1
+caractère numérique,NOUN,1
+sortir d'un véhicule,PRON,1
+pièce dramatique,VERB,1
+électricien,PREP,1
+ingénieur électricien,PREP,1
+e-mail,VERB,1
+courriel,VERB,1
+adresse e-mail,VERB,1
+adresse de courriel,VERB,1
+embarquer,PRON,1
+entrer dans un véhicule,PRON,1
+enter,VERB,1
+exportation,VERB,1
+exporté,ADJ,1
+pointeur visuel,VERB,1
+endormir-,PRON,1
+créateur de mode,PREP,1
+dessinateur de mode,PREP,1
+fax,VERB,1
+télécopie,VERB,1
+faxer,PRON,1
+télécopieur,VERB,1
+fourré,ADJ,1
+farci,ADJ,1
+chou farci,VERB,1
+aliment farci,VERB,1
+feuille farcie,VERB,1
+légume farci,VERB,1
+alphabet signé,VERB,1
+stick de poisson,VERB,1
+pêcheur,PREP,1
+classeur,VERB,1
+dossier,VERB,1
+maison d'accueil,VERB,1
+foyer d'accueil,VERB,1
+congélateur,VERB,1
+surgélateur,VERB,1
+compote,VERB,1
+fonction,VERB,1
+fonctionner,PRON,1
+fonctionnel,ADJ,1
+jardinier,PREP,1
+prendre la mer,PRON,1
+gobelin,PREP,1
+pointeur frontal,VERB,1
+héros,VERB,1
+héroïque,ADJ,1
+hareng,VERB,1
+sardine,VERB,1
+tenir,PRON,1
+devoir scolaire,VERB,1
+espoir,VERB,1
+prometteur,ADJ,1
+plein d'espoir,ADJ,1
+encourageant,ADJ,1
+ménage,VERB,1
+tâches ménagères,VERB,1
+chasser,PRON,1
+importation,VERB,1
+importé,ADJ,1
+information,VERB,1
+introduire,PRON,1
+présenter,PRON,1
+journaliste,PREP,1
+joystick,VERB,1
+saut,VERB,1
+kazakhstan,VERB,1
+ketchup,VERB,1
+touche de clavier,VERB,1
+guide-doigts,VERB,1
+jardin d'enfants,VERB,1
+école maternelle,VERB,1
+roi,PREP,1
+architecture de jardin,VERB,1
+architecture du paysage,VERB,1
+architecte-paysagiste,PREP,1
+ordinateur portable,VERB,1
+mettre la table,PRON,1
+donner un cours,PRON,1
+faire une conférence,PRON,1
+leçon,VERB,1
+bibliothécaire,PREP,1
+interrupteur d'éclairage,VERB,1
+jeu de loto,VERB,1
+bingo,VERB,1
+bûcheron,PREP,1
+boîte à tartines,VERB,1
+musette,VERB,1
+boîte à lunch,VERB,1
+magicien,PREP,1
+faire le lit,PRON,1
+poupée masculine,VERB,1
+fabrication,VERB,1
+jeu d'identification,VERB,1
+loto,VERB,1
+jus de viande,VERB,1
+ingénieur mécanicien,PREP,1
+mémoire,VERB,1
+viande hâchée,VERB,1
+téléphone portable,VERB,1
+comédie musicale,VERB,1
+filet,VERB,1
+jouet musical,VERB,1
+opéra,VERB,1
+opticien,PREP,1
+revêtement,VERB,1
+recouvrement,VERB,1
+plan de clavier,VERB,1
+ordinateur de poche,VERB,1
+pda,VERB,1
+tortilla,VERB,1
+billet de banque,VERB,1
+passager,VERB,1
+pédagogie,VERB,1
+pégase,VERB,1
+représenter,PRON,1
+représentation,VERB,1
+spectacle,VERB,1
+pharmacien,PREP,1
+philosophie,VERB,1
+cours de philosophie,VERB,1
+pirate,PREP,1
+jeu théâtral,VERB,1
+pointeur,VERB,1
+porridge,VERB,1
+prince,PREP,1
+princesse,PREP,1
+imprimer,PRON,1
+ptérodactyle,VERB,1
+reine,PREP,1
+piquant,VERB,1
+voie ferrée,VERB,1
+rampe,VERB,1
+frigo,VERB,1
+frigidaire,VERB,1
+recherche,VERB,1
+riz au lait,VERB,1
+poupée mécanique,VERB,1
+robot,VERB,1
+rouler,PRON,1
+faire rouler,PRON,1
+russie,VERB,1
+samosa,VERB,1
+pain fourré,VERB,1
+jeu dans le sable,VERB,1
+jouet de sable,VERB,1
+marchand de sable,PREP,1
+père noël,PREP,1
+enregistrer,PRON,1
+sauvergarder,PRON,1
+sauver,PRON,1
+enregistrer sous,PRON,1
+sauvergarder sous,PRON,1
+sauver sous,PRON,1
+cartable,VERB,1
+mallette,VERB,1
+sac d'école,VERB,1
+chercheur,PREP,1
+anémone de mer,VERB,1
+actinie,VERB,1
+concombre de mer,VERB,1
+holothurie,VERB,1
+lion de mer,VERB,1
+oursin,VERB,1
+phoque,VERB,1
+algue,VERB,1
+sélectionner tout,PRON,1
+crustacés,VERB,1
+berger,PREP,1
+personnage imaginaire féminin,PREP,1
+logiciel,VERB,1
+programme informatique,VERB,1
+orthographier,PRON,1
+épeler,PRON,1
+s'approprier,PRON,1
+ragoût,VERB,1
+sujet,VERB,1
+espadon,VERB,1
+dessus de table,VERB,1
+tablette,VERB,1
+tailleur,PREP,1
+couturier,PREP,1
+éducateur,PREP,1
+carte de téléphone,VERB,1
+logement temporaire,VERB,1
+message téléphonique écrit,VERB,1
+théologien,PREP,1
+théologie,VERB,1
+philosophie religieuse,VERB,1
+centre de rééducation,VERB,1
+centre de revalidation,VERB,1
+cambrioleur,PREP,1
+tibet,VERB,1
+sauce tomate,VERB,1
+écran tactile,VERB,1
+pointeur tactile,VERB,1
+voie,VERB,1
+rails,VERB,1
+trackball,VERB,1
+pointeur balle,VERB,1
+boule de commande,VERB,1
+drame,VERB,1
+tricératops,VERB,1
+thon,VERB,1
+dactylographier,PRON,1
+tyrannosaurus rex,VERB,1
+licorne,VERB,1
+unicorne,VERB,1
+éveiller-,PRON,1
+morse,VERB,1
+faire la vaisselle,VERB,1
+créature marine,VERB,1
+jeu d'eau,VERB,1
+jouet d'eau,VERB,1
+web,VERB,1
+site web,VERB,1
+légumes,VERB,1
+feuille de travail,VERB,1
+écrivain,PREP,1
+auteur,PREP,1
+accordéon,VERB,1
+alto,VERB,1
+cithare,VERB,1
+cornemuse,VERB,1
+banjo,VERB,1
+basse,VERB,1
+clarinette basse,VERB,1
+guitare basse,VERB,1
+clochette,VERB,1
+tambour,VERB,1
+djembé,VERB,1
+tam-tam,VERB,1
+archet,VERB,1
+archet et corde,VERB,1
+instrument à cordes frottées,VERB,1
+cuivres,VERB,1
+brise,VERB,1
+quiétude,VERB,1
+pochette de cd,VERB,1
+céleri-rave,VERB,1
+violoncelle,VERB,1
+chanson enfantine,VERB,1
+syndrome de fatigue chronique,VERB,1
+condensation,VERB,1
+condenser,PRON,1
+musique country,VERB,1
+cymbale,VERB,1
+musique de danse,VERB,1
+mépriser,PRON,1
+catastrophe,VERB,1
+désastre,VERB,1
+quartier,VERB,1
+quartier de ville,VERB,1
+contrebasse,VERB,1
+permis de conduire,VERB,1
+baguette de tambour,VERB,1
+sèche,ADJ,1
+sécheresse,VERB,1
+impatient,ADJ,1
+enthousiaste,ADJ,1
+fervent,ADJ,1
+piano électrique,VERB,1
+énergie mentale,VERB,1
+énergie corporelle,VERB,1
+mésaventure,VERB,1
+incident,VERB,1
+excitant,ADJ,1
+passionnant,ADJ,1
+excitation,VERB,1
+flûte traversière,VERB,1
+mousse,VERB,1
+écume,VERB,1
+instrument à corde,VERB,1
+guitare,VERB,1
+laque,VERB,1
+harpe,VERB,1
+clavecin,VERB,1
+fredonner,VERB,1
+moite,ADJ,1
+humidité,VERB,1
+ouragan,VERB,1
+mirliton,VERB,1
+file de personnes,VERB,1
+haut-parleur,VERB,1
+mandoline,VERB,1
+maracas,VERB,1
+harmonica,VERB,1
+microphone,VERB,1
+lecteur de cd portable,VERB,1
+baladeur,VERB,1
+lecteur de musique portable,VERB,1
+instrument de musique à plusieurs cordes,VERB,1
+âgé,ADJ,1
+ancien,ADJ,1
+garer,PRON,1
+carte de stationnement,VERB,1
+permis de stationnement,VERB,1
+vignette de stationnement,VERB,1
+ticket de stationnement,VERB,1
+participant,PREP,1
+participer,PRON,1
+participation,VERB,1
+investissement,VERB,1
+engagement,VERB,1
+pipeau,VERB,1
+flûtiau,VERB,1
+instrument à percussion,VERB,1
+tuyau_,VERB,1
+tonalité,VERB,1
+hauteur du son,VERB,1
+jouer d'un instrument,PRON,1
+musique pop,VERB,1
+musique de rock punk,VERB,1
+arc-en-ciel,VERB,1
+musique rap,VERB,1
+grelot,VERB,1
+flûte à bec,VERB,1
+flûte alto,VERB,1
+flûte basse,VERB,1
+flûte soprano,VERB,1
+flûte ténor,VERB,1
+anche,VERB,1
+instrument  rythmique,VERB,1
+chevreuil,VERB,1
+daim,VERB,1
+viande à la broche,VERB,1
+blin,VERB,1
+véhicule de neige,VERB,1
+chasse-neige,VERB,1
+soprano,VERB,1
+vaporiser,PRON,1
+vaporisateur,VERB,1
+portée,VERB,1
+tempête,VERB,1
+stressé,ADJ,1
+tendu,ADJ,1
+surprise,VERB,1
+étonnement,VERB,1
+provoquer la surprise,PRON,1
+surpris,ADJ,1
+étonné,ADJ,1
+synthétiseur,VERB,1
+ténor,VERB,1
+tornade,VERB,1
+trombone,VERB,1
+tsunami,VERB,1
+diapason,VERB,1
+jumeau,PREP,1
+jumelle,PREP,1
+jumeaux,PREP,1
+guitare hawaïenne,VERB,1
+ukulélé,VERB,1
+instrument à vent,VERB,1
+violon alto,VERB,1
+violon,VERB,1
+voix,VERB,1
+acrobate,PREP,1
+acrobatie,VERB,1
+additif,VERB,1
+avent,VERB,1
+agnosticisme,VERB,1
+accord verbal,VERB,1
+contrat oral,VERB,1
+accord écrit,VERB,1
+traité,VERB,1
+contrat,VERB,1
+entrepôt d'aides techniques,VERB,1
+crotte,VERB,1
+attelle de cheville,VERB,1
+abricot sec,VERB,1
+jour de l'ascension,VERB,1
+asperge,VERB,1
+local d'évaluation,VERB,1
+à destination,ADJ,1
+à l'arrivée,ADJ,1
+vérificateur des comptes,PREP,1
+commissaire aux comptes,PREP,1
+avalanche,VERB,1
+aboyer,PRON,1
+piste cyclable,VERB,1
+bisexuel,ADJ,1
+bisexualité,VERB,1
+mors,VERB,1
+bêler,PRON,1
+fanatique de bliss,PREP,1
+vaisseau sanguin,VERB,1
+rougir,PRON,1
+corset,VERB,1
+sécrétion corporelle,VERB,1
+poils corporels,VERB,1
+partie du corps,VERB,1
+température corporelle,VERB,1
+emballer-,PRON,1
+bombe,VERB,1
+bride,VERB,1
+voie des bus,VERB,1
+gare des bus,VERB,1
+téléphérique,VERB,1
+télécabine,VERB,1
+funiculaire,VERB,1
+aller au petit galop,PRON,1
+abstinence sexuelle,VERB,1
+céramique,VERB,1
+poterie,VERB,1
+sûr,ADJ,1
+télésiège,VERB,1
+président,PREP,1
+défi,VERB,1
+charme,VERB,1
+charmant,ADJ,1
+à carreaux,ADJ,1
+poils de poitrine,VERB,1
+garderie,VERB,1
+protection de l'enfant,VERB,1
+harnais pour enfant,VERB,1
+fête des enfants,VERB,1
+gazouiller,PRON,1
+pépier,PRON,1
+cirque,VERB,1
+vestiaire,VERB,1
+rhume,VERB,1
+en commun,ADJ,1
+en partage,ADJ,1
+train de banlieue,VERB,1
+pédagogie conductive,VERB,1
+éducation conductive,VERB,1
+conducteur,PREP,1
+constitution,VERB,1
+coasser,PRON,1
+prince héritier,PREP,1
+princesse héritière,PREP,1
+câliner,PRON,1
+thérapie par la danse,VERB,1
+garniture,VERB,1
+ornement,VERB,1
+démocratie,VERB,1
+consacré à,ADJ,1
+voué à,ADJ,1
+adepte,PREP,1
+dévouement,VERB,1
+diarrhée,VERB,1
+national,ADJ,1
+à pois,ADJ,1
+déverser,PRON,1
+jeter des déchets,PRON,1
+attelle de coude,VERB,1
+électeur,PREP,1
+électorat,PREP,1
+menacé,ADJ,1
+epiphanie,VERB,1
+escalier roulant,VERB,1
+escalier mécanique,VERB,1
+estonie,VERB,1
+expérimenter,PRON,1
+explosé,ADJ,1
+poils du visage,VERB,1
+fête des familles,VERB,1
+jour de la famille,VERB,1
+ventilateur,VERB,1
+maréchal-ferrant,PREP,1
+fête des pères,VERB,1
+honoraires,VERB,1
+tarif,VERB,1
+fécondé,ADJ,1
+fièvre,VERB,1
+aide financière,VERB,1
+ongle,VERB,1
+poisson séché,VERB,1
+fleur séchée,VERB,1
+grippe,VERB,1
+étrangère,ADJ,1
+forteresse,VERB,1
+château fort,VERB,1
+fondation,VERB,1
+base,VERB,1
+fondement,VERB,1
+fruit sec,VERB,1
+fondamental,ADJ,1
+loi fondamentale,VERB,1
+règle fondamentale,VERB,1
+statuts,VERB,1
+intégriste,PREP,1
+galoper,PRON,1
+hongre,VERB,1
+général,ADJ,1
+global,ADJ,1
+générique,ADJ,1
+ventrière,VERB,1
+glacier,VERB,1
+verrerie artisanale,VERB,1
+éclat,VERB,1
+rougeoiement,VERB,1
+rougeoyer,PRON,1
+palefrenier,PREP,1
+lad,PREP,1
+panser,PRON,1
+toiletter,PRON,1
+gronder,PRON,1
+sèche-cheveux,VERB,1
+attelle de main,VERB,1
+harnachement,VERB,1
+atteler,PRON,1
+harnachement du cheval,VERB,1
+atteler le cheval,PRON,1
+foin,VERB,1
+cicatriser,PRON,1
+paradis,VERB,1
+royaume de dieu,VERB,1
+hibernation,VERB,1
+feuler,PRON,1
+homosexualité,VERB,1
+sabot du cheval,VERB,1
+cure-pied,VERB,1
+box,VERB,1
+stalle,VERB,1
+couverture de cheval,VERB,1
+crottin de cheval,VERB,1
+van,VERB,1
+crin,VERB,1
+fer à cheval,VERB,1
+clou de fer à cheval,VERB,1
+hongrie,VERB,1
+hâte,VERB,1
+empressement,VERB,1
+hâter-,PRON,1
+dépêcher-,PRON,1
+pressé,ADJ,1
+hydrothérapie,VERB,1
+iceberg,VERB,1
+indépendant,ADJ,1
+invisible,ADJ,1
+jaguar,VERB,1
+rein,VERB,1
+carême,VERB,1
+barre horizontale,VERB,1
+longtemps,ADJ,1
+partie inférieure du corps,VERB,1
+bas du corps,VERB,1
+faire le signe de croix,PRON,1
+crinière,VERB,1
+engrais,VERB,1
+fumier,VERB,1
+jument,VERB,1
+viande séchée,VERB,1
+traitement médical,VERB,1
+règles,VERB,1
+ferronnerie artisanale,VERB,1
+miauler,PRON,1
+ministre,PREP,1
+monarchie,VERB,1
+meugler,PRON,1
+fête des mères,VERB,1
+jour des mères,VERB,1
+museau,VERB,1
+art floral,VERB,1
+nombril,VERB,1
+hennir,PRON,1
+ergothérapie,VERB,1
+salle d'ergothérapie,VERB,1
+organe,VERB,1
+paddock,VERB,1
+art du papier,VERB,1
+harnais de parachute,VERB,1
+aire de stationnement,VERB,1
+passeport,VERB,1
+pâturage,VERB,1
+herbage,VERB,1
+personnalité,VERB,1
+kinésithérapie,VERB,1
+physiothérapie,VERB,1
+salle de kinésithérapie,VERB,1
+salle de physiothérapie,VERB,1
+estrade,VERB,1
+terre-plein,VERB,1
+scène,VERB,1
+politicien,PREP,1
+politique,VERB,1
+harnais de landau,VERB,1
+antécédent,ADJ,1
+prescription médicale,VERB,1
+ordonnance médicale,VERB,1
+président d'un pays,PREP,1
+premier ministre,PREP,1
+protection de l'environnement,VERB,1
+salle de psychologie,VERB,1
+transports en commun,VERB,1
+transports publics,VERB,1
+ronronner,PRON,1
+aller à l'amble,PRON,1
+rougeur,VERB,1
+assécher,PRON,1
+drainer,PRON,1
+fanatique religieux,PREP,1
+république,VERB,1
+appareil d'assistance respiratoire,VERB,1
+responsabilité,VERB,1
+responsable,ADJ,1
+botte d'équitation,VERB,1
+tenue d'équitation,VERB,1
+moniteur d'équitation,PREP,1
+école d'équitation,VERB,1
+rugir,PRON,1
+rotation,VERB,1
+orbite,VERB,1
+mouvement circulaire,VERB,1
+royal,ADJ,1
+famille royale,VERB,1
+tapis de selle,VERB,1
+gale,VERB,1
+ceinture de sécurité,VERB,1
+activité sexuelle,VERB,1
+aide technique pour la sexualité,VERB,1
+jeu sexuel,VERB,1
+mâture,ADJ,1
+auxiliaire du futur,PRON,1
+faire un shampooing,PRON,1
+shampooiner,PRON,1
+shampouiner,PRON,1
+raser,PRON,1
+auxiliaire conditionnel,PRON,1
+signe de croix,VERB,1
+maladie de la peau,VERB,1
+monorail,VERB,1
+lentement,ADJ,1
+social,ADJ,1
+société,VERB,1
+étincelle,VERB,1
+thérapie du langage,VERB,1
+logopédie,VERB,1
+orthophonie,VERB,1
+local de logopédie,VERB,1
+spiritualité,VERB,1
+attelle,VERB,1
+fanatique de sport,PREP,1
+square,VERB,1
+étalon,VERB,1
+famine,VERB,1
+gare,VERB,1
+en cours,ADJ,1
+continu,ADJ,1
+continuellement,ADJ,1
+sans arrêt,ADJ,1
+étrier,VERB,1
+grippe intestinale,VERB,1
+gastro-entérite,VERB,1
+mal de ventre,VERB,1
+étendre,PRON,1
+à ligne,ADJ,1
+rayé,ADJ,1
+étudier,PRON,1
+idiot,ADJ,1
+métro,VERB,1
+tournesol,VERB,1
+aide technique pour marcher,VERB,1
+tribune,VERB,1
+éteindre,PRON,1
+allumer,PRON,1
+sellerie,VERB,1
+têtard,VERB,1
+travail d'équipe,VERB,1
+abstinence d'alcool,VERB,1
+temporaire,ADJ,1
+art textile,VERB,1
+qu',NOUN,1
+hippothérapie,VERB,1
+équithérapie,VERB,1
+nouer,PRON,1
+tram,VERB,1
+traiter,PRON,1
+soigner,PRON,1
+trolleybus,VERB,1
+trotter,PRON,1
+sèche-linge,VERB,1
+tunnel,VERB,1
+passage souterrain,VERB,1
+station de métro,VERB,1
+déharnacher le cheval,PRON,1
+dételer,PRON,1
+partie supérieure du corps,VERB,1
+haut du corps,VERB,1
+écoulement vaginal,VERB,1
+pertes blanches,VERB,1
+aller au pas,PRON,1
+allée,VERB,1
+chemin,VERB,1
+verrue vénérienne,VERB,1
+arroser,PRON,1
+seau d'eau,VERB,1
+maladie vénérienne,VERB,1
+papillome vénérien,VERB,1
+fraise sauvage,VERB,1
+visa,VERB,1
+pirouetter,PRON,1
+artisanat du bois,VERB,1
+ébénisterie,VERB,1
+attelle de poignet,VERB,1
+réaliser,PRON,1
+accomplir,PRON,1
+exploit,VERB,1
+personne dépendante,PREP,1
+dépendance à l'alcool,VERB,1
+abus d'alcool,VERB,1
+allergie,VERB,1
+bébé animal,VERB,1
+biberon,VERB,1
+infection bactérienne,VERB,1
+bactérie,VERB,1
+courber,PRON,1
+pencher,PRON,1
+forgeron,PREP,1
+bleu,VERB,1
+contusion,VERB,1
+hématome,VERB,1
+dégât en surface,VERB,1
+emboutissage,VERB,1
+abimé,ADJ,1
+défoncé,ADJ,1
+embouti,ADJ,1
+choc,VERB,1
+heurter,PRON,1
+cessez-le-feu,VERB,1
+armistice,VERB,1
+planète naine cérès,VERB,1
+hasard,VERB,1
+risque,VERB,1
+ciboulette,VERB,1
+égouttoir,VERB,1
+baver,PRON,1
+drogué,PREP,1
+toxicomane,PREP,1
+toxicomanie,VERB,1
+dépendance à la drogue,VERB,1
+planète naine,VERB,1
+planète tellurique,VERB,1
+trouble du comportement alimentaire,VERB,1
+planète naine eris,VERB,1
+examen,VERB,1
+investigation,VERB,1
+examiner,PRON,1
+échec,VERB,1
+club de fans,VERB,1
+cercle de fans,VERB,1
+fans club,VERB,1
+oisillon,VERB,1
+poulain,VERB,1
+ânon,VERB,1
+club de supporters de football,VERB,1
+équipe de football,VERB,1
+galaxie,VERB,1
+mise,VERB,1
+miser,PRON,1
+joueur,PREP,1
+planète gazeuse,VERB,1
+bonne journée,NOUN,1
+bonne soirée,NOUN,1
+bonne matinée,NOUN,1
+chambre d'hôte,VERB,1
+influencer,PRON,1
+avoir un impact sur,PRON,1
+avoir de l'effet sur,PRON,1
+impact,VERB,1
+infecter,PRON,1
+contaminer,PRON,1
+infecté,ADJ,1
+infection,VERB,1
+contagieux,ADJ,1
+infectieux,ADJ,1
+démangeaison,VERB,1
+planète jupiter,VERB,1
+agnelet,VERB,1
+poireau,VERB,1
+loterie,VERB,1
+jeu de hasard,VERB,1
+loupe,VERB,1
+planète mars,VERB,1
+examen médical,VERB,1
+salle de réunion,VERB,1
+auditorium,VERB,1
+maladie mentale,VERB,1
+planète mercure,VERB,1
+commission,VERB,1
+micro-organisme,VERB,1
+microscope,VERB,1
+stupéfiant,VERB,1
+argent perçu régulièrement,VERB,1
+dépendance négative,VERB,1
+planète neptune,VERB,1
+pension de vieillesse,VERB,1
+organisme,VERB,1
+lolette,VERB,1
+retraité,PREP,1
+pensionné,PREP,1
+planète pluton,VERB,1
+réagir,PRON,1
+réaction,VERB,1
+pension de retraite,VERB,1
+rente de retraite,VERB,1
+planète rocheuse,VERB,1
+planète saturne,VERB,1
+grattement,VERB,1
+gratter,PRON,1
+griffer,PRON,1
+personne âgée,PREP,1
+sms,VERB,1
+message texte,VERB,1
+texto,VERB,1
+lavabo,VERB,1
+évier,VERB,1
+bassin,VERB,1
+substance,VERB,1
+tuile,VERB,1
+traitement,VERB,1
+univers,VERB,1
+planète uranus,VERB,1
+planète vénus,VERB,1
+infection virale,VERB,1
+aventure,VERB,1
+antenne,VERB,1
+agenda,VERB,1
+ancre,VERB,1
+axe,VERB,1
+bangladesh,VERB,1
+orge,VERB,1
+couchette,VERB,1
+conseil d'administration,VERB,1
+coffre,VERB,1
+coffre de toit,VERB,1
+émettre,PRON,1
+transmettre,PRON,1
+sonnerie,VERB,1
+sifflet,VERB,1
+canal,VERB,1
+chef du service social,PREP,1
+chant de noël,VERB,1
+satellite de communication,VERB,1
+compartiment,VERB,1
+boussole,VERB,1
+connecteur,VERB,1
+trouer,VERB,1
+faire une brèche,VERB,1
+fêler,VERB,1
+crevasser,VERB,1
+cratère,VERB,1
+crédit,VERB,1
+carte de crédit,VERB,1
+dépendant,ADJ,1
+dispositif informatique,VERB,1
+dispositif numérique,VERB,1
+signal numérique,VERB,1
+fichier de sauvegarde,VERB,1
+support de sauvegarde,VERB,1
+disque de sauvegarde,VERB,1
+étourdi,ADJ,1
+vertigineux,ADJ,1
+jeter l'ancre,PRON,1
+disque vidéo,VERB,1
+lecteur de dvd,VERB,1
+entrer en éruption,PRON,1
+échangeur,VERB,1
+disque dur externe,VERB,1
+feux d'artifice,VERB,1
+casier,VERB,1
+frite,VERB,1
+cuisine de bateau,VERB,1
+console de jeux,VERB,1
+navigation par satellite,VERB,1
+hamac,VERB,1
+musique de rock,VERB,1
+hard rock,VERB,1
+avoir besoin de temps,NOUN,1
+indicateur du nom défini,OTHER,1
+indicateur du féminin,OTHER,1
+indicateur de 1re personne,OTHER,1
+indicateur de verbe à l'impératif,OTHER,1
+indicateur du nom indéfini,OTHER,1
+indicateur du nom neutre,OTHER,1
+indicateur de but,OTHER,1
+indicateur du participe passé 1,OTHER,1
+indicateur du participe passé 2,OTHER,1
+indicateur de verbe au participe présent,OTHER,1
+indicateur de 2e personne,OTHER,1
+indicateur de 3e personne,OTHER,1
+facture,VERB,1
+jaque,VERB,1
+jacque,VERB,1
+concierge,PREP,1
+lave,VERB,1
+magma,VERB,1
+endroit abrité du vent,VERB,1
+lâcher,PRON,1
+laisser tomber,PRON,1
+gilet de sauvetage,VERB,1
+baisser,PRON,1
+berceuse,VERB,1
+éclipse lunaire,VERB,1
+lecteur multimédia,VERB,1
+membre,PREP,1
+pense-bête,VERB,1
+note,VERB,1
+clef usb,VERB,1
+clé usb,VERB,1
+musique métal,VERB,1
+procès-verbal,VERB,1
+compte rendu,VERB,1
+minutes,VERB,1
+mauvais emploi,VERB,1
+mauvais usage,VERB,1
+mal employer,PRON,1
+mal utiliser,PRON,1
+mms,VERB,1
+monument,VERB,1
+déplacer,PRON,1
+signal de navigation,VERB,1
+avoine,VERB,1
+okra,VERB,1
+gombo,VERB,1
+dépenser au-dessus de ses moyens,PRON,1
+chaîne payante,VERB,1
+cueillir,PRON,1
+ramasser,PRON,1
+brancher,PRON,1
+prise de courant,PRON,1
+bâbord,VERB,1
+portabilité,VERB,1
+portable,ADJ,1
+chips,VERB,1
+pot de chambre,VERB,1
+quantité,VERB,1
+hisser,PRON,1
+relever,PRON,1
+hausser,PRON,1
+reçu,VERB,1
+réceptacle,VERB,1
+prendre un ris dans une voile,PRON,1
+arriser,PRON,1
+rênes,VERB,1
+télécommande,VERB,1
+location,VERB,1
+maladie respiratoire,VERB,1
+panneau de signalisation,VERB,1
+musique rock,VERB,1
+houle,VERB,1
+seigle,VERB,1
+satellite,VERB,1
+onde satellite,VERB,1
+signal satellite,VERB,1
+uniforme scolaire,VERB,1
+capitaine,VERB,1
+carte maritime,VERB,1
+ombre,VERB,1
+météorologie marine,VERB,1
+siège de douche,VERB,1
+signal,VERB,1
+signalisation,VERB,1
+onde émettrice,VERB,1
+transmission,VERB,1
+chant en  chœur,VERB,1
+éclipse solaire,VERB,1
+parole,VERB,1
+langage,VERB,1
+discours,VERB,1
+frénésie d'achat,VERB,1
+acheter à profusion,PRON,1
+remplaçant,VERB,1
+suppléant,VERB,1
+tribord,VERB,1
+marche,VERB,1
+inconnu,PREP,1
+écueil,VERB,1
+rocher submergé,VERB,1
+transat,VERB,1
+prendre un bain de soleil,PRON,1
+coup de soleil,VERB,1
+lunettes de soleil,VERB,1
+bronzage,VERB,1
+prendre le temps,NOUN,1
+chaise percée,VERB,1
+programme tv,VERB,1
+studio de tv,VERB,1
+studio de radio,VERB,1
+urinal,VERB,1
+panne,VERB,1
+usa,VERB,1
+etats-unis,VERB,1
+serveur,PREP,1
+fleur de nénuphar,VERB,1
+fleur de lotus,VERB,1
+fleur d'eau,VERB,1
+satellite météo,VERB,1
+satellite espion,VERB,1
+blé,VERB,1
+froment,VERB,1
+vidéophone,VERB,1
+visiophone,VERB,1
+connexion sans fil,VERB,1
+tête d'ours,VERB,1
+objet fait main,VERB,1
+volonté,VERB,1
+recul,VERB,1
+saut en arrière,VERB,1
+indicateur de verbe au présent,OTHER,1
+en accord,ADJ,1
+baignoire,VERB,1
+clairon,VERB,1
+cor de chasse,VERB,1
+gouvernement,VERB,1
+homosexuelle,ADJ,1
+lesbienne,ADJ,1
+amoureux,ADJ,1
+masser,PRON,1
+cours de psychologie,VERB,1
+rapidité,VERB,1
+terrorisme,VERB,1
+trouble,VERB,1
+dérangement,VERB,1
+perturbation,VERB,1
+agitation,VERB,1
+crier,PRON,1
+amusement,VERB,1
+poussée,VERB,1
+bijouterie,VERB,1
+ennuyeux,ADJ,1
+morne,ADJ,1
+déprimant,ADJ,1
+lavoir,VERB,1
+geyser,VERB,1
+frayeur,VERB,1
+panique,VERB,1
+attente,VERB,1
+souhait,VERB,1
+vœu,VERB,1
+le mois passé,VERB,1
+anthropologue,PREP,1
+chambre d'enfant,VERB,1
+coûter,PRON,1
+commettre un outrage à la pudeur,PRON,1
+exhiber-,PRON,1
+fini,ADJ,1
+complet,ADJ,1
+terminé,ADJ,1
+observation,VERB,1
+utilisation,VERB,1
+usage,VERB,1
+étreinte,VERB,1
+cassure,VERB,1
+brisure,VERB,1
+fracture,VERB,1
+déchirure,VERB,1
+danse,VERB,1
+noyade,VERB,1
+bataille,VERB,1
+combat,VERB,1
+amélioration,VERB,1
+visite,VERB,1
+plaidoyer,VERB,1
+plaidoirie,VERB,1
+appeler-,PRON,1
+nommer-,PRON,1
+grandeur,VERB,1
+hébergement et restauration,VERB,1
+gîte et couvert,VERB,1
+construire,PRON,1
+structurer,PRON,1
+édifier,PRON,1
+clarté,VERB,1
+transparence,VERB,1
+plus que,NOUN,1
+prévenance,VERB,1
+galanterie,VERB,1
+serviabilité,VERB,1
+continuation,VERB,1
+suite,VERB,1
+destruction,VERB,1
+suppression,VERB,1
+difficulté,VERB,1
+dégoût,VERB,1
+dispersion,VERB,1
+dissémination,VERB,1
+divisé,ADJ,1
+facilité,VERB,1
+simplicité,VERB,1
+évacuation,VERB,1
+déversement,VERB,1
+expérimentation,VERB,1
+expérience,VERB,1
+imagination,VERB,1
+fantaisie,VERB,1
+illusion,VERB,1
+remplissage,VERB,1
+réparation,VERB,1
+oubli,VERB,1
+amnésie,VERB,1
+fontaine,VERB,1
+galop,VERB,1
+géographe,PREP,1
+don,VERB,1
+grille,VERB,1
+matrice,VERB,1
+croissance,VERB,1
+moitié,NOUN,1
+haine,VERB,1
+hauteur,VERB,1
+hétérosexuel,ADJ,1
+brancard,VERB,1
+importance,VERB,1
+d'intérieur,ADJ,1
+en salle,ADJ,1
+intérêt,VERB,1
+faible élévation,VERB,1
+faible hauteur,VERB,1
+mauvaise odeur,VERB,1
+puanteur,VERB,1
+médecine,VERB,1
+pratique médicale,VERB,1
+mois prochain,VERB,1
+bruit,VERB,1
+centime de couronne,VERB,1
+elliptique,ADJ,1
+permission,VERB,1
+persuasion,VERB,1
+physicien,PREP,1
+préparation,VERB,1
+préparatifs,VERB,1
+promesse,VERB,1
+abrité,ADJ,1
+quart,NOUN,1
+un quart,NOUN,1
+lecture,VERB,1
+répétition,VERB,1
+duplication,VERB,1
+faire de la recherche,PRON,1
+équitation,VERB,1
+égoïsme,VERB,1
+égocentrisme,VERB,1
+narcissisme,VERB,1
+cours de sport,VERB,1
+cours de gymnastique,VERB,1
+vaporisation,VERB,1
+spray,VERB,1
+force,VERB,1
+stress,VERB,1
+angoisser-,PRON,1
+sucrosité,VERB,1
+goût sucré,VERB,1
+nage,VERB,1
+ce mois-ci,VERB,1
+éveil,VERB,1
+vigilance,VERB,1
+vomissement,VERB,1
+régurgitation,VERB,1
+argot,VERB,1
+grossièreté,VERB,1
+gros mot,VERB,1
+obscénité,VERB,1
+armée,VERB,1
+possible,ADJ,1
+réalisable,ADJ,1
+éventuel,ADJ,1
