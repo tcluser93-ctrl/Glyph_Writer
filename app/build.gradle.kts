@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    // kotlin-android è già iniettato da AGP 9.x — NON ridichiararlo qui
     alias(libs.plugins.kotlin.kapt)  // Room compiler
 }
 
@@ -45,7 +45,7 @@ android {
 }
 
 tasks.withType<Test> {
-    useJUnitPlatform()  // abilita JUnit 5 per tutti i test locali
+    useJUnitPlatform()
 }
 
 tasks.register("testClasses")
@@ -72,24 +72,20 @@ dependencies {
     implementation(libs.fragment)
     implementation(libs.viewpager2)
 
-    // ── NLP: Morfologik offline FSA lemmatizer (IT / EN / DE) ──────────────
     implementation(libs.morfologik.stemming)
 
-    // ── DB: Room FTS5 BCI lookup ───────────────────────────────
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     kapt(libs.room.compiler)
 
-    // ── UI: FlexboxLayout (chip Bliss con wrap automatico) ──────────────
     implementation(libs.flexbox)
 
-    // ── Test: JVM unit tests ───────────────────────────────────────
-    testImplementation(libs.junit)                    // JUnit 4 (backward compat)
-    testImplementation(libs.junit.jupiter)            // JUnit 5 API
-    testRuntimeOnly(libs.junit.jupiter.engine)        // JUnit 5 engine
-    testImplementation(libs.kotlinx.coroutines.test)  // TestCoroutineScope / runTest
-    testImplementation(libs.arch.core.testing)        // InstantTaskExecutorRule (LiveData)
-    testImplementation(libs.mockito.kotlin)           // mock<T>(), wherever()
+    testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.arch.core.testing)
+    testImplementation(libs.mockito.kotlin)
 
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
