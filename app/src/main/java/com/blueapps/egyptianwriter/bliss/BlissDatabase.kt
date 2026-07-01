@@ -4,9 +4,10 @@ import android.content.Context
 import android.util.Log
 import androidx.room.*
 import androidx.room.FtsOptions
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.File
 import java.io.IOException
 
 // ── Entity ────────────────────────────────────────────────────────────────────
@@ -29,7 +30,7 @@ import java.io.IOException
  */
 @Entity(tableName = "bci_fts")
 @Fts4(
-    tokenizer = FtsOptions.TOKENIZER_UNICODE61,
+    tokenizer     = FtsOptions.TOKENIZER_UNICODE61,
     tokenizerArgs = ["remove_diacritics=1"]
 )
 data class BciFtsEntry(
@@ -82,10 +83,44 @@ interface BciDao {
     suspend fun count(): Long
 }
 
+// ── Migrations ────────────────────────────────────────────────────────────────
+
+/**
+ * Incremental migration from schema version 1 to version 2.
+ *
+ * Adds the `bliss_history` table and its composite index.
+ * Existing data in `bci_fts` is untouched.
+ */
+private val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS bliss_history (
+                id             INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                input_text     TEXT    NOT NULL,
+                lang_code      TEXT    NOT NULL,
+                symbol_bci_ids TEXT    NOT NULL,
+                coverage       REAL    NOT NULL,
+                timestamp_ms   INTEGER NOT NULL DEFAULT 0
+            )
+        """.trimIndent())
+        db.execSQL("""
+            CREATE INDEX IF NOT EXISTS index_bliss_history_lang_ts
+            ON bliss_history (lang_code, timestamp_ms)
+        """.trimIndent())
+    }
+}
+
 // ── Database ──────────────────────────────────────────────────────────────────
 
 /**
- * Room database wrapping the BCI-AV FTS4 lookup table.
+ * Room database wrapping the BCI-AV FTS4 lookup table and the translation
+ * history table.
+ *
+ * ## Versioning
+ * | Version | Change |
+ * |---------|--------|
+ * | 1       | Initial schema (`bci_fts` FTS4 table) |
+ * | 2       | Added `bliss_history` + index |
  *
  * ## First-run population
  * On first install the database is empty. [BlissLookup] calls [populateIfEmpty]
@@ -97,16 +132,20 @@ interface BciDao {
  * val db = BlissDatabase.getInstance(context)
  * val id: Int? = db.bciDao().lookupExact("walk", "en")
  * val suggestions: List<Int> = db.bciDao().lookupPrefix("wal", "en", limit = 5)
+ * val history: Flow<List<BlissHistoryEntry>> = db.historyDao().observeAll()
  * ```
  */
 @Database(
-    entities = [BciFtsEntry::class],
-    version = 1,
+    entities  = [BciFtsEntry::class, BlissHistoryEntry::class],
+    version   = 2,
     exportSchema = false
 )
 abstract class BlissDatabase : RoomDatabase() {
 
     abstract fun bciDao(): BciDao
+
+    /** DAO for the `bliss_history` table. */
+    abstract fun historyDao(): BlissHistoryDao
 
     companion object {
         private const val TAG     = "BlissDatabase"
@@ -125,7 +164,8 @@ abstract class BlissDatabase : RoomDatabase() {
                     BlissDatabase::class.java,
                     DB_NAME
                 )
-                .fallbackToDestructiveMigration()
+                .addMigrations(MIGRATION_1_2)
+                .fallbackToDestructiveMigration()   // safety net for corrupt DBs only
                 .build()
                 .also { INSTANCE = it }
             }
