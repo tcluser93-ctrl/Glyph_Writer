@@ -1,28 +1,11 @@
 name: Unit Tests
 
-# ────────────────────────────────────────────────────────────────────────────
-# Triggers
-#   • Esecuzione manuale dalla tab Actions (unico trigger attivo)
-#
-# I trigger automatici sono commentati; riattivare quando la suite
-# sarà stabile in CI.
-#
-#  push:
-#    branches: [ "main", "feature/**", "fix/**" ]
-#    paths:
-#      - "app/src/**"
-#      - "app/build.gradle.kts"
-#      - "gradle/libs.versions.toml"
-#      - ".github/workflows/unit-tests.yml"
-#  pull_request:
-#    branches: [ "main" ]
-# ────────────────────────────────────────────────────────────────────────────
 on:
   workflow_dispatch:
 
 permissions:
   contents: read
-  checks:   write   # necessario per dorny/test-reporter
+  checks:   write
 
 jobs:
   unit-test:
@@ -31,11 +14,9 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      # ── 1. checkout ──────────────────────────────────────────────────────────
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ── 2. JDK ───────────────────────────────────────────────────────────────
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
@@ -43,7 +24,6 @@ jobs:
           java-version: '21'
           cache: gradle
 
-      # ── 3. Android SDK (necessario per compilare il modulo :app) ─────────────
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
@@ -52,11 +32,9 @@ jobs:
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
-      # ── 4. Gradlew permissions ───────────────────────────────────────────────
       - name: Ensure gradlew executable
         run: chmod +x ./gradlew
 
-      # ── 5. AAR stub (dipendenza locale thoth) ────────────────────────────────
       - name: Prepare THOTH AAR stub
         run: |
           set -euo pipefail
@@ -69,18 +47,16 @@ jobs:
             (cd "$TMP/empty" && zip -qr "$TARGET/thoth-debug.aar" .)
           fi
 
-      # ── 6. Esegui i test JVM ─────────────────────────────────────────────────
-      #    continue-on-error: true → raccoglie report anche in caso di failure;
-      #    il job viene comunque marcato ✗ dallo step finale.
+      # ── Esegui i test JVM — senza continue-on-error per vedere il log Gradle ──
       - name: Run unit tests
         id: run_tests
-        continue-on-error: true
         run: |
-          ./gradlew --no-daemon \
+          ./gradlew --no-daemon --stacktrace \
             :app:testDebugUnitTest \
-            --tests "com.blueapps.egyptianwriter.bliss.*"
+            --tests "com.blueapps.egyptianwriter.bliss.*" \
+            2>&1 | tee gradle-test-output.txt
+          exit ${PIPESTATUS[0]}
 
-      # ── 7. Upload XML (fonte per step 9 e 10) ───────────────────────────────
       - name: Upload XML test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -89,7 +65,6 @@ jobs:
           path: app/build/test-results/**/*.xml
           if-no-files-found: warn
 
-      # ── 8. Upload report HTML (apribile nel browser) ─────────────────────────
       - name: Upload HTML test report
         if: always()
         uses: actions/upload-artifact@v4
@@ -98,8 +73,14 @@ jobs:
           path: app/build/reports/tests/testDebugUnitTest/
           if-no-files-found: warn
 
-      # ── 9. Pubblica come GitHub Checks annotation ────────────────────────────
-      #    Ogni test appare pass/fail direttamente nella tab "Checks" della PR.
+      - name: Upload raw Gradle output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-test-output
+          path: gradle-test-output.txt
+          if-no-files-found: warn
+
       - name: Publish test report (Checks)
         if: always()
         uses: dorny/test-reporter@v1
@@ -110,15 +91,12 @@ jobs:
           fail-on-error: true
           fail-on-empty: false
 
-      # ── 10. Job Summary human-readable ───────────────────────────────────────
-      #    Riepilogo Markdown visibile cliccando il run nella tab Actions.
-      #    Formato: KPI table + <details> collassabili per ogni suite.
       - name: Generate Job Summary
         if: always()
         run: |
           python3 - <<'PYEOF'
           import os, glob, xml.etree.ElementTree as ET
-          from datetime import datetime
+          from datetime import datetime, timezone
 
           files = glob.glob("app/build/test-results/**/*.xml", recursive=True)
 
@@ -165,21 +143,17 @@ jobs:
               except Exception:
                   pass
 
-          # ── header ────────────────────────────────────────────────────────────
           overall = "✅ PASSED" if failed == 0 and total > 0 else \
                     "❌ FAILED" if failed > 0 else \
                     "⚠️ NO RESULTS"
           md  = f"# 🧪 Unit Test Report — {overall}\n\n"
-          md += f"> Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}  \n"
+          md += f"> Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}  \n"
           md += f"> Scope: `com.blueapps.egyptianwriter.bliss.*`\n\n"
-
-          # ── KPI table ─────────────────────────────────────────────────────────
           md += "## Summary\n\n"
           md += "| 🔢 Total | ✅ Passed | ❌ Failed | ⏭️ Skipped | ⏱️ Duration |\n"
           md += "|--------:|--------:|--------:|---------:|----------:|\n"
           md += f"| {total} | {passed} | {failed} | {skipped} | {duration:.2f}s |\n\n"
 
-          # ── per-suite collapsible detail ─────────────────────────────────────
           if suites:
               md += "## Test Suites\n\n"
               for (sname, st, sf, ss, stm, cases) in suites:
@@ -195,12 +169,19 @@ jobs:
                           md += f"\n> ⚠️ `{msg}`\n\n"
                   md += "\n</details>\n\n"
 
-          # ── no-results fallback ───────────────────────────────────────────────
           if total == 0:
-              md += "> ⚠️ Nessun risultato XML trovato. "
-              md += "Controlla che `testDebugUnitTest` abbia girato correttamente.\n"
+              # Allega anche le ultime 50 righe del log Gradle
+              gradle_log = ""
+              try:
+                  with open("gradle-test-output.txt") as gf:
+                      lines = gf.readlines()
+                      gradle_log = "".join(lines[-50:])
+              except Exception:
+                  gradle_log = "(file non trovato)"
+              md += "> ⚠️ Nessun risultato XML trovato — il build Gradle è probabilmente fallito.\n\n"
+              md += "<details>\n<summary>🔍 Ultime 50 righe del log Gradle</summary>\n\n"
+              md += f"```\n{gradle_log}\n```\n\n</details>\n"
 
-          # ── write to GITHUB_STEP_SUMMARY ──────────────────────────────────────
           out = os.environ.get("GITHUB_STEP_SUMMARY", "/dev/stdout")
           with open(out, "w") as fh:
               fh.write(md)
@@ -208,9 +189,21 @@ jobs:
           print(f"Summary written — {total} tests | {passed} passed | {failed} failed")
           PYEOF
 
-      # ── 11. Fail esplicito se i test sono falliti ────────────────────────────
-      - name: Fail if tests failed
-        if: steps.run_tests.outcome == 'failure'
+      - name: Fail if tests failed or did not run
+        if: always()
         run: |
-          echo "❌ Unit tests failed. See the Job Summary and HTML report above."
-          exit 1
+          # Conta i file XML prodotti
+          XML_COUNT=$(find app/build/test-results -name "*.xml" 2>/dev/null | wc -l)
+          if [ "$XML_COUNT" -eq 0 ]; then
+            echo "❌ Nessun XML trovato — testDebugUnitTest non ha prodotto risultati (build fallito?)."
+            echo "--- Ultime 80 righe Gradle ---"
+            tail -80 gradle-test-output.txt 2>/dev/null || echo "(gradle-test-output.txt non disponibile)"
+            exit 1
+          fi
+          # Conta i failure nei file XML
+          FAIL_COUNT=$(grep -rl '<failure\|<error' app/build/test-results/ 2>/dev/null | wc -l)
+          if [ "$FAIL_COUNT" -gt 0 ]; then
+            echo "❌ Unit tests failed. See the Job Summary and HTML report above."
+            exit 1
+          fi
+          echo "✅ All tests passed."
