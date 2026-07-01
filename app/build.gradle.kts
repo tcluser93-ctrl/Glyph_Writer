@@ -1,8 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
-    // kotlin-android e kotlin-kapt sono già bundled in AGP 9.x:
-    // non usare alias con version.ref, ma id() senza versione
-    id("kotlin-kapt")  // Room compiler — usa la versione Kotlin bundled da AGP
+    // kotlin-android è già iniettato da AGP 9.x built-in Kotlin — NON ridichiararlo
+    alias(libs.plugins.ksp)  // KSP per Room compiler (kapt non compatibile con AGP 9.x)
 }
 
 android {
@@ -73,14 +72,18 @@ dependencies {
     implementation(libs.fragment)
     implementation(libs.viewpager2)
 
+    // ── NLP: Morfologik offline FSA lemmatizer ─────────────────────────────
     implementation(libs.morfologik.stemming)
 
+    // ── DB: Room FTS5 BCI lookup ───────────────────────────────────────────
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
-    kapt(libs.room.compiler)
+    ksp(libs.room.compiler)  // KSP invece di kapt — richiesto da AGP 9.x
 
+    // ── UI: FlexboxLayout ─────────────────────────────────────────────────
     implementation(libs.flexbox)
 
+    // ── Test ──────────────────────────────────────────────────────────────
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.jupiter.engine)
