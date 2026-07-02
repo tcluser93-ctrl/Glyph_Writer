@@ -85,9 +85,9 @@ dependencies {
     implementation(libs.zoomlayout)
     implementation(libs.autobreaklinelayout)
 
-    //implementation(libs.thoth)
+    // THOTH rimosso: l'app usa ora solo MAAT + rendering Canvas custom (BlissRenderer).
+    // implementation(libs.thoth)
     implementation(libs.maat)
-    implementation(files("../../THOTExpampleApp/thoth/build/outputs/aar/thoth-debug.aar"))
 
     implementation(libs.glyphconverter)
     implementation(libs.expandable.layout)
@@ -95,18 +95,18 @@ dependencies {
     implementation(libs.fragment)
     implementation(libs.viewpager2)
 
-    // ── NLP: Morfologik offline FSA lemmatizer ─────────────────────────────
+    // ── NLP: Morfologik offline FSA lemmatizer ────────────────────────────────────────────
     implementation(libs.morfologik.stemming)
 
-    // ── DB: Room FTS5 BCI lookup ───────────────────────────────────────────
+    // ── DB: Room FTS5 BCI lookup ────────────────────────────────────────────────────
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
-    // ── UI: FlexboxLayout ─────────────────────────────────────────────────
+    // ── UI: FlexboxLayout ──────────────────────────────────────────────────────────
     implementation(libs.flexbox)
 
-    // ── Test ──────────────────────────────────────────────────────────────
+    // ── Test ──────────────────────────────────────────────────────────────────────
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.jupiter.engine)
