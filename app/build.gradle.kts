@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    // kotlin-android NON dichiarato: AGP 9 attiva built-in Kotlin automaticamente.
     alias(libs.plugins.ksp)
 }
 
@@ -32,12 +31,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    // AGP 9 built-in Kotlin: kotlinOptions dentro android {} è la forma
-    // supportata per i moduli application (migrate-to-built-in-kotlin).
-    // Il blocco kotlin{} top-level era ambiguo e causava doppia init del
-    // bridge KotlinJvmAndroidCompilation con conseguente NPE su BaseVariant.
-    kotlinOptions {
-        jvmTarget = "11"
+    // AGP 9 built-in Kotlin: compilerOptions è il DSL corretto dentro android {}.
+    // kotlinOptions non esiste più in AGP 9.
+    compilerOptions {
+        jvmTarget = com.android.build.api.dsl.KotlinVersion.fromTarget("11")
     }
     buildFeatures {
         viewBinding = true
@@ -66,7 +63,6 @@ dependencies {
     implementation(libs.zoomlayout)
     implementation(libs.autobreaklinelayout)
 
-    // THOTH rimosso: l'app usa ora solo MAAT + rendering Canvas custom.
     // implementation(libs.thoth)
     implementation(libs.maat)
 
@@ -76,18 +72,14 @@ dependencies {
     implementation(libs.fragment)
     implementation(libs.viewpager2)
 
-    // ── NLP ───────────────────────────────────────────────────────────────────────
     implementation(libs.morfologik.stemming)
 
-    // ── DB: Room ─────────────────────────────────────────────────────────────────────
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
-    // ── UI ────────────────────────────────────────────────────────────────────────
     implementation(libs.flexbox)
 
-    // ── Test ────────────────────────────────────────────────────────────────────
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.jupiter.engine)
