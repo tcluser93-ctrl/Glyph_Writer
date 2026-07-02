@@ -8,8 +8,6 @@ plugins {
 // Una dipendenza transitiva (SignProvider/MAAT/GlyphConverter via JitPack)
 // dichiara kotlin-stdlib:2.2.21 nel proprio POM — versione inesistente su Maven Central.
 // AGP 8.x checkDebugClasspath fallisce perché non riesce a serializzare la mappa versioni.
-configuration {
-}
 configurations.all {
     resolutionStrategy.eachDependency {
         if (requested.group == "org.jetbrains.kotlin") {
