@@ -31,17 +31,21 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    // AGP 9 built-in Kotlin: compilerOptions è il DSL corretto dentro android {}.
-    // kotlinOptions non esiste più in AGP 9.
-    compilerOptions {
-        jvmTarget = com.android.build.api.dsl.KotlinVersion.fromTarget("11")
-    }
     buildFeatures {
         viewBinding = true
     }
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
+    }
+}
+
+// AGP 9 built-in Kotlin: il DSL corretto e' kotlin { compilerOptions {} }
+// a livello top-level, fuori da android {}. I tipi sono del package
+// org.jetbrains.kotlin.gradle.dsl (fornito da KSP/AGP, non da kotlin-android).
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
     }
 }
 
