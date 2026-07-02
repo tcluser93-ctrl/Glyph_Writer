@@ -35,6 +35,13 @@ jobs:
       - name: Ensure gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Clean stale Kotlin DSL cache
+        run: |
+          # Rimuove il bytecode compilato dei .gradle.kts dalla cache locale
+          # per forzare la ricompilazione dopo modifiche al build script
+          rm -rf "$HOME/.gradle/caches/"
+          echo "Gradle caches cleared."
+
       - name: Prepare THOTH AAR stub
         run: |
           set -euo pipefail
@@ -47,11 +54,10 @@ jobs:
             (cd "$TMP/empty" && zip -qr "$TARGET/thoth-debug.aar" .)
           fi
 
-      # ── Esegui i test JVM — senza continue-on-error per vedere il log Gradle ──
       - name: Run unit tests
         id: run_tests
         run: |
-          ./gradlew --no-daemon --stacktrace \
+          ./gradlew --no-daemon --no-build-cache --stacktrace \
             :app:testDebugUnitTest \
             --tests "com.blueapps.egyptianwriter.bliss.*" \
             2>&1 | tee gradle-test-output.txt
@@ -170,7 +176,6 @@ jobs:
                   md += "\n</details>\n\n"
 
           if total == 0:
-              # Allega anche le ultime 50 righe del log Gradle
               gradle_log = ""
               try:
                   with open("gradle-test-output.txt") as gf:
@@ -192,15 +197,13 @@ jobs:
       - name: Fail if tests failed or did not run
         if: always()
         run: |
-          # Conta i file XML prodotti
           XML_COUNT=$(find app/build/test-results -name "*.xml" 2>/dev/null | wc -l)
           if [ "$XML_COUNT" -eq 0 ]; then
-            echo "❌ Nessun XML trovato — testDebugUnitTest non ha prodotto risultati (build fallito?)."
+            echo "❌ Nessun XML trovato — testDebugUnitTest non ha prodotto risultati."
             echo "--- Ultime 80 righe Gradle ---"
             tail -80 gradle-test-output.txt 2>/dev/null || echo "(gradle-test-output.txt non disponibile)"
             exit 1
           fi
-          # Conta i failure nei file XML
           FAIL_COUNT=$(grep -rl '<failure\|<error' app/build/test-results/ 2>/dev/null | wc -l)
           if [ "$FAIL_COUNT" -gt 0 ]; then
             echo "❌ Unit tests failed. See the Job Summary and HTML report above."
