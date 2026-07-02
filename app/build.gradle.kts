@@ -1,7 +1,22 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)  // richiesto esplicitamente da AGP 8.x
+    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
+}
+
+// Forza kotlin-stdlib e moduli correlati a 2.2.0.
+// Una dipendenza transitiva (SignProvider/MAAT/GlyphConverter via JitPack)
+// dichiara kotlin-stdlib:2.2.21 nel proprio POM — versione inesistente su Maven Central.
+// AGP 8.x checkDebugClasspath fallisce perché non riesce a serializzare la mappa versioni.
+configuration {
+}
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.jetbrains.kotlin") {
+            useVersion("2.2.0")
+            because("Pin kotlin-stdlib to the actual published version; 2.2.21 does not exist")
+        }
+    }
 }
 
 android {
