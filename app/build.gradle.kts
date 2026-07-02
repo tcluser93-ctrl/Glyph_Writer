@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
-    // kotlin-android è già iniettato da AGP 9.x built-in Kotlin — NON ridichiararlo
-    alias(libs.plugins.ksp)  // KSP per Room compiler (kapt non compatibile con AGP 9.x)
+    alias(libs.plugins.kotlin.android)  // richiesto esplicitamente da AGP 8.x
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -80,7 +80,7 @@ dependencies {
     // ── DB: Room FTS5 BCI lookup ───────────────────────────────────────────
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
-    ksp(libs.room.compiler)  // KSP invece di kapt — richiesto da AGP 9.x
+    ksp(libs.room.compiler)
 
     // ── UI: FlexboxLayout ─────────────────────────────────────────────────
     implementation(libs.flexbox)
