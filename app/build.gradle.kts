@@ -1,18 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    // kotlin.android NON va dichiarato in AGP 9: Kotlin support è built-in.
+    // Dichiararlo causa: "Plugin 'kotlin-android' is already applied".
     alias(libs.plugins.ksp)
-}
-
-// Forza kotlin-stdlib e moduli correlati a 2.2.0.
-// Una dipendenza transitiva dichiara kotlin-stdlib:2.2.21 (inesistente su Maven Central).
-configurations.all {
-    resolutionStrategy.eachDependency {
-        if (requested.group == "org.jetbrains.kotlin") {
-            useVersion("2.2.0")
-            because("Pin kotlin-stdlib to the actual published version; 2.2.21 does not exist")
-        }
-    }
 }
 
 android {
@@ -57,16 +47,6 @@ android {
     }
 }
 
-// Workaround: AGP 8.10.x + Gradle 9.4 — checkClasspath non riesce a serializzare
-// compileVersionMap come input fingerprint (bug interno di AGP con il nuovo
-// serializzatore di Gradle 9). Il task è solo un controllo di compatibilità
-// opzionale e non influisce sulla correttezza del build o dei test.
-tasks.configureEach {
-    if (name.startsWith("check") && name.endsWith("Classpath")) {
-        enabled = false
-    }
-}
-
 tasks.withType<Test> {
     useJUnitPlatform()
 }
@@ -85,7 +65,7 @@ dependencies {
     implementation(libs.zoomlayout)
     implementation(libs.autobreaklinelayout)
 
-    // THOTH rimosso: l'app usa ora solo MAAT + rendering Canvas custom (BlissRenderer).
+    // THOTH rimosso: l'app usa ora solo MAAT + rendering Canvas custom.
     // implementation(libs.thoth)
     implementation(libs.maat)
 
@@ -95,18 +75,18 @@ dependencies {
     implementation(libs.fragment)
     implementation(libs.viewpager2)
 
-    // ── NLP: Morfologik offline FSA lemmatizer ────────────────────────────────────────────
+    // ── NLP: Morfologik offline FSA lemmatizer ────────────────────────────────
     implementation(libs.morfologik.stemming)
 
-    // ── DB: Room FTS5 BCI lookup ────────────────────────────────────────────────────
+    // ── DB: Room FTS5 BCI lookup ──────────────────────────────────────────────
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
-    // ── UI: FlexboxLayout ──────────────────────────────────────────────────────────
+    // ── UI: FlexboxLayout ─────────────────────────────────────────────────────
     implementation(libs.flexbox)
 
-    // ── Test ──────────────────────────────────────────────────────────────────────
+    // ── Test ──────────────────────────────────────────────────────────────────
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.jupiter.engine)
