@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
-    // kotlin.android NON va dichiarato in AGP 9: Kotlin support è built-in.
-    // Dichiararlo causa: "Plugin 'kotlin-android' is already applied".
+    // kotlin-android NON dichiarato: AGP 9 attiva built-in Kotlin automaticamente.
     alias(libs.plugins.ksp)
 }
 
@@ -33,10 +32,12 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlin {
-        compilerOptions {
-            jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
-        }
+    // AGP 9 built-in Kotlin: kotlinOptions dentro android {} è la forma
+    // supportata per i moduli application (migrate-to-built-in-kotlin).
+    // Il blocco kotlin{} top-level era ambiguo e causava doppia init del
+    // bridge KotlinJvmAndroidCompilation con conseguente NPE su BaseVariant.
+    kotlinOptions {
+        jvmTarget = "11"
     }
     buildFeatures {
         viewBinding = true
@@ -75,18 +76,18 @@ dependencies {
     implementation(libs.fragment)
     implementation(libs.viewpager2)
 
-    // ── NLP: Morfologik offline FSA lemmatizer ────────────────────────────────
+    // ── NLP ───────────────────────────────────────────────────────────────────────
     implementation(libs.morfologik.stemming)
 
-    // ── DB: Room FTS5 BCI lookup ──────────────────────────────────────────────
+    // ── DB: Room ─────────────────────────────────────────────────────────────────────
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
-    // ── UI: FlexboxLayout ─────────────────────────────────────────────────────
+    // ── UI ────────────────────────────────────────────────────────────────────────
     implementation(libs.flexbox)
 
-    // ── Test ──────────────────────────────────────────────────────────────────
+    // ── Test ────────────────────────────────────────────────────────────────────
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.jupiter.engine)
