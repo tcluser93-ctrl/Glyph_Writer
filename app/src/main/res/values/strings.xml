@@ -68,7 +68,8 @@
 
     <!-- ══════════════════════════════════════════════════════════════════════
          Bliss Translator — Fase 4 UI + Fase 5 Accessibilità
-         Tutte le stringhe usate in fragment_translate.xml e BlissTranslateFragment.kt
+         NB: bliss_hint_input e bliss_btn_translate sono in strings_bliss.xml
+             (IT default) e in values-en/strings_bliss.xml (EN override)
          ══════════════════════════════════════════════════════════════════════ -->
 
     <!-- Labels visibili -->
@@ -76,10 +77,8 @@
     <string name="bliss_label_suggestions">Suggestions</string>
     <string name="bliss_label_output">Translation (Bliss tokens)</string>
     <string name="bliss_label_symbols">Bliss symbols</string>
-    <string name="bliss_hint_input">Text to translate (max 500 chars)</string>
 
     <!-- Bottoni -->
-    <string name="bliss_btn_translate">Translate to Bliss</string>
     <string name="bliss_btn_share">Share SVG</string>
 
     <!-- contentDescription per TalkBack / Switch Access -->

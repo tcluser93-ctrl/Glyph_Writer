@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- English overrides for strings defined in values/strings_bliss.xml -->
+    <string name="bliss_hint_input">Text to translate (max 500 chars)</string>
+    <string name="bliss_btn_translate">Translate to Bliss</string>
+    <string name="bliss_btn_clear">Clear</string>
+    <string name="bliss_loading">Loading dictionary…</string>
+    <string name="bliss_no_results">No results. Try different words.</string>
+    <string name="bliss_coverage">Coverage: %1$d%%</string>
+    <string name="bliss_lang_label">Language:</string>
+    <string name="bliss_unknown_word">Symbol not found</string>
+    <string name="bliss_exact">exact</string>
+    <string name="bliss_lemma">lemma</string>
+    <string name="bliss_ngram">phrase</string>
+    <string name="bliss_fallback">category</string>
+    <string name="bliss_unknown">unknown</string>
+</resources>
