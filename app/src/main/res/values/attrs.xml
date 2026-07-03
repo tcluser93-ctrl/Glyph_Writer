@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+        Attributi custom usati da com.blueapps.thoth.ThothView
+        (activity_document_editor.xml, riga 143)
+    -->
+    <declare-styleable name="ThothView">
+
+        <!-- Colore primario dei glifi/segni -->
+        <attr name="primarySignColor" format="color" />
+
+        <!-- Colore del testo alternativo (traslitterazione) -->
+        <attr name="altTextColor" format="color" />
+
+        <!-- Testo alternativo di esempio (tools preview) -->
+        <attr name="altText" format="string" />
+
+        <!-- Dimensione del testo alternativo -->
+        <attr name="altTextSize" format="dimension" />
+
+        <!-- Mostra o nasconde il testo alternativo -->
+        <attr name="showAltText" format="boolean" />
+
+        <!-- Orientamento verticale dei segni piccoli -->
+        <attr name="verticalOrientation" format="enum">
+            <enum name="top"    value="0" />
+            <enum name="middle" value="1" />
+            <enum name="bottom" value="2" />
+        </attr>
+
+        <!-- Layout di scrittura (righe orizzontali o colonne verticali) -->
+        <attr name="writingLayout" format="enum">
+            <enum name="lines"   value="0" />
+            <enum name="columns" value="1" />
+        </attr>
+
+    </declare-styleable>
+
+</resources>
