@@ -71,7 +71,15 @@ dependencies {
     implementation(libs.expandable.layout)
     implementation(libs.recyclerview)
     implementation(libs.fragment)
+    implementation(libs.fragment.ktx)
     implementation(libs.viewpager2)
+
+    // SVG rendering (BlissRenderer + BlissSignProvider)
+    implementation(libs.androidsvg)
+
+    // Lifecycle KTX: viewModelScope, repeatOnLifecycle, activityViewModels
+    implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.lifecycle.runtime.ktx)
 
     implementation(libs.morfologik.stemming)
 
