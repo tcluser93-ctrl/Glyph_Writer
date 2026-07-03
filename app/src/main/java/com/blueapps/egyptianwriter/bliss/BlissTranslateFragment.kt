@@ -35,32 +35,33 @@ import java.util.Locale
 /**
  * BlissTranslateFragment — Fase 4 UI + Fase 5 Accessibilità
  *
- * Layout: fragment_translate.xml (dichiarativo)
- * Binding: manual view-lookup (no ViewBinding necessario per questo fragment)
+ * Tutte le interazioni con il motore avvengono tramite [BlissViewModel.uiState]
+ * (single-source-of-truth).  Il Fragment non costruisce mai BlissTranslator
+ * direttamente: chiama [BlissViewModel.translate] e osserva il risultato.
  *
  * Flusso:
- *  1. Spinner lingua (8 lingue, da strings.xml bliss_language_codes)
+ *  1. Spinner lingua  → vm.setLang(lang)
  *  2. TextInputEditText testo sorgente
- *  3. RecyclerView suggerimenti predittivi orizzontale
- *  4. Button "Traduci" → coroutine viewLifecycleOwner.lifecycleScope
- *  5. FlexboxLayout chip simboli (wrap automatico, nessun chip fuori schermo)
- *  6. FAB “Condividi SVG”: scrive SVG in cache, Intent.ACTION_SEND via FileProvider
+ *  3. RecyclerView suggerimenti predittivi orizzontale (uiState.suggestions)
+ *  4. Button "Traduci" → vm.translate(text); risultato in uiState.symbols
+ *  5. FlexboxLayout chip simboli (wrap automatico)
+ *  6. FAB "Condividi SVG": scrive SVG in cache, Intent.ACTION_SEND via FileProvider
  *
  * Accessibilità:
  *  - accessibilityLiveRegion POLITE su symbolContainer e text_output
  *  - announceForAccessibility dopo traduzione completata
- *  - contentDescription su ogni controllo interattivo (dalla XML + da codice)
+ *  - contentDescription su ogni controllo interattivo (XML + codice)
  */
 class BlissTranslateFragment : Fragment() {
 
     // ── ViewModel (Activity-scoped) ───────────────────────────────────────
     private val vm: BlissViewModel by activityViewModels()
 
-    // ── Engine ────────────────────────────────────────────────────
+    // ── Engine helper (solo per costruire il doc SVG lato Fragment) ───────
     private var glyphXBuilder: BlissGlyphXBuilder? = null
     private var translateJob: Job? = null
 
-    // ── Views ─────────────────────────────────────────────────────
+    // ── Views ─────────────────────────────────────────────────────────────
     private lateinit var spinnerLang:       Spinner
     private lateinit var inputLayout:       TextInputLayout
     private lateinit var editInput:         TextInputEditText
@@ -74,17 +75,17 @@ class BlissTranslateFragment : Fragment() {
     private lateinit var symbolContainer:   FlexboxLayout
     private lateinit var fabShare:          ExtendedFloatingActionButton
 
-    // ── Adapter ─────────────────────────────────────────────────
+    // ── Adapter ──────────────────────────────────────────────────────────
     private val suggestionAdapter = SuggestionAdapter { word ->
-        val current = editInput.text?.toString() ?: ""
+        val current   = editInput.text?.toString() ?: ""
         val lastSpace = current.lastIndexOf(' ')
-        val newText = if (lastSpace < 0) word else current.substring(0, lastSpace + 1) + word
+        val newText   = if (lastSpace < 0) word else current.substring(0, lastSpace + 1) + word
         editInput.setText(newText)
         editInput.setSelection(newText.length)
         runTranslation()
     }
 
-    // ── Lifecycle ───────────────────────────────────────────────
+    // ── Lifecycle ────────────────────────────────────────────────────────
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -95,7 +96,8 @@ class BlissTranslateFragment : Fragment() {
             ?: Locale.getDefault().language.take(2).let {
                 if (it in BlissLookup.SUPPORTED_LANGS) it else DEFAULT_LANG
             }
-        if (!vm.lookupReady.value || vm.langCode.value != initLang) {
+        val state = vm.uiState.value
+        if (state.langCode != initLang || state.isLoading.not() && !isEngineReady(state)) {
             vm.setLang(initLang)
         }
         return inflater.inflate(R.layout.fragment_translate, container, false)
@@ -106,18 +108,22 @@ class BlissTranslateFragment : Fragment() {
         bindViews(view)
         setupSpinner()
         setupSuggestions()
+        setupTextWatcher()
         reinitGlyphXBuilder()
         observeViewModel()
         setupFabShare()
-        vm.symbols.value.takeIf { it.isNotEmpty() }?.let { renderChips(it) }
+        // Restore symbols if ViewModel already has a result
+        vm.uiState.value.symbols.takeIf { it.isNotEmpty() }?.let { renderChips(it) }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         reinitGlyphXBuilder()
+        // Re-inject the new builder so the ViewModel uses correct metrics
+        glyphXBuilder?.let { vm.setBuilder(it) }
     }
 
-    // ── View binding ─────────────────────────────────────────────
+    // ── View binding ─────────────────────────────────────────────────────
 
     private fun bindViews(v: View) {
         spinnerLang      = v.findViewById(R.id.spinner_language)
@@ -135,7 +141,6 @@ class BlissTranslateFragment : Fragment() {
 
         btnTranslate.setOnClickListener { runTranslation() }
 
-        // Live region per TalkBack (complementa l'XML android:accessibilityLiveRegion="polite")
         ViewCompat.setAccessibilityLiveRegion(
             textOutput,
             ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE
@@ -146,7 +151,7 @@ class BlissTranslateFragment : Fragment() {
         )
     }
 
-    // ── Spinner lingua ────────────────────────────────────────────
+    // ── Spinner lingua ────────────────────────────────────────────────────
 
     private fun setupSpinner() {
         val ctx   = requireContext()
@@ -157,20 +162,31 @@ class BlissTranslateFragment : Fragment() {
             .also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
         spinnerLang.adapter = adapter
 
-        // pre-select current lang
-        val currentIdx = codes.indexOf(vm.langCode.value).coerceAtLeast(0)
+        val currentIdx = codes.indexOf(vm.uiState.value.langCode).coerceAtLeast(0)
         spinnerLang.setSelection(currentIdx)
 
         spinnerLang.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
                 val lang = codes[pos]
-                if (lang != vm.langCode.value) vm.setLang(lang)
+                if (lang != vm.uiState.value.langCode) vm.setLang(lang)
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
 
-    // ── RecyclerView suggerimenti ─────────────────────────────────
+    // ── TextWatcher per typeahead ─────────────────────────────────────────
+
+    private fun setupTextWatcher() {
+        editInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                vm.onSuggestionQuery(s?.toString() ?: "")
+            }
+        })
+    }
+
+    // ── RecyclerView suggerimenti ─────────────────────────────────────────
 
     private fun setupSuggestions() {
         rvSuggestions.layoutManager =
@@ -178,31 +194,14 @@ class BlissTranslateFragment : Fragment() {
         rvSuggestions.adapter = suggestionAdapter
     }
 
-    private fun updateSuggestions(symbols: List<BlissSymbol>) {
-        if (symbols.isEmpty()) {
-            labelSuggestions.isVisible = false
-            rvSuggestions.isVisible = false
-            suggestionAdapter.submitList(emptyList())
-            return
-        }
-        // Build suggestion list: for each UNKNOWN token offer up to 3 lexicon near-matches
-        val lk = vm.lookup ?: return
-        val suggestions = symbols
-            .filter { it.matchType == BlissSymbol.MatchType.UNKNOWN }
-            .flatMap { sym ->
-                lk.lexicon.keys
-                    .filter { key -> key.startsWith(sym.sourceWord.take(3), ignoreCase = true) }
-                    .take(3)
-            }
-            .distinct()
-            .take(8)
-
-        labelSuggestions.isVisible = suggestions.isNotEmpty()
-        rvSuggestions.isVisible = suggestions.isNotEmpty()
+    private fun bindSuggestions(suggestions: List<String>) {
+        val visible = suggestions.isNotEmpty()
+        labelSuggestions.isVisible = visible
+        rvSuggestions.isVisible    = visible
         suggestionAdapter.submitList(suggestions)
     }
 
-    // ── GlyphXBuilder init ───────────────────────────────────────────
+    // ── GlyphXBuilder init ────────────────────────────────────────────────
 
     private fun reinitGlyphXBuilder() {
         val ctx = context ?: return
@@ -212,92 +211,78 @@ class BlissTranslateFragment : Fragment() {
         } else {
             @Suppress("DEPRECATION") dm.widthPixels
         }
-        val cellSizePx = (CELL_SIZE_DP * dm.density).toInt()
+        val cellSizePx     = (CELL_SIZE_DP * dm.density).toInt()
         val symbolsPerLine = BlissGlyphXBuilder.computeSymbolsPerLine(screenWidthPx, cellSizePx)
-        glyphXBuilder = BlissGlyphXBuilder(symbolsPerLine = symbolsPerLine)
+        glyphXBuilder      = BlissGlyphXBuilder(symbolsPerLine = symbolsPerLine)
+        glyphXBuilder?.let { vm.setBuilder(it) }
     }
 
-    // ── ViewModel observers ───────────────────────────────────────
+    // ── ViewModel observers ───────────────────────────────────────────────
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    vm.lookupReady.collectLatest { ready ->
-                        progressBar.isVisible = !ready
-                        btnTranslate.isEnabled = ready
-                        if (ready) {
-                            val lex = vm.lookup?.lexicon?.size ?: 0
-                            textOutput.text = getString(R.string.bliss_msg_no_result)
-                                .takeIf { lex == 0 } ?: ""
-                        } else {
-                            val lang = vm.langCode.value
-                            textOutput.text = ""
-                        }
+                vm.uiState.collectLatest { state ->
+
+                    // Loading / ready indicator
+                    progressBar.isVisible    = state.isLoading
+                    btnTranslate.isEnabled   = !state.isLoading
+
+                    // Error banner
+                    if (state.error != null) {
+                        textOutput.text = state.error
+                        inputLayout.error = state.error
+                    } else {
+                        inputLayout.error = null
                     }
-                }
-                launch {
-                    vm.stats.collectLatest { s ->
+
+                    // Stats label (non-invasive, muted text)
+                    state.stats?.let { s ->
                         if (s.total > 0) {
                             val pct = (s.coverage * 100).toInt()
-                            // Update status in output label (non-invasive, muted text)
                             textOutputLabel.contentDescription =
                                 "${s.total} simboli  •  ${s.unknown} sconosciuti  •  $pct%"
                         }
                     }
+
+                    // Symbols → chip render
+                    if (state.symbols.isNotEmpty() && state.error == null) {
+                        renderChips(state.symbols)
+                        val tokenLine = state.symbols.joinToString(" ") { it.displayLabel() }
+                        textOutput.text = tokenLine
+                        fabShare.isVisible = true
+                        val announcement = getString(
+                            R.string.bliss_a11y_translation_ready,
+                            state.symbols.size
+                        )
+                        symbolContainer.announceForAccessibility(announcement)
+                    } else if (!state.isLoading && state.error == null) {
+                        fabShare.isVisible = false
+                    }
+
+                    // Typeahead suggestions
+                    bindSuggestions(state.suggestions)
                 }
             }
         }
     }
 
-    // ── Translation ──────────────────────────────────────────────
+    // ── Translation ───────────────────────────────────────────────────────
 
     private fun runTranslation() {
         val text = editInput.text?.toString()?.trim() ?: ""
         if (text.isEmpty()) {
-            vm.clear()
+            vm.clearSuggestions()
             symbolContainer.removeAllViews()
-            textOutput.text = getString(R.string.bliss_msg_empty_input)
+            textOutput.text    = getString(R.string.bliss_msg_empty_input)
             fabShare.isVisible = false
             return
         }
-        val lk = vm.lookup ?: run {
-            textOutput.text = getString(R.string.bliss_msg_error)
-            return
-        }
-        val builder = glyphXBuilder ?: run {
-            reinitGlyphXBuilder(); glyphXBuilder
-        } ?: return
-
-        translateJob?.cancel()
-        btnTranslate.isEnabled = false
-        progressBar.isVisible = true
-        fabShare.isVisible = false
-
-        translateJob = viewLifecycleOwner.lifecycleScope.launch {
-            val (symbols, doc) = withContext(Dispatchers.Default) {
-                val syms = BlissTranslator(lk).translate(text)
-                val d    = builder.build(syms)
-                syms to d
-            }
-            vm.postTranslation(symbols, doc)
-            renderChips(symbols)
-            updateSuggestions(symbols)
-
-            val tokenLine = symbols.joinToString(" ") { it.displayLabel() }
-            textOutput.text = tokenLine.ifEmpty { getString(R.string.bliss_msg_no_result) }
-
-            // TalkBack announcement
-            val announcement = getString(R.string.bliss_a11y_translation_ready, symbols.size)
-            symbolContainer.announceForAccessibility(announcement)
-
-            btnTranslate.isEnabled = true
-            progressBar.isVisible = false
-            fabShare.isVisible = symbols.isNotEmpty()
-        }
+        // Delegate entirely to ViewModel — it owns the engine and the state
+        vm.translate(text)
     }
 
-    // ── Chip renderer (FlexboxLayout) ───────────────────────────────
+    // ── Chip renderer (FlexboxLayout) ─────────────────────────────────────
 
     private fun renderChips(symbols: List<BlissSymbol>) {
         symbolContainer.removeAllViews()
@@ -333,7 +318,7 @@ class BlissTranslateFragment : Fragment() {
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
                 ).also {
-                    it.marginEnd   = 4.px()
+                    it.marginEnd    = 4.px()
                     it.bottomMargin = 4.px()
                 }
                 setOnClickListener {
@@ -342,7 +327,7 @@ class BlissTranslateFragment : Fragment() {
                     Toast.makeText(
                         ctx,
                         "BCI-AV: ${sym.bciAvId}\nNome: ${sym.name}" +
-                        "\nParola: '’${sym.sourceWord}'\nMatch: ${sym.matchType}" +
+                        "\nParola: '${sym.sourceWord}'\nMatch: ${sym.matchType}" +
                         "\nIndicatori: $indStr",
                         Toast.LENGTH_SHORT
                     ).show()
@@ -360,20 +345,20 @@ class BlissTranslateFragment : Fragment() {
         BlissSymbol.MatchType.UNKNOWN           -> 0xFFFFD0D0.toInt()
     }
 
-    // ── FAB share SVG ─────────────────────────────────────────────
+    // ── FAB share SVG ─────────────────────────────────────────────────────
 
     private fun setupFabShare() {
         fabShare.setOnClickListener { shareSvg() }
     }
 
     private fun shareSvg() {
-        val doc = vm.currentDoc.value ?: return
+        // Read the already-built Document from UiState (no extra computation)
+        val doc = vm.uiState.value.glyphXDoc ?: return
 
         viewLifecycleOwner.lifecycleScope.launch {
             val svgBytes: ByteArray = withContext(Dispatchers.IO) {
-                // BlissGlyphXBuilder.toSvgBytes serialises the DOM to SVG XML
-                val builder = glyphXBuilder ?: return@withContext ByteArray(0)
-                builder.toSvgBytes(doc)
+                val b = glyphXBuilder ?: return@withContext ByteArray(0)
+                b.toSvgBytes(doc)
             }
             if (svgBytes.isEmpty()) {
                 Toast.makeText(
@@ -384,7 +369,6 @@ class BlissTranslateFragment : Fragment() {
                 return@launch
             }
 
-            // Write to cache dir exposed via FileProvider
             val shareDir = File(requireContext().cacheDir, "bliss_share").also { it.mkdirs() }
             val svgFile  = File(shareDir, "bliss_translation.svg")
             withContext(Dispatchers.IO) { svgFile.writeBytes(svgBytes) }
@@ -407,12 +391,22 @@ class BlissTranslateFragment : Fragment() {
         }
     }
 
-    // ── Companion ───────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────
+
+    /**
+     * Returns true when the engine is ready (non-loading, no error, lookup
+     * asset loaded for the current language).  Used in onCreateView to avoid
+     * redundant setLang() calls.
+     */
+    private fun isEngineReady(state: BlissViewModel.UiState): Boolean =
+        !state.isLoading && state.error == null && state.langCode.isNotEmpty()
+
+    // ── Companion ─────────────────────────────────────────────────────────
 
     companion object {
-        private const val ARG_LANG              = "arg_lang"
-        private const val DEFAULT_LANG          = "it"
-        private const val CELL_SIZE_DP          = 72
+        private const val ARG_LANG                = "arg_lang"
+        private const val DEFAULT_LANG            = "it"
+        private const val CELL_SIZE_DP            = 72
         private const val FILE_PROVIDER_AUTHORITY = "com.blueapps.fileprovider"
 
         fun newInstance(lang: String = DEFAULT_LANG): BlissTranslateFragment =
