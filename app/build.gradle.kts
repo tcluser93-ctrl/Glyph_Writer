@@ -40,9 +40,6 @@ android {
     }
 }
 
-// AGP 9 built-in Kotlin: il DSL corretto e' kotlin { compilerOptions {} }
-// a livello top-level, fuori da android {}. I tipi sono del package
-// org.jetbrains.kotlin.gradle.dsl (fornito da KSP/AGP, non da kotlin-android).
 kotlin {
     compilerOptions {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
@@ -65,7 +62,7 @@ dependencies {
     implementation(libs.gridlayout)
     implementation(libs.commons.lang)
     implementation(libs.zoomlayout)
-    implementation(libs.autobreaklinelayout)
+    // autobreaklinelayout rimosso: inlinato in widget/BreakLineLayout.java
 
     // implementation(libs.thoth)
     implementation(libs.maat)

@@ -1,8 +1,6 @@
 [versions]
 agp = "9.2.1"
 ksp = "2.1.21-2.0.2"
-# commit hash fisso: JitPack non builda master-SNAPSHOT in modo affidabile in CI
-autobreaklinelayout = "615e42a"
 commons-lang = "3.20.0"
 documentfile = "1.1.0"
 junit = "4.13.2"
@@ -32,7 +30,7 @@ mockitoKotlin     = "5.4.0"
 junitJupiter      = "5.11.4"
 
 [libraries]
-autobreaklinelayout = { module = "com.github.zerozhiqin:AutoBreakLineLayout", version.ref = "autobreaklinelayout" }
+# autobreaklinelayout RIMOSSO: inlinato in com.blueapps.egyptianwriter.widget.BreakLineLayout
 commons-lang = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commons-lang" }
 documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
