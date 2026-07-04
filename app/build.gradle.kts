@@ -62,16 +62,10 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    implementation(libs.gridlayout)
-    implementation(libs.commons.lang)
-    implementation(libs.zoomlayout)
-    // autobreaklinelayout rimosso: inlinato in widget/BreakLineLayout.java
 
     // implementation(libs.thoth)
     implementation(libs.maat)
 
-    implementation(libs.glyphconverter)
-    implementation(libs.expandable.layout)
     implementation(libs.recyclerview)
     implementation(libs.fragment)
     implementation(libs.fragment.ktx)
