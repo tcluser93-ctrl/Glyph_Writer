@@ -1,5 +1,6 @@
 package com.blueapps.egyptianwriter.bliss
 
+import android.content.Context
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -7,6 +8,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 
@@ -17,53 +20,21 @@ import java.lang.reflect.Method
  * synthetic data into backing fields, and (c) reset the singleton between
  * tests.  No real Android assets are opened — the fakeContext throws on any
  * I/O attempt so accidental asset access fails loudly.
+ *
+ * Context is stubbed with Mockito rather than an anonymous subclass so that
+ * the JVM unit test classpath does not need to resolve every abstract method
+ * on android.content.Context (which pulls in dozens of Android-only types).
  */
 @DisplayName("BlissLookup — logic and state management")
 class BlissLookupTest {
 
-    // ── fake Android context ──────────────────────────────────────────────────
-    private val fakeContext: android.content.Context =
-        object : android.content.Context() {
-            override fun getApplicationContext() = this
-            override fun getAssets(): android.content.res.AssetManager =
-                throw UnsupportedOperationException("Test must not open assets")
-            override fun getPackageName() = "com.blueapps.egyptianwriter.test"
-            override fun getResources()  = throw UnsupportedOperationException()
-            override fun getPackageManager() = throw UnsupportedOperationException()
-            override fun getContentResolver() = throw UnsupportedOperationException()
-            override fun getMainLooper(): android.os.Looper = android.os.Looper.getMainLooper()
-            override fun getSystemService(name: String): Any? = null
-            override fun checkPermission(permission: String, pid: Int, uid: Int) = -1
-            override fun checkCallingOrSelfPermission(permission: String) = -1
-            override fun getApplicationInfo() = throw UnsupportedOperationException()
-            override fun bindService(i: android.content.Intent, c: android.content.ServiceConnection, f: Int) = false
-            override fun unbindService(c: android.content.ServiceConnection) = Unit
-            override fun startActivity(i: android.content.Intent) = Unit
-            override fun startService(i: android.content.Intent): android.content.ComponentName? = null
-            override fun stopService(i: android.content.Intent) = false
-            override fun sendBroadcast(i: android.content.Intent) = Unit
-            override fun registerReceiver(r: android.content.BroadcastReceiver?, f: android.content.IntentFilter): android.content.Intent? = null
-            override fun unregisterReceiver(r: android.content.BroadcastReceiver) = Unit
-            override fun createPackageContext(p: String, f: Int): android.content.Context = this
-            override fun getDir(n: String, m: Int): java.io.File = throw UnsupportedOperationException()
-            override fun getFilesDir(): java.io.File = throw UnsupportedOperationException()
-            override fun getCacheDir(): java.io.File = throw UnsupportedOperationException()
-            override fun getDatabasePath(n: String): java.io.File = throw UnsupportedOperationException()
-            override fun openFileInput(n: String): java.io.FileInputStream = throw UnsupportedOperationException()
-            override fun openFileOutput(n: String, m: Int): java.io.FileOutputStream = throw UnsupportedOperationException()
-            override fun getSharedPreferences(n: String, m: Int): android.content.SharedPreferences = throw UnsupportedOperationException()
-            override fun deleteFile(n: String) = false
-            override fun getFileStreamPath(n: String): java.io.File = throw UnsupportedOperationException()
-            override fun getClassLoader(): ClassLoader = javaClass.classLoader!!
-            override fun getTheme(): android.content.res.Resources.Theme = throw UnsupportedOperationException()
-            override fun setTheme(r: Int) = Unit
-            override fun obtainStyledAttributes(a: android.util.AttributeSet?, s: IntArray, d: Int, r: Int): android.content.res.TypedArray = throw UnsupportedOperationException()
-            override fun getString(r: Int) = ""
-            override fun getText(r: Int): CharSequence = ""
-            override fun getColor(id: Int) = 0
-            override fun getColorStateList(id: Int): android.content.res.ColorStateList? = null
-            override fun getDrawable(id: Int): android.graphics.drawable.Drawable? = null
-        }
+    // ── fake Android context (Mockito stub — no Android binaries needed) ─────
+    private val fakeContext: Context = mock<Context>().also { ctx ->
+        whenever(ctx.applicationContext).thenReturn(ctx)
+        whenever(ctx.packageName).thenReturn("com.blueapps.egyptianwriter.test")
+        // getAssets() intentionally left un-stubbed: any call throws MockitoException,
+        // which is equivalent to the previous UnsupportedOperationException guard.
+    }
 
     private lateinit var lookup: BlissLookup
 
@@ -94,7 +65,6 @@ class BlissLookupTest {
      * its fields live on the Companion class, not on BlissLookup itself.
      */
     private fun resetSingleton() {
-        // The Kotlin companion object is accessible as BlissLookup.Companion
         val companionClass = BlissLookup.Companion::class.java
         val f: Field = companionClass.getDeclaredField("INSTANCE")
         f.isAccessible = true
@@ -134,7 +104,6 @@ class BlissLookupTest {
 
         @Test @DisplayName("reset() sets isReady = false")
         fun resetClearsIsReady() {
-            // isReady has `private set` — inject via reflection
             val f = BlissLookup::class.java.getDeclaredField("isReady")
             f.isAccessible = true
             f.setBoolean(lookup, true)
@@ -144,7 +113,6 @@ class BlissLookupTest {
 
         @Test @DisplayName("reset() sets currentLang = null")
         fun resetClearsCurrentLang() {
-            // currentLang has `private set` — inject via reflection
             val f = BlissLookup::class.java.getDeclaredField("currentLang")
             f.isAccessible = true
             f.set(lookup, "it")
