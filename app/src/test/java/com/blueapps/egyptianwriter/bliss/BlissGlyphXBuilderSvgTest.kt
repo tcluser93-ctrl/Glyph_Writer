@@ -44,12 +44,15 @@ import javax.xml.xpath.XPathFactory
 @DisplayName("BlissGlyphXBuilder — toSvgBytes / toSvgString")
 class BlissGlyphXBuilderSvgTest {
 
-    // ── helpers ──────────────────────────────────────────────────────────────
+    // ── helpers ──────────────────────────────────────────────────────────────────
 
     private val builder = BlissGlyphXBuilder(symbolsPerLine = 4)
     private val xpath   = XPathFactory.newInstance().newXPath()
 
-    /** Minimal BlissSymbol constructor (only fields used by builder). */
+    /**
+     * Minimal BlissSymbol constructor.
+     * gloss is a computed property (= name), not a constructor param — omit it.
+     */
     private fun sym(
         id: Int,
         name: String,
@@ -59,8 +62,7 @@ class BlissGlyphXBuilderSvgTest {
         bciAvId    = id,
         name       = name,
         matchType  = matchType,
-        sourceWord = sourceWord,
-        gloss      = name
+        sourceWord = sourceWord
     )
 
     /** Parse an SVG string into a DOM Document. Throws if not well-formed. */
@@ -86,7 +88,7 @@ class BlissGlyphXBuilderSvgTest {
     private fun glyphDoc(symbols: List<BlissSymbol>): Document =
         builder.build(symbols)
 
-    // ── SVG structural correctness ────────────────────────────────────────────
+    // ── SVG structural correctness ─────────────────────────────────────────────────
 
     @Nested
     @DisplayName("SVG structure")
@@ -106,9 +108,6 @@ class BlissGlyphXBuilderSvgTest {
             val doc    = glyphDoc(listOf(sym(12335, "walk")))
             val svgDoc = parseSvg(builder.toSvgString(doc))
             assertEquals("svg", svgDoc.documentElement.localName ?: svgDoc.documentElement.nodeName)
-            val ns = svgDoc.documentElement.namespaceURI
-            // namespace may or may not be parsed depending on factory config;
-            // at minimum the xmlns attribute must be present in the raw string
             val raw = builder.toSvgString(doc)
             assertTrue(raw.contains("http://www.w3.org/2000/svg"),
                 "Expected SVG namespace in output")
@@ -129,18 +128,16 @@ class BlissGlyphXBuilderSvgTest {
             val doc = glyphDoc(emptyList())
             val svg = builder.toSvgString(doc)
             assertDoesNotThrow { parseSvg(svg) }
-            // must still be SVG
             assertTrue(svg.contains("<svg"), "Empty result should still be an SVG element")
         }
     }
 
-    // ── Canvas dimensions ─────────────────────────────────────────────────────
+    // ── Canvas dimensions ──────────────────────────────────────────────────────
 
     @Nested
     @DisplayName("Canvas dimensions")
     inner class Dimensions {
 
-        // SVG_CELL=80, SVG_ROW_H=100, SVG_PAD=12
         private val CELL  = 80
         private val ROW_H = 100
         private val PAD   = 12
@@ -157,7 +154,6 @@ class BlissGlyphXBuilderSvgTest {
         @Test
         @DisplayName("Height = PAD*2 + rows * ROW_H (symbolsPerLine=4 → 2 rows for 5 symbols)")
         fun canvasHeightMatchesRowCount() {
-            // builder has symbolsPerLine=4, so 5 symbols → 2 rows
             val symbols = (1..5).map { sym(it, "s$it") }
             val doc     = glyphDoc(symbols)
             val svgDoc  = parseSvg(builder.toSvgString(doc))
@@ -175,7 +171,7 @@ class BlissGlyphXBuilderSvgTest {
         }
     }
 
-    // ── Chip count ────────────────────────────────────────────────────────────
+    // ── Chip count ────────────────────────────────────────────────────────────────────
 
     @Nested
     @DisplayName("Chips (one per symbol)")
@@ -186,14 +182,13 @@ class BlissGlyphXBuilderSvgTest {
         fun oneChipPerSymbol() {
             val symbols = listOf(sym(1,"a"), sym(2,"b"), sym(3,"c"))
             val svg     = builder.toSvgString(glyphDoc(symbols))
-            // chip rects have stroke="#CCCCCC"; background rect does not
             val chipCount = Regex("stroke=\\\"#CCCCCC\\\"").findAll(svg).count()
             assertEquals(symbols.size, chipCount,
                 "Expected ${symbols.size} chip rects with stroke=#CCCCCC")
         }
     }
 
-    // ── Fill colours per matchType ─────────────────────────────────────────────
+    // ── Fill colours per matchType ───────────────────────────────────────────────
 
     @Nested
     @DisplayName("Match-type chip colours")
@@ -204,7 +199,6 @@ class BlissGlyphXBuilderSvgTest {
             val m = Regex("fill=\\\"(#[A-Fa-f0-9]{6})\\\"").findAll(svg)
                 .map { it.groupValues[1] }
                 .toList()
-            // index 0 = background (#FAFAF8), index 1 = chip fill
             return m.getOrNull(1) ?: ""
         }
 
@@ -215,7 +209,7 @@ class BlissGlyphXBuilderSvgTest {
         @Test fun chipFillUnknown()  = assertEquals("#FFD0D0", fillFor(MatchType.UNKNOWN))
     }
 
-    // ── Labels ────────────────────────────────────────────────────────────────
+    // ── Labels ─────────────────────────────────────────────────────────────────────────
 
     @Nested
     @DisplayName("Symbol name labels")
@@ -243,7 +237,7 @@ class BlissGlyphXBuilderSvgTest {
         @Test
         @DisplayName("Name exactly 9 chars appears without ellipsis")
         fun nameExactly9CharsNoEllipsis() {
-            val name = "123456789"  // exactly 9
+            val name = "123456789"
             val svg  = builder.toSvgString(glyphDoc(listOf(sym(1, name))))
             assertTrue(svgContains(svg, name))
             assertFalse(svgContains(svg, "$name\u2026"),
@@ -251,7 +245,7 @@ class BlissGlyphXBuilderSvgTest {
         }
     }
 
-    // ── Indicator badges ──────────────────────────────────────────────────────
+    // ── Indicator badges ─────────────────────────────────────────────────────────────
 
     @Nested
     @DisplayName("Indicator badges")
@@ -291,17 +285,15 @@ class BlissGlyphXBuilderSvgTest {
         @Test
         @DisplayName("Symbol with no indicators → no badge text element")
         fun noBadgeWhenNoIndicators() {
-            // No withIndicators() call → indicators list is empty
             val sym = sym(12335, "walk")
             val svg = builder.toSvgString(glyphDoc(listOf(sym)))
-            // Badge chars should not appear
             assertFalse(svgContains(svg, "\u00d7"), "Unexpected plural badge")
             assertFalse(svgContains(svg, "\u21a9"), "Unexpected past badge")
             assertFalse(svgContains(svg, "\u2192"), "Unexpected future badge")
         }
     }
 
-    // ── Byte consistency ──────────────────────────────────────────────────────
+    // ── Byte consistency ──────────────────────────────────────────────────────────────
 
     @Nested
     @DisplayName("Byte output")
@@ -325,7 +317,7 @@ class BlissGlyphXBuilderSvgTest {
         }
     }
 
-    // ── XML escaping ──────────────────────────────────────────────────────────
+    // ── XML escaping ──────────────────────────────────────────────────────────────────
 
     @Nested
     @DisplayName("XML escaping")
@@ -336,14 +328,14 @@ class BlissGlyphXBuilderSvgTest {
         fun xmlSpecialCharsEscaped() {
             val name = "a<b>&c\"\'d"
             val svg  = builder.toSvgString(glyphDoc(listOf(sym(1, name))))
-            // Raw chars must not appear unescaped inside element content
             val svgBody = svg
-                .replace(Regex("<[^>]+>"), " ")  // strip tags, keep text nodes
+                .replace(Regex("<[^>]+>"), " ")
             assertFalse(svgBody.contains("<b>"),  "Raw '<b>' should be escaped")
             assertFalse(svgBody.contains(">&c"),  "Raw '&' should be escaped")
-            // Escaped forms must be present
             assertTrue(svg.contains("&lt;")  || svg.contains("a&lt;b"), "Missing &lt;")
             assertTrue(svg.contains("&amp;") || svg.contains("&amp;c"), "Missing &amp;")
         }
     }
 }
+
+private typealias MatchType = BlissSymbol.MatchType
