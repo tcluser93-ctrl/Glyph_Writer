@@ -23,6 +23,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.w3c.dom.Document
@@ -67,97 +68,116 @@ class BlissRenderer(
      * inflated (on Main).  Cancels any previously running render automatically.
      *
      * Must be called from a coroutine (typically launched on Main).
+     *
+     * ### BUG-1 fix — render() deadlock
+     * The previous implementation did:
+     *   renderJob = scope.launch(Dispatchers.Main) { … }
+     *   renderJob?.join()
+     * If the caller runs on Main, join() blocks the thread waiting for a Job
+     * that also needs Main → deadlock / ANR.
+     * Fix: use coroutineScope { } so the suspend fun awaits its child naturally,
+     * then store the resulting Job only for cancellation purposes (cancelRender).
      */
     suspend fun render(container: LinearLayout, document: Document) {
         // Cancel any stale render before starting a new one
         renderJob?.cancelAndJoin()
 
-        renderJob = scope.launch(Dispatchers.Main) {
-            container.animate().alpha(0f).setDuration(100).start()
+        // coroutineScope{} inherits the caller's Job; it suspends until the
+        // inner launch completes — no separate join() needed, no deadlock risk.
+        coroutineScope {
+            renderJob = launch(Dispatchers.Main) {
+                container.animate().alpha(0f).setDuration(100).start()
 
-            val symbols = extractSymbols(document)
-            if (symbols.isEmpty()) {
-                container.removeAllViews()
-                container.animate().alpha(1f).setDuration(150).start()
-                return@launch
-            }
-
-            // Resolve cell size once before entering IO so we can pass it as size hint
-            val cellPx = resolveCellPx(container)
-
-            // ── Fetch all drawables in parallel on IO ─────────────────────────
-            val drawables = withContext(Dispatchers.IO) {
-                symbols.map { sym ->
-                    async {
-                        val bciId = sym.getAttribute("bciAvId")?.toIntOrNull() ?: -1
-                        val matchRaw = sym.getAttribute("matchType") ?: "EXACT"
-                        val matchType = runCatching {
-                            BlissSymbol.MatchType.valueOf(matchRaw)
-                        }.getOrDefault(BlissSymbol.MatchType.UNKNOWN)
-
-                        // getDrawableAsync expects (code: String, size: Float)
-                        // Bliss codes are prefixed with "B", size is the display cell in px
-                        val drawable = if (bciId > 0) {
-                            provider.getDrawableAsync("B$bciId", cellPx.toFloat())
-                        } else null
-
-                        Triple(bciId, matchType, drawable)
-                    }
-                }.awaitAll()
-            }
-
-            // ── Build Views on Main Thread in a single pass ───────────────────
-            container.removeAllViews()
-
-            val totalCols = symbols.size.coerceAtLeast(1)
-            ViewCompat.setAccessibilityDelegate(container, object : AccessibilityDelegateCompat() {
-                override fun onInitializeAccessibilityNodeInfo(
-                    host: View, info: AccessibilityNodeInfoCompat
-                ) {
-                    super.onInitializeAccessibilityNodeInfo(host, info)
-                    info.setCollectionInfo(
-                        CollectionInfoCompat.obtain(1, totalCols, false)
-                    )
+                // BUG-2+3 fix: use the correct tag name from BlissGlyphXBuilder
+                val symbols = extractSymbols(document)
+                if (symbols.isEmpty()) {
+                    container.removeAllViews()
+                    container.animate().alpha(1f).setDuration(150).start()
+                    return@launch
                 }
-            })
 
-            drawables.forEachIndexed { colIdx, (bciId, matchType, drawable) ->
-                val symEl   = symbols[colIdx]
-                val name    = symEl.getAttribute("name") ?: "symbol"
-                val indList = parseIndicators(symEl)
+                // Resolve cell size once before entering IO so we can pass it as size hint
+                val cellPx = resolveCellPx(container)
 
-                val cell = SvgCellView(context, bciId, name, matchType, indList)
-                cell.setDrawableResolved(drawable)
+                // ── Fetch all drawables in parallel on IO ─────────────────────────
+                val drawables = withContext(Dispatchers.IO) {
+                    symbols.map { sym ->
+                        async {
+                            // BUG-3 fix: attribute names match BlissGlyphXBuilder constants
+                            // ATTR_CODE = "code"  (was getAttribute("bciAvId") — always null)
+                            // ATTR_MATCH = "match" (was getAttribute("matchType") — always null)
+                            val codeAttr = sym.getAttribute(BlissGlyphXBuilder.ATTR_CODE) ?: ""
+                            val bciId    = BlissGlyphXBuilder.parseBciAvId(codeAttr)
 
-                cell.layoutParams = LinearLayout.LayoutParams(cellPx, cellPx)
-                    .also { it.marginEnd = 4.dpToPx(context) }
+                            val matchRaw = sym.getAttribute(BlissGlyphXBuilder.ATTR_MATCH) ?: "EXACT"
+                            val matchType = runCatching {
+                                BlissSymbol.MatchType.valueOf(matchRaw)
+                            }.getOrDefault(BlissSymbol.MatchType.UNKNOWN)
 
-                // Accessibility: item info
-                ViewCompat.setAccessibilityDelegate(cell, object : AccessibilityDelegateCompat() {
+                            // getDrawableAsync expects (code: String, size: Float)
+                            // Bliss codes are prefixed with "B", size is the display cell in px
+                            val drawable = if (bciId > 0) {
+                                provider.getDrawableAsync("${BlissGlyphXBuilder.BLISS_PREFIX}$bciId", cellPx.toFloat())
+                            } else null
+
+                            Triple(bciId, matchType, drawable)
+                        }
+                    }.awaitAll()
+                }
+
+                // ── Build Views on Main Thread in a single pass ───────────────
+                container.removeAllViews()
+
+                val totalCols = symbols.size.coerceAtLeast(1)
+                ViewCompat.setAccessibilityDelegate(container, object : AccessibilityDelegateCompat() {
                     override fun onInitializeAccessibilityNodeInfo(
                         host: View, info: AccessibilityNodeInfoCompat
                     ) {
                         super.onInitializeAccessibilityNodeInfo(host, info)
-                        info.setCollectionItemInfo(
-                            CollectionItemInfoCompat.obtain(0, 1, colIdx, 1, false, false)
+                        info.setCollectionInfo(
+                            CollectionInfoCompat.obtain(1, totalCols, false)
                         )
-                        val matchLabel = matchType.name.lowercase()
-                            .replaceFirstChar { it.uppercase() }
-                        info.contentDescription =
-                            "Symbol ${colIdx + 1} of $totalCols: $name, $matchLabel match"
-                        if (indList.isNotEmpty())
-                            info.contentDescription =
-                                "${info.contentDescription}, indicators: ${indList.joinToString()}"
                     }
                 })
 
-                container.addView(cell)
+                drawables.forEachIndexed { colIdx, (bciId, matchType, drawable) ->
+                    val symEl   = symbols[colIdx]
+                    val name    = symEl.getAttribute(BlissGlyphXBuilder.ATTR_NAME) ?: "symbol"
+                    val indList = parseIndicators(symEl)
+
+                    val cell = SvgCellView(context, bciId, name, matchType, indList)
+                    cell.setDrawableResolved(drawable)
+
+                    cell.layoutParams = LinearLayout.LayoutParams(cellPx, cellPx)
+                        .also { it.marginEnd = 4.dpToPx(context) }
+
+                    // Accessibility: item info
+                    ViewCompat.setAccessibilityDelegate(cell, object : AccessibilityDelegateCompat() {
+                        override fun onInitializeAccessibilityNodeInfo(
+                            host: View, info: AccessibilityNodeInfoCompat
+                        ) {
+                            super.onInitializeAccessibilityNodeInfo(host, info)
+                            info.setCollectionItemInfo(
+                                CollectionItemInfoCompat.obtain(0, 1, colIdx, 1, false, false)
+                            )
+                            val matchLabel = matchType.name.lowercase()
+                                .replaceFirstChar { it.uppercase() }
+                            info.contentDescription =
+                                "Symbol ${colIdx + 1} of $totalCols: $name, $matchLabel match"
+                            if (indList.isNotEmpty())
+                                info.contentDescription =
+                                    "${info.contentDescription}, indicators: ${indList.joinToString()}"
+                        }
+                    })
+
+                    container.addView(cell)
+                }
+
+                container.animate().alpha(1f).setDuration(200).start()
             }
-
-            container.animate().alpha(1f).setDuration(200).start()
         }
-
-        renderJob?.join()  // await completion so callers can chain
+        // renderJob is set above; coroutineScope{} has already awaited completion.
+        // We keep the field so cancelRender() can interrupt a future render.
     }
 
     /** Cancels any in-flight render.  Call from [View.onDetachedFromWindow]. */
@@ -206,14 +226,24 @@ class BlissRenderer(
 
     // ── internal helpers ──────────────────────────────────────────────────────
 
+    /**
+     * BUG-2 fix: the GlyphX schema uses <sign> elements (BlissGlyphXBuilder.TAG_SIGN),
+     * NOT <symbol>. The previous getElementsByTagName("symbol") always returned
+     * an empty NodeList, so nothing was ever rendered.
+     *
+     * We search one level deeper: ancientText → line → group → sign.
+     * Using TAG_SIGN directly keeps this in sync with the builder constant.
+     */
     private fun extractSymbols(document: Document): List<Element> {
-        val nodeList = document.getElementsByTagName("symbol")
+        val nodeList = document.getElementsByTagName(BlissGlyphXBuilder.TAG_SIGN)
         return (0 until nodeList.length).map { nodeList.item(it) as Element }
     }
 
     private fun parseIndicators(element: Element): List<String> {
-        val indNodes = element.getElementsByTagName("indicator")
-        return (0 until indNodes.length).map { (indNodes.item(it) as Element).getAttribute("type") }
+        // <indicator> elements are siblings of <sign> inside the parent <group>
+        val parent   = element.parentNode as? Element ?: return emptyList()
+        val indNodes = parent.getElementsByTagName(BlissGlyphXBuilder.TAG_INDICATOR)
+        return (0 until indNodes.length).map { (indNodes.item(it) as Element).getAttribute(BlissGlyphXBuilder.ATTR_TYPE) }
     }
 
     private fun resolveCellPx(container: ViewGroup): Int {
@@ -305,7 +335,7 @@ class BlissRenderer(
             loadJob = scope.launch {
                 val d = withContext(Dispatchers.IO) {
                     // getDrawableAsync expects (code: String, size: Float)
-                    provider.getDrawableAsync("B$bciId", sizePx)
+                    provider.getDrawableAsync("${BlissGlyphXBuilder.BLISS_PREFIX}$bciId", sizePx)
                 }
                 setDrawableResolved(d)
             }

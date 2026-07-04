@@ -25,7 +25,6 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -58,8 +57,10 @@ class BlissTranslateFragment : Fragment() {
     private val vm: BlissViewModel by activityViewModels()
 
     // ── Engine helper (solo per costruire il doc SVG lato Fragment) ───────
+    // BUG-4 fix: removed dead `translateJob: Job?` field — translation is
+    // entirely delegated to BlissViewModel.translate(); the field was never
+    // assigned or cancelled and served no purpose.
     private var glyphXBuilder: BlissGlyphXBuilder? = null
-    private var translateJob: Job? = null
 
     // ── Views ─────────────────────────────────────────────────────────────
     private lateinit var spinnerLang:       Spinner
