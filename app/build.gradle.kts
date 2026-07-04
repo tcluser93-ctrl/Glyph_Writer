@@ -95,6 +95,11 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.arch.core.testing)
     testImplementation(libs.mockito.kotlin)
+    // Room annotation classes (@Entity, @ColumnInfo, @PrimaryKey, @Index) are
+    // needed on the JVM test compile classpath because BlissHistoryEntry is
+    // referenced transitively by BlissViewModel.UiState (used in tests).
+    testImplementation(libs.room.runtime)
+    testImplementation(libs.room.ktx)
 
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
