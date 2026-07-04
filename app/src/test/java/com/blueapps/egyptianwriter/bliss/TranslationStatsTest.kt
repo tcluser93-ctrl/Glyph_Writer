@@ -16,12 +16,12 @@ import org.junit.jupiter.api.Test
 @DisplayName("TranslationStats")
 class TranslationStatsTest {
 
+    // gloss is a computed property (= name), not a constructor param — omit it.
     private fun sym(mt: BlissSymbol.MatchType) = BlissSymbol(
         bciAvId    = 1,
         name       = "x",
         matchType  = mt,
-        sourceWord = "x",
-        gloss      = "x"
+        sourceWord = "x"
     )
 
     @Nested
@@ -65,8 +65,6 @@ class TranslationStatsTest {
         @Test
         @DisplayName("FALLBACK_CATEGORY symbols are NOT counted as exact/lemma/ngram/unknown")
         fun fallbackCategoryNotCounted() {
-            // FALLBACK_CATEGORY does not map to any named bucket in TranslationStats;
-            // it contributes to total but NOT to the 4 named counters.
             val s = TranslationStats.from(
                 List(2) { sym(BlissSymbol.MatchType.FALLBACK_CATEGORY) }
             )

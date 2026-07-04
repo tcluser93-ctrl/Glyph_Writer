@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test
 @DisplayName("BlissSymbol — data class and indicator extensions")
 class BlissSymbolTest {
 
+    // gloss is a computed property (= name), not a constructor param — omit it.
     private fun sym(id: Int = 1, name: String = "test") = BlissSymbol(
         bciAvId    = id,
         name       = name,
-        matchType  = MatchType.EXACT,
-        sourceWord = name,
-        gloss      = name
+        matchType  = BlissSymbol.MatchType.EXACT,
+        sourceWord = name
     )
 
     @Test
