@@ -11,7 +11,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EgyptianWriter">
 
-        <!-- ── Launcher (opzione A: stub Bliss-only) ─────────────────────── -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -20,26 +19,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- ── Geroglifici (da rimuovere nella pulizia B) ────────────────── -->
-        <activity
-            android:name=".export.FileResultActivity"
-            android:exported="false" />
-        <activity
-            android:name=".editor.document.DocumentEditorActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".info.InfoActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize"/>
-        <activity
-            android:name=".preferences.PreferencesActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".dashboard.DashboardActivity"
-            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
