@@ -1,10 +1,5 @@
 package com.blueapps.egyptianwriter.bliss
 
-import android.text.SpannableStringBuilder
-import android.text.style.RelativeSizeSpan
-import androidx.core.text.buildSpannedString
-import androidx.core.text.inSpans
-
 /**
  * Immutable value-object representing a single BCI-AV Bliss symbol.
  *
@@ -14,8 +9,9 @@ import androidx.core.text.inSpans
  *   (e.g. "action", "thing", "evaluation"). Required for FALLBACK_CATEGORY lookup.
  * - [synsetId] changed to `Long?` (was `Long = -1L`): idiomatic Kotlin nullable.
  * - [init] validates invariants: bciAvId must be positive; name must be non-blank.
- * - [displayLabel] now returns [CharSequence] backed by SpannableString so the
- *   BCI-AV id line renders at 70% size — works in any Android TextView context.
+ * - [displayLabel] moved to [BlissSymbolDisplayExt.kt] (Android-only extension)
+ *   so this file remains a pure Kotlin class, compilable by JVM unit tests without
+ *   an Android classpath.
  *
  * @param bciAvId    Official BCI-AV identifier (> 0). E.g. 12335.
  * @param name       English canonical name from bci_names.json (non-blank).
@@ -51,21 +47,6 @@ data class BlissSymbol(
 
     /** Convenience property — returns full [name]. */
     val gloss: String get() = name
-
-    /**
-     * Short label shown on UI chips as a [CharSequence] (SpannableString).
-     *
-     * Line 1: BCI-AV id at 70% text size  (e.g. "#12335")
-     * Line 2: truncated name at 100%       (e.g. "camminare")
-     *
-     * Works in any Android TextView — no `\n` rendering issues (F1-11).
-     */
-    fun displayLabel(nameMax: Int = 14): CharSequence =
-        buildSpannedString {
-            inSpans(RelativeSizeSpan(0.7f)) { append("#$bciAvId") }
-            append("\n")
-            append(gloss(nameMax))
-        }
 
     /** True when this symbol represents an unresolved/unknown token. */
     val isUnknown: Boolean get() = matchType == MatchType.UNKNOWN
