@@ -161,12 +161,11 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
                 val symbols = withContext(Dispatchers.Default) {
                     t.translateAsync(text)
                 }
+                // BlissGlyphXBuilder.build(symbols) is the current API.
+                // The previous clear()/append()/build() sequence used APIs that
+                // no longer exist on BlissGlyphXBuilder.
                 val doc = withContext(Dispatchers.Default) {
-                    builder?.let { b ->
-                        b.clear()
-                        symbols.forEach { sym -> b.append(sym) }
-                        b.build()
-                    }
+                    builder?.build(symbols)
                 }
                 val stats = TranslationStats.from(symbols)
                 _uiState.value = _uiState.value.copy(
@@ -175,7 +174,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
                     stats     = stats,
                     isLoading = false
                 )
-                // Persist to history on IO — fire-and-forget from the UI’s perspective
+                // Persist to history on IO — fire-and-forget from the UI's perspective
                 val lang = _uiState.value.langCode
                 viewModelScope.launch(Dispatchers.IO) {
                     repository.saveTranslation(
@@ -197,7 +196,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     // ── typeahead suggestions ───────────────────────────────────────────────────
 
     /**
-     * Called by the Fragment’s [android.text.TextWatcher] on each keystroke.
+     * Called by the Fragment's [android.text.TextWatcher] on each keystroke.
      * Queries the FTS4 prefix index for the **last word** in [text] and emits
      * up to [MAX_SUGGESTIONS] BCI canonical names into [UiState.suggestions].
      *
@@ -256,7 +255,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
 
     /**
      * Clears the entire history for the current language.
-     * Called from the Fragment’s ‘Clear history’ menu item.
+     * Called from the Fragment's 'Clear history' menu item.
      */
     fun clearHistory() {
         val lang = _uiState.value.langCode

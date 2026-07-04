@@ -24,7 +24,11 @@ import java.util.concurrent.atomic.AtomicLong
  * The original cache used `LruCache<String, Drawable>(256)` with count-based eviction.
  * SVG files range from 2 KB to 80 KB; 256 entries could allocate 20 MB of heap.
  * The new cache is bounded to [maxCacheBytes] (default 8 MB) using a size-in-bytes
- * `LruCache` that measures each `PictureDrawable` via `picture.byteCount`.
+ * `LruCache` that estimates each `PictureDrawable` weight as its raster-equivalent
+ * size: `intrinsicWidth * intrinsicHeight * 4` bytes (ARGB_8888 worst-case).
+ * Note: `android.graphics.Picture` stores vector draw commands — it does NOT expose
+ * a `byteCount` API. This estimate is proportional to the drawable's visual size,
+ * which correctly penalises large symbols over small ones in the LRU.
  * PlaceholderDrawables are counted as 1 byte (negligible) to avoid distorting eviction.
  *
  * ### F1-07 — Thread-safe cache: Mutex per-key
@@ -79,8 +83,15 @@ class BlissSignProvider(
 
     private val cache = object : android.util.LruCache<String, Drawable>(maxCacheBytes) {
         override fun sizeOf(key: String, value: Drawable): Int = when (value) {
-            is PictureDrawable -> value.picture.byteCount.coerceAtLeast(1)
-            else               -> 1   // PlaceholderDrawable — negligible
+            is PictureDrawable -> {
+                // android.graphics.Picture has no byteCount API — it stores vector
+                // draw commands, not a pixel buffer. Use estimated raster-equivalent
+                // size (ARGB_8888) as a proportional proxy for LRU eviction weight.
+                val w = value.intrinsicWidth.coerceAtLeast(1)
+                val h = value.intrinsicHeight.coerceAtLeast(1)
+                (w * h * 4).coerceAtLeast(1)
+            }
+            else -> 1   // PlaceholderDrawable — negligible
         }
     }
 

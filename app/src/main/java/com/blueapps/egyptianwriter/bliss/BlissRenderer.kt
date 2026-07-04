@@ -17,8 +17,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionItemInfoCompat
-import com.caverock.androidsvg.SVG
-import com.caverock.androidsvg.RenderOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -84,19 +82,23 @@ class BlissRenderer(
                 return@launch
             }
 
+            // Resolve cell size once before entering IO so we can pass it as size hint
+            val cellPx = resolveCellPx(container)
+
             // ── Fetch all drawables in parallel on IO ─────────────────────────
             val drawables = withContext(Dispatchers.IO) {
                 symbols.map { sym ->
                     async {
                         val bciId = sym.getAttribute("bciAvId")?.toIntOrNull() ?: -1
-                        val lang  = sym.getAttribute("lang") ?: "en"
                         val matchRaw = sym.getAttribute("matchType") ?: "EXACT"
                         val matchType = runCatching {
                             BlissSymbol.MatchType.valueOf(matchRaw)
                         }.getOrDefault(BlissSymbol.MatchType.UNKNOWN)
 
+                        // getDrawableAsync expects (code: String, size: Float)
+                        // Bliss codes are prefixed with "B", size is the display cell in px
                         val drawable = if (bciId > 0) {
-                            provider.getDrawableAsync(bciId, lang)
+                            provider.getDrawableAsync("B$bciId", cellPx.toFloat())
                         } else null
 
                         Triple(bciId, matchType, drawable)
@@ -127,7 +129,6 @@ class BlissRenderer(
                 val cell = SvgCellView(context, bciId, name, matchType, indList)
                 cell.setDrawableResolved(drawable)
 
-                val cellPx = resolveCellPx(container)
                 cell.layoutParams = LinearLayout.LayoutParams(cellPx, cellPx)
                     .also { it.marginEnd = 4.dpToPx(context) }
 
@@ -295,12 +296,16 @@ class BlissRenderer(
         /**
          * Asynchronously swaps the drawable.  Cancels any pending load before
          * starting a new one — safe to call multiple times (e.g. on recycle).
+         *
+         * Uses the current view's intrinsic size as the render size hint so the
+         * SVG is rasterised at the correct display resolution.
          */
-        fun setDrawableAsync(bciId: Int, lang: String) {
+        fun setDrawableAsync(bciId: Int, sizePx: Float = DEFAULT_CELL_DP.toFloat()) {
             loadJob?.cancel()
             loadJob = scope.launch {
                 val d = withContext(Dispatchers.IO) {
-                    provider.getDrawableAsync(bciId, lang)
+                    // getDrawableAsync expects (code: String, size: Float)
+                    provider.getDrawableAsync("B$bciId", sizePx)
                 }
                 setDrawableResolved(d)
             }
