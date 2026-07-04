@@ -111,12 +111,12 @@ class BlissViewModelTest {
     @DisplayName("TranslationStats")
     inner class StatsTests {
 
+        // gloss is a computed property (not a constructor param) — omit it here
         private fun sym(mt: MatchType) = BlissSymbol(
             bciAvId    = 1,
             name       = "x",
             matchType  = mt,
-            sourceWord = "x",
-            gloss      = "x"
+            sourceWord = "x"
         )
 
         @Test

@@ -15,6 +15,7 @@ import org.w3c.dom.Element
 @DisplayName("BlissGlyphXBuilder — build() and append()")
 class BlissGlyphXBuilderCoreTest {
 
+    // gloss is a computed property on BlissSymbol (not a constructor param)
     private fun sym(
         id: Int,
         name: String,
@@ -23,8 +24,7 @@ class BlissGlyphXBuilderCoreTest {
         bciAvId    = id,
         name       = name,
         matchType  = matchType,
-        sourceWord = name,
-        gloss      = name
+        sourceWord = name
     )
 
     @Nested
@@ -128,3 +128,5 @@ class BlissGlyphXBuilderCoreTest {
         @Test fun textOnly()   = assertEquals(-1,    BlissGlyphXBuilder.parseBciAvId("Bwalk"))
     }
 }
+
+private typealias MatchType = BlissSymbol.MatchType
