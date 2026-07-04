@@ -1,11 +1,4 @@
-package android.content;
-
-/**
- * JVM stub for android.content.ContextWrapper — minimal surface needed
- * so that android.app.Application (which extends it) compiles in the
- * unit-test classpath without the full Android framework.
- */
-@SuppressWarnings("unused")
-public class ContextWrapper extends Context {
-    public ContextWrapper(Context base) {}
-}
+// DELETED — superseded by testOptions.unitTests.isReturnDefaultValues = true
+// This file is intentionally left as a comment-only placeholder and will
+// be ignored by the compiler because the package is now provided by AGP.
+// It will be removed in the next cleanup commit.

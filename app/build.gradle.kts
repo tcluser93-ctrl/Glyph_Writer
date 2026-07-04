@@ -38,6 +38,9 @@ android {
         includeInApk = false
         includeInBundle = false
     }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 kotlin {
