@@ -1,4 +1,4 @@
-# Integrazione Bliss → ThothView
+# Integrazione Bliss → GlyphWriter
 
 ## Panoramica architetturale
 
@@ -92,7 +92,9 @@ come label di testo nel renderer nativo di ThothView).
 **Nel layout XML** (`activity_document_editor.xml`):
 ```xml
 <!-- Aggiungere un terzo CheckableImageButton accanto a buttonWrite e buttonSettings -->
-<com.blueapps.egyptianwriter.CheckableImageButton
+<!-- TODO: aggiornare il package name quando il refactor da egyptianwriter a glyphwriter
+     sarà completato tramite Android Studio → Refactor → Rename Package -->
+<com.blueapps.glyphwriter.CheckableImageButton
     android:id="@+id/buttonBliss"
     android:layout_width="48dp"
     android:layout_height="48dp"
@@ -157,3 +159,19 @@ Aggiungere in `app/src/main/res/drawable/ic_bliss.xml`:
 | `BlissSignProvider.kt` | Risolve codice B{id} → Drawable SVG da assets |
 | `BlissRenderer.kt` | View standalone per anteprima simboli |
 | `INTEGRATION.md` | Queste istruzioni |
+
+---
+
+## Note sul refactoring del package name
+
+Il package `com.blueapps.egyptianwriter` è ancora presente in tutti i file
+sorgente. Per completare la migrazione del branding:
+
+1. In Android Studio: tasto destro sul package root → **Refactor → Rename**
+2. Scegliere il nuovo nome (es. `com.blueapps.glyphwriter`)
+3. Android Studio aggiornerà automaticamente:
+   - Tutti i file `.kt` / `.java`
+   - `AndroidManifest.xml`
+   - `build.gradle.kts` (applicationId)
+4. Rinominare anche il file `Egyptian_Writer.apk` nella root del repository
+   in `Glyph_Writer.apk` per coerenza con il nome del progetto.
