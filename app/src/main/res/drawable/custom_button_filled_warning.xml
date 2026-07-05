@@ -2,13 +2,13 @@
 <!--
   custom_button_filled_warning
   Solid warning/destructive-colour fill.  Used for delete / irreversible actions.
-  Falls back to Material deep-orange (#FF5722) if colorWarning is not defined.
+  Uses l_textColorError (#ff0000) — the only warning/red token in colors.xml.
 -->
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="@color/l_ripple_dark">
+    android:color="@color/l_ripple_warning">
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/colorWarning" />
+            <solid android:color="@color/l_textColorError" />
             <corners android:radius="8dp" />
         </shape>
     </item>
