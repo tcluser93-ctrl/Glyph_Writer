@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blueapps.egyptianwriter.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -28,7 +29,7 @@ import java.util.Locale
  *
  * Mostra la cronologia delle traduzioni salvate in [BlissHistoryRepository].
  * Supporta:
- *  - Lista card (testo sorgente, gloss, lingua, timestamp, contatore simboli)
+ *  - Lista card (testo sorgente, lingua, timestamp, contatore simboli, copertura)
  *  - Empty-state animato quando la lista è vuota
  *  - Swipe-to-delete con undo via Snackbar
  *  - FAB "cancella tutto" con conferma via Snackbar
@@ -38,18 +39,17 @@ class BlissHistoryFragment : Fragment() {
 
     private val vm: BlissViewModel by activityViewModels()
 
-    private lateinit var rvHistory:   RecyclerView
-    private lateinit var emptyState:  LinearLayout
-    private lateinit var fabClear:    FloatingActionButton
+    private lateinit var rvHistory:  RecyclerView
+    private lateinit var emptyState: LinearLayout
+    private lateinit var fabClear:   FloatingActionButton
 
     private val adapter = HistoryAdapter(
         onItemClick = { entry ->
-            // Ripristina la traduzione nel ViewModel, poi torna al Fragment traduttore
             vm.restoreFromHistory(entry)
             parentFragmentManager.popBackStack()
         },
         onItemDelete = { entry ->
-            vm.deleteHistoryEntry(entry)
+            vm.deleteHistoryEntry(entry.id)
             Snackbar.make(
                 requireView(),
                 getString(R.string.history_deleted),
@@ -76,7 +76,6 @@ class BlissHistoryFragment : Fragment() {
         rvHistory.layoutManager = LinearLayoutManager(requireContext())
         rvHistory.adapter = adapter
 
-        // Swipe-to-delete
         ItemTouchHelper(SwipeToDeleteCallback { pos ->
             val entry = adapter.currentList[pos]
             adapter.onItemDelete(entry)
@@ -102,13 +101,15 @@ class BlissHistoryFragment : Fragment() {
     private fun observeHistory() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                vm.historyEntries.collect { entries ->
-                    adapter.submitList(entries)
-                    val empty = entries.isEmpty()
-                    rvHistory.isVisible  = !empty
-                    emptyState.isVisible = empty
-                    fabClear.isVisible   = !empty
-                }
+                vm.uiState
+                    .map { it.history }
+                    .collect { entries ->
+                        adapter.submitList(entries)
+                        val empty = entries.isEmpty()
+                        rvHistory.isVisible  = !empty
+                        emptyState.isVisible = empty
+                        fabClear.isVisible   = !empty
+                    }
             }
         }
     }
@@ -145,13 +146,18 @@ class BlissHistoryFragment : Fragment() {
             val entry = getItem(position)
             val ctx   = holder.itemView.context
             val fmt   = SimpleDateFormat("dd/MM/yy HH:mm", Locale.getDefault())
+            val symbolCount = entry.symbolIds.size
 
-            holder.textSource.text      = entry.sourceText
+            holder.textSource.text      = entry.inputText
             holder.textTimestamp.text   = fmt.format(Date(entry.timestampMs))
-            holder.textGloss.text       = entry.glossLine
+            // glossLine non è persistita: mostriamo la copertura come indicatore
+            holder.textGloss.text       = ctx.getString(
+                R.string.history_coverage_fmt,
+                (entry.coverage * 100).toInt()
+            )
             holder.textLang.text        = entry.langCode.uppercase()
             holder.textSymbolCount.text = ctx.resources.getQuantityString(
-                R.plurals.history_symbol_count, entry.symbolCount, entry.symbolCount
+                R.plurals.history_symbol_count, symbolCount, symbolCount
             )
             holder.itemView.setOnClickListener { onItemClick(entry) }
         }

@@ -161,9 +161,6 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
                 val symbols = withContext(Dispatchers.Default) {
                     t.translateAsync(text)
                 }
-                // BlissGlyphXBuilder.build(symbols) is the current API.
-                // The previous clear()/append()/build() sequence used APIs that
-                // no longer exist on BlissGlyphXBuilder.
                 val doc = withContext(Dispatchers.Default) {
                     builder?.build(symbols)
                 }
@@ -174,7 +171,6 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
                     stats     = stats,
                     isLoading = false
                 )
-                // Persist to history on IO — fire-and-forget from the UI's perspective
                 val lang = _uiState.value.langCode
                 viewModelScope.launch(Dispatchers.IO) {
                     repository.saveTranslation(
@@ -196,18 +192,11 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     // ── typeahead suggestions ───────────────────────────────────────────────────
 
     /**
-     * Called by the Fragment's [android.text.TextWatcher] on each keystroke.
-     * Queries the FTS4 prefix index for the **last word** in [text] and emits
+     * Called by the Fragment's TextWatcher on each keystroke.
+     * Queries the FTS4 prefix index for the last word in [text] and emits
      * up to [MAX_SUGGESTIONS] BCI canonical names into [UiState.suggestions].
-     *
-     * The previous suggestion job is cancelled before a new one is launched,
-     * acting as a lightweight debounce: only the result for the latest input
-     * ever reaches the UI.
-     *
-     * @param text  Full current content of the input field.
      */
     fun onSuggestionQuery(text: String) {
-        // Extract the last whitespace-delimited token as the live prefix
         val prefix = text.trimEnd().substringAfterLast(' ').lowercase()
         if (prefix.length < MIN_PREFIX_LEN) {
             if (_uiState.value.suggestions.isNotEmpty()) {
@@ -235,7 +224,6 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
 
     /**
      * Toggles the visibility of the history panel.
-     * The Fragment observes [UiState.historyVisible] to show/hide the panel.
      */
     fun toggleHistoryPanel() {
         _uiState.value = _uiState.value.copy(
@@ -244,8 +232,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * Deletes a single history entry by [id] on [Dispatchers.IO].
-     * The history [Flow] will automatically emit an updated list.
+     * Deletes a single history entry by its [id].
      */
     fun deleteHistoryEntry(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -254,8 +241,42 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
+     * Restores [entry] into the active translation state so the user can
+     * see it in the translator fragment.  Does not re-run the translation
+     * pipeline — symbols are resolved from BCI-AV IDs via [BlissLookup].
+     */
+    fun restoreFromHistory(entry: BlissHistoryEntry) {
+        val resolved = entry.symbolIds
+            .mapNotNull { id -> lookup.symbolById(id) }
+        val stats = TranslationStats.from(resolved)
+        _uiState.value = _uiState.value.copy(
+            symbols   = resolved,
+            glyphXDoc = null,
+            stats     = stats,
+            error     = null
+        )
+    }
+
+    /**
+     * Re-inserts a previously deleted [entry] (undo for swipe-to-delete).
+     */
+    fun restoreHistoryEntry(entry: BlissHistoryEntry) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insertEntry(entry)
+        }
+    }
+
+    /**
+     * Re-inserts a list of previously deleted entries (undo for clear-all).
+     */
+    fun restoreHistoryEntries(entries: List<BlissHistoryEntry>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            entries.forEach { repository.insertEntry(it) }
+        }
+    }
+
+    /**
      * Clears the entire history for the current language.
-     * Called from the Fragment's 'Clear history' menu item.
      */
     fun clearHistory() {
         val lang = _uiState.value.langCode
@@ -266,7 +287,6 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
 
     // ── private: reactive observers ─────────────────────────────────────────────────
 
-    /** Starts (or restarts) collecting the history Flow for [lang]. */
     private fun startObservingHistory(lang: String) {
         historyJob?.cancel()
         historyJob = viewModelScope.launch {
@@ -277,7 +297,6 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /** Starts (or restarts) collecting the recent-inputs Flow for [lang]. */
     private fun startObservingRecentInputs(lang: String) {
         inputsJob?.cancel()
         inputsJob = viewModelScope.launch {
@@ -306,24 +325,16 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
         inputsJob?.cancel()
     }
 
-    // ── companion ─────────────────────────────────────────────────────────────────────────
-
     companion object {
         private const val TAG             = "BlissViewModel"
         private const val DEFAULT_LANG    = "it"
-        /** Minimum prefix length to trigger an FTS4 typeahead query. */
         const val MIN_PREFIX_LEN          = 2
-        /** Maximum number of typeahead suggestion labels to surface in the UI. */
         const val MAX_SUGGESTIONS         = 8
     }
 }
 
 // ── TranslationStats ────────────────────────────────────────────────────────────────
 
-/**
- * Coverage breakdown for a translated symbol list.
- * Exposed on [BlissViewModel.UiState.stats].
- */
 data class TranslationStats(
     val total:   Int,
     val exact:   Int,
@@ -331,7 +342,6 @@ data class TranslationStats(
     val ngram:   Int,
     val unknown: Int
 ) {
-    /** Coverage ratio 0..1 (fraction of non-UNKNOWN symbols). */
     val coverage: Float
         get() = if (total == 0) 0f else (total - unknown).toFloat() / total.toFloat()
 
