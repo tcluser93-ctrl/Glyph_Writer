@@ -23,8 +23,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blueapps.egyptianwriter.R
 import com.google.android.flexbox.FlexboxLayout
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
@@ -37,75 +39,78 @@ import java.io.File
 import java.util.Locale
 
 /**
- * BlissTranslateFragment — Fase 4 UI + Fase 5 Accessibilità + Fase 6 Blocco B
+ * BlissTranslateFragment — Fase 4 UI + Fase 5 Accessibilità + Fase 6 Blocchi B e C
  *
  * ## Blocco B — Anteprima real-time
- * Il [TextWatcher.afterTextChanged] lancia un Job con debounce di [DEBOUNCE_MS]
- * ms (400 ms). Ogni nuova digitazione cancella il Job precedente, quindi la
- * traduzione parte solo quando l'utente smette di scrivere.
+ * Il [TextWatcher.afterTextChanged] lancia un Job con debounce di [DEBOUNCE_MS] ms.
+ * Un'icona tastiera nel TextInputLayout abilita la modalità manuale (bottone esplicito).
  *
- * Il bottone "Traduci" esplicito diventa **opzionale**: di default è nascosto
- * ([btnTranslate].isVisible = false); un'icona di tastiera nella TextInputLayout
- * lo mostra/nasconde toggling [manualModeEnabled]. In modalità manuale il
- * debounce è disattivato e la traduzione parte solo al click.
+ * ## Blocco C — Modalità CAA simbolo per simbolo
+ * Un [SwitchMaterial] (`switch_caa_mode`) alterna tra due viste:
+ *  - **Standard**: FlexboxLayout di chip compatti (comportamento precedente)
+ *  - **CAA**: RecyclerView verticale ([rvCaaCards]) con card grandi
+ *    ([BlissSymbolCardAdapter]) + pulsanti Indietro/Avanti ([btnPrev]/[btnNext])
+ *    che scorrono il contenuto e aggiornano [caaCurrentIndex].
  *
- * Flusso:
- *  1. Spinner lingua  → vm.setLang(lang)
- *  2. TextInputEditText testo sorgente
- *  3. RecyclerView suggerimenti predittivi orizzontale (uiState.suggestions)
- *  4. [auto] afterTextChanged → debounce 400ms → vm.translate(text)
- *     [manual] Button "Traduci" → vm.translate(text)
- *  5. FlexboxLayout chip simboli
- *  6. FAB "Condividi SVG"
+ * La cronologia auto-salvataggio è già gestita nel ViewModel: ogni chiamata
+ * [BlissViewModel.translate] salva automaticamente in [BlissHistoryRepository].
  */
 class BlissTranslateFragment : Fragment() {
 
-    // ── ViewModel ───────────────────────────────────────────────────────────────────
+    // ── ViewModel ────────────────────────────────────────────────────────────
     private val vm: BlissViewModel by activityViewModels()
 
-    // ── Engine helper ────────────────────────────────────────────────────────────
+    // ── Engine helper ─────────────────────────────────────────────────────────
     private var glyphXBuilder: BlissGlyphXBuilder? = null
 
-    // ── Debounce ───────────────────────────────────────────────────────────────────
-    /**
-     * Pending debounce job.  Cancelled and replaced on every keystroke.
-     * When [manualModeEnabled] is true this is never started.
-     */
-    private var debounceJob: Job? = null
-
-    /**
-     * When `true` the real-time debounce is **disabled** and translation
-     * fires only via the explicit "Traduci" button.
-     * Toggled by the [inputLayout] end-icon (keyboard icon).
-     */
+    // ── Debounce (Blocco B) ───────────────────────────────────────────────────
+    private var debounceJob:      Job?    = null
     private var manualModeEnabled: Boolean = false
 
-    // ── Views ─────────────────────────────────────────────────────────────────────
-    private lateinit var spinnerLang:       Spinner
-    private lateinit var inputLayout:       TextInputLayout
-    private lateinit var editInput:         TextInputEditText
-    private lateinit var labelSuggestions:  TextView
-    private lateinit var rvSuggestions:     RecyclerView
-    private lateinit var btnTranslate:      com.google.android.material.button.MaterialButton
-    private lateinit var progressBar:       ProgressBar
-    private lateinit var textOutputLabel:   TextView
-    private lateinit var textOutput:        TextView
-    private lateinit var labelSymbols:      TextView
-    private lateinit var symbolContainer:   FlexboxLayout
-    private lateinit var fabShare:          ExtendedFloatingActionButton
+    // ── CAA state (Blocco C) ──────────────────────────────────────────────────
+    /** true = vista CAA attiva; false = vista chip standard */
+    private var caaModeEnabled:  Boolean = false
+    /** Indice della card attualmente visibile in modalità CAA */
+    private var caaCurrentIndex: Int     = 0
 
-    // ── Adapter ───────────────────────────────────────────────────────────────────
+    // ── Views ──────────────────────────────────────────────────────────────────
+    private lateinit var spinnerLang:      Spinner
+    private lateinit var inputLayout:      TextInputLayout
+    private lateinit var editInput:        TextInputEditText
+    private lateinit var labelSuggestions: TextView
+    private lateinit var rvSuggestions:    RecyclerView
+    private lateinit var btnTranslate:     MaterialButton
+    private lateinit var progressBar:      ProgressBar
+    private lateinit var textOutputLabel:  TextView
+    private lateinit var textOutput:       TextView
+    private lateinit var labelSymbols:     TextView
+    private lateinit var symbolContainer:  FlexboxLayout
+    private lateinit var fabShare:         ExtendedFloatingActionButton
+    // Blocco C
+    private lateinit var switchCaaMode:   SwitchMaterial
+    private lateinit var caaContainer:    LinearLayout
+    private lateinit var rvCaaCards:      RecyclerView
+    private lateinit var btnPrev:         MaterialButton
+    private lateinit var btnNext:         MaterialButton
+
+    // ── Adapters ───────────────────────────────────────────────────────────────
     private val suggestionAdapter = SuggestionAdapter { word ->
         val current   = editInput.text?.toString() ?: ""
         val lastSpace = current.lastIndexOf(' ')
         val newText   = if (lastSpace < 0) word else current.substring(0, lastSpace + 1) + word
         editInput.setText(newText)
         editInput.setSelection(newText.length)
-        // Suggestion tap → traduzione immediata, ignora manualMode
         runTranslation()
     }
 
-    // ── Lifecycle ────────────────────────────────────────────────────────────────
+    private val cardAdapter = BlissSymbolCardAdapter { position, _ ->
+        // Tap su card → focus su quella card (aggiorna indice + nav buttons)
+        caaCurrentIndex = position
+        updateCaaNavButtons()
+        scrollToCard(position)
+    }
+
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -128,15 +133,15 @@ class BlissTranslateFragment : Fragment() {
         bindViews(view)
         setupSpinner()
         setupSuggestions()
+        setupCaaRecycler()
         setupTextWatcher()
         reinitGlyphXBuilder()
         observeViewModel()
         setupFabShare()
-        vm.uiState.value.symbols.takeIf { it.isNotEmpty() }?.let { renderChips(it) }
+        vm.uiState.value.symbols.takeIf { it.isNotEmpty() }?.let { applySymbols(it) }
     }
 
     override fun onDestroyView() {
-        // Cancel any pending debounce when the Fragment's view is torn down.
         debounceJob?.cancel()
         debounceJob = null
         super.onDestroyView()
@@ -163,45 +168,68 @@ class BlissTranslateFragment : Fragment() {
         labelSymbols     = v.findViewById(R.id.label_symbols)
         symbolContainer  = v.findViewById(R.id.symbol_container)
         fabShare         = v.findViewById(R.id.fab_share)
+        // Blocco C
+        switchCaaMode    = v.findViewById(R.id.switch_caa_mode)
+        caaContainer     = v.findViewById(R.id.caa_container)
+        rvCaaCards       = v.findViewById(R.id.rv_caa_cards)
+        btnPrev          = v.findViewById(R.id.btn_prev)
+        btnNext          = v.findViewById(R.id.btn_next)
 
-        // Bottone esplicito — nascosto di default (modalità auto-preview attiva).
-        // Rimane accessibile via end-icon toggle.
+        // ── Bottone manuale (Blocco B) ────────────────────────────────────
         btnTranslate.isVisible = false
         btnTranslate.setOnClickListener { runTranslation() }
 
-        // End-icon nella TextInputLayout: icona tastiera che togla la modalità
-        // manuale. setEndIconOnClickListener richiede app:endIconMode="custom"
-        // e app:endIconDrawable impostati in fragment_translate.xml.
+        // ── Toggle auto/manuale via end-icon (Blocco B) ───────────────────
         inputLayout.setEndIconOnClickListener {
             manualModeEnabled = !manualModeEnabled
             btnTranslate.isVisible = manualModeEnabled
-            // Se si rientra in auto-mode e c'è testo, ri-schedula subito
             if (!manualModeEnabled) scheduleDebounce(editInput.text?.toString() ?: "")
-            val descRes = if (manualModeEnabled)
-                R.string.bliss_cd_mode_manual
-            else
-                R.string.bliss_cd_mode_auto
-            inputLayout.endIconContentDescription = getString(descRes)
+            inputLayout.endIconContentDescription = getString(
+                if (manualModeEnabled) R.string.bliss_cd_mode_manual else R.string.bliss_cd_mode_auto
+            )
+        }
+
+        // ── Toggle modalità CAA (Blocco C) ────────────────────────────────
+        switchCaaMode.setOnCheckedChangeListener { _, checked ->
+            caaModeEnabled = checked
+            caaCurrentIndex = 0
+            applyCaaVisibility()
+            // Ri-applica i simboli già presenti al cambio di modalità
+            vm.uiState.value.symbols.takeIf { it.isNotEmpty() }?.let { applySymbols(it) }
+        }
+
+        // ── Nav buttons CAA ───────────────────────────────────────────────
+        btnPrev.setOnClickListener {
+            if (caaCurrentIndex > 0) {
+                caaCurrentIndex--
+                updateCaaNavButtons()
+                scrollToCard(caaCurrentIndex)
+            }
+        }
+        btnNext.setOnClickListener {
+            val max = (cardAdapter.itemCount - 1).coerceAtLeast(0)
+            if (caaCurrentIndex < max) {
+                caaCurrentIndex++
+                updateCaaNavButtons()
+                scrollToCard(caaCurrentIndex)
+            }
         }
 
         textOutput.accessibilityLiveRegion      = View.ACCESSIBILITY_LIVE_REGION_POLITE
         symbolContainer.accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
     }
 
-    // ── Spinner lingua ───────────────────────────────────────────────────────────
+    // ── Spinner lingua ────────────────────────────────────────────────────────
 
     private fun setupSpinner() {
         val ctx   = requireContext()
         val names = ctx.resources.getStringArray(R.array.bliss_language_names)
         val codes = ctx.resources.getStringArray(R.array.bliss_language_codes)
-
         val adapter = ArrayAdapter(ctx, android.R.layout.simple_spinner_item, names)
             .also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
         spinnerLang.adapter = adapter
-
         val currentIdx = codes.indexOf(vm.uiState.value.langCode).coerceAtLeast(0)
         spinnerLang.setSelection(currentIdx)
-
         spinnerLang.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p: AdapterView<*>?, v: View?, pos: Int, id: Long) {
                 val lang = codes[pos]
@@ -211,7 +239,7 @@ class BlissTranslateFragment : Fragment() {
         }
     }
 
-    // ── TextWatcher → debounce ────────────────────────────────────────────────
+    // ── TextWatcher → debounce (Blocco B) ────────────────────────────────────
 
     private fun setupTextWatcher() {
         editInput.addTextChangedListener(object : android.text.TextWatcher {
@@ -219,26 +247,17 @@ class BlissTranslateFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: android.text.Editable?) {
                 val text = s?.toString() ?: ""
-                // Typeahead — sempre attivo indipendentemente dalla modalità
                 vm.onSuggestionQuery(text)
-                // Real-time preview — disattivato in modalità manuale
                 if (!manualModeEnabled) scheduleDebounce(text)
             }
         })
     }
 
-    /**
-     * Cancels any in-flight debounce Job and schedules a new one that fires
-     * [runTranslation] after [DEBOUNCE_MS] milliseconds of inactivity.
-     *
-     * If [text] is blank the pending job is cancelled and the output is
-     * cleared immediately, without waiting for the debounce window.
-     */
     private fun scheduleDebounce(text: String) {
         debounceJob?.cancel()
         if (text.isBlank()) {
-            // Clear output immediately on empty input
             symbolContainer.removeAllViews()
+            cardAdapter.submitList(emptyList())
             textOutput.text    = ""
             fabShare.isVisible = false
             vm.clearSuggestions()
@@ -250,7 +269,7 @@ class BlissTranslateFragment : Fragment() {
         }
     }
 
-    // ── RecyclerView suggerimenti ────────────────────────────────────────────────
+    // ── RecyclerView suggerimenti ─────────────────────────────────────────────
 
     private fun setupSuggestions() {
         rvSuggestions.layoutManager =
@@ -265,7 +284,52 @@ class BlissTranslateFragment : Fragment() {
         suggestionAdapter.submitList(suggestions)
     }
 
-    // ── GlyphXBuilder init ─────────────────────────────────────────────────────────
+    // ── RecyclerView CAA cards (Blocco C) ─────────────────────────────────────
+
+    private fun setupCaaRecycler() {
+        rvCaaCards.layoutManager = LinearLayoutManager(requireContext())
+        rvCaaCards.adapter       = cardAdapter
+        // Disabilita lo scroll interno: lo gestisce il NestedScrollView esterno
+        rvCaaCards.isNestedScrollingEnabled = false
+    }
+
+    /**
+     * Mostra/nasconde i due pannelli (chip standard vs CAA card) in base a
+     * [caaModeEnabled].  Chiamato al toggle dello switch e da [onViewCreated].
+     */
+    private fun applyCaaVisibility() {
+        val isCAA = caaModeEnabled
+        // Pannello standard
+        labelSymbols.isVisible    = !isCAA
+        symbolContainer.isVisible = !isCAA
+        // Pannello CAA
+        caaContainer.isVisible    = isCAA
+    }
+
+    /**
+     * Abilita/disabilita i pulsanti Indietro/Avanti in base a [caaCurrentIndex]
+     * e al numero totale di card.
+     */
+    private fun updateCaaNavButtons() {
+        val total = cardAdapter.itemCount
+        btnPrev.isEnabled = caaCurrentIndex > 0
+        btnNext.isEnabled = caaCurrentIndex < total - 1
+        // Announce posizione per TalkBack
+        if (total > 0) {
+            announceForA11y(getString(
+                R.string.bliss_caa_position_announce,
+                caaCurrentIndex + 1, total
+            ))
+        }
+    }
+
+    /** Scrolla il RecyclerView CAA alla posizione [index]. */
+    private fun scrollToCard(index: Int) {
+        (rvCaaCards.layoutManager as? LinearLayoutManager)
+            ?.scrollToPositionWithOffset(index, 0)
+    }
+
+    // ── GlyphXBuilder init ────────────────────────────────────────────────────
 
     private fun reinitGlyphXBuilder() {
         val ctx = context ?: return
@@ -281,15 +345,13 @@ class BlissTranslateFragment : Fragment() {
         glyphXBuilder?.let { vm.setBuilder(it) }
     }
 
-    // ── ViewModel observers ─────────────────────────────────────────────────────
+    // ── ViewModel observers ───────────────────────────────────────────────────
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.uiState.collectLatest { state ->
-
-                    progressBar.isVisible  = state.isLoading
-                    // Il bottone manuale segue isLoading solo quando visibile
+                    progressBar.isVisible = state.isLoading
                     if (btnTranslate.isVisible) btnTranslate.isEnabled = !state.isLoading
 
                     if (state.error != null) {
@@ -309,7 +371,7 @@ class BlissTranslateFragment : Fragment() {
                     }
 
                     if (state.symbols.isNotEmpty() && state.error == null) {
-                        renderChips(state.symbols)
+                        applySymbols(state.symbols)
                         textOutput.text    = state.symbols.joinToString(" ") { it.displayLabel() }
                         fabShare.isVisible = true
                         announceForA11y(
@@ -325,38 +387,31 @@ class BlissTranslateFragment : Fragment() {
         }
     }
 
-    private fun announceForA11y(message: CharSequence) {
-        val am = ContextCompat.getSystemService(requireContext(), AccessibilityManager::class.java)
-            ?: return
-        if (!am.isEnabled) return
-        val event = AccessibilityEvent.obtain(AccessibilityEvent.TYPE_ANNOUNCEMENT).apply {
-            text.add(message)
-            className   = javaClass.name
-            packageName = requireContext().packageName
-        }
-        am.sendAccessibilityEvent(event)
-    }
-
-    // ── Translation ────────────────────────────────────────────────────────────────
+    // ── applySymbols — routing standard vs CAA ────────────────────────────────
 
     /**
-     * Fires an immediate translation request, cancelling any pending debounce.
-     * Called both by the debounce Job (auto-mode) and by button/suggestion tap.
+     * Distribuisce i [symbols] alla vista attiva:
+     *  - modalità standard → [renderChips]
+     *  - modalità CAA      → [renderCaaCards]
      */
-    private fun runTranslation() {
-        debounceJob?.cancel()          // no double-fire if called manually
-        val text = editInput.text?.toString()?.trim() ?: ""
-        if (text.isEmpty()) {
-            vm.clearSuggestions()
-            symbolContainer.removeAllViews()
-            textOutput.text    = getString(R.string.bliss_msg_empty_input)
-            fabShare.isVisible = false
-            return
+    private fun applySymbols(symbols: List<BlissSymbol>) {
+        applyCaaVisibility()
+        if (caaModeEnabled) {
+            renderCaaCards(symbols)
+        } else {
+            renderChips(symbols)
         }
-        vm.translate(text)
     }
 
-    // ── Chip renderer ───────────────────────────────────────────────────────────────
+    // ── Modalità CAA: card grandi ─────────────────────────────────────────────
+
+    private fun renderCaaCards(symbols: List<BlissSymbol>) {
+        caaCurrentIndex = 0
+        cardAdapter.submitList(symbols)
+        updateCaaNavButtons()
+    }
+
+    // ── Modalità standard: chip compatti ──────────────────────────────────────
 
     private fun renderChips(symbols: List<BlissSymbol>) {
         symbolContainer.removeAllViews()
@@ -423,7 +478,7 @@ class BlissTranslateFragment : Fragment() {
         BlissSymbol.MatchType.UNKNOWN           -> 0xFFFFD0D0.toInt()
     }
 
-    // ── FAB share SVG ────────────────────────────────────────────────────────────
+    // ── FAB share SVG ─────────────────────────────────────────────────────────
 
     private fun setupFabShare() {
         fabShare.setOnClickListener { shareSvg() }
@@ -460,21 +515,49 @@ class BlissTranslateFragment : Fragment() {
         }
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────────
+    // ── Accessibility ─────────────────────────────────────────────────────────
+
+    private fun announceForA11y(message: CharSequence) {
+        val am = ContextCompat.getSystemService(requireContext(), AccessibilityManager::class.java)
+            ?: return
+        if (!am.isEnabled) return
+        val event = AccessibilityEvent.obtain(AccessibilityEvent.TYPE_ANNOUNCEMENT).apply {
+            text.add(message)
+            className   = javaClass.name
+            packageName = requireContext().packageName
+        }
+        am.sendAccessibilityEvent(event)
+    }
+
+    // ── Translation ───────────────────────────────────────────────────────────
+
+    private fun runTranslation() {
+        debounceJob?.cancel()
+        val text = editInput.text?.toString()?.trim() ?: ""
+        if (text.isEmpty()) {
+            vm.clearSuggestions()
+            symbolContainer.removeAllViews()
+            cardAdapter.submitList(emptyList())
+            textOutput.text    = getString(R.string.bliss_msg_empty_input)
+            fabShare.isVisible = false
+            return
+        }
+        vm.translate(text)
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private fun isEngineReady(state: BlissViewModel.UiState): Boolean =
         !state.isLoading && state.error == null && state.langCode.isNotEmpty()
 
-    // ── Companion ─────────────────────────────────────────────────────────────────
+    // ── Companion ─────────────────────────────────────────────────────────────
 
     companion object {
         private const val ARG_LANG                = "arg_lang"
         private const val DEFAULT_LANG            = "it"
         private const val CELL_SIZE_DP            = 72
         private const val FILE_PROVIDER_AUTHORITY = "com.blueapps.fileprovider"
-
-        /** Debounce window in milliseconds for real-time translation preview. */
-        const val DEBOUNCE_MS = 400L
+        const val DEBOUNCE_MS                     = 400L
 
         fun newInstance(lang: String = DEFAULT_LANG): BlissTranslateFragment =
             BlissTranslateFragment().apply {

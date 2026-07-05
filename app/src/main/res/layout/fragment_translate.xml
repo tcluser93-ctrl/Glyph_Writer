@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   fragment_translate.xml
-  Layout for BlissTranslateFragment — Fase 6 Blocco B (anteprima real-time).
+  Layout per BlissTranslateFragment — Fase 6 Blocco C (modalità CAA).
 
-  View IDs must match exactly the names used in BlissTranslateFragment.bindViews():
+  Novità Blocco C rispetto al Blocco B:
+  - Row toggle CAA: SwitchMaterial + label
+  - caa_container (GONE di default): RecyclerView verticale per le card grandi
+    + row navigazione avanti/indietro (btn_prev, btn_next)
+  - La modalità chip standard (symbol_container) diventa GONE in modalità CAA
+    e viceversa.
+
+  View IDs usati da BlissTranslateFragment.bindViews():
     spinner_language, input_layout_text, edit_input_text,
     label_suggestions, rv_suggestions, btn_translate,
     progress_translate, text_output_label, text_output,
-    label_symbols, symbol_container, fab_share
-
-  Novità Blocco B:
-  - TextInputLayout ha endIconMode="custom" + endIconDrawable="@drawable/ic_keyboard"
-    per il toggle modalità auto (debounce 400ms) / manuale (bottone esplicito).
-  - btn_translate inizialmente GONE; il Fragment lo mostra solo in modalità manuale.
+    label_symbols, symbol_container, fab_share,
+    switch_caa_mode,
+    caa_container, rv_caa_cards, btn_prev, btn_next
 -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -22,7 +26,6 @@
     android:layout_height="match_parent"
     android:background="@color/l_windowBackground">
 
-    <!-- Scrollable main content -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -62,11 +65,7 @@
 
             </LinearLayout>
 
-            <!-- ── TextInputLayout + TextInputEditText ──
-                 endIconMode="custom" attiva il toggle auto/manuale.
-                 L'icona ic_keyboard indica che il debounce è attivo;
-                 il Fragment aggiorna endIconContentDescription al toggle.
-            -->
+            <!-- ── TextInputLayout + TextInputEditText ── -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/input_layout_text"
                 style="@style/inputText"
@@ -114,10 +113,7 @@
                 tools:visibility="visible"
                 tools:listitem="@layout/item_suggestion" />
 
-            <!-- ── Translate button + ProgressBar row ──
-                 btn_translate è GONE di default (modalità auto-preview attiva).
-                 Il Fragment lo rende VISIBLE solo quando manualModeEnabled = true.
-            -->
+            <!-- ── Translate button + ProgressBar row ── -->
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -143,7 +139,34 @@
 
             </FrameLayout>
 
-            <!-- ── Output label (stats: total symbols, unknown, coverage %) ── -->
+            <!-- ═══════════════════════════════════════════════════════════════
+                 BLOCCO C — Toggle modalità CAA
+                 ═══════════════════════════════════════════════════════════════ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/bliss_caa_mode_label"
+                    android:textColor="@color/l_textColorPrimary"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_caa_mode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/bliss_caa_mode_cd"
+                    android:checked="false" />
+
+            </LinearLayout>
+
+            <!-- ── Output label (stats) ── -->
             <TextView
                 android:id="@+id/text_output_label"
                 android:layout_width="match_parent"
@@ -164,7 +187,7 @@
                 android:accessibilityLiveRegion="polite"
                 tools:text="parola simbolo …" />
 
-            <!-- ── Symbol chips label ── -->
+            <!-- ── Modalità STANDARD: Symbol chips label + FlexboxLayout ── -->
             <TextView
                 android:id="@+id/label_symbols"
                 android:layout_width="wrap_content"
@@ -174,7 +197,6 @@
                 android:textColor="@color/l_textColorPrimary"
                 android:layout_marginBottom="8dp" />
 
-            <!-- ── FlexboxLayout chip container ── -->
             <com.google.android.flexbox.FlexboxLayout
                 android:id="@+id/symbol_container"
                 android:layout_width="match_parent"
@@ -185,6 +207,62 @@
                 app:alignContent="flex_start"
                 android:accessibilityLiveRegion="polite"
                 tools:ignore="UnusedAttribute" />
+
+            <!-- ═══════════════════════════════════════════════════════════════
+                 BLOCCO C — Modalità CAA: card singole + navigazione
+                 GONE di default; il Fragment lo mostra al toggle dello switch.
+                 ═══════════════════════════════════════════════════════════════ -->
+            <LinearLayout
+                android:id="@+id/caa_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <!-- Card RecyclerView (non scrollabile internamente:
+                     lo scroll è gestito dal NestedScrollView esterno) -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_caa_cards"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginBottom="8dp"
+                    tools:listitem="@layout/item_symbol_card" />
+
+                <!-- Row navigazione avanti/indietro -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginBottom="16dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_prev"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:text="@string/bliss_caa_prev"
+                        android:contentDescription="@string/bliss_caa_prev_cd"
+                        android:enabled="false" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_next"
+                        style="@style/filledButton"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/bliss_caa_next"
+                        android:contentDescription="@string/bliss_caa_next_cd"
+                        android:enabled="false" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
