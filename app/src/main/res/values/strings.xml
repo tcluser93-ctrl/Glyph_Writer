@@ -83,6 +83,7 @@
     <string name="history_empty_subtitle">Le traduzioni salvate appariranno qui</string>
     <string name="history_clear_all">Cancella cronologia</string>
     <string name="history_deleted">Traduzione eliminata</string>
+    <string name="history_coverage_fmt">Copertura: %d%%</string>
     <string name="undo">Annulla</string>
 
     <plurals name="history_cleared">
