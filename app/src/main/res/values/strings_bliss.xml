@@ -7,6 +7,7 @@
     <string name="bliss_hint_input">Scrivi testo da tradurre…</string>
     <string name="bliss_btn_translate">Traduci</string>
     <string name="bliss_btn_clear">Cancella</string>
+    <string name="bliss_btn_share">Condividi SVG</string>
     <string name="bliss_loading">Caricamento dizionario…</string>
     <string name="bliss_no_results">Nessun risultato. Prova con altre parole.</string>
     <string name="bliss_coverage">Copertura: %1$d%%</string>
@@ -17,4 +18,32 @@
     <string name="bliss_ngram">frase</string>
     <string name="bliss_fallback">categoria</string>
     <string name="bliss_unknown">sconosciuto</string>
+    <string name="bliss_suggestions_label">Suggerimenti:</string>
+    <string name="bliss_symbols_label">Simboli Bliss:</string>
+
+    <!-- Runtime messages used in BlissTranslateFragment -->
+    <string name="bliss_msg_empty_input">Inserisci del testo prima di tradurre.</string>
+    <string name="bliss_msg_error">Errore durante la generazione SVG.</string>
+    <string name="bliss_msg_share_title">Traduzione Bliss</string>
+    <string name="bliss_msg_share_chooser">Condividi tramite…</string>
+
+    <!-- Accessibility announcements -->
+    <!-- %1$d = number of Bliss symbols in the translation result -->
+    <string name="bliss_a11y_translation_ready">Traduzione pronta: %1$d simboli.</string>
+    <!-- %1$s = symbol name + BCI-AV id + match type -->
+    <string name="bliss_a11y_symbol_desc">Simbolo Bliss: %1$s</string>
+
+    <!-- Language spinner entries (order must match bliss_language_codes) -->
+    <string-array name="bliss_language_names">
+        <item>Italiano</item>
+        <item>English</item>
+        <item>Deutsch</item>
+    </string-array>
+
+    <!-- ISO-639-1 codes; BlissLookup.SUPPORTED_LANGS must include these values -->
+    <string-array name="bliss_language_codes">
+        <item>it</item>
+        <item>en</item>
+        <item>de</item>
+    </string-array>
 </resources>

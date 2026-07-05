@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  fragment_translate.xml
+  Layout for BlissTranslateFragment.
+
+  View IDs must match exactly the names used in BlissTranslateFragment.bindViews():
+    spinner_language, input_layout_text, edit_input_text,
+    label_suggestions, rv_suggestions, btn_translate,
+    progress_translate, text_output_label, text_output,
+    label_symbols, symbol_container, fab_share
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/l_windowBackground">
+
+    <!-- Scrollable main content -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:paddingBottom="88dp"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- ── Row: language label + spinner ── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bliss_lang_label"
+                    android:textStyle="bold"
+                    android:textColor="@color/l_textColorPrimary"
+                    android:layout_marginEnd="8dp" />
+
+                <Spinner
+                    android:id="@+id/spinner_language"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/bliss_lang_label"
+                    android:spinnerMode="dropdown" />
+
+            </LinearLayout>
+
+            <!-- ── TextInputLayout + TextInputEditText ── -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/input_layout_text"
+                style="@style/inputText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:hint="@string/bliss_hint_input"
+                app:boxBackgroundMode="none">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edit_input_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine|textCapSentences"
+                    android:minLines="3"
+                    android:maxLines="6"
+                    android:gravity="top"
+                    android:textColor="@color/l_textColor"
+                    android:contentDescription="@string/bliss_hint_input" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ── Suggestions label ── -->
+            <TextView
+                android:id="@+id/label_suggestions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bliss_suggestions_label"
+                android:textColor="@color/l_textColor"
+                android:textSize="12sp"
+                android:layout_marginBottom="4dp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <!-- ── Horizontal suggestions RecyclerView ── -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_suggestions"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                tools:listitem="@layout/item_suggestion" />
+
+            <!-- ── Translate button + ProgressBar row ── -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_translate"
+                    style="@style/filledButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="@string/bliss_btn_translate"
+                    android:contentDescription="@string/bliss_btn_translate" />
+
+                <ProgressBar
+                    android:id="@+id/progress_translate"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+            </FrameLayout>
+
+            <!-- ── Output label (stats: total symbols, unknown, coverage %) ── -->
+            <TextView
+                android:id="@+id/text_output_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/l_textColor"
+                android:textSize="12sp"
+                android:layout_marginBottom="4dp"
+                android:accessibilityLiveRegion="polite" />
+
+            <!-- ── Transliterated text output ── -->
+            <TextView
+                android:id="@+id/text_output"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/l_textColorPrimary"
+                android:textSize="14sp"
+                android:layout_marginBottom="12dp"
+                android:accessibilityLiveRegion="polite"
+                tools:text="parola simbolo …" />
+
+            <!-- ── Symbol chips label ── -->
+            <TextView
+                android:id="@+id/label_symbols"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bliss_symbols_label"
+                android:textStyle="bold"
+                android:textColor="@color/l_textColorPrimary"
+                android:layout_marginBottom="8dp" />
+
+            <!-- ── FlexboxLayout chip container (requires flexbox dependency) ── -->
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/symbol_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:flexWrap="wrap"
+                app:alignItems="flex_start"
+                app:alignContent="flex_start"
+                android:accessibilityLiveRegion="polite"
+                tools:ignore="UnusedAttribute" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- ── FAB Share SVG (anchored to bottom-end) ── -->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_share"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:text="@string/bliss_btn_share"
+        android:contentDescription="@string/bliss_btn_share"
+        app:icon="@android:drawable/ic_menu_share"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
