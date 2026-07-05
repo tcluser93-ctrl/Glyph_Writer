@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- English overrides for strings defined in values/strings_bliss.xml -->
+    <!-- values-en: English overrides for strings defined in values/strings_bliss.xml -->
+
+    <string name="bliss_tab_label">Bliss Translator</string>
     <string name="bliss_hint_input">Text to translate (max 500 chars)</string>
     <string name="bliss_btn_translate">Translate to Bliss</string>
     <string name="bliss_btn_clear">Clear</string>
+    <string name="bliss_btn_share">Share SVG</string>
     <string name="bliss_loading">Loading dictionary…</string>
     <string name="bliss_no_results">No results. Try different words.</string>
     <string name="bliss_coverage">Coverage: %1$d%%</string>
@@ -14,4 +17,16 @@
     <string name="bliss_ngram">phrase</string>
     <string name="bliss_fallback">category</string>
     <string name="bliss_unknown">unknown</string>
+    <string name="bliss_suggestions_label">Suggestions:</string>
+    <string name="bliss_symbols_label">Bliss symbols:</string>
+    <string name="bliss_msg_empty_input">Please enter some text before translating.</string>
+    <string name="bliss_msg_error">Error generating SVG output.</string>
+    <string name="bliss_msg_share_title">Bliss Translation</string>
+    <string name="bliss_msg_share_chooser">Share via…</string>
+    <!-- %1$s = suggested word shown in the chip -->
+    <string name="bliss_a11y_suggestion">Suggestion: %1$s</string>
+    <!-- %1$d = number of Bliss symbols in the translation result -->
+    <string name="bliss_a11y_translation_ready">Translation ready: %1$d symbols.</string>
+    <!-- %1$s = symbol name + BCI-AV id + match type -->
+    <string name="bliss_a11y_symbol_desc">Bliss symbol: %1$s</string>
 </resources>

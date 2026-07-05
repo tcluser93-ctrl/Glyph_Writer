@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- DEFAULT LOCALE (italiano) — tutte le stringhe del modulo Bliss -->
+    <!-- values-it: override esplicito italiano (ridondante rispetto al default,
+         ma utile se il default dovesse cambiare lingua in futuro) -->
 
-    <!-- Bliss translator tab label -->
     <string name="bliss_tab_label">Bliss Translator</string>
-
-    <!-- BlissTranslateFragment — elementi UI -->
     <string name="bliss_hint_input">Scrivi testo da tradurre…</string>
     <string name="bliss_btn_translate">Traduci</string>
     <string name="bliss_btn_clear">Cancella</string>
@@ -22,32 +20,11 @@
     <string name="bliss_unknown">sconosciuto</string>
     <string name="bliss_suggestions_label">Suggerimenti:</string>
     <string name="bliss_symbols_label">Simboli Bliss:</string>
-
-    <!-- Messaggi runtime -->
     <string name="bliss_msg_empty_input">Inserisci del testo prima di tradurre.</string>
     <string name="bliss_msg_error">Errore durante la generazione SVG.</string>
     <string name="bliss_msg_share_title">Traduzione Bliss</string>
     <string name="bliss_msg_share_chooser">Condividi tramite…</string>
-
-    <!-- Accessibilità -->
-    <!-- %1$s = parola suggerita nel chip -->
     <string name="bliss_a11y_suggestion">Suggerimento: %1$s</string>
-    <!-- %1$d = numero di simboli Bliss nel risultato -->
     <string name="bliss_a11y_translation_ready">Traduzione pronta: %1$d simboli.</string>
-    <!-- %1$s = nome simbolo + id BCI-AV + tipo corrispondenza -->
     <string name="bliss_a11y_symbol_desc">Simbolo Bliss: %1$s</string>
-
-    <!-- Voci spinner lingua (ordine = bliss_language_codes) -->
-    <string-array name="bliss_language_names">
-        <item>Italiano</item>
-        <item>English</item>
-        <item>Deutsch</item>
-    </string-array>
-
-    <!-- Codici ISO-639-1; BlissLookup.SUPPORTED_LANGS deve includere questi valori -->
-    <string-array name="bliss_language_codes">
-        <item>it</item>
-        <item>en</item>
-        <item>de</item>
-    </string-array>
 </resources>
