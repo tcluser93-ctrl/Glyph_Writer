@@ -28,6 +28,8 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,37 +37,50 @@ import java.io.File
 import java.util.Locale
 
 /**
- * BlissTranslateFragment — Fase 4 UI + Fase 5 Accessibilità
+ * BlissTranslateFragment — Fase 4 UI + Fase 5 Accessibilità + Fase 6 Blocco B
  *
- * Tutte le interazioni con il motore avvengono tramite [BlissViewModel.uiState]
- * (single-source-of-truth).  Il Fragment non costruisce mai BlissTranslator
- * direttamente: chiama [BlissViewModel.translate] e osserva il risultato.
+ * ## Blocco B — Anteprima real-time
+ * Il [TextWatcher.afterTextChanged] lancia un Job con debounce di [DEBOUNCE_MS]
+ * ms (400 ms). Ogni nuova digitazione cancella il Job precedente, quindi la
+ * traduzione parte solo quando l'utente smette di scrivere.
+ *
+ * Il bottone "Traduci" esplicito diventa **opzionale**: di default è nascosto
+ * ([btnTranslate].isVisible = false); un'icona di tastiera nella TextInputLayout
+ * lo mostra/nasconde toggling [manualModeEnabled]. In modalità manuale il
+ * debounce è disattivato e la traduzione parte solo al click.
  *
  * Flusso:
  *  1. Spinner lingua  → vm.setLang(lang)
  *  2. TextInputEditText testo sorgente
  *  3. RecyclerView suggerimenti predittivi orizzontale (uiState.suggestions)
- *  4. Button "Traduci" → vm.translate(text); risultato in uiState.symbols
- *  5. FlexboxLayout chip simboli (wrap automatico)
- *  6. FAB "Condividi SVG": scrive SVG in cache, Intent.ACTION_SEND via FileProvider
- *
- * Accessibilità:
- *  - accessibilityLiveRegion POLITE su symbolContainer e text_output
- *  - AccessibilityManager.sendAccessibilityEvent dopo traduzione completata
- *  - contentDescription su ogni controllo interattivo (XML + codice)
+ *  4. [auto] afterTextChanged → debounce 400ms → vm.translate(text)
+ *     [manual] Button "Traduci" → vm.translate(text)
+ *  5. FlexboxLayout chip simboli
+ *  6. FAB "Condividi SVG"
  */
 class BlissTranslateFragment : Fragment() {
 
-    // ── ViewModel (Activity-scoped) ───────────────────────────────────────
+    // ── ViewModel ───────────────────────────────────────────────────────────────────
     private val vm: BlissViewModel by activityViewModels()
 
-    // ── Engine helper (solo per costruire il doc SVG lato Fragment) ───────
-    // BUG-4 fix: removed dead `translateJob: Job?` field — translation is
-    // entirely delegated to BlissViewModel.translate(); the field was never
-    // assigned or cancelled and served no purpose.
+    // ── Engine helper ────────────────────────────────────────────────────────────
     private var glyphXBuilder: BlissGlyphXBuilder? = null
 
-    // ── Views ─────────────────────────────────────────────────────────────
+    // ── Debounce ───────────────────────────────────────────────────────────────────
+    /**
+     * Pending debounce job.  Cancelled and replaced on every keystroke.
+     * When [manualModeEnabled] is true this is never started.
+     */
+    private var debounceJob: Job? = null
+
+    /**
+     * When `true` the real-time debounce is **disabled** and translation
+     * fires only via the explicit "Traduci" button.
+     * Toggled by the [inputLayout] end-icon (keyboard icon).
+     */
+    private var manualModeEnabled: Boolean = false
+
+    // ── Views ─────────────────────────────────────────────────────────────────────
     private lateinit var spinnerLang:       Spinner
     private lateinit var inputLayout:       TextInputLayout
     private lateinit var editInput:         TextInputEditText
@@ -79,17 +94,18 @@ class BlissTranslateFragment : Fragment() {
     private lateinit var symbolContainer:   FlexboxLayout
     private lateinit var fabShare:          ExtendedFloatingActionButton
 
-    // ── Adapter ──────────────────────────────────────────────────────────
+    // ── Adapter ───────────────────────────────────────────────────────────────────
     private val suggestionAdapter = SuggestionAdapter { word ->
         val current   = editInput.text?.toString() ?: ""
         val lastSpace = current.lastIndexOf(' ')
         val newText   = if (lastSpace < 0) word else current.substring(0, lastSpace + 1) + word
         editInput.setText(newText)
         editInput.setSelection(newText.length)
+        // Suggestion tap → traduzione immediata, ignora manualMode
         runTranslation()
     }
 
-    // ── Lifecycle ────────────────────────────────────────────────────────
+    // ── Lifecycle ────────────────────────────────────────────────────────────────
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -116,18 +132,23 @@ class BlissTranslateFragment : Fragment() {
         reinitGlyphXBuilder()
         observeViewModel()
         setupFabShare()
-        // Restore symbols if ViewModel already has a result
         vm.uiState.value.symbols.takeIf { it.isNotEmpty() }?.let { renderChips(it) }
+    }
+
+    override fun onDestroyView() {
+        // Cancel any pending debounce when the Fragment's view is torn down.
+        debounceJob?.cancel()
+        debounceJob = null
+        super.onDestroyView()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         reinitGlyphXBuilder()
-        // Re-inject the new builder so the ViewModel uses correct metrics
         glyphXBuilder?.let { vm.setBuilder(it) }
     }
 
-    // ── View binding ─────────────────────────────────────────────────────
+    // ── View binding ──────────────────────────────────────────────────────────
 
     private fun bindViews(v: View) {
         spinnerLang      = v.findViewById(R.id.spinner_language)
@@ -143,13 +164,31 @@ class BlissTranslateFragment : Fragment() {
         symbolContainer  = v.findViewById(R.id.symbol_container)
         fabShare         = v.findViewById(R.id.fab_share)
 
+        // Bottone esplicito — nascosto di default (modalità auto-preview attiva).
+        // Rimane accessibile via end-icon toggle.
+        btnTranslate.isVisible = false
         btnTranslate.setOnClickListener { runTranslation() }
+
+        // End-icon nella TextInputLayout: icona tastiera che togla la modalità
+        // manuale. setEndIconOnClickListener richiede app:endIconMode="custom"
+        // e app:endIconDrawable impostati in fragment_translate.xml.
+        inputLayout.setEndIconOnClickListener {
+            manualModeEnabled = !manualModeEnabled
+            btnTranslate.isVisible = manualModeEnabled
+            // Se si rientra in auto-mode e c'è testo, ri-schedula subito
+            if (!manualModeEnabled) scheduleDebounce(editInput.text?.toString() ?: "")
+            val descRes = if (manualModeEnabled)
+                R.string.bliss_cd_mode_manual
+            else
+                R.string.bliss_cd_mode_auto
+            inputLayout.endIconContentDescription = getString(descRes)
+        }
 
         textOutput.accessibilityLiveRegion      = View.ACCESSIBILITY_LIVE_REGION_POLITE
         symbolContainer.accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
     }
 
-    // ── Spinner lingua ────────────────────────────────────────────────────
+    // ── Spinner lingua ───────────────────────────────────────────────────────────
 
     private fun setupSpinner() {
         val ctx   = requireContext()
@@ -164,27 +203,54 @@ class BlissTranslateFragment : Fragment() {
         spinnerLang.setSelection(currentIdx)
 
         spinnerLang.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
+            override fun onItemSelected(p: AdapterView<*>?, v: View?, pos: Int, id: Long) {
                 val lang = codes[pos]
                 if (lang != vm.uiState.value.langCode) vm.setLang(lang)
             }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onNothingSelected(p: AdapterView<*>?) {}
         }
     }
 
-    // ── TextWatcher per typeahead ─────────────────────────────────────────
+    // ── TextWatcher → debounce ────────────────────────────────────────────────
 
     private fun setupTextWatcher() {
         editInput.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: android.text.Editable?) {
-                vm.onSuggestionQuery(s?.toString() ?: "")
+                val text = s?.toString() ?: ""
+                // Typeahead — sempre attivo indipendentemente dalla modalità
+                vm.onSuggestionQuery(text)
+                // Real-time preview — disattivato in modalità manuale
+                if (!manualModeEnabled) scheduleDebounce(text)
             }
         })
     }
 
-    // ── RecyclerView suggerimenti ─────────────────────────────────────────
+    /**
+     * Cancels any in-flight debounce Job and schedules a new one that fires
+     * [runTranslation] after [DEBOUNCE_MS] milliseconds of inactivity.
+     *
+     * If [text] is blank the pending job is cancelled and the output is
+     * cleared immediately, without waiting for the debounce window.
+     */
+    private fun scheduleDebounce(text: String) {
+        debounceJob?.cancel()
+        if (text.isBlank()) {
+            // Clear output immediately on empty input
+            symbolContainer.removeAllViews()
+            textOutput.text    = ""
+            fabShare.isVisible = false
+            vm.clearSuggestions()
+            return
+        }
+        debounceJob = viewLifecycleOwner.lifecycleScope.launch {
+            delay(DEBOUNCE_MS)
+            runTranslation()
+        }
+    }
+
+    // ── RecyclerView suggerimenti ────────────────────────────────────────────────
 
     private fun setupSuggestions() {
         rvSuggestions.layoutManager =
@@ -199,7 +265,7 @@ class BlissTranslateFragment : Fragment() {
         suggestionAdapter.submitList(suggestions)
     }
 
-    // ── GlyphXBuilder init ────────────────────────────────────────────────
+    // ── GlyphXBuilder init ─────────────────────────────────────────────────────────
 
     private fun reinitGlyphXBuilder() {
         val ctx = context ?: return
@@ -215,83 +281,70 @@ class BlissTranslateFragment : Fragment() {
         glyphXBuilder?.let { vm.setBuilder(it) }
     }
 
-    // ── ViewModel observers ───────────────────────────────────────────────
+    // ── ViewModel observers ─────────────────────────────────────────────────────
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.uiState.collectLatest { state ->
 
-                    // Loading / ready indicator
-                    progressBar.isVisible    = state.isLoading
-                    btnTranslate.isEnabled   = !state.isLoading
+                    progressBar.isVisible  = state.isLoading
+                    // Il bottone manuale segue isLoading solo quando visibile
+                    if (btnTranslate.isVisible) btnTranslate.isEnabled = !state.isLoading
 
-                    // Error banner
                     if (state.error != null) {
-                        textOutput.text = state.error
+                        textOutput.text   = state.error
                         inputLayout.error = state.error
                     } else {
                         inputLayout.error = null
                     }
 
-                    // Stats label — contentDescription localizzata via strings.xml
                     state.stats?.let { s ->
                         if (s.total > 0) {
                             val pct = (s.coverage * 100).toInt()
                             textOutputLabel.contentDescription = getString(
-                                R.string.bliss_stats_desc,
-                                s.total,
-                                s.unknown,
-                                pct
+                                R.string.bliss_stats_desc, s.total, s.unknown, pct
                             )
                         }
                     }
 
-                    // Symbols → chip render
                     if (state.symbols.isNotEmpty() && state.error == null) {
                         renderChips(state.symbols)
-                        val tokenLine = state.symbols.joinToString(" ") { it.displayLabel() }
-                        textOutput.text = tokenLine
+                        textOutput.text    = state.symbols.joinToString(" ") { it.displayLabel() }
                         fabShare.isVisible = true
-                        val announcement = getString(
-                            R.string.bliss_a11y_translation_ready,
-                            state.symbols.size
+                        announceForA11y(
+                            getString(R.string.bliss_a11y_translation_ready, state.symbols.size)
                         )
-                        announceForA11y(announcement)
                     } else if (!state.isLoading && state.error == null) {
                         fabShare.isVisible = false
                     }
 
-                    // Typeahead suggestions
                     bindSuggestions(state.suggestions)
                 }
             }
         }
     }
 
-    /**
-     * Sends a TYPE_ANNOUNCEMENT accessibility event via [AccessibilityManager].
-     *
-     * Replaces the deprecated [View.announceForAccessibility] which was removed
-     * from the public API surface in API 35 (Android 15). Using
-     * [AccessibilityManager] directly gives the same TalkBack announcement
-     * without relying on the deprecated helper.
-     */
     private fun announceForA11y(message: CharSequence) {
         val am = ContextCompat.getSystemService(requireContext(), AccessibilityManager::class.java)
             ?: return
         if (!am.isEnabled) return
         val event = AccessibilityEvent.obtain(AccessibilityEvent.TYPE_ANNOUNCEMENT).apply {
             text.add(message)
-            className  = javaClass.name
+            className   = javaClass.name
             packageName = requireContext().packageName
         }
         am.sendAccessibilityEvent(event)
     }
 
-    // ── Translation ───────────────────────────────────────────────────────
+    // ── Translation ────────────────────────────────────────────────────────────────
 
+    /**
+     * Fires an immediate translation request, cancelling any pending debounce.
+     * Called both by the debounce Job (auto-mode) and by button/suggestion tap.
+     */
     private fun runTranslation() {
+        debounceJob?.cancel()          // no double-fire if called manually
         val text = editInput.text?.toString()?.trim() ?: ""
         if (text.isEmpty()) {
             vm.clearSuggestions()
@@ -300,11 +353,10 @@ class BlissTranslateFragment : Fragment() {
             fabShare.isVisible = false
             return
         }
-        // Delegate entirely to ViewModel — it owns the engine and the state
         vm.translate(text)
     }
 
-    // ── Chip renderer (FlexboxLayout) ─────────────────────────────────────
+    // ── Chip renderer ───────────────────────────────────────────────────────────────
 
     private fun renderChips(symbols: List<BlissSymbol>) {
         symbolContainer.removeAllViews()
@@ -352,11 +404,8 @@ class BlissTranslateFragment : Fragment() {
                         ctx,
                         getString(
                             R.string.bliss_chip_tooltip,
-                            sym.bciAvId,
-                            sym.name,
-                            sym.sourceWord,
-                            sym.matchType.name,
-                            indStr
+                            sym.bciAvId, sym.name, sym.sourceWord,
+                            sym.matchType.name, indStr
                         ),
                         Toast.LENGTH_SHORT
                     ).show()
@@ -374,7 +423,7 @@ class BlissTranslateFragment : Fragment() {
         BlissSymbol.MatchType.UNKNOWN           -> 0xFFFFD0D0.toInt()
     }
 
-    // ── FAB share SVG ─────────────────────────────────────────────────────
+    // ── FAB share SVG ────────────────────────────────────────────────────────────
 
     private fun setupFabShare() {
         fabShare.setOnClickListener { shareSvg() }
@@ -382,7 +431,6 @@ class BlissTranslateFragment : Fragment() {
 
     private fun shareSvg() {
         val doc = vm.uiState.value.glyphXDoc ?: return
-
         viewLifecycleOwner.lifecycleScope.launch {
             val svgBytes: ByteArray = withContext(Dispatchers.IO) {
                 val b = glyphXBuilder ?: return@withContext ByteArray(0)
@@ -390,23 +438,16 @@ class BlissTranslateFragment : Fragment() {
             }
             if (svgBytes.isEmpty()) {
                 Toast.makeText(
-                    requireContext(),
-                    getString(R.string.bliss_msg_error),
-                    Toast.LENGTH_SHORT
+                    requireContext(), getString(R.string.bliss_msg_error), Toast.LENGTH_SHORT
                 ).show()
                 return@launch
             }
-
             val shareDir = File(requireContext().cacheDir, "bliss_share").also { it.mkdirs() }
             val svgFile  = File(shareDir, "bliss_translation.svg")
             withContext(Dispatchers.IO) { svgFile.writeBytes(svgBytes) }
-
             val uri = FileProvider.getUriForFile(
-                requireContext(),
-                FILE_PROVIDER_AUTHORITY,
-                svgFile
+                requireContext(), FILE_PROVIDER_AUTHORITY, svgFile
             )
-
             val sendIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "image/svg+xml"
                 putExtra(Intent.EXTRA_STREAM, uri)
@@ -419,18 +460,21 @@ class BlissTranslateFragment : Fragment() {
         }
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────────────
 
     private fun isEngineReady(state: BlissViewModel.UiState): Boolean =
         !state.isLoading && state.error == null && state.langCode.isNotEmpty()
 
-    // ── Companion ─────────────────────────────────────────────────────────
+    // ── Companion ─────────────────────────────────────────────────────────────────
 
     companion object {
         private const val ARG_LANG                = "arg_lang"
         private const val DEFAULT_LANG            = "it"
         private const val CELL_SIZE_DP            = 72
         private const val FILE_PROVIDER_AUTHORITY = "com.blueapps.fileprovider"
+
+        /** Debounce window in milliseconds for real-time translation preview. */
+        const val DEBOUNCE_MS = 400L
 
         fun newInstance(lang: String = DEFAULT_LANG): BlissTranslateFragment =
             BlissTranslateFragment().apply {
