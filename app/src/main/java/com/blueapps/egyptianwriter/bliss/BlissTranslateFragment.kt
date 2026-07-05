@@ -145,10 +145,7 @@ class BlissTranslateFragment : Fragment() {
 
         btnTranslate.setOnClickListener { runTranslation() }
 
-        // Use the instance method (non-deprecated) instead of the deprecated
-        // ViewCompat static overload. Both set the same underlying property;
-        // the static form was deprecated in androidx.core 1.13.
-        textOutput.accessibilityLiveRegion    = View.ACCESSIBILITY_LIVE_REGION_POLITE
+        textOutput.accessibilityLiveRegion      = View.ACCESSIBILITY_LIVE_REGION_POLITE
         symbolContainer.accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
     }
 
@@ -237,12 +234,16 @@ class BlissTranslateFragment : Fragment() {
                         inputLayout.error = null
                     }
 
-                    // Stats label (non-invasive, muted text)
+                    // Stats label — contentDescription localizzata via strings.xml
                     state.stats?.let { s ->
                         if (s.total > 0) {
                             val pct = (s.coverage * 100).toInt()
-                            textOutputLabel.contentDescription =
-                                "${s.total} simboli  •  ${s.unknown} sconosciuti  •  $pct%"
+                            textOutputLabel.contentDescription = getString(
+                                R.string.bliss_stats_desc,
+                                s.total,
+                                s.unknown,
+                                pct
+                            )
                         }
                     }
 
@@ -343,13 +344,20 @@ class BlissTranslateFragment : Fragment() {
                     it.bottomMargin = 4.px()
                 }
                 setOnClickListener {
-                    val indStr = if (sym.indicators.isEmpty()) "nessuno"
-                                 else sym.indicators.joinToString()
+                    val indStr = if (sym.indicators.isEmpty())
+                        getString(R.string.bliss_chip_no_indicators)
+                    else
+                        sym.indicators.joinToString()
                     Toast.makeText(
                         ctx,
-                        "BCI-AV: ${sym.bciAvId}\nNome: ${sym.name}" +
-                        "\nParola: '${sym.sourceWord}'\nMatch: ${sym.matchType}" +
-                        "\nIndicatori: $indStr",
+                        getString(
+                            R.string.bliss_chip_tooltip,
+                            sym.bciAvId,
+                            sym.name,
+                            sym.sourceWord,
+                            sym.matchType.name,
+                            indStr
+                        ),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -373,7 +381,6 @@ class BlissTranslateFragment : Fragment() {
     }
 
     private fun shareSvg() {
-        // Read the already-built Document from UiState (no extra computation)
         val doc = vm.uiState.value.glyphXDoc ?: return
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -414,11 +421,6 @@ class BlissTranslateFragment : Fragment() {
 
     // ── Helpers ───────────────────────────────────────────────────────────
 
-    /**
-     * Returns true when the engine is ready (non-loading, no error, lookup
-     * asset loaded for the current language).  Used in onCreateView to avoid
-     * redundant setLang() calls.
-     */
     private fun isEngineReady(state: BlissViewModel.UiState): Boolean =
         !state.isLoading && state.error == null && state.langCode.isNotEmpty()
 

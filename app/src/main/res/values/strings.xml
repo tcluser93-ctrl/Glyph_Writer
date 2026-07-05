@@ -142,6 +142,13 @@
     <string name="bliss_cd_suggestions">Predictive suggestions for the current word</string>
     <string name="bliss_cd_fab_share">Share the Bliss translation as an SVG image</string>
 
+    <!-- Chip simbolo — tooltip al tap (BlissTranslateFragment.renderChips) -->
+    <string name="bliss_chip_tooltip">BCI-AV: %1$d\nName: %2$s\nWord: \u2018%3$s\u2019\nMatch: %4$s\nIndicators: %5$s</string>
+    <string name="bliss_chip_no_indicators">none</string>
+
+    <!-- Stats label accessibilità (BlissTranslateFragment.observeViewModel) -->
+    <string name="bliss_stats_desc">%1$d symbols  •  %2$d unknown  •  %3$d%%</string>
+
     <!-- Lingue disponibili nello Spinner -->
     <string-array name="bliss_language_names">
         <item>Italian (IT)</item>
