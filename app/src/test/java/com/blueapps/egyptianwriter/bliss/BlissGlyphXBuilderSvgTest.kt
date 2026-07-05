@@ -13,10 +13,10 @@ import javax.xml.xpath.XPathFactory
  *
  * Tag / attribute names are read from the companion-object constants so the
  * tests stay in sync automatically if the schema evolves:
- *   root tag  = [BlissGlyphXBuilder.TAG_ANCIENT_TEXT]  ("ancientText")
- *   sign code = [BlissGlyphXBuilder.ATTR_CODE]         ("code")
- *   sign match= [BlissGlyphXBuilder.ATTR_MATCH]        ("match")
- *   sign word = [BlissGlyphXBuilder.ATTR_WORD]         ("word")
+ *   root tag  = [BlissGlyphXBuilder.TAG_BLISS_TEXT]  ("blissText")
+ *   sign code = [BlissGlyphXBuilder.ATTR_CODE]        ("code")
+ *   sign match= [BlissGlyphXBuilder.ATTR_MATCH]       ("match")
+ *   sign word = [BlissGlyphXBuilder.ATTR_WORD]        ("word")
  *
  * [MatchType] alias is declared in BlissTestUtils.kt (package-internal).
  */
@@ -55,11 +55,11 @@ class BlissGlyphXBuilderSvgTest {
         }
 
         @Test
-        @DisplayName("Root element tag is '${BlissGlyphXBuilder.TAG_ANCIENT_TEXT}'")
-        fun rootTagIsAncientText() {
+        @DisplayName("Root element tag is '${BlissGlyphXBuilder.TAG_BLISS_TEXT}'")
+        fun rootTagIsBlissText() {
             val builder = BlissGlyphXBuilder(symbolsPerLine = 4)
             val doc = builder.build(emptyList())
-            assertEquals(BlissGlyphXBuilder.TAG_ANCIENT_TEXT, doc.documentElement.tagName)
+            assertEquals(BlissGlyphXBuilder.TAG_BLISS_TEXT, doc.documentElement.tagName)
         }
     }
 
@@ -121,8 +121,6 @@ class BlissGlyphXBuilderSvgTest {
         fun sourceWordAttribute() {
             val builder = BlissGlyphXBuilder(symbolsPerLine = 4)
             val doc = builder.build(listOf(sym(1, "run", sourceWord = "running")))
-            // The builder emits setAttribute(ATTR_WORD, sym.sourceWord)
-            // ATTR_WORD = "word"
             assertEquals("running", xpathStr(doc, "//sign/@${BlissGlyphXBuilder.ATTR_WORD}"))
         }
     }
