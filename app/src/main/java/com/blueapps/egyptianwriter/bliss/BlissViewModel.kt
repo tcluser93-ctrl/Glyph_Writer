@@ -142,8 +142,6 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
      * Translates [text] using the full pipeline (Morfologik FSA tier active).
      * Cancels any in-flight translation before starting.
      * On success, auto-saves to the history repository.
-     *
-     * @param text  Raw user input; trimmed by the translator internally.
      */
     fun translate(text: String) {
         val t = translator ?: run {
@@ -191,11 +189,6 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
 
     // ── typeahead suggestions ───────────────────────────────────────────────────
 
-    /**
-     * Called by the Fragment's TextWatcher on each keystroke.
-     * Queries the FTS4 prefix index for the last word in [text] and emits
-     * up to [MAX_SUGGESTIONS] BCI canonical names into [UiState.suggestions].
-     */
     fun onSuggestionQuery(text: String) {
         val prefix = text.trimEnd().substringAfterLast(' ').lowercase()
         if (prefix.length < MIN_PREFIX_LEN) {
@@ -214,7 +207,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /** Clears the current suggestion list (e.g., after translation runs). */
+    /** Clears the current suggestion list. */
     fun clearSuggestions() {
         suggestJob?.cancel()
         _uiState.value = _uiState.value.copy(suggestions = emptyList())
@@ -222,18 +215,14 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
 
     // ── history panel ──────────────────────────────────────────────────────────────
 
-    /**
-     * Toggles the visibility of the history panel.
-     */
+    /** Toggles the visibility of the history panel. */
     fun toggleHistoryPanel() {
         _uiState.value = _uiState.value.copy(
             historyVisible = !_uiState.value.historyVisible
         )
     }
 
-    /**
-     * Deletes a single history entry by its [id].
-     */
+    /** Deletes a single history entry by its [id]. */
     fun deleteHistoryEntry(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteEntry(id)
@@ -241,13 +230,22 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * Restores [entry] into the active translation state so the user can
-     * see it in the translator fragment.  Does not re-run the translation
-     * pipeline — symbols are resolved from BCI-AV IDs via [BlissLookup].
+     * Restores [entry] into the active translation state.
+     *
+     * Symbols are reconstructed from the persisted BCI-AV IDs using
+     * [BlissLookup.toSymbol] — the canonical BCI name is used as both
+     * [BlissSymbol.sourceWord] and [BlissSymbol.lemma] because the original
+     * surface form is not stored in the history table.
      */
     fun restoreFromHistory(entry: BlissHistoryEntry) {
-        val resolved = entry.symbolIds
-            .mapNotNull { id -> lookup.symbolById(id) }
+        val resolved = entry.symbolIds.map { id ->
+            lookup.toSymbol(
+                id     = id,
+                source = lookup.nameOf(id),
+                lemma  = lookup.nameOf(id),
+                mt     = BlissSymbol.MatchType.EXACT
+            )
+        }
         val stats = TranslationStats.from(resolved)
         _uiState.value = _uiState.value.copy(
             symbols   = resolved,
@@ -257,27 +255,21 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-    /**
-     * Re-inserts a previously deleted [entry] (undo for swipe-to-delete).
-     */
+    /** Re-inserisce un entry precedentemente cancellato (undo swipe-to-delete). */
     fun restoreHistoryEntry(entry: BlissHistoryEntry) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.insertEntry(entry)
         }
     }
 
-    /**
-     * Re-inserts a list of previously deleted entries (undo for clear-all).
-     */
+    /** Re-inserisce una lista di entry precedentemente cancellati (undo clear-all). */
     fun restoreHistoryEntries(entries: List<BlissHistoryEntry>) {
         viewModelScope.launch(Dispatchers.IO) {
             entries.forEach { repository.insertEntry(it) }
         }
     }
 
-    /**
-     * Clears the entire history for the current language.
-     */
+    /** Cancella tutta la cronologia per la lingua corrente. */
     fun clearHistory() {
         val lang = _uiState.value.langCode
         viewModelScope.launch(Dispatchers.IO) {
@@ -326,10 +318,10 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     companion object {
-        private const val TAG             = "BlissViewModel"
-        private const val DEFAULT_LANG    = "it"
-        const val MIN_PREFIX_LEN          = 2
-        const val MAX_SUGGESTIONS         = 8
+        private const val TAG          = "BlissViewModel"
+        private const val DEFAULT_LANG = "it"
+        const val MIN_PREFIX_LEN       = 2
+        const val MAX_SUGGESTIONS      = 8
     }
 }
 
