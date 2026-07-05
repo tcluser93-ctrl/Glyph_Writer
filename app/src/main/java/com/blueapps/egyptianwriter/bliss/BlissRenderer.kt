@@ -59,7 +59,7 @@ class BlissRenderer(
 
     private var renderJob: Job? = null
 
-    // ── public API ────────────────────────────────────────────────────────────
+    // ── public API ─────────────────────────────────────────────────────────────────
 
     /**
      * Renders [document] into [container], replacing all existing children.
@@ -99,7 +99,7 @@ class BlissRenderer(
                 // Resolve cell size once before entering IO so we can pass it as size hint
                 val cellPx = resolveCellPx(container)
 
-                // ── Fetch all drawables in parallel on IO ─────────────────────────
+                // ── Fetch all drawables in parallel on IO ─────────────────────
                 val drawables = withContext(Dispatchers.IO) {
                     symbols.map { sym ->
                         async {
@@ -125,7 +125,7 @@ class BlissRenderer(
                     }.awaitAll()
                 }
 
-                // ── Build Views on Main Thread in a single pass ───────────────
+                // ── Build Views on Main Thread in a single pass ────────────────
                 container.removeAllViews()
 
                 val totalCols = symbols.size.coerceAtLeast(1)
@@ -185,7 +185,7 @@ class BlissRenderer(
         renderJob?.cancel()
     }
 
-    // ── SVG export ────────────────────────────────────────────────────────────
+    // ── SVG export ───────────────────────────────────────────────────────────────
 
     /**
      * Renders all cells onto a [Bitmap] at the given [scale] factor.
@@ -224,14 +224,14 @@ class BlissRenderer(
         }
     }
 
-    // ── internal helpers ──────────────────────────────────────────────────────
+    // ── internal helpers ─────────────────────────────────────────────────────────
 
     /**
      * BUG-2 fix: the GlyphX schema uses <sign> elements (BlissGlyphXBuilder.TAG_SIGN),
      * NOT <symbol>. The previous getElementsByTagName("symbol") always returned
      * an empty NodeList, so nothing was ever rendered.
      *
-     * We search one level deeper: ancientText → line → group → sign.
+     * We search one level deeper: blissText → line → group → sign.
      * Using TAG_SIGN directly keeps this in sync with the builder constant.
      */
     private fun extractSymbols(document: Document): List<Element> {
@@ -265,7 +265,7 @@ class BlissRenderer(
         private const val MAX_CELL_DP  = 120
     }
 
-    // ── inner View ────────────────────────────────────────────────────────────
+    // ── inner View ───────────────────────────────────────────────────────────────
 
     /**
      * Lightweight custom View that displays one Bliss symbol SVG.
