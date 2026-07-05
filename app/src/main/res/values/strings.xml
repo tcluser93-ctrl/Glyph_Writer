@@ -143,6 +143,10 @@
     <string name="bliss_cd_suggestions">Predictive suggestions for the current word</string>
     <string name="bliss_cd_fab_share">Share the Bliss translation as an SVG image</string>
 
+    <!-- Toggle modalità auto/manuale (end-icon TextInputLayout) -->
+    <string name="bliss_cd_mode_auto">Modalità anteprima automatica attiva. Tocca per passare alla modalità manuale.</string>
+    <string name="bliss_cd_mode_manual">Modalità manuale attiva. Tocca per attivare l’anteprima automatica.</string>
+
     <!-- Chip simbolo — tooltip al tap (BlissTranslateFragment.renderChips) -->
     <string name="bliss_chip_tooltip">BCI-AV: %1$d\nName: %2$s\nWord: \u2018%3$s\u2019\nMatch: %4$s\nIndicators: %5$s</string>
     <string name="bliss_chip_no_indicators">none</string>
