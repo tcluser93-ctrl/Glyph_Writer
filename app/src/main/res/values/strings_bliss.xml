@@ -28,6 +28,8 @@
     <string name="bliss_msg_share_chooser">Condividi tramite…</string>
 
     <!-- Accessibility announcements -->
+    <!-- %1$s = suggested word shown in the chip -->
+    <string name="bliss_a11y_suggestion">Suggerimento: %1$s</string>
     <!-- %1$d = number of Bliss symbols in the translation result -->
     <string name="bliss_a11y_translation_ready">Traduzione pronta: %1$d simboli.</string>
     <!-- %1$s = symbol name + BCI-AV id + match type -->
