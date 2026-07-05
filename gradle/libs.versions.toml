@@ -25,14 +25,14 @@ room = "2.7.1"
 flexbox = "3.0.0"
 androidsvg = "1.4"
 lifecycle = "2.8.7"
-# ── test ──────────────────────────────────────────────────────────────────────
+# ── test ─────────────────────────────────────────────────────────────────────────────
 coroutinesTest    = "1.9.0"
 archCoreTesting   = "2.2.0"
 mockitoKotlin     = "5.4.0"
 junitJupiter      = "5.11.4"
+junitPlatform     = "1.11.4"
 
 [libraries]
-# autobreaklinelayout RIMOSSO: inlinato in com.blueapps.egyptianwriter.widget.BreakLineLayout
 commons-lang = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commons-lang" }
 documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -53,7 +53,6 @@ fragment = { group = "androidx.fragment", name = "fragment", version.ref = "frag
 fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragment" }
 viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }
 zoomlayout = { module = "com.otaliastudios:zoomlayout", version.ref = "zoomlayout" }
-# groupId corretto su Maven Central e' org.carrot2, non org.morfologik
 morfologik-stemming = { group = "org.carrot2", name = "morfologik-stemming", version.ref = "morfologik" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
@@ -62,12 +61,13 @@ flexbox = { group = "com.google.android.flexbox", name = "flexbox", version.ref 
 androidsvg = { group = "com.caverock", name = "androidsvg-aar", version.ref = "androidsvg" }
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 lifecycle-runtime-ktx   = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx",   version.ref = "lifecycle" }
-# ── test libs ─────────────────────────────────────────────────────────────────
-kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
-arch-core-testing       = { group = "androidx.arch.core", name = "core-testing", version.ref = "archCoreTesting" }
-mockito-kotlin          = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
-junit-jupiter           = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
-junit-jupiter-engine    = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junitJupiter" }
+# ── test libs ─────────────────────────────────────────────────────────────────────────
+kotlinx-coroutines-test  = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test",    version.ref = "coroutinesTest" }
+arch-core-testing        = { group = "androidx.arch.core",    name = "core-testing",               version.ref = "archCoreTesting" }
+mockito-kotlin           = { group = "org.mockito.kotlin",    name = "mockito-kotlin",             version.ref = "mockitoKotlin" }
+junit-jupiter            = { group = "org.junit.jupiter",     name = "junit-jupiter",              version.ref = "junitJupiter" }
+junit-jupiter-engine     = { group = "org.junit.jupiter",     name = "junit-jupiter-engine",       version.ref = "junitJupiter" }
+junit-platform-launcher  = { group = "org.junit.platform",   name = "junit-platform-launcher",    version.ref = "junitPlatform" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

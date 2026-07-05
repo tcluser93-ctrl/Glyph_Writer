@@ -86,15 +86,20 @@ dependencies {
 
     implementation(libs.flexbox)
 
+    // ── unit test dependencies ────────────────────────────────────────────────
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter)
+    // junit-platform-launcher MUST be on the runtime classpath when using
+    // useJUnitPlatform() with AGP 8+. Without it Gradle cannot bootstrap the
+    // JUnit Platform and the test process fails immediately with
+    // "Failed to load JUnit Platform".
     testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.arch.core.testing)
     testImplementation(libs.mockito.kotlin)
-    // Room annotation classes (@Entity, @ColumnInfo, @PrimaryKey, @Index) are
-    // needed on the JVM test compile classpath because BlissHistoryEntry is
-    // referenced transitively by BlissViewModel.UiState (used in tests).
+    // Room annotation classes needed on the JVM test compile classpath because
+    // BlissHistoryEntry is referenced transitively by BlissViewModel.UiState.
     testImplementation(libs.room.runtime)
     testImplementation(libs.room.ktx)
 
