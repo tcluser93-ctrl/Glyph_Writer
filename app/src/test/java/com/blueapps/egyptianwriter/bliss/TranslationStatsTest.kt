@@ -8,15 +8,12 @@ import org.junit.jupiter.api.Test
 /**
  * Focused tests for [TranslationStats] and its [TranslationStats.from] factory.
  *
- * These tests are extracted from [BlissViewModelTest] into their own file so
- * the CI test report shows a clear per-class breakdown.
- *
+ * [MatchType] alias is declared in BlissTestUtils.kt (package-internal).
  * All tests are pure JVM — no Android context, no coroutines, no mocks.
  */
 @DisplayName("TranslationStats")
 class TranslationStatsTest {
 
-    // gloss is a computed property (= name), not a constructor param — omit it.
     private fun sym(mt: BlissSymbol.MatchType) = BlissSymbol(
         bciAvId    = 1,
         name       = "x",
@@ -31,7 +28,7 @@ class TranslationStatsTest {
         @Test
         @DisplayName("Empty list → total=0, all counters=0")
         fun emptyList() {
-            val s = TranslationStats.from(emptyList())
+            val s = TranslationStats.from(emptyList<BlissSymbol>())
             assertEquals(0, s.total)
             assertEquals(0, s.exact)
             assertEquals(0, s.lemma)
@@ -54,7 +51,6 @@ class TranslationStatsTest {
             val s = TranslationStats.from(
                 BlissSymbol.MatchType.values().map { sym(it) }
             )
-            // EXACT, LEMMA, NGRAM, FALLBACK_CATEGORY, UNKNOWN — total=5
             assertEquals(BlissSymbol.MatchType.values().size, s.total)
             assertEquals(1, s.exact)
             assertEquals(1, s.lemma)
@@ -80,7 +76,7 @@ class TranslationStatsTest {
 
         @Test
         @DisplayName("Empty list → coverage = 0.0")
-        fun emptyList() = assertEquals(0f, TranslationStats.from(emptyList()).coverage)
+        fun emptyList() = assertEquals(0f, TranslationStats.from(emptyList<BlissSymbol>()).coverage)
 
         @Test
         @DisplayName("All EXACT → coverage = 1.0")

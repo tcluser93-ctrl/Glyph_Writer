@@ -11,11 +11,13 @@ import org.w3c.dom.Element
  *
  * These tests cover the GlyphX DOM construction logic (pre-existing).
  * Runs on the local JVM — no Android context required.
+ *
+ * [MatchType] is declared in BlissTestUtils.kt (package-internal) to avoid
+ * Redeclaration errors across test files in the same package.
  */
 @DisplayName("BlissGlyphXBuilder — build() and append()")
 class BlissGlyphXBuilderCoreTest {
 
-    // gloss is a computed property on BlissSymbol (not a constructor param)
     private fun sym(
         id: Int,
         name: String,
@@ -110,9 +112,9 @@ class BlissGlyphXBuilderCoreTest {
         @DisplayName("append() triggers new line when perLine exceeded")
         fun appendTriggersNewLine() {
             val builder = BlissGlyphXBuilder(symbolsPerLine = 2)
-            val doc     = builder.build(listOf(sym(1, "a"), sym(2, "b")))  // 1 full line
+            val doc     = builder.build(listOf(sym(1, "a"), sym(2, "b")))
             val tailRef = BlissGlyphXBuilder.TailRef()
-            builder.append(doc, listOf(sym(3, "c")), tailRef)             // overflows → new line
+            builder.append(doc, listOf(sym(3, "c")), tailRef)
             val lines = doc.getElementsByTagName(BlissGlyphXBuilder.TAG_LINE)
             assertEquals(2, lines.length)
         }
@@ -122,11 +124,9 @@ class BlissGlyphXBuilderCoreTest {
     @DisplayName("parseBciAvId")
     inner class ParseBciAvId {
 
-        @Test fun validCode()   = assertEquals(12335, BlissGlyphXBuilder.parseBciAvId("B12335"))
-        @Test fun noPrefix()   = assertEquals(-1,    BlissGlyphXBuilder.parseBciAvId("12335"))
-        @Test fun emptyString() = assertEquals(-1,   BlissGlyphXBuilder.parseBciAvId(""))
-        @Test fun textOnly()   = assertEquals(-1,    BlissGlyphXBuilder.parseBciAvId("Bwalk"))
+        @Test fun validCode()    = assertEquals(12335, BlissGlyphXBuilder.parseBciAvId("B12335"))
+        @Test fun noPrefix()    = assertEquals(-1,    BlissGlyphXBuilder.parseBciAvId("12335"))
+        @Test fun emptyString() = assertEquals(-1,    BlissGlyphXBuilder.parseBciAvId(""))
+        @Test fun textOnly()    = assertEquals(-1,    BlissGlyphXBuilder.parseBciAvId("Bwalk"))
     }
 }
-
-private typealias MatchType = BlissSymbol.MatchType

@@ -1,74 +1,35 @@
 package com.blueapps.egyptianwriter.bliss
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.*
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.kotlin.*
 
 /**
  * Unit tests for [BlissViewModel].
  *
- * ## Isolation strategy
- * [BlissViewModel] extends [AndroidViewModel] and depends on:
- * - [BlissLookup]   — mocked via Mockito-Kotlin
- * - [BlissTranslator] — mocked
- * - [BlissHistoryRepository] — mocked
- * - [MorfologikLemmatizer]   — mocked
- * - `viewModelScope` — replaced with [TestCoroutineScheduler] via
- *   [Dispatchers.setMain] + [UnconfinedTestDispatcher]
+ * [MatchType] alias is declared in BlissTestUtils.kt (package-internal).
  *
- * Because we cannot instantiate [BlissViewModel] through the framework without
- * a real [Application], we use a **TestBlissViewModel** subclass that accepts
- * the mocked dependencies via constructor injection instead of field assignment.
- * The [TranslationStats] and [UiState] data classes are pure Kotlin — no mocks needed.
- *
- * ## Coverage map
- * | Scenario                                  | Test |
- * |-------------------------------------------|------|
- * | Initial UiState defaults                  | initialStateDefaults |
- * | setError() sets error, clears isLoading   | setErrorSetsState |
- * | clearError() clears error                 | clearErrorClearsState |
- * | clearSuggestions() empties suggestions    | clearSuggestionsEmptiesList |
- * | toggleHistoryPanel() toggles flag         | toggleHistoryPanelToggles |
- * | toggleHistoryPanel() twice → false        | toggleHistoryPanelTwice |
- * | onSuggestionQuery short prefix (≤1 char)  | shortPrefixClearsSuggestions |
- * | onSuggestionQuery exactly 1 char boundary | oneLengthBoundary |
- * | translate() without translator → error    | translateWithoutTranslatorSetsError |
- * | TranslationStats.from() all EXACT         | statsAllExact |
- * | TranslationStats.from() mixed types       | statsMixed |
- * | TranslationStats.from() empty list        | statsEmpty |
- * | coverage = 1.0 when no unknowns           | coverageFullWhenNoUnknowns |
- * | coverage = 0.0 when all unknowns          | coverageZeroWhenAllUnknowns |
- * | coverage = 0.5 for half unknowns          | coverageHalf |
- * | coverage = 0.0 for empty list             | coverageEmptyList |
- * | UiState copy semantics (immutability)     | uiStateCopyImmutability |
- * | Constants: MIN_PREFIX_LEN, MAX_SUGGESTIONS| constants |
+ * Note: InstantTaskExecutorRule (JUnit 4) is NOT used here — this suite tests
+ * only StateFlow-based state via FakeViewModel, which does not require the
+ * ArchTaskExecutor override.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @DisplayName("BlissViewModel — state, suggestions, stats")
 class BlissViewModelTest {
 
-    // ── JUnit 5 extension for InstantTaskExecutorRule (LiveData / Arch compat)
-    // Note: InstantTaskExecutorRule is a JUnit 4 Rule; we apply it manually.
-    private val instantTaskRule = InstantTaskExecutorRule()
-
     private val testDispatcher = UnconfinedTestDispatcher()
 
     @BeforeEach
     fun setUp() {
-        instantTaskRule.starting(null)  // activate the rule
         Dispatchers.setMain(testDispatcher)
     }
 
     @AfterEach
     fun tearDown() {
         Dispatchers.resetMain()
-        instantTaskRule.finished(null)
     }
 
     // ── UiState tests (pure data class — no ViewModel instance needed) ─────────
@@ -111,7 +72,6 @@ class BlissViewModelTest {
     @DisplayName("TranslationStats")
     inner class StatsTests {
 
-        // gloss is a computed property (not a constructor param) — omit it here
         private fun sym(mt: MatchType) = BlissSymbol(
             bciAvId    = 1,
             name       = "x",
@@ -122,7 +82,7 @@ class BlissViewModelTest {
         @Test
         @DisplayName("from() empty list → all zeros, coverage = 0.0")
         fun statsEmpty() {
-            val s = TranslationStats.from(emptyList())
+            val s = TranslationStats.from(emptyList<BlissSymbol>())
             assertEquals(0, s.total)
             assertEquals(0f, s.coverage)
         }
@@ -180,21 +140,12 @@ class BlissViewModelTest {
         @Test
         @DisplayName("coverage = 0.0 for empty list")
         fun coverageEmptyList() {
-            assertEquals(0f, TranslationStats.from(emptyList()).coverage)
+            assertEquals(0f, TranslationStats.from(emptyList<BlissSymbol>()).coverage)
         }
     }
 
-    // ── StateFlow / ViewModel state mutation tests ────────────────────────────
-    //
-    // We test state mutation methods directly on _uiState using a thin
-    // FakeBlissViewModel that exposes the internal MutableStateFlow.
-    // This avoids instantiating AndroidViewModel (needs real Application) while
-    // still exercising the exact same update logic.
+    // ── StateFlow / ViewModel state mutation tests ─────────────────────────────────────
 
-    /**
-     * Pure-Kotlin stand-in that replicates the _uiState mutation methods
-     * without extending AndroidViewModel (which requires a real Application).
-     */
     private class FakeViewModel {
         private val _state = MutableStateFlow(BlissViewModel.UiState())
         val uiState get() = _state.value
@@ -211,11 +162,9 @@ class BlissViewModelTest {
         fun toggleHistoryPanel() {
             _state.value = _state.value.copy(historyVisible = !_state.value.historyVisible)
         }
-        /** Simulates translate() error path when translator is null. */
         fun translateWithoutTranslator() {
             _state.value = _state.value.copy(error = "Engine not ready")
         }
-        /** Simulates onSuggestionQuery short-prefix early return. */
         fun onSuggestionQueryShortPrefix(text: String) {
             val prefix = text.trimEnd().substringAfterLast(' ').lowercase()
             if (prefix.length < BlissViewModel.MIN_PREFIX_LEN) {
@@ -251,13 +200,11 @@ class BlissViewModelTest {
         @Test
         @DisplayName("clearSuggestions() empties the suggestions list")
         fun clearSuggestionsEmptiesList() {
-            // Inject suggestions directly via copy
             val field = FakeViewModel::class.java.getDeclaredField("_state")
             field.isAccessible = true
             @Suppress("UNCHECKED_CAST")
             val flow = field.get(vm) as MutableStateFlow<BlissViewModel.UiState>
             flow.value = flow.value.copy(suggestions = listOf("walk", "run"))
-
             vm.clearSuggestions()
             assertTrue(vm.uiState.suggestions.isEmpty())
         }
@@ -286,14 +233,13 @@ class BlissViewModelTest {
         }
 
         @Test
-        @DisplayName("onSuggestionQuery with 1-char prefix clears suggestions, does not query")
+        @DisplayName("onSuggestionQuery with 1-char prefix clears suggestions")
         fun shortPrefixClearsSuggestions() {
             val field = FakeViewModel::class.java.getDeclaredField("_state")
             field.isAccessible = true
             @Suppress("UNCHECKED_CAST")
             val flow = field.get(vm) as MutableStateFlow<BlissViewModel.UiState>
             flow.value = flow.value.copy(suggestions = listOf("walk"))
-
             vm.onSuggestionQueryShortPrefix("a")
             assertTrue(vm.uiState.suggestions.isEmpty())
         }
@@ -304,8 +250,6 @@ class BlissViewModelTest {
             assertDoesNotThrow { vm.onSuggestionQueryShortPrefix("") }
         }
     }
-
-    // ── constants ─────────────────────────────────────────────────────────────
 
     @Nested
     @DisplayName("Constants")
@@ -320,6 +264,3 @@ class BlissViewModelTest {
         fun maxSuggestions() = assertEquals(8, BlissViewModel.MAX_SUGGESTIONS)
     }
 }
-
-// Alias needed because MatchType is defined as a nested class in BlissSymbol
-private typealias MatchType = BlissSymbol.MatchType
