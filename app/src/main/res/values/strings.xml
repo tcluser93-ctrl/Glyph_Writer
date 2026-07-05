@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Egyptian Writer</string>
+    <string name="app_name" translatable="false">Glyph Writer</string>
     <string name="documents">Documents</string>
     <string name="no_documents">Hhm …    \nIt seems like if there are no documents jet…</string>
     <string name="add_document">Add</string>
@@ -67,10 +67,36 @@
     <string name="error_broken_document_text">This document is broken. If you imported it from outside the app, please try importing it again. If the problem continues or if you did not import the document, please restart the app and check for updates.</string>
 
     <!-- ══════════════════════════════════════════════════════════════════════
+         Navigation Drawer — Fase 6 Blocco A
+         ══════════════════════════════════════════════════════════════════════ -->
+    <string name="nav_drawer_open">Apri menu</string>
+    <string name="nav_drawer_close">Chiudi menu</string>
+    <string name="nav_header_subtitle">Comunicazione Aumentativa</string>
+    <string name="nav_translate">Traduttore</string>
+    <string name="nav_history">Cronologia</string>
+    <string name="nav_settings">Impostazioni</string>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         Cronologia — BlissHistoryFragment
+         ══════════════════════════════════════════════════════════════════════ -->
+    <string name="history_empty_title">Nessuna traduzione</string>
+    <string name="history_empty_subtitle">Le traduzioni salvate appariranno qui</string>
+    <string name="history_clear_all">Cancella cronologia</string>
+    <string name="history_deleted">Traduzione eliminata</string>
+    <string name="undo">Annulla</string>
+
+    <plurals name="history_cleared">
+        <item quantity="one">%d traduzione eliminata</item>
+        <item quantity="other">%d traduzioni eliminate</item>
+    </plurals>
+
+    <plurals name="history_symbol_count">
+        <item quantity="one">%d simbolo</item>
+        <item quantity="other">%d simboli</item>
+    </plurals>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
          Bliss Translator — stringhe UI (default EN)
-         Tutte le stringhe referenziate dal layout fragment_translate.xml
-         devono avere un valore in questo file (default locale),
-         altrimenti aapt2 le rimuove e il linking fallisce.
          ══════════════════════════════════════════════════════════════════════ -->
 
     <!-- Tab label -->
@@ -82,12 +108,12 @@
     <string name="bliss_label_output">Translation (Bliss tokens)</string>
     <string name="bliss_label_symbols">Bliss symbols</string>
 
-    <!-- Nomi usati direttamente da fragment_translate.xml (richiesti dal layout) -->
+    <!-- Nomi usati direttamente da fragment_translate.xml -->
     <string name="bliss_lang_label">Language:</string>
     <string name="bliss_suggestions_label">Suggestions:</string>
     <string name="bliss_symbols_label">Bliss symbols:</string>
 
-    <!-- Input / pulsanti (richiesti dal layout) -->
+    <!-- Input / pulsanti -->
     <string name="bliss_hint_input">Text to translate…</string>
     <string name="bliss_btn_translate">Translate</string>
     <string name="bliss_btn_clear">Clear</string>
