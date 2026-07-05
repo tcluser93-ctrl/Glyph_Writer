@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    ic_bliss — icona voce "Traduttore" nel Navigation Drawer.
+    Rappresenta un simbolo AAC stilizzato: rettangolo arrotondato (card)
+    con una linea orizzontale centrale e un piccolo cerchio a sinistra,
+    evocando un simbolo Bliss su supporto.
+    Dimensioni: 24x24dp  —  usa currentColor per adattarsi al tema.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Card di sfondo (rettangolo arrotondato) -->
+    <path
+        android:pathData="M3,6 Q3,4 5,4 L19,4 Q21,4 21,6 L21,18 Q21,20 19,20 L5,20 Q3,20 3,18 Z"
+        android:strokeWidth="1.6"
+        android:strokeColor="@color/mtrl_navigation_bar_item_tint"
+        android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <!-- Cerchio simbolo (a sinistra, riga superiore) -->
+    <path
+        android:pathData="M8,10 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0"
+        android:fillColor="@color/mtrl_navigation_bar_item_tint" />
+
+    <!-- Linea testo (riga superiore) -->
+    <path
+        android:pathData="M12.5,10 L18,10"
+        android:strokeWidth="1.6"
+        android:strokeColor="@color/mtrl_navigation_bar_item_tint"
+        android:strokeLineCap="round" />
+
+    <!-- Linea testo (riga inferiore) -->
+    <path
+        android:pathData="M6,14 L18,14"
+        android:strokeWidth="1.6"
+        android:strokeColor="@color/mtrl_navigation_bar_item_tint"
+        android:strokeLineCap="round" />
+
+</vector>
