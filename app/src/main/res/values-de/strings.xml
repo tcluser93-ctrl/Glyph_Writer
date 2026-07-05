@@ -14,7 +14,7 @@
     <string name="menu_item_delete">Löschen</string>
     <string name="button_delete">Löschen</string>
     <string name="delete_document">Dieses Dokument löschen</string>
-    <string name="delete_message_document">Möchten sie wirklich das Dokument \"%s\" löschen?\nDiese Aktion kann nicht rückgängig gemacht werden!</string>
+    <string name="delete_message_document">Möchten sie wirklich das Dokument \"%s\" löschen?\nDiese Aktion kann nicht rükgängig gemacht werden!</string>
     <string name="title_export">Export</string>
     <string name="button_save">SPEICHERN</string>
     <string name="button_share">TEILEN</string>
@@ -50,7 +50,7 @@
     <string name="new_vocab_set_title">Ein neues Vokabelset erstellen</string>
     <string name="new_vocab_set_description">Erstelle ein neues Vokabelset, dem du Vokabelkarten hinzufügen kannst, um sie zu lernen.</string>
     <string name="delete_vocab">Dieses Vokabelset löschen</string>
-    <string name="delete_message_vocab">Möchten sie wirklich das Vokabelset \"%s\" löschen?\nDiese Aktion kann nicht rückgängig gemacht werden!</string>
+    <string name="delete_message_vocab">Möchten sie wirklich das Vokabelset \"%s\" löschen?\nDiese Aktion kann nicht rükgängig gemacht werden!</string>
     <string name="button_training">Training</string>
     <string name="button_practise">Üben</string>
     <string name="vocab_card_number_template">Karte %d/%d</string>
@@ -65,4 +65,34 @@
     <string name="content_description_writing_direction_rtl">Rechts-nach-Links Layout</string>
     <string name="error_broken_document_title">Dokument beschädigt</string>
     <string name="error_broken_document_text">Dieses Dokument ist beschädigt. Wenn Sie es von außerhalb dieser App importiert haben, versuchen Sie bitte, es erneut zu importieren. Wenn der Fehler weiterhin besteht, starten Sie die App neu und prüfen Sie, ob Aktualisierungen verfügbar sind.</string>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         Bliss Translator — DE Übersetzungen
+         ══════════════════════════════════════════════════════════════════════ -->
+
+    <string name="bliss_label_language">Ausgangssprache</string>
+    <string name="bliss_label_suggestions">Vorschläge</string>
+    <string name="bliss_label_output">Übersetzung (Bliss-Token)</string>
+    <string name="bliss_label_symbols">Bliss-Symbole</string>
+    <string name="bliss_hint_input">Text zum Übersetzen eingeben (max. 500 Zeichen)</string>
+    <string name="bliss_btn_translate">In Bliss übersetzen</string>
+    <string name="bliss_btn_share">SVG teilen</string>
+    <string name="bliss_cd_spinner_language">Ausgangssprache für die Bliss-Übersetzung auswählen</string>
+    <string name="bliss_cd_input_text">Texteingabefeld. Tippe oder füge den Text ein, den du in Bliss-Symbole übersetzen möchtest.</string>
+    <string name="bliss_cd_btn_translate">Den eingegebenen Text in Bliss-Symbole übersetzen</string>
+    <string name="bliss_cd_progress">Übersetzung läuft, bitte warten</string>
+    <string name="bliss_cd_output">Übersetzungsergebnis in Bliss-Token</string>
+    <string name="bliss_cd_symbol_container">Raster der Bliss-Symbole zum übersetzten Text</string>
+    <string name="bliss_cd_suggestions">Vorhersage-Vorschläge für das aktuelle Wort</string>
+    <string name="bliss_cd_fab_share">Die Bliss-Übersetzung als SVG-Bild teilen</string>
+    <string name="bliss_language_names" translatable="false">bliss_language_names</string>
+    <string name="bliss_msg_translating">Übersetzung läuft…</string>
+    <string name="bliss_msg_no_result">Keine Bliss-Symbole für diesen Text gefunden.</string>
+    <string name="bliss_msg_error">Übersetzungsfehler. Bitte erneut versuchen.</string>
+    <string name="bliss_msg_empty_input">Bitte Text zum Übersetzen eingeben.</string>
+    <string name="bliss_msg_share_title">Bliss-Übersetzung teilen</string>
+    <string name="bliss_msg_share_chooser">SVG teilen über…</string>
+    <string name="bliss_a11y_translation_ready">Übersetzung abgeschlossen. %d Bliss-Symbole generiert.</string>
+    <string name="bliss_a11y_symbol_desc">Bliss-Symbol: %s</string>
+    <string name="bliss_a11y_suggestion">Vorschlag: %s. Doppeltippen zum Einfügen.</string>
 </resources>
