@@ -53,7 +53,7 @@
     <string name="delete_message_vocab">Möchten sie wirklich das Vokabelset \"%s\" löschen?\nDiese Aktion kann nicht rükgängig gemacht werden!</string>
     <string name="button_training">Training</string>
     <string name="button_practise">Üben</string>
-    <string name="vocab_card_number_template">Karte %d/%d</string>
+    <string name="vocab_card_number_template" formatted="false">Karte %d/%d</string>
     <string name="property_text_size_label">Schriftgröße</string>
     <string name="property_layout_label">Schriftlayout</string>
     <string name="content_description_writing_layout_lines">Schriftlayout Linien</string>
@@ -68,6 +68,8 @@
 
     <!-- ══════════════════════════════════════════════════════════════════════
          Bliss Translator — DE Übersetzungen
+         bliss_language_names è un <string-array>: definito solo in values/ default,
+         non va ridefinito nei qualifier. La voce spuria <string> è stata rimossa.
          ══════════════════════════════════════════════════════════════════════ -->
 
     <string name="bliss_label_language">Ausgangssprache</string>
@@ -85,7 +87,6 @@
     <string name="bliss_cd_symbol_container">Raster der Bliss-Symbole zum übersetzten Text</string>
     <string name="bliss_cd_suggestions">Vorhersage-Vorschläge für das aktuelle Wort</string>
     <string name="bliss_cd_fab_share">Die Bliss-Übersetzung als SVG-Bild teilen</string>
-    <string name="bliss_language_names" translatable="false">bliss_language_names</string>
     <string name="bliss_msg_translating">Übersetzung läuft…</string>
     <string name="bliss_msg_no_result">Keine Bliss-Symbole für diesen Text gefunden.</string>
     <string name="bliss_msg_error">Übersetzungsfehler. Bitte erneut versuchen.</string>

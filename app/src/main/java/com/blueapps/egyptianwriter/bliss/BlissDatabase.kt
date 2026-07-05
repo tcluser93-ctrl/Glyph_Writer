@@ -165,7 +165,9 @@ abstract class BlissDatabase : RoomDatabase() {
                     DB_NAME
                 )
                 .addMigrations(MIGRATION_1_2)
-                .fallbackToDestructiveMigration()   // safety net for corrupt DBs only
+                // dropAllTables = true: se la migrazione fallisce, ricrea tutte le tabelle.
+                // Usare solo come safety-net per DB corrotti; i dati vengono persi.
+                .fallbackToDestructiveMigration(dropAllTables = true)
                 .build()
                 .also { INSTANCE = it }
             }

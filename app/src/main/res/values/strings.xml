@@ -53,7 +53,7 @@
     <string name="delete_message_vocab">Do you really want to delete the vocabulary set \"%s\"?\nThis action cannot be undone!</string>
     <string name="button_training">Training</string>
     <string name="button_practise">Practise</string>
-    <string name="vocab_card_number_template">Card %d/%d</string>
+    <string name="vocab_card_number_template" formatted="false">Card %d/%d</string>
     <string name="property_text_size_label">text size</string>
     <string name="property_layout_label">writing layout</string>
     <string name="content_description_writing_layout_lines">writing layout lines</string>
@@ -76,7 +76,7 @@
     <!-- Tab label -->
     <string name="bliss_tab_label">Bliss Translator</string>
 
-    <!-- Labels visibili nell’UI -->
+    <!-- Labels visibili nell'UI -->
     <string name="bliss_label_language">Source language</string>
     <string name="bliss_label_suggestions">Suggestions</string>
     <string name="bliss_label_output">Translation (Bliss tokens)</string>

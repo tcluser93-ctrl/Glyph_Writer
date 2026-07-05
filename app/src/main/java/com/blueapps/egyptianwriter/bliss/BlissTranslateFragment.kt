@@ -7,7 +7,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityManager
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
@@ -48,7 +51,7 @@ import java.util.Locale
  *
  * Accessibilità:
  *  - accessibilityLiveRegion POLITE su symbolContainer e text_output
- *  - announceForAccessibility dopo traduzione completata
+ *  - AccessibilityManager.sendAccessibilityEvent dopo traduzione completata
  *  - contentDescription su ogni controllo interattivo (XML + codice)
  */
 class BlissTranslateFragment : Fragment() {
@@ -142,14 +145,11 @@ class BlissTranslateFragment : Fragment() {
 
         btnTranslate.setOnClickListener { runTranslation() }
 
-        ViewCompat.setAccessibilityLiveRegion(
-            textOutput,
-            ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE
-        )
-        ViewCompat.setAccessibilityLiveRegion(
-            symbolContainer,
-            ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE
-        )
+        // Use the instance method (non-deprecated) instead of the deprecated
+        // ViewCompat static overload. Both set the same underlying property;
+        // the static form was deprecated in androidx.core 1.13.
+        textOutput.accessibilityLiveRegion    = View.ACCESSIBILITY_LIVE_REGION_POLITE
+        symbolContainer.accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
     }
 
     // ── Spinner lingua ────────────────────────────────────────────────────
@@ -256,7 +256,7 @@ class BlissTranslateFragment : Fragment() {
                             R.string.bliss_a11y_translation_ready,
                             state.symbols.size
                         )
-                        symbolContainer.announceForAccessibility(announcement)
+                        announceForA11y(announcement)
                     } else if (!state.isLoading && state.error == null) {
                         fabShare.isVisible = false
                     }
@@ -266,6 +266,26 @@ class BlissTranslateFragment : Fragment() {
                 }
             }
         }
+    }
+
+    /**
+     * Sends a TYPE_ANNOUNCEMENT accessibility event via [AccessibilityManager].
+     *
+     * Replaces the deprecated [View.announceForAccessibility] which was removed
+     * from the public API surface in API 35 (Android 15). Using
+     * [AccessibilityManager] directly gives the same TalkBack announcement
+     * without relying on the deprecated helper.
+     */
+    private fun announceForA11y(message: CharSequence) {
+        val am = ContextCompat.getSystemService(requireContext(), AccessibilityManager::class.java)
+            ?: return
+        if (!am.isEnabled) return
+        val event = AccessibilityEvent.obtain(AccessibilityEvent.TYPE_ANNOUNCEMENT).apply {
+            text.add(message)
+            className  = javaClass.name
+            packageName = requireContext().packageName
+        }
+        am.sendAccessibilityEvent(event)
     }
 
     // ── Translation ───────────────────────────────────────────────────────
