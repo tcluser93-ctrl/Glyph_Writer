@@ -67,19 +67,44 @@
     <string name="error_broken_document_text">This document is broken. If you imported it from outside the app, please try importing it again. If the problem continues or if you did not import the document, please restart the app and check for updates.</string>
 
     <!-- ══════════════════════════════════════════════════════════════════════
-         Bliss Translator — Fase 4 UI + Fase 5 Accessibilità
-         NB: bliss_hint_input e bliss_btn_translate sono in strings_bliss.xml
-             (IT default) e in values-en/strings_bliss.xml (EN override)
+         Bliss Translator — stringhe UI (default EN)
+         Tutte le stringhe referenziate dal layout fragment_translate.xml
+         devono avere un valore in questo file (default locale),
+         altrimenti aapt2 le rimuove e il linking fallisce.
          ══════════════════════════════════════════════════════════════════════ -->
 
-    <!-- Labels visibili -->
+    <!-- Tab label -->
+    <string name="bliss_tab_label">Bliss Translator</string>
+
+    <!-- Labels visibili nell’UI -->
     <string name="bliss_label_language">Source language</string>
     <string name="bliss_label_suggestions">Suggestions</string>
     <string name="bliss_label_output">Translation (Bliss tokens)</string>
     <string name="bliss_label_symbols">Bliss symbols</string>
 
-    <!-- Bottoni -->
+    <!-- Nomi usati direttamente da fragment_translate.xml (richiesti dal layout) -->
+    <string name="bliss_lang_label">Language:</string>
+    <string name="bliss_suggestions_label">Suggestions:</string>
+    <string name="bliss_symbols_label">Bliss symbols:</string>
+
+    <!-- Input / pulsanti (richiesti dal layout) -->
+    <string name="bliss_hint_input">Text to translate…</string>
+    <string name="bliss_btn_translate">Translate</string>
+    <string name="bliss_btn_clear">Clear</string>
     <string name="bliss_btn_share">Share SVG</string>
+
+    <!-- Stato caricamento / copertura -->
+    <string name="bliss_loading">Loading dictionary…</string>
+    <string name="bliss_no_results">No results. Try different words.</string>
+    <string name="bliss_coverage">Coverage: %d%%</string>
+
+    <!-- Tipi di corrispondenza -->
+    <string name="bliss_unknown_word">Symbol not found</string>
+    <string name="bliss_exact">exact</string>
+    <string name="bliss_lemma">lemma</string>
+    <string name="bliss_ngram">phrase</string>
+    <string name="bliss_fallback">category</string>
+    <string name="bliss_unknown">unknown</string>
 
     <!-- contentDescription per TalkBack / Switch Access -->
     <string name="bliss_cd_spinner_language">Select source language for Bliss translation</string>
@@ -122,7 +147,7 @@
     <string name="bliss_msg_share_title">Share Bliss translation</string>
     <string name="bliss_msg_share_chooser">Share SVG via…</string>
 
-    <!-- Accessibilità: live region announcement -->
+    <!-- Accessibilità -->
     <string name="bliss_a11y_translation_ready">Translation complete. %d Bliss symbols generated.</string>
     <string name="bliss_a11y_symbol_desc">Bliss symbol: %s</string>
     <string name="bliss_a11y_suggestion">Suggestion: %s. Double-tap to insert.</string>
