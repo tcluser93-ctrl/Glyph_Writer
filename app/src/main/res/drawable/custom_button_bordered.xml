@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  custom_button_bordered
+  Transparent fill with a 1.5dp border in the primary accent colour.
+  Used for secondary/outline action buttons.
+-->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/l_ripple_light">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <stroke
+                android:width="1.5dp"
+                android:color="@color/colorPrimary" />
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+</ripple>
