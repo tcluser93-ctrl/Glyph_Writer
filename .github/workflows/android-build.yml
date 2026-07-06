@@ -1,6 +1,10 @@
 name: Android CI Build
 
 on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
@@ -22,28 +26,42 @@ jobs:
           java-version: '21'
           cache: gradle
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept SDK licenses and install platforms
+      # ubuntu-latest already ships the Android SDK at $ANDROID_SDK_ROOT.
+      # We only need to accept licences and install the exact platform/build-tools
+      # versions declared in build.gradle (android-36 / 36.0.0).
+      - name: Accept SDK licences and install required components
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
+          "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;36.0.0"
 
-      - name: Ensure gradlew executable
+      - name: Ensure gradlew is executable
         run: chmod +x ./gradlew
 
-      - name: Prepare local THOTH AAR fallback
+      # The app's build.gradle references a local THOTH AAR via a relative path
+      # that only exists in the developer's machine.  We create an empty-but-valid
+      # ZIP (AAR is a ZIP) so Gradle can resolve the dependency without failing.
+      - name: Create empty THOTH AAR fallback
         shell: bash
         run: |
           set -euo pipefail
-          TARGET_DIR="$GITHUB_WORKSPACE/../../THOTExpampleApp/thoth/build/outputs/aar"
+          TARGET_DIR="$GITHUB_WORKSPACE/../THOTExpampleApp/thoth/build/outputs/aar"
           mkdir -p "$TARGET_DIR"
           if [ ! -f "$TARGET_DIR/thoth-debug.aar" ]; then
-            echo "Creating empty fallback AAR at $TARGET_DIR/thoth-debug.aar"
-            TMP_DIR=$(mktemp -d)
-            mkdir -p "$TMP_DIR/empty"
-            (cd "$TMP_DIR/empty" && zip -qr "$TARGET_DIR/thoth-debug.aar" .)
+            echo "Creating empty fallback AAR"
+            TMP=$(mktemp -d)
+            (cd "$TMP" && zip -q "$TARGET_DIR/thoth-debug.aar" -T 2>/dev/null || true)
+            # zip -T fails on empty archive; create minimal valid ZIP instead
+            python3 -c "
+import zipfile, os
+path = os.environ.get('TARGET', '$TARGET_DIR/thoth-debug.aar')
+os.makedirs(os.path.dirname(path), exist_ok=True)
+with zipfile.ZipFile(path, 'w') as z:
+    pass  # empty but valid ZIP/AAR
+print('Empty AAR created at', path)
+" TARGET="$TARGET_DIR/thoth-debug.aar"
           fi
           ls -lah "$TARGET_DIR"
 
@@ -53,10 +71,6 @@ jobs:
       - name: Assemble debug APK
         run: ./gradlew --no-daemon assembleDebug
 
-      - name: Assemble release APK
-        run: ./gradlew --no-daemon assembleRelease
-        continue-on-error: true
-
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
@@ -64,14 +78,7 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
-      - name: Upload release APK if present
-        uses: actions/upload-artifact@v4
-        with:
-          name: egyptian-writer-release-apk
-          path: app/build/outputs/apk/release/*.apk
-          if-no-files-found: ignore
-
-      - name: Upload reports
+      - name: Upload build reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
