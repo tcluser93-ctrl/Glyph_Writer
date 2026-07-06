@@ -161,6 +161,7 @@ class BlissSymbolCardAdapter(
             BlissSymbol.MatchType.LEMMA             -> "lemma"
             BlissSymbol.MatchType.NGRAM             -> "frase"
             BlissSymbol.MatchType.FALLBACK_CATEGORY -> "categoria"
+            BlissSymbol.MatchType.COMPOUND          -> "composto"
             BlissSymbol.MatchType.UNKNOWN           -> "sconosciuto"
         }
 
@@ -169,6 +170,7 @@ class BlissSymbolCardAdapter(
             BlissSymbol.MatchType.LEMMA             -> 0xFFD0E8FF.toInt()
             BlissSymbol.MatchType.NGRAM             -> 0xFFFFF3B0.toInt()
             BlissSymbol.MatchType.FALLBACK_CATEGORY -> 0xFFFFDDB0.toInt()
+            BlissSymbol.MatchType.COMPOUND          -> 0xFFE8D5FF.toInt()
             BlissSymbol.MatchType.UNKNOWN           -> 0xFFFFD0D0.toInt()
         }
     }

@@ -47,7 +47,7 @@ import java.util.Locale
  *
  * ## Blocco B — Anteprima real-time
  * Il [TextWatcher.afterTextChanged] lancia un Job con debounce di [DEBOUNCE_MS] ms.
- * Un’icona tastiera nel TextInputLayout abilita la modalità manuale (bottone esplicito).
+ * Un'icona tastiera nel TextInputLayout abilita la modalità manuale (bottone esplicito).
  *
  * ## Blocco C — Modalità CAA simbolo per simbolo
  * Un [SwitchMaterial] (`switch_caa_mode`) alterna tra due viste:
@@ -57,7 +57,7 @@ import java.util.Locale
  *    che scorrono il contenuto e aggiornano [caaCurrentIndex].
  *
  * ## E-01 — Rendering SVG reale nelle card CAA
- * [signProvider] è lazy e vive per l’intero ciclo di vita del Fragment.
+ * [signProvider] è lazy e vive per l'intero ciclo di vita del Fragment.
  * [cardAdapter] viene inizializzato in [setupCaaRecycler] con [signProvider]
  * e [viewLifecycleOwner.lifecycleScope] così ogni card carica il suo
  * drawable BCI-AV in modo asincrono senza bloccare il Main Thread.
@@ -82,7 +82,7 @@ class BlissTranslateFragment : Fragment() {
     // ── ViewModel ────────────────────────────────────────────────────────────
     private val vm: BlissViewModel by activityViewModels()
 
-    // ── E-01: BlissSignProvider — lazy, un’istanza per tutto il Fragment ─────
+    // ── E-01: BlissSignProvider — lazy, un'istanza per tutto il Fragment ─────
     private val signProvider: BlissSignProvider by lazy(LazyThreadSafetyMode.NONE) {
         BlissSignProvider(requireContext().applicationContext)
     }
@@ -293,20 +293,17 @@ class BlissTranslateFragment : Fragment() {
         if (!AppPreferences.isHapticCaa(ctx)) return
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            // API 31+: VibratorManager
             val vm = ctx.getSystemService(VibratorManager::class.java)
             vm?.defaultVibrator?.vibrate(
                 VibrationEffect.createOneShot(30L, VibrationEffect.DEFAULT_AMPLITUDE)
             )
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // API 26-30: Vibrator con VibrationEffect
             @Suppress("DEPRECATION")
             val vib = ctx.getSystemService(Vibrator::class.java)
             vib?.vibrate(
                 VibrationEffect.createOneShot(30L, VibrationEffect.DEFAULT_AMPLITUDE)
             )
         } else {
-            // API < 26: legacy
             @Suppress("DEPRECATION")
             val vib = ctx.getSystemService(Vibrator::class.java)
             @Suppress("DEPRECATION")
@@ -478,7 +475,7 @@ class BlissTranslateFragment : Fragment() {
         }
     }
 
-    // ── applySymbols ───────────────────────────────────────────────────
+    // ── applySymbols ──────────────────────────────────────────────────
 
     private fun applySymbols(symbols: List<BlissSymbol>) {
         applyCaaVisibility()
@@ -553,6 +550,7 @@ class BlissTranslateFragment : Fragment() {
         BlissSymbol.MatchType.LEMMA             -> 0xFFD0E8FF.toInt()
         BlissSymbol.MatchType.NGRAM             -> 0xFFFFF3B0.toInt()
         BlissSymbol.MatchType.FALLBACK_CATEGORY -> 0xFFFFDDB0.toInt()
+        BlissSymbol.MatchType.COMPOUND          -> 0xFFE8D5FF.toInt()
         BlissSymbol.MatchType.UNKNOWN           -> 0xFFFFD0D0.toInt()
     }
 
@@ -593,7 +591,7 @@ class BlissTranslateFragment : Fragment() {
         }
     }
 
-    // ── Accessibility ────────────────────────────────────────────────
+    // ── Accessibility ─────────────────────────────────────────────────
 
     private fun announceForA11y(message: CharSequence) {
         val am = ContextCompat.getSystemService(requireContext(), AccessibilityManager::class.java)
@@ -607,7 +605,7 @@ class BlissTranslateFragment : Fragment() {
         am.sendAccessibilityEvent(event)
     }
 
-    // ── Translation ──────────────────────────────────────────────────
+    // ── Translation ───────────────────────────────────────────────────
 
     private fun runTranslation() {
         debounceJob?.cancel()
@@ -623,12 +621,12 @@ class BlissTranslateFragment : Fragment() {
         vm.translate(text)
     }
 
-    // ── Helpers ─────────────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────
 
     private fun isEngineReady(state: BlissViewModel.UiState): Boolean =
         !state.isLoading && state.error == null && state.langCode.isNotEmpty()
 
-    // ── Companion ────────────────────────────────────────────────────
+    // ── Companion ──────────────────────────────────────────────────────
 
     companion object {
         private const val ARG_LANG                = "arg_lang"
