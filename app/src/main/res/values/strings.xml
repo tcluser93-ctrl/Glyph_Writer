@@ -45,15 +45,142 @@
     <string name="nav_drawer_open">Open navigation drawer</string>
     <string name="nav_drawer_close">Close navigation drawer</string>
 
-    <!-- Settings screen (E-05 / E-06) -->
+    <!-- ============================================================
+         Bliss Translator — fragment_translate.xml
+    ============================================================ -->
+    <string name="bliss_lang_label">Language</string>
+    <string name="bliss_label_language">Language</string>
+    <string name="bliss_hint_input">Enter text to translate…</string>
+    <string name="bliss_cd_input_text">Text input field</string>
+    <string name="bliss_cd_mode_auto">Switch to manual mode</string>
+    <string name="bliss_cd_mode_manual">Switch to auto mode</string>
+    <string name="bliss_suggestions_label">Suggestions</string>
+    <string name="bliss_label_suggestions">Suggestions</string>
+    <string name="bliss_btn_translate">Translate</string>
+    <string name="bliss_cd_btn_translate">Translate the entered text</string>
+    <string name="bliss_cd_progress">Translation in progress</string>
+    <string name="bliss_cd_spinner_language">Select language</string>
+    <string name="bliss_cd_suggestions">Autocomplete suggestions</string>
+    <string name="bliss_label_output">Translation</string>
+    <string name="bliss_cd_output">Translation output</string>
+    <string name="bliss_symbols_label">Symbols</string>
+    <string name="bliss_label_symbols">Symbols</string>
+    <string name="bliss_cd_symbol_container">Bliss symbol grid</string>
+    <string name="bliss_btn_share">Share SVG</string>
+    <string name="bliss_cd_fab_share">Share translation as SVG file</string>
+
+    <!-- CAA mode (Blocco C) -->
+    <string name="bliss_caa_mode_label">CAA mode — symbol by symbol</string>
+    <string name="bliss_caa_mode_cd">Toggle symbol-by-symbol CAA display</string>
+    <string name="bliss_caa_btn_prev">Previous</string>
+    <string name="bliss_caa_btn_next">Next</string>
+    <string name="bliss_caa_position_announce">Symbol %1$d of %2$d</string>
+    <string name="bliss_caa_card_cd">%1$s, word: %2$s, symbol %3$d of %4$d</string>
+
+    <!-- CAA SVG loading states (E-03) -->
+    <string name="bliss_caa_svg_loading">Loading symbol image…</string>
+    <string name="bliss_caa_svg_ready">Symbol: %s</string>
+    <string name="bliss_caa_svg_missing">Symbol image not available (BCI-AV %s)</string>
+
+    <!-- Bliss messages -->
+    <string name="bliss_msg_empty_input">Enter a word or phrase to translate.</string>
+    <string name="bliss_msg_translating">Translating…</string>
+    <string name="bliss_msg_no_result">No symbols found for this text.</string>
+    <string name="bliss_msg_error">An error occurred during translation.</string>
+    <string name="bliss_msg_share_title">Bliss translation</string>
+    <string name="bliss_msg_share_chooser">Share via…</string>
+    <string name="bliss_error_engine_not_ready">Translation engine is not ready. Please wait.</string>
+
+    <!-- Bliss accessibility -->
+    <string name="bliss_a11y_translation_ready">Translation ready: %d symbols</string>
+    <string name="bliss_a11y_symbol_desc">Bliss symbol: %s</string>
+    <string name="bliss_a11y_suggestion">Suggestion: %s</string>
+    <string name="bliss_stats_desc">%1$d symbols total, %2$d unknown, %3$d%% coverage</string>
+
+    <!-- Bliss chip tooltip -->
+    <string name="bliss_chip_tooltip">BCI-AV: %1$d · %2$s · word: %3$s · match: %4$s · indicators: %5$s</string>
+    <string name="bliss_chip_no_indicators">none</string>
+
+    <!-- Language names array -->
+    <string-array name="bliss_language_names">
+        <item>English</item>
+        <item>Norwegian</item>
+        <item>Swedish</item>
+        <item>Finnish</item>
+        <item>Hungarian</item>
+        <item>German</item>
+        <item>Dutch</item>
+        <item>Latvian</item>
+        <item>Russian</item>
+        <item>Polish</item>
+    </string-array>
+
+    <!-- ============================================================
+         History — fragment_history.xml (E-04)
+    ============================================================ -->
+    <string name="history_search_hint">Search history…</string>
+    <string name="history_empty_title">No translations yet</string>
+    <string name="history_empty_subtitle">Your translation history will appear here.</string>
+    <string name="history_clear_all">Clear all</string>
+    <string name="history_delete_entry">Delete entry</string>
+    <string name="history_undo">Undo</string>
+    <string name="history_coverage_fmt">Coverage: %d%%</string>
+
+    <!-- ============================================================
+         Export — bottom_sheet_export.xml (Blocco D)
+    ============================================================ -->
+    <string name="export_title">Export translation</string>
+    <string name="export_svg">Save as SVG</string>
+    <string name="export_png">Save as PNG</string>
+    <string name="export_pdf">Save as PDF</string>
+
+    <!-- ============================================================
+         Vocabulary
+    ============================================================ -->
+    <string name="vocabulary">Vocabulary</string>
+    <string name="no_vocab">No vocabulary sets yet.</string>
+    <string name="add_vocab">Add vocabulary</string>
+    <string name="new_vocab_set_title">Create a new Vocabulary Set</string>
+    <string name="new_vocab_set_description">Description (optional)</string>
+    <string name="menu_item_create_vocab">New vocabulary set</string>
+    <string name="menu_item_import_vocab">Import vocabulary</string>
+    <string name="delete_vocab">Delete vocabulary set</string>
+    <string name="delete_message_vocab">Do you really want to delete \"%s\"?\nThis action cannot be undone!</string>
+    <string name="button_practise">Practise</string>
+    <string name="button_training">Training</string>
+    <string name="vocab_card_number_template" formatted="false">%d / %d</string>
+
+    <!-- ============================================================
+         Document / Writing editor
+    ============================================================ -->
+    <string name="error_broken_document_title">Broken document</string>
+    <string name="error_broken_document_text">This document appears to be corrupted and cannot be opened.</string>
+    <string name="content_description_add_document">Create new document</string>
+    <string name="content_description_add_vocab">Create new vocabulary set</string>
+    <string name="content_description_writing_direction_ltr">Left to right</string>
+    <string name="content_description_writing_direction_rtl">Right to left</string>
+    <string name="content_description_writing_layout_lines">Line layout</string>
+    <string name="content_description_writing_layout_columns">Column layout</string>
+    <string name="content_description_vertical_orientation_top">Align top</string>
+    <string name="content_description_vertical_orientation_middle">Align middle</string>
+    <string name="content_description_vertical_orientation_bottom">Align bottom</string>
+    <string name="property_layout_label">Layout</string>
+    <string name="property_text_size_label">Text size</string>
+    <string name="navigation_description_text">Navigate text</string>
+
+    <!-- ============================================================
+         About
+    ============================================================ -->
+    <string name="about_version_name">Version</string>
+
+    <!-- ============================================================
+         Settings screen (E-05 / E-06)
+    ============================================================ -->
     <string name="settings_section_appearance">Appearance</string>
     <string name="settings_section_accessibility">Accessibility</string>
-
-    <!-- E-05: Dark theme -->
     <string name="settings_dark_theme_label">Dark theme</string>
     <string name="settings_dark_theme_desc">Force dark mode regardless of the system setting.</string>
-
-    <!-- E-06: Haptic feedback CAA -->
     <string name="settings_haptic_caa_label">Haptic feedback (CAA buttons)</string>
     <string name="settings_haptic_caa_desc">Short vibration when tapping Previous / Next in CAA mode.</string>
+
 </resources>
