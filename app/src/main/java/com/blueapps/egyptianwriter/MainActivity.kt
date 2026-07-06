@@ -4,10 +4,12 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.blueapps.egyptianwriter.bliss.BlissHistoryFragment
 import com.blueapps.egyptianwriter.bliss.BlissTranslateFragment
+import com.blueapps.egyptianwriter.ui.SettingsFragment
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 import java.util.Locale
@@ -21,12 +23,15 @@ import java.util.Locale
  *  - FragmentContainerView come host dei fragment principali
  *
  * Destinazioni:
- *  - nav_translate → [BlissTranslateFragment]  (default al lancio)
- *  - nav_history   → [BlissHistoryFragment]
- *  - nav_settings  → stub (SettingsFragment placeholder)
+ *  - nav_translate  → [BlissTranslateFragment]  (default al lancio)
+ *  - nav_history    → [BlissHistoryFragment]
+ *  - nav_settings   → [SettingsFragment]  (E-05/E-06)
  *
- * Il back-stack è gestito manualmente: il back button chiude il drawer
- * se aperto, altrimenti poppa il fragment stack (se non è il root).
+ * ## E-05 — Tema dark
+ * [applyDarkTheme] viene chiamato nel [onCreate] prima di [setContentView]:
+ * se la preferenza è attiva forza [AppCompatDelegate.MODE_NIGHT_YES],
+ * altrimenti lascia [AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM].
+ * Il cambio da [SettingsFragment] riscrea l’Activity automaticamente.
  */
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -35,6 +40,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var toolbar:      MaterialToolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // E-05: applica tema dark prima del layout
+        applyDarkTheme()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -69,7 +76,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    // ── NavigationView listener ───────────────────────────────────────────
+    // ── E-05: applica preferenza dark theme ───────────────────────────
+
+    private fun applyDarkTheme() {
+        val mode = if (AppPreferences.isDarkTheme(this))
+            AppCompatDelegate.MODE_NIGHT_YES
+        else
+            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        AppCompatDelegate.setDefaultNightMode(mode)
+    }
+
+    // ── NavigationView listener ──────────────────────────────────────
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
@@ -81,8 +98,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 BlissHistoryFragment.newInstance()
             }
             R.id.nav_settings  -> navigateTo(TAG_SETTINGS) {
-                // Placeholder: fragment vuoto fino alla Fase 8
-                androidx.fragment.app.Fragment()
+                SettingsFragment.newInstance()
             }
         }
         drawerLayout.closeDrawer(GravityCompat.START)
@@ -99,7 +115,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val fm = supportFragmentManager
 
         if (tag == TAG_TRANSLATE) {
-            // Torna sempre alla radice pulendo lo stack
             fm.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
             if (fm.findFragmentByTag(TAG_TRANSLATE) == null) {
                 fm.beginTransaction()
@@ -120,7 +135,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             .commit()
     }
 
-    // ── Back button ───────────────────────────────────────────────────────
+    // ── Back button ─────────────────────────────────────────────
 
     @Deprecated("Using onBackPressedDispatcher via legacy override for API < 33 compat")
     override fun onBackPressed() {
@@ -133,7 +148,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    // ── Constants ────────────────────────────────────────────────────────
+    // ── Constants ─────────────────────────────────────────────
 
     companion object {
         private const val TAG_TRANSLATE = "translate"
