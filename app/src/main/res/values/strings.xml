@@ -39,158 +39,21 @@
     <string name="menu_item_dictionary">Dictionary</string>
     <string name="menu_item_preferences">Preferences</string>
     <string name="menu_item_about">About this App</string>
-    <string name="navigation_description_text"><![CDATA[<i>An free open source app</i>\nMade by: Georg Schierholt]]></string>
-    <string name="about_version_name">Version: %s</string>
-    <string name="vocabulary">Vocabulary</string>
-    <string name="no_vocab">Hhm …    \nIt seems like if there is no vocabulary jet…</string>
-    <string name="add_vocab">Add</string>
-    <string name="content_description_add_document">Add a document</string>
-    <string name="content_description_add_vocab">Add vocabulary</string>
-    <string name="menu_item_import_vocab">import vocabulary</string>
-    <string name="menu_item_create_vocab">create vocabulary set</string>
-    <string name="new_vocab_set_title">Create a new vocabulary set</string>
-    <string name="new_vocab_set_description">Create a new vocabulary set to which you can add new vocabulary cards and learn them.</string>
-    <string name="delete_vocab">Delete this vocabulary set</string>
-    <string name="delete_message_vocab">Do you really want to delete the vocabulary set \"%s\"?\nThis action cannot be undone!</string>
-    <string name="button_training">Training</string>
-    <string name="button_practise">Practise</string>
-    <string name="vocab_card_number_template" formatted="false">Card %d/%d</string>
-    <string name="property_text_size_label">text size</string>
-    <string name="property_layout_label">writing layout</string>
-    <string name="content_description_writing_layout_lines">writing layout lines</string>
-    <string name="content_description_writing_layout_columns">writing layout columns</string>
-    <string name="content_description_vertical_orientation_top">move small signs to the top</string>
-    <string name="content_description_vertical_orientation_middle">center small signs</string>
-    <string name="content_description_vertical_orientation_bottom">move small signs to the bottom</string>
-    <string name="content_description_writing_direction_ltr">left-to-right layout</string>
-    <string name="content_description_writing_direction_rtl">right-to-left layout</string>
-    <string name="error_broken_document_title">broken document</string>
-    <string name="error_broken_document_text">This document is broken. If you imported it from outside the app, please try importing it again. If the problem continues or if you did not import the document, please restart the app and check for updates.</string>
+    <string name="navigation_description">Navigation</string>
 
-    <string name="nav_drawer_open">Apri menu</string>
-    <string name="nav_drawer_close">Chiudi menu</string>
-    <string name="nav_header_subtitle">Comunicazione Aumentativa</string>
-    <string name="nav_translate">Traduttore</string>
-    <string name="nav_history">Cronologia</string>
-    <string name="nav_settings">Impostazioni</string>
+    <!-- Navigation drawer -->
+    <string name="nav_drawer_open">Open navigation drawer</string>
+    <string name="nav_drawer_close">Close navigation drawer</string>
 
-    <string name="history_empty_title">Nessuna traduzione</string>
-    <string name="history_empty_subtitle">Le traduzioni salvate appariranno qui</string>
-    <string name="history_clear_all">Cancella cronologia</string>
-    <string name="history_deleted">Traduzione eliminata</string>
-    <string name="history_coverage_fmt">Copertura: %d%%</string>
-    <string name="history_search_hint">Cerca nella cronologia</string>
-    <string name="undo">Annulla</string>
+    <!-- Settings screen (E-05 / E-06) -->
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_section_accessibility">Accessibility</string>
 
-    <plurals name="history_cleared">
-        <item quantity="one">%d traduzione eliminata</item>
-        <item quantity="other">%d traduzioni eliminate</item>
-    </plurals>
+    <!-- E-05: Dark theme -->
+    <string name="settings_dark_theme_label">Dark theme</string>
+    <string name="settings_dark_theme_desc">Force dark mode regardless of the system setting.</string>
 
-    <plurals name="history_symbol_count">
-        <item quantity="one">%d simbolo</item>
-        <item quantity="other">%d simboli</item>
-    </plurals>
-
-    <string name="bliss_tab_label">Bliss Translator</string>
-    <string name="bliss_label_language">Source language</string>
-    <string name="bliss_label_suggestions">Suggestions</string>
-    <string name="bliss_label_output">Translation (Bliss tokens)</string>
-    <string name="bliss_label_symbols">Bliss symbols</string>
-    <string name="bliss_lang_label">Language:</string>
-    <string name="bliss_suggestions_label">Suggestions:</string>
-    <string name="bliss_symbols_label">Bliss symbols:</string>
-    <string name="bliss_hint_input">Text to translate\u2026</string>
-    <string name="bliss_btn_translate">Translate</string>
-    <string name="bliss_btn_clear">Clear</string>
-    <string name="bliss_btn_share">Share SVG</string>
-    <string name="bliss_loading">Loading dictionary\u2026</string>
-    <string name="bliss_no_results">No results. Try different words.</string>
-    <string name="bliss_coverage">Coverage: %d%%</string>
-    <string name="bliss_unknown_word">Symbol not found</string>
-    <string name="bliss_exact">exact</string>
-    <string name="bliss_lemma">lemma</string>
-    <string name="bliss_ngram">phrase</string>
-    <string name="bliss_fallback">category</string>
-    <string name="bliss_unknown">unknown</string>
-    <string name="bliss_cd_spinner_language">Select source language for Bliss translation</string>
-    <string name="bliss_cd_input_text">Input text field. Type or paste the text you want to translate into Bliss symbols.</string>
-    <string name="bliss_cd_btn_translate">Translate the input text into Bliss symbols</string>
-    <string name="bliss_cd_progress">Translation in progress, please wait</string>
-    <string name="bliss_cd_output">Translation result in Bliss tokens</string>
-    <string name="bliss_cd_symbol_container">Grid of Bliss symbols corresponding to the translated text</string>
-    <string name="bliss_cd_suggestions">Predictive suggestions for the current word</string>
-    <string name="bliss_cd_fab_share">Share the Bliss translation as an SVG image</string>
-    <string name="bliss_cd_mode_auto">Modalita\u0027 anteprima automatica attiva. Tocca per passare alla modalita\u0027 manuale.</string>
-    <string name="bliss_cd_mode_manual">Modalita\u0027 manuale attiva. Tocca per attivare l\u0027anteprima automatica.</string>
-    <string name="bliss_chip_tooltip">BCI-AV: %1$d\nName: %2$s\nWord: \u2018%3$s\u2019\nMatch: %4$s\nIndicators: %5$s</string>
-    <string name="bliss_chip_no_indicators">none</string>
-    <string name="bliss_stats_desc">%1$d symbols  \u2022  %2$d unknown  \u2022  %3$d%%</string>
-
-    <string-array name="bliss_language_names">
-        <item>Italian (IT)</item>
-        <item>English (EN)</item>
-        <item>German (DE)</item>
-        <item>French (FR)</item>
-        <item>Spanish (ES)</item>
-        <item>Dutch (NL)</item>
-        <item>Norwegian (NO)</item>
-        <item>Swedish (SV)</item>
-    </string-array>
-
-    <string-array name="bliss_language_codes" translatable="false">
-        <item>it</item>
-        <item>en</item>
-        <item>de</item>
-        <item>fr</item>
-        <item>es</item>
-        <item>nl</item>
-        <item>no</item>
-        <item>sv</item>
-    </string-array>
-
-    <string name="bliss_msg_translating">Translating\u2026</string>
-    <string name="bliss_msg_no_result">No Bliss symbols found for this text.</string>
-    <string name="bliss_msg_error">Translation error. Please try again.</string>
-    <string name="bliss_msg_empty_input">Please enter some text to translate.</string>
-    <string name="bliss_msg_share_title">Share Bliss translation</string>
-    <string name="bliss_msg_share_chooser">Share SVG via\u2026</string>
-    <string name="bliss_a11y_translation_ready">Translation complete. %d Bliss symbols generated.</string>
-    <string name="bliss_a11y_symbol_desc">Bliss symbol: %s</string>
-    <string name="bliss_a11y_suggestion">Suggestion: %s. Double-tap to insert.</string>
-
-    <string name="bliss_caa_mode_label">Modalita\u0027 CAA</string>
-    <string name="bliss_caa_mode_cd">Attiva modalita\u0027 comunicazione aumentativa: mostra ogni simbolo in una card grande con navigazione avanti/indietro</string>
-    <string name="bliss_caa_prev">\u2190 Indietro</string>
-    <string name="bliss_caa_next">Avanti \u2192</string>
-    <string name="bliss_caa_prev_cd">Simbolo precedente</string>
-    <string name="bliss_caa_next_cd">Simbolo successivo</string>
-    <string name="bliss_caa_badge_exact">esatto</string>
-    <string name="bliss_caa_badge_lemma">lemma</string>
-    <string name="bliss_caa_badge_ngram">frase</string>
-    <string name="bliss_caa_badge_fallback">categoria</string>
-    <string name="bliss_caa_badge_unknown">sconosciuto</string>
-    <string name="bliss_caa_position_announce">Simbolo %1$d di %2$d</string>
-    <string name="bliss_caa_card_position_fmt" formatted="false">%d / %d</string>
-    <string name="bliss_caa_card_cd">%1$s, parola: %2$s, simbolo %3$d di %4$d</string>
-
-    <!-- E-03: TalkBack per immagine SVG nella card CAA
-         bliss_caa_svg_loading : letto mentre il drawable è in caricamento
-         bliss_caa_svg_ready   : letto quando il simbolo SVG è visualizzato (%s = gloss)
-         bliss_caa_svg_missing : letto quando il file SVG manca negli asset (%s = bciAvId) -->
-    <string name="bliss_caa_svg_loading">Caricamento simbolo in corso</string>
-    <string name="bliss_caa_svg_ready">Simbolo Bliss: %s</string>
-    <string name="bliss_caa_svg_missing">Simbolo non disponibile, BCI-AV %s</string>
-
-    <!-- E-04: messaggio di errore motore non pronto -->
-    <string name="bliss_error_engine_not_ready">Motore di traduzione non pronto. Attendere il caricamento.</string>
-
-    <!-- Blocco D: Export -->
-    <string name="export_title">Esporta traduzione</string>
-    <string name="export_svg">SVG (vettoriale)</string>
-    <string name="export_png">PNG (immagine)</string>
-    <string name="export_pdf">PDF (documento)</string>
-    <string name="export_share_title">Condividi via\u2026</string>
-    <string name="export_error_generic">Esportazione non riuscita. Riprova.</string>
-
+    <!-- E-06: Haptic feedback CAA -->
+    <string name="settings_haptic_caa_label">Haptic feedback (CAA buttons)</string>
+    <string name="settings_haptic_caa_desc">Short vibration when tapping Previous / Next in CAA mode.</string>
 </resources>
