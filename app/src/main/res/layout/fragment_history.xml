@@ -5,12 +5,53 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Lista cronologia -->
+    <!--
+        E-04 — Barra di ricerca cronologia
+        Posizionata sopra la lista tramite un LinearLayout verticale che funge
+        da intestazione visiva.  Il RecyclerView usa paddingTop per non
+        sovrapporsi al campo di testo.
+    -->
+    <LinearLayout
+        android:id="@+id/layout_search_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="12dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="4dp"
+        android:background="?attr/colorSurface"
+        android:elevation="4dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_history_search"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/history_search_hint"
+            app:startIconDrawable="@drawable/ic_search"
+            app:startIconContentDescription="@string/history_search_hint"
+            app:endIconMode="clear_text">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_history_search"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:maxLines="1"
+                android:importantForAutofill="no" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+
+    <!-- Lista cronologia — paddingTop lascia spazio all'header di ricerca -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_history"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
+        android:paddingTop="72dp"
         android:paddingBottom="88dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
@@ -29,7 +70,7 @@
             android:layout_height="64dp"
             android:src="@drawable/ic_history"
             android:alpha="0.3"
-            android:contentDescription="" />
+            android:importantForAccessibility="no" />
 
         <TextView
             android:layout_width="wrap_content"

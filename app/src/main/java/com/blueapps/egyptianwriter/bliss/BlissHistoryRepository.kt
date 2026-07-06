@@ -14,6 +14,7 @@ import kotlinx.coroutines.withContext
  * - Enforce a maximum history size ([MAX_HISTORY_SIZE]) by pruning stale rows.
  * - Expose reactive [Flow]s for the history list and the typeahead input list.
  * - Provide delete / restore operations (single entry, by language, all).
+ * - Expose [searchHistory] for filtered full-text search on `input_text`.
  *
  * ## Threading contract
  * All `suspend` methods switch to [Dispatchers.IO] internally so callers on
@@ -50,6 +51,26 @@ class BlissHistoryRepository(private val db: BlissDatabase) {
         limit:    Int = 20
     ): Flow<List<String>> =
         dao.observeRecentInputs(langCode = langCode, limit = limit)
+
+    /**
+     * Returns a [Flow] of up to [limit] history entries whose `input_text`
+     * contains [query] (case-insensitive substring match), filtered by
+     * [langCode] and ordered newest-first.
+     *
+     * When [query] is blank the result is equivalent to [recentHistory].
+     * Delegates directly to [BlissHistoryDao.searchByText]; Room handles
+     * thread switching internally.
+     *
+     * @param query    Substring to search for inside `input_text`.
+     * @param langCode Language filter — pass [ALL_LANGS] for all languages.
+     * @param limit    Maximum rows per emission.
+     */
+    fun searchHistory(
+        query:    String,
+        langCode: String = ALL_LANGS,
+        limit:    Int    = 50
+    ): Flow<List<BlissHistoryEntry>> =
+        dao.searchByText(query = query, langCode = langCode, limit = limit)
 
     // ── writes (suspend) ─────────────────────────────────────────────────────
 

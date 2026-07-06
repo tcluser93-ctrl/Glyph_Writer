@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.isVisible
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -18,7 +19,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blueapps.egyptianwriter.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -29,19 +37,23 @@ import java.util.Locale
  *
  * Mostra la cronologia delle traduzioni salvate in [BlissHistoryRepository].
  * Supporta:
+ *  - Ricerca full-text in tempo reale (E-04): TextInputEditText con debounce
+ *    300 ms → [BlissViewModel.setHistorySearch] → [BlissViewModel.UiState.filteredHistory]
  *  - Lista card (testo sorgente, lingua, timestamp, contatore simboli, copertura)
  *  - Empty-state animato quando la lista è vuota
  *  - Swipe-to-delete con undo via Snackbar
  *  - FAB "cancella tutto" con conferma via Snackbar
  *  - Tap su voce → ripristina la traduzione nel Fragment traduttore
  */
+@OptIn(FlowPreview::class)
 class BlissHistoryFragment : Fragment() {
 
     private val vm: BlissViewModel by activityViewModels()
 
-    private lateinit var rvHistory:  RecyclerView
-    private lateinit var emptyState: LinearLayout
-    private lateinit var fabClear:   FloatingActionButton
+    private lateinit var rvHistory:      RecyclerView
+    private lateinit var emptyState:     LinearLayout
+    private lateinit var fabClear:       FloatingActionButton
+    private lateinit var etHistSearch:   TextInputEditText
 
     private val adapter = HistoryAdapter(
         onItemClick = { entry ->
@@ -69,9 +81,10 @@ class BlissHistoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        rvHistory  = view.findViewById(R.id.rv_history)
-        emptyState = view.findViewById(R.id.empty_state)
-        fabClear   = view.findViewById(R.id.fab_clear_history)
+        rvHistory    = view.findViewById(R.id.rv_history)
+        emptyState   = view.findViewById(R.id.empty_state)
+        fabClear     = view.findViewById(R.id.fab_clear_history)
+        etHistSearch = view.findViewById(R.id.et_history_search)
 
         rvHistory.layoutManager = LinearLayoutManager(requireContext())
         rvHistory.adapter = adapter
@@ -95,14 +108,35 @@ class BlissHistoryFragment : Fragment() {
             }.show()
         }
 
+        setupSearchDebounce()
         observeHistory()
     }
+
+    // ── E-04: ricerca con debounce 300 ms ─────────────────────────────────────
+
+    private fun setupSearchDebounce() {
+        // Costruiamo un Flow di stringhe dallo TextChangedListener tramite callbackFlow,
+        // poi applichiamo debounce(300) per evitare query DB a ogni carattere.
+        callbackFlow {
+            val watcher = etHistSearch.addTextChangedListener { editable ->
+                trySend(editable?.toString().orEmpty())
+            }
+            // Restore query in case of Fragment recreation (config change).
+            trySend(vm.uiState.value.historySearchQuery)
+            awaitClose { etHistSearch.removeTextChangedListener(watcher) }
+        }
+            .debounce(SEARCH_DEBOUNCE_MS)
+            .onEach { query -> vm.setHistorySearch(query) }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
+    }
+
+    // ── osserva filteredHistory invece di history ─────────────────────────────
 
     private fun observeHistory() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.uiState
-                    .map { it.history }
+                    .map { it.filteredHistory }
                     .collect { entries ->
                         adapter.submitList(entries)
                         val empty = entries.isEmpty()
@@ -114,7 +148,7 @@ class BlissHistoryFragment : Fragment() {
         }
     }
 
-    // ── HistoryAdapter ────────────────────────────────────────────────────
+    // ── HistoryAdapter ────────────────────────────────────────────────────────
 
     inner class HistoryAdapter(
         private val onItemClick:  (BlissHistoryEntry) -> Unit,
@@ -150,7 +184,6 @@ class BlissHistoryFragment : Fragment() {
 
             holder.textSource.text      = entry.inputText
             holder.textTimestamp.text   = fmt.format(Date(entry.timestampMs))
-            // glossLine non è persistita: mostriamo la copertura come indicatore
             holder.textGloss.text       = ctx.getString(
                 R.string.history_coverage_fmt,
                 (entry.coverage * 100).toInt()
@@ -163,7 +196,7 @@ class BlissHistoryFragment : Fragment() {
         }
     }
 
-    // ── SwipeToDeleteCallback ─────────────────────────────────────────────
+    // ── SwipeToDeleteCallback ─────────────────────────────────────────────────
 
     private inner class SwipeToDeleteCallback(
         private val onSwiped: (Int) -> Unit
@@ -180,6 +213,7 @@ class BlissHistoryFragment : Fragment() {
     }
 
     companion object {
+        private const val SEARCH_DEBOUNCE_MS = 300L
         fun newInstance() = BlissHistoryFragment()
     }
 }

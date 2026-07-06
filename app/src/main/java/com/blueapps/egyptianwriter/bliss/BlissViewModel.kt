@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.w3c.dom.Document
@@ -23,7 +24,7 @@ import org.w3c.dom.Document
  * this flow and derive every visible element from it, avoiding any local
  * mutable state.
  *
- * ## Features (Fase 4)
+ * ## Features
  * - **History persistence**: every successful translation is saved to
  *   [BlissHistoryRepository] (Room `bliss_history` table, max 100 rows).
  * - **Typeahead suggestions**: [onSuggestionQuery] triggers an FTS4 prefix
@@ -32,13 +33,20 @@ import org.w3c.dom.Document
  *   the latest keystroke without race conditions.
  * - **History panel**: [toggleHistoryPanel] / [clearHistory] manage
  *   [UiState.historyVisible] and the history list observable.
+ * - **History search (E-04)**: [setHistorySearch] updates [_historySearchQuery];
+ *   [filteredHistory] is a derived [StateFlow] that combines the raw history
+ *   list with the query string.  An empty query returns the full list without
+ *   an extra DB round-trip; a non-empty query delegates to
+ *   [BlissHistoryRepository.searchHistory] and replaces [UiState.history]
+ *   with the filtered results.
  *
  * ## Concurrency model
  * | Job | Dispatcher | Cancellation |
  * |---|---|---|
- * | [translateJob] | Default (CPU) | Cancelled on each new [translate] call |
- * | [suggestJob]   | IO (FTS4 DB)  | Cancelled on each new [onSuggestionQuery] call |
- * | [historyJob]   | Main (Flow collector) | Cancelled when lang changes |
+ * | [translateJob]  | Default (CPU)  | Cancelled on each new [translate] call |
+ * | [suggestJob]    | IO (FTS4 DB)   | Cancelled on each new [onSuggestionQuery] call |
+ * | [historyJob]    | Main (Flow)    | Cancelled when lang changes |
+ * | [searchJob]     | Main (Flow)    | Cancelled on each new [setHistorySearch] call |
  *
  * @constructor Created by the framework via [AndroidViewModel]; receives
  *   [Application] for [BlissLookup] context.
@@ -50,36 +58,49 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Immutable snapshot of all UI state for the Bliss translation screen.
      *
-     * @param symbols        Translated [BlissSymbol] list from the most recent run.
-     * @param glyphXDoc      GlyphX DOM document, ready for [BlissRenderer] (nullable
-     *                       until a translation has been performed).
-     * @param stats          Coverage breakdown of the current translation.
-     * @param langCode       Active ISO-639-1 language code.
-     * @param isLoading      `true` while the engine or a translation is in progress.
-     * @param error          Non-null when a terminal error has occurred.
-     * @param suggestions    Typeahead suggestion labels for the current input prefix.
-     * @param history        Paginated history list for the current [langCode].
-     * @param recentInputs   Distinct recent input texts for the current [langCode]
-     *                       (used for inline autocomplete chips).
-     * @param historyVisible Whether the history panel is open in the UI.
+     * @param symbols          Translated [BlissSymbol] list from the most recent run.
+     * @param glyphXDoc        GlyphX DOM document, ready for [BlissRenderer] (nullable
+     *                         until a translation has been performed).
+     * @param stats            Coverage breakdown of the current translation.
+     * @param langCode         Active ISO-639-1 language code.
+     * @param isLoading        `true` while the engine or a translation is in progress.
+     * @param error            Non-null when a terminal error has occurred.
+     * @param suggestions      Typeahead suggestion labels for the current input prefix.
+     * @param history          Full (unfiltered) history list for the current [langCode].
+     * @param filteredHistory  Subset of [history] matching [historySearchQuery];
+     *                         equals [history] when the query is blank.
+     * @param historySearchQuery Current text in the history search field.
+     * @param recentInputs     Distinct recent input texts for the current [langCode]
+     *                         (used for inline autocomplete chips).
+     * @param historyVisible   Whether the history panel is open in the UI.
      */
     data class UiState(
-        val symbols:        List<BlissSymbol>       = emptyList(),
-        val glyphXDoc:      Document?               = null,
-        val stats:          TranslationStats?       = null,
-        val langCode:       String                  = DEFAULT_LANG,
-        val isLoading:      Boolean                 = false,
-        val error:          String?                 = null,
-        val suggestions:    List<String>            = emptyList(),
-        val history:        List<BlissHistoryEntry> = emptyList(),
-        val recentInputs:   List<String>            = emptyList(),
-        val historyVisible: Boolean                 = false
+        val symbols:             List<BlissSymbol>       = emptyList(),
+        val glyphXDoc:           Document?               = null,
+        val stats:               TranslationStats?       = null,
+        val langCode:            String                  = DEFAULT_LANG,
+        val isLoading:           Boolean                 = false,
+        val error:               String?                 = null,
+        val suggestions:         List<String>            = emptyList(),
+        val history:             List<BlissHistoryEntry> = emptyList(),
+        val filteredHistory:     List<BlissHistoryEntry> = emptyList(),
+        val historySearchQuery:  String                  = "",
+        val recentInputs:        List<String>            = emptyList(),
+        val historyVisible:      Boolean                 = false
     )
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
-    // ── engine components ─────────────────────────────────────────────────────────
+    /**
+     * Standalone [StateFlow] for the history search query string.
+     * Kept separate from [_uiState] so [combine] can react to changes in
+     * either the raw history list or the query without triggering a full
+     * [UiState] recomposition.
+     */
+    private val _historySearchQuery = MutableStateFlow("")
+
+    // ── engine components ─────────────────────────────────────────────────────
 
     private val lookup:     BlissLookup            = BlissLookup.getInstance(application)
     private val morfologik: MorfologikLemmatizer   = MorfologikLemmatizer(application)
@@ -94,6 +115,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     private var suggestJob:   Job? = null
     private var historyJob:   Job? = null
     private var inputsJob:    Job? = null
+    private var searchJob:    Job? = null
 
     // ── language management ───────────────────────────────────────────────────
 
@@ -106,13 +128,16 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
         val normalised = lang.lowercase().take(2)
         if (lookup.isReady && lookup.currentLang == normalised) return
         _uiState.value = _uiState.value.copy(
-            isLoading      = true,
-            error          = null,
-            langCode       = normalised,
-            suggestions    = emptyList(),
-            history        = emptyList(),
-            recentInputs   = emptyList()
+            isLoading           = true,
+            error               = null,
+            langCode            = normalised,
+            suggestions         = emptyList(),
+            history             = emptyList(),
+            filteredHistory     = emptyList(),
+            historySearchQuery  = "",
+            recentInputs        = emptyList()
         )
+        _historySearchQuery.value = ""
         lookup.loadIfNeeded(
             lang    = normalised,
             scope   = viewModelScope,
@@ -187,7 +212,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // ── typeahead suggestions ───────────────────────────────────────────────────
+    // ── typeahead suggestions ──────────────────────────────────────────────────
 
     fun onSuggestionQuery(text: String) {
         val prefix = text.trimEnd().substringAfterLast(' ').lowercase()
@@ -213,7 +238,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.value = _uiState.value.copy(suggestions = emptyList())
     }
 
-    // ── history panel ──────────────────────────────────────────────────────────────
+    // ── history panel ──────────────────────────────────────────────────────────
 
     /** Toggles the visibility of the history panel. */
     fun toggleHistoryPanel() {
@@ -277,14 +302,57 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // ── private: reactive observers ─────────────────────────────────────────────────
+    // ── history search (E-04) ────────────────────────────────────────────────
+
+    /**
+     * Updates the history search query and re-subscribes the [searchJob]
+     * to [BlissHistoryRepository.searchHistory] with the new [query].
+     *
+     * When [query] is blank the search job is cancelled and [filteredHistory]
+     * is reset to the full [UiState.history] list without an extra DB call.
+     *
+     * The Fragment is responsible for applying a debounce (≥ 300 ms) before
+     * calling this function to avoid per-keystroke DB queries.
+     *
+     * @param query  Substring to look for in `input_text`.  Pass an empty
+     *               string to clear the filter.
+     */
+    fun setHistorySearch(query: String) {
+        _historySearchQuery.value = query
+        _uiState.value = _uiState.value.copy(historySearchQuery = query)
+        searchJob?.cancel()
+        if (query.isBlank()) {
+            // No DB call needed — reset filteredHistory to the full list.
+            _uiState.value = _uiState.value.copy(
+                filteredHistory = _uiState.value.history
+            )
+            return
+        }
+        val lang = _uiState.value.langCode
+        searchJob = viewModelScope.launch {
+            repository.searchHistory(query = query, langCode = lang)
+                .collectLatest { results ->
+                    _uiState.value = _uiState.value.copy(filteredHistory = results)
+                }
+        }
+    }
+
+    // ── private: reactive observers ───────────────────────────────────────────
 
     private fun startObservingHistory(lang: String) {
         historyJob?.cancel()
         historyJob = viewModelScope.launch {
             repository.recentHistory(langCode = lang, limit = 50)
                 .collectLatest { entries ->
-                    _uiState.value = _uiState.value.copy(history = entries)
+                    val query = _historySearchQuery.value
+                    _uiState.value = _uiState.value.copy(
+                        history         = entries,
+                        // Keep filteredHistory consistent with the latest query.
+                        filteredHistory = if (query.isBlank()) entries
+                                          else entries.filter {
+                                              it.inputText.contains(query, ignoreCase = true)
+                                          }
+                    )
                 }
         }
     }
@@ -299,7 +367,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // ── misc helpers ──────────────────────────────────────────────────────────────────
+    // ── misc helpers ──────────────────────────────────────────────────────────
 
     fun setError(msg: String?) {
         _uiState.value = _uiState.value.copy(error = msg, isLoading = false)
@@ -315,6 +383,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
         suggestJob?.cancel()
         historyJob?.cancel()
         inputsJob?.cancel()
+        searchJob?.cancel()
     }
 
     companion object {
@@ -325,7 +394,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     }
 }
 
-// ── TranslationStats ────────────────────────────────────────────────────────────────
+// ── TranslationStats ──────────────────────────────────────────────────────────
 
 data class TranslationStats(
     val total:   Int,

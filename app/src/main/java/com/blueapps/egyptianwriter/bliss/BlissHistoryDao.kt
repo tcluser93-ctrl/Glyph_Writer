@@ -116,4 +116,30 @@ interface BlissHistoryDao {
         langCode: String,
         limit:    Int = 20
     ): Flow<List<String>>
+
+    /**
+     * Full-text search on [input_text]: returns a [Flow] of up to [limit]
+     * entries whose `input_text` contains [query] (case-insensitive LIKE
+     * match), filtered by [langCode] and ordered newest-first.
+     *
+     * Called by [BlissHistoryRepository.searchHistory] when the user types
+     * in the history search field.  An empty [query] returns all entries
+     * identically to [observeAll].
+     *
+     * @param query     The substring to look for inside `input_text`.
+     * @param langCode  Language filter — pass `"%"` for all languages.
+     * @param limit     Maximum rows to emit per update.
+     */
+    @Query("""
+        SELECT * FROM bliss_history
+        WHERE lang_code LIKE :langCode
+          AND input_text LIKE '%' || :query || '%'
+        ORDER BY timestamp_ms DESC
+        LIMIT :limit
+    """)
+    fun searchByText(
+        query:    String,
+        langCode: String = "%",
+        limit:    Int    = 50
+    ): Flow<List<BlissHistoryEntry>>
 }
