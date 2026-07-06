@@ -16,49 +16,43 @@ import java.util.Locale
 /**
  * Offline morphological lemmatizer backed by Morfologik FSA dictionaries.
  *
- * ## Architecture
- * This is the **primary lemmatization layer** in the BlissTranslator pipeline.
- * Given a surface form ("mangeait", "geschrieben", "dormivano"), it returns the
- * canonical lemma(s) used to look up BCI-AV symbol IDs in the CSV index.
- *
- * Pipeline position:
- *   surface → [MorfologikLemmatizer] → lemma → CSV HashMap → BCI-AV ID
- *
  * ## Asset layout
  * ```
  * assets/morfologik/
- *   it.dict / it.info   — Italian   FSA  (~3.8 MB, LanguageTool LGPL)
- *   en.dict / en.info   — English   FSA  (~4.1 MB, LanguageTool BSD)
- *   de.dict / de.info   — German    FSA  (~5.2 MB, LanguageTool LGPL)
- *   fr.dict / fr.info   — French    FSA  (~3.5 MB, LanguageTool LGPL)
- *   es.dict / es.info   — Spanish   FSA  (~4.8 MB, LanguageTool LGPL)
- *   nl.dict / nl.info   — Dutch     FSA  (~2.9 MB, LanguageTool LGPL)
- *   pt.dict / pt.info   — Portuguese FSA (~3.2 MB, LanguageTool LGPL)
- *   pl.dict / pl.info   — Polish    FSA  (~6.1 MB, Morfologik native)
+ *   it.dict / it.info   — Italian    (~3.8 MB, LGPL)
+ *   en.dict / en.info   — English    (~4.1 MB, BSD)
+ *   de.dict / de.info   — German     (~5.2 MB, LGPL)
+ *   fr.dict / fr.info   — French     (~3.5 MB, LGPL)
+ *   es.dict / es.info   — Spanish    (~4.0 MB, LGPL)
+ *   nl.dict / nl.info   — Dutch      (~2.8 MB, LGPL)
+ *   pl.dict / pl.info   — Polish     (~3.1 MB, LGPL)
+ *   pt.dict / pt.info   — Portuguese (~3.3 MB, LGPL)
  * ```
  *
- * Source: extract from LanguageTool JARs:
- *   jar xf languagetool-language-modules-{lang}.jar
- *   → org/languagetool/resource/{lang}/{lang}.dict
- *   → org/languagetool/resource/{lang}/{lang}.info
+ * Dictionaries sourced from LanguageTool JARs:
+ *   https://github.com/languagetool-org/languagetool/releases
+ * Extract with: jar xf languagetool-language-modules-{lang}-*.jar
+ * Path inside JAR: org/languagetool/resource/{lang}/{lang}.dict + {lang}.info
+ *
+ * ## Architecture
+ * This lemmatizer is the PRIMARY morphological layer in [BlissTranslator].
+ * It runs BEFORE the lemma CSV lookup, providing the canonical lemma from
+ * any inflected form. The CSV contains only base lemmas mapped to BCI-AV IDs.
+ *
+ * Pipeline: surface word → Morfologik FSA → lemma → CSV HashMap → BCI-AV ID
  *
  * ## Thread-safety
  * Each language has its own [Mutex]. The first call for a language copies the
- * asset to [Context.filesDir]/morfologik/, opens the [DictionaryLookup] once,
- * and caches it. Subsequent calls skip the lock entirely (fast path).
- *
- * ## Graceful degradation
- * If a .dict asset is absent, [lemmatize] returns an empty list — the
- * BlissTranslator pipeline continues with rule-based de-affixation (tier 3d).
+ * asset to [Context.filesDir], opens the [DictionaryLookup] once, and caches
+ * it. Subsequent calls are lock-free reads on the cached [IStemmer].
  *
  * ## Usage
  * ```kotlin
  * val lemmatizer = MorfologikLemmatizer(context)
- * val lemmas = lemmatizer.lemmatize("walking", "en")      // → ["walk"]
- * val lemmas = lemmatizer.lemmatize("camminando", "it")   // → ["camminare"]
- * val lemmas = lemmatizer.lemmatize("geschrieben", "de")  // → ["schreiben"]
- * val lemmas = lemmatizer.lemmatize("mangeait", "fr")     // → ["manger"]
- * val lemmas = lemmatizer.lemmatize("dormivano", "es")    // → ["dormir"]
+ * val lemmas = lemmatizer.lemmatize("walking", "en")    // ["walk"]
+ * val lemmas = lemmatizer.lemmatize("camminando", "it") // ["camminare"]
+ * val lemmas = lemmatizer.lemmatize("mangeait", "fr")   // ["manger"]
+ * val lemmas = lemmatizer.lemmatize("dormían", "es")    // ["dormir"]
  * ```
  *
  * @param context Application context (used for [Context.filesDir] and assets).
@@ -82,7 +76,7 @@ class MorfologikLemmatizer(private val context: Context) {
      * **Must** be called from a coroutine; runs on [Dispatchers.IO].
      *
      * @param word  Surface word, any case (will be lowercased internally).
-     * @param lang  ISO-639-1 code, e.g. `"it"`, `"en"`, `"de"`, `"fr"`, `"es"`.
+     * @param lang  ISO-639-1 code, e.g. "it", "en", "de", "fr", "es", "nl".
      */
     suspend fun lemmatize(word: String, lang: String): List<String> {
         val l = lang.lowercase(Locale.ROOT).take(2)
@@ -118,12 +112,9 @@ class MorfologikLemmatizer(private val context: Context) {
     // ── internal: lazy dictionary loader ─────────────────────────────────
 
     private suspend fun getStemmer(lang: String): IStemmer? {
-        // Fast path: already cached (even if null = unavailable)
         if (cache.containsKey(lang)) return cache[lang]
-
         val mutex = mutexMap[lang] ?: return null
         return mutex.withLock {
-            // Double-checked inside lock
             if (cache.containsKey(lang)) return@withLock cache[lang]
             val stemmer = withContext(Dispatchers.IO) { loadDictionary(lang) }
             cache[lang] = stemmer
@@ -170,26 +161,10 @@ class MorfologikLemmatizer(private val context: Context) {
         private const val TAG = "MorfologikLemmatizer"
 
         /**
-         * All supported language codes.
-         * Each requires `assets/morfologik/{lang}.dict` + `{lang}.info`.
-         *
-         * Source: LanguageTool language module JARs (LGPL/BSD).
-         * Polish: Morfologik native dictionary.
-         *
-         * To add a language:
-         *   1. Extract {lang}.dict + {lang}.info from the LT JAR
-         *   2. Place in app/src/main/assets/morfologik/
-         *   3. Add the ISO-639-1 code to this set
+         * Languages for which FSA dictionaries are expected in assets/morfologik/.
+         * All 8 languages are shipped in the APK (no on-demand delivery).
+         * Dict files sourced from LanguageTool JARs — see class KDoc for details.
          */
-        val DICT_LANGS: Set<String> = setOf(
-            "it",  // Italian   — LanguageTool LGPL
-            "en",  // English   — LanguageTool BSD
-            "de",  // German    — LanguageTool LGPL
-            "fr",  // French    — LanguageTool LGPL
-            "es",  // Spanish   — LanguageTool LGPL
-            "nl",  // Dutch     — LanguageTool LGPL
-            "pt",  // Portuguese— LanguageTool LGPL
-            "pl"   // Polish    — Morfologik native
-        )
+        val DICT_LANGS: Set<String> = setOf("it", "en", "de", "fr", "es", "nl", "pl", "pt")
     }
 }
