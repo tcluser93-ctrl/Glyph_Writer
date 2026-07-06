@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.w3c.dom.Document
+import com.blueapps.egyptianwriter.R
 
 /**
  * ViewModel for the Bliss translation screen.
@@ -170,7 +171,9 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun translate(text: String) {
         val t = translator ?: run {
-            _uiState.value = _uiState.value.copy(error = "Engine not ready")
+            _uiState.value = _uiState.value.copy(
+                error = getApplication<Application>().getString(R.string.bliss_error_engine_not_ready)
+            )
             return
         }
         translateJob?.cancel()
@@ -311,7 +314,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
      * When [query] is blank the search job is cancelled and [filteredHistory]
      * is reset to the full [UiState.history] list without an extra DB call.
      *
-     * The Fragment is responsible for applying a debounce (≥ 300 ms) before
+     * The Fragment is responsible for applying a debounce (>= 300 ms) before
      * calling this function to avoid per-keystroke DB queries.
      *
      * @param query  Substring to look for in `input_text`.  Pass an empty
