@@ -62,6 +62,8 @@ data class BlissSymbol(
         NGRAM,
         /** No word match; a generic category symbol was used as fallback. */
         FALLBACK_CATEGORY,
+        /** No direct lexical hit; composed from semantically related base symbols. */
+        COMPOUND,
         /** No match at all — rendered with the \"?\" symbol (BCI-AV 17729). */
         UNKNOWN
     }

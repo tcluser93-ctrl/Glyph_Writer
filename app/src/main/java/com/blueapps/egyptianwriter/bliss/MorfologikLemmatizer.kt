@@ -16,89 +16,73 @@ import java.util.Locale
 /**
  * Offline morphological lemmatizer backed by Morfologik FSA dictionaries.
  *
- * ## Asset layout
- * ```
- * assets/morfologik/
- *   it.dict / it.info   — Italian    (~3.8 MB, LGPL)
- *   en.dict / en.info   — English    (~4.1 MB, BSD)
- *   de.dict / de.info   — German     (~5.2 MB, LGPL)
- *   fr.dict / fr.info   — French     (~3.5 MB, LGPL)
- *   es.dict / es.info   — Spanish    (~4.0 MB, LGPL)
- *   nl.dict / nl.info   — Dutch      (~2.8 MB, LGPL)
- *   pl.dict / pl.info   — Polish     (~3.1 MB, LGPL)
- *   pt.dict / pt.info   — Portuguese (~3.3 MB, LGPL)
- * ```
+ * Dictionaries are bundled in `assets/morfologik/{lang}.dict` + `{lang}.info`.
+ * On first use they are copied to `filesDir/morfologik/` and cached in-memory
+ * behind a per-language [Mutex] to guarantee thread-safe initialisation.
  *
- * Dictionaries sourced from LanguageTool JARs:
- *   https://github.com/languagetool-org/languagetool/releases
- * Extract with: jar xf languagetool-language-modules-{lang}-*.jar
- * Path inside JAR: org/languagetool/resource/{lang}/{lang}.dict + {lang}.info
- *
- * ## Architecture
- * This lemmatizer is the PRIMARY morphological layer in [BlissTranslator].
- * It runs BEFORE the lemma CSV lookup, providing the canonical lemma from
- * any inflected form. The CSV contains only base lemmas mapped to BCI-AV IDs.
- *
- * Pipeline: surface word → Morfologik FSA → lemma → CSV HashMap → BCI-AV ID
- *
- * ## Thread-safety
- * Each language has its own [Mutex]. The first call for a language copies the
- * asset to [Context.filesDir], opens the [DictionaryLookup] once, and caches
- * it. Subsequent calls are lock-free reads on the cached [IStemmer].
- *
- * ## Usage
- * ```kotlin
- * val lemmatizer = MorfologikLemmatizer(context)
- * val lemmas = lemmatizer.lemmatize("walking", "en")    // ["walk"]
- * val lemmas = lemmatizer.lemmatize("camminando", "it") // ["camminare"]
- * val lemmas = lemmatizer.lemmatize("mangeait", "fr")   // ["manger"]
- * val lemmas = lemmatizer.lemmatize("dormían", "es")    // ["dormir"]
- * ```
- *
- * @param context Application context (used for [Context.filesDir] and assets).
+ * ## API
+ * - [lemmatize]       — returns only the list of lemma strings (backward-compat).
+ * - [analyzeWithTags] — returns [LemmaAnalysis] objects carrying lemma + raw tag
+ *                       + pre-computed Bliss indicators via [MorfologikTagMapper].
+ * - [isAvailable]     — checks whether the `.dict` asset exists for a language.
  */
 class MorfologikLemmatizer(private val context: Context) {
 
-    // ── per-language stemmer cache ─────────────────────────────────────────
     private val cache    = HashMap<String, IStemmer?>(8)
     private val mutexMap = HashMap<String, Mutex>(8).apply {
         DICT_LANGS.forEach { lang -> put(lang, Mutex()) }
     }
 
+    // ── Public API ───────────────────────────────────────────────────────────
+
     /**
-     * Returns a list of lemma candidates for [word] in the given [lang].
-     *
-     * - Returns an empty list for languages not in [DICT_LANGS].
-     * - Returns an empty list (OOV) when the word is not in the FSA.
-     * - Returns an empty list if the dictionary asset is missing (graceful
-     *   degradation — rule-based tier continues to work).
-     *
-     * **Must** be called from a coroutine; runs on [Dispatchers.IO].
-     *
-     * @param word  Surface word, any case (will be lowercased internally).
-     * @param lang  ISO-639-1 code, e.g. "it", "en", "de", "fr", "es", "nl".
+     * Returns the distinct base forms (lemmas) for [word] in [lang].
+     * Delegates to [analyzeWithTags] — kept for backward compatibility.
      */
-    suspend fun lemmatize(word: String, lang: String): List<String> {
+    suspend fun lemmatize(word: String, lang: String): List<String> =
+        analyzeWithTags(word, lang).map { it.lemma }.distinct()
+
+    /**
+     * Returns a list of [LemmaAnalysis] for [word] in [lang], each carrying:
+     * - the canonical base form ([LemmaAnalysis.lemma])
+     * - the raw Morfologik tag string ([LemmaAnalysis.rawTag])
+     * - the Bliss indicators derived from the tag ([LemmaAnalysis.blissIndicators])
+     *
+     * Returns an empty list if the language is unsupported, the dictionary is
+     * unavailable, or an exception occurs (graceful degradation).
+     */
+    suspend fun analyzeWithTags(word: String, lang: String): List<LemmaAnalysis> {
         val l = lang.lowercase(Locale.ROOT).take(2)
         if (l !in DICT_LANGS) return emptyList()
         val stemmer = getStemmer(l) ?: return emptyList()
+
         return withContext(Dispatchers.IO) {
             try {
                 @Suppress("UNCHECKED_CAST")
                 (stemmer as DictionaryLookup)
                     .lookup(word.lowercase(Locale.ROOT))
-                    .map { it.getStem().toString() }
-                    .distinct()
+                    .mapNotNull { result ->
+                        val lemma = result.getStem()?.toString()?.trim().orEmpty()
+                        if (lemma.isBlank()) return@mapNotNull null
+                        val rawTag = result.getTag()?.toString()?.trim()
+                            ?.takeIf { it.isNotEmpty() }
+                        LemmaAnalysis(
+                            lemma          = lemma,
+                            rawTag         = rawTag,
+                            blissIndicators = MorfologikTagMapper.toBlissIndicators(rawTag)
+                        )
+                    }
+                    .distinctBy { "${it.lemma}|${it.rawTag}" }
             } catch (e: Exception) {
-                Log.w(TAG, "Morfologik lookup error for '$word' [$l]", e)
+                Log.w(TAG, "analyzeWithTags error for '$word' [$l]", e)
                 emptyList()
             }
         }
     }
 
     /**
-     * Returns `true` if the FSA dictionary asset is present for [lang].
-     * Does **not** open or validate the file.
+     * Returns true if a Morfologik `.dict` asset exists for [lang].
+     * Does **not** load or initialise the dictionary.
      */
     fun isAvailable(lang: String): Boolean {
         val l = lang.lowercase(Locale.ROOT).take(2)
@@ -109,7 +93,7 @@ class MorfologikLemmatizer(private val context: Context) {
         } catch (_: IOException) { false }
     }
 
-    // ── internal: lazy dictionary loader ─────────────────────────────────
+    // ── Internal helpers ─────────────────────────────────────────────────────
 
     private suspend fun getStemmer(lang: String): IStemmer? {
         if (cache.containsKey(lang)) return cache[lang]
@@ -122,10 +106,6 @@ class MorfologikLemmatizer(private val context: Context) {
         }
     }
 
-    /**
-     * Copies dict + info assets to [Context.filesDir]/morfologik/ on first run,
-     * then opens a [DictionaryLookup]. Returns `null` if assets are absent.
-     */
     private fun loadDictionary(lang: String): IStemmer? {
         val dir = File(context.filesDir, "morfologik").also { it.mkdirs() }
         return try {
@@ -144,10 +124,6 @@ class MorfologikLemmatizer(private val context: Context) {
         }
     }
 
-    /**
-     * Copies asset `morfologik/{lang}.{ext}` to [dir]/{lang}.{ext} if not
-     * already present (idempotent). Returns the [File] path.
-     */
     private fun ensureExtracted(lang: String, ext: String, dir: File): File {
         val dest = File(dir, "$lang.$ext")
         if (dest.exists() && dest.length() > 0L) return dest
@@ -159,12 +135,6 @@ class MorfologikLemmatizer(private val context: Context) {
 
     companion object {
         private const val TAG = "MorfologikLemmatizer"
-
-        /**
-         * Languages for which FSA dictionaries are expected in assets/morfologik/.
-         * All 8 languages are shipped in the APK (no on-demand delivery).
-         * Dict files sourced from LanguageTool JARs — see class KDoc for details.
-         */
         val DICT_LANGS: Set<String> = setOf("it", "en", "de", "fr", "es", "nl", "pl", "pt")
     }
 }
