@@ -79,6 +79,7 @@
     <string name="history_clear_all">Cancella cronologia</string>
     <string name="history_deleted">Traduzione eliminata</string>
     <string name="history_coverage_fmt">Copertura: %d%%</string>
+    <string name="history_search_hint">Cerca nella cronologia</string>
     <string name="undo">Annulla</string>
 
     <plurals name="history_cleared">
@@ -180,6 +181,9 @@
     <string name="bliss_caa_svg_loading">Caricamento simbolo in corso</string>
     <string name="bliss_caa_svg_ready">Simbolo Bliss: %s</string>
     <string name="bliss_caa_svg_missing">Simbolo non disponibile, BCI-AV %s</string>
+
+    <!-- E-04: messaggio di errore motore non pronto -->
+    <string name="bliss_error_engine_not_ready">Motore di traduzione non pronto. Attendere il caricamento.</string>
 
     <!-- Blocco D: Export -->
     <string name="export_title">Esporta traduzione</string>
