@@ -173,6 +173,14 @@
     <string name="bliss_caa_card_position_fmt" formatted="false">%d / %d</string>
     <string name="bliss_caa_card_cd">%1$s, parola: %2$s, simbolo %3$d di %4$d</string>
 
+    <!-- E-03: TalkBack per immagine SVG nella card CAA
+         bliss_caa_svg_loading : letto mentre il drawable è in caricamento
+         bliss_caa_svg_ready   : letto quando il simbolo SVG è visualizzato (%s = gloss)
+         bliss_caa_svg_missing : letto quando il file SVG manca negli asset (%s = bciAvId) -->
+    <string name="bliss_caa_svg_loading">Caricamento simbolo in corso</string>
+    <string name="bliss_caa_svg_ready">Simbolo Bliss: %s</string>
+    <string name="bliss_caa_svg_missing">Simbolo non disponibile, BCI-AV %s</string>
+
     <!-- Blocco D: Export -->
     <string name="export_title">Esporta traduzione</string>
     <string name="export_svg">SVG (vettoriale)</string>

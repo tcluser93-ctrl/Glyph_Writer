@@ -28,14 +28,23 @@
             android:layout_marginBottom="8dp" />
 
         <!--
-            E-01 — SVG reale al posto del rettangolo beige.
-            FrameLayout sovrappone:
-              • ImageView  → mostra il PictureDrawable BCI-AV
-              • ProgressBar → visibile durante il caricamento async
+            E-01/E-03: SVG reale + spinner sovrapposti.
 
-            layerType=SOFTWARE è obbligatorio per PictureDrawable
-            (android.graphics.Picture usa operazioni Canvas non supportate
-            da hardware acceleration su API < 28).
+            ImageView (card_symbol_svg_image)
+              - layerType=software: obbligatorio per PictureDrawable (API < 28)
+              - contentDescription: NON impostata qui, viene gestita dinamicamente
+                dall'adapter in tre stati (E-03):
+                  * caricamento  → bliss_caa_svg_loading
+                  * SVG trovato  → bliss_caa_svg_ready  (%s = gloss)
+                  * SVG mancante → bliss_caa_svg_missing (%s = bciAvId)
+
+            ProgressBar (card_symbol_svg_progress)
+              - importantForAccessibility=no: TalkBack salta lo spinner;
+                l'utente è già informato dalla contentDescription dell'ImageView.
+
+            tvMatchBadge
+              - importantForAccessibility=no: info tecnica secondaria,
+                non rilevante per la comunicazione aumentativa.
         -->
         <FrameLayout
             android:layout_width="180dp"
@@ -49,7 +58,6 @@
                 android:layout_height="match_parent"
                 android:scaleType="fitCenter"
                 android:layerType="software"
-                android:contentDescription=""
                 android:background="@color/l_backgroundDarker" />
 
             <ProgressBar
@@ -57,7 +65,8 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_gravity="center"
-                android:visibility="visible" />
+                android:visibility="visible"
+                android:importantForAccessibility="no" />
 
         </FrameLayout>
 
@@ -82,7 +91,7 @@
             android:textColor="@color/l_textColor"
             android:layout_marginBottom="12dp" />
 
-        <!-- Badge tipo di match -->
+        <!-- Badge tipo di match: info tecnica, TalkBack la salta -->
         <TextView
             android:id="@+id/card_match_badge"
             android:layout_width="wrap_content"
@@ -91,7 +100,8 @@
             android:paddingVertical="4dp"
             android:textSize="11sp"
             android:textAllCaps="true"
-            android:textColor="@color/l_textColorPrimary" />
+            android:textColor="@color/l_textColorPrimary"
+            android:importantForAccessibility="no" />
 
     </LinearLayout>
 

@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -17,32 +19,38 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * BlissSymbolCardAdapter — Blocco C (modalità CAA) + E-01 (rendering SVG)
+ * BlissSymbolCardAdapter — Blocco C (modalità CAA) + E-01 (rendering SVG) + E-03 (TalkBack)
  *
- * Mostra ogni [BlissSymbol] come una card grande con:
- *  - Simbolo BCI-AV SVG reale (E-01) — caricato in modo asincrono via
- *    [BlissSignProvider.getDrawableAsync] su Dispatchers.IO, visualizzato
- *    in [ImageView] con [android.view.View.LAYER_TYPE_SOFTWARE] per
- *    compatibilità PictureDrawable su tutti i livelli API.
- *  - ProgressBar visibile durante il caricamento, nascosta al completamento.
- *  - gloss (nome canonico BCI-AV) — testo grande e leggibile, centrato.
- *  - parola sorgente dell'utente — sotto, in secondario.
- *  - tipo di match (EXACT / LEMMA / …) — badge colorato.
+ * ## E-03 — TalkBack: contentDescription dinamica per l'immagine SVG
  *
- * ## Prevenzione late-binding su card riciclate
- * Ogni [CardViewHolder] tiene un riferimento al [Job] di caricamento SVG
- * attivo. [onViewRecycled] cancella il job prima che la card venga riusata
- * da RecyclerView, evitando che un drawable «vecchio» sovrascriva quello
- * della nuova posizione.
+ * L'[ImageView] della card (`card_symbol_svg_image`) passa per tre stati TalkBack:
+ *
+ * | Stato               | contentDescription               | Quando                        |
+ * |---------------------|----------------------------------|-------------------------------|
+ * | In caricamento      | `bliss_caa_svg_loading`          | Prima del launch della coroutine |
+ * | Simbolo disponibile | `bliss_caa_svg_ready` (%s=gloss) | drawable != null && !Placeholder |
+ * | Simbolo mancante    | `bliss_caa_svg_missing` (%s=id)  | drawable null o Placeholder   |
+ *
+ * **Ordine di lettura** — `setTraversalAfter` nel `init` del ViewHolder garantisce
+ * che TalkBack annunci prima l'immagine SVG, poi il gloss testuale.
+ *
+ * **ProgressBar e badge** — hanno `importantForAccessibility="no"` nel layout:
+ * TalkBack li salta completamente.
+ *
+ * **Card intera** — usa la stringa esistente `bliss_caa_card_cd`
+ * (`"%1$s, parola: %2$s, simbolo %3$d di %4$d"`) come contentDescription
+ * dell'`itemView`, letta quando l'utente seleziona la card nel suo insieme.
+ *
+ * ## E-01 — Rendering SVG asincrono
+ * Vedi [BlissSignProvider.getDrawableAsync]. Job cancellato in [onViewRecycled].
  *
  * ## Utilizzo
  * ```kotlin
  * val adapter = BlissSymbolCardAdapter(
- *     signProvider  = blissSignProvider,   // iniettato dal Fragment/ViewModel
+ *     signProvider  = blissSignProvider,
  *     adapterScope  = viewLifecycleOwner.lifecycleScope,
  *     onCardFocused = { pos, sym -> /* TTS, highlight, ecc. */ }
  * )
- * recyclerView.adapter = adapter
  * ```
  */
 class BlissSymbolCardAdapter(
@@ -55,15 +63,33 @@ class BlissSymbolCardAdapter(
 
     inner class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        private val ivSymbol:     ImageView  = itemView.findViewById(R.id.card_symbol_svg_image)
+        // E-03: ivSymbol e tvGloss non sono private per permettere a
+        // setTraversalAfter(ivSymbol) nell'init di compilare correttamente.
+        val ivSymbol:     ImageView   = itemView.findViewById(R.id.card_symbol_svg_image)
+        val tvGloss:      TextView    = itemView.findViewById(R.id.card_gloss)
         private val pbLoading:    ProgressBar = itemView.findViewById(R.id.card_symbol_svg_progress)
-        private val tvGloss:      TextView    = itemView.findViewById(R.id.card_gloss)
         private val tvSourceWord: TextView    = itemView.findViewById(R.id.card_source_word)
         private val tvMatchBadge: TextView    = itemView.findViewById(R.id.card_match_badge)
         private val tvPosition:   TextView    = itemView.findViewById(R.id.card_position)
 
-        /** Job di caricamento SVG in volo. Cancellato in onViewRecycled. */
+        /** Job di caricamento SVG in volo. Cancellato in [onViewRecycled]. */
         var loadJob: Job? = null
+
+        init {
+            // E-03: forza l'ordine di navigazione TalkBack: immagine → gloss → parola.
+            // "tvGloss viene letto DOPO ivSymbol" = traversalAfter(ivSymbol) su tvGloss.
+            ViewCompat.setAccessibilityDelegate(tvGloss,
+                object : androidx.core.view.AccessibilityDelegateCompat() {
+                    override fun onInitializeAccessibilityNodeInfo(
+                        host: View,
+                        info: AccessibilityNodeInfoCompat
+                    ) {
+                        super.onInitializeAccessibilityNodeInfo(host, info)
+                        info.setTraversalAfter(ivSymbol)
+                    }
+                }
+            )
+        }
 
         fun bind(symbol: BlissSymbol, position: Int, total: Int) {
             // ── testi e badge ──────────────────────────────────────────────
@@ -73,31 +99,59 @@ class BlissSymbolCardAdapter(
             tvMatchBadge.setBackgroundColor(matchColor(symbol.matchType))
             tvPosition.text   = "${position + 1} / $total"
 
-            // ── accessibility ──────────────────────────────────────────────
-            ivSymbol.contentDescription = symbol.gloss
-            itemView.contentDescription = buildString {
-                append(symbol.gloss)
-                if (symbol.sourceWord.isNotBlank()) append(", parola: ${symbol.sourceWord}")
-                append(", ${position + 1} di $total")
-            }
+            // ── E-03: contentDescription card intera ───────────────────────
+            // bliss_caa_card_cd = "%1$s, parola: %2$s, simbolo %3$d di %4$d"
+            // Letta da TalkBack quando l'utente seleziona l'intera card.
+            itemView.contentDescription = itemView.context.getString(
+                R.string.bliss_caa_card_cd,
+                symbol.gloss,
+                symbol.sourceWord.ifBlank { "—" },
+                position + 1,
+                total
+            )
             itemView.setOnClickListener { onCardFocused(position, symbol) }
 
-            // ── E-01: caricamento SVG asincrono ────────────────────────────
-            // Azzera lo stato visivo prima di ogni bind, indipendentemente
-            // da quale card stia occupando questo ViewHolder.
+            // ── E-01 + E-03: caricamento SVG asincrono con CD dinamica ─────
+            // Stato iniziale: immagine vuota, spinner visibile.
+            // CD = "Caricamento simbolo in corso" — annunciata da TalkBack
+            // non appena la card riceve il focus, prima ancora che l'SVG sia pronto.
             ivSymbol.setImageDrawable(null)
+            ivSymbol.contentDescription = itemView.context.getString(
+                R.string.bliss_caa_svg_loading
+            )
             pbLoading.visibility = View.VISIBLE
 
-            val code = "B${symbol.bciAvId}"
+            val bciId = symbol.bciAvId
+            val code  = "B$bciId"
             loadJob = adapterScope.launch {
                 val drawable = withContext(Dispatchers.IO) {
-                    signProvider.getDrawableAsync(code, 180f * itemView.resources.displayMetrics.density)
+                    signProvider.getDrawableAsync(
+                        code,
+                        180f * itemView.resources.displayMetrics.density
+                    )
                 }
-                // Siamo sul Main thread qui (launch default dispatcher = Main)
-                // Verifica che la card non sia stata riciclata nel frattempo
-                if (tvGloss.text == symbol.gloss) {      // guard cheapo ma sufficiente
+                // Main thread — guard anti-late-binding
+                if (tvGloss.text == symbol.gloss) {
                     ivSymbol.setImageDrawable(drawable)
                     pbLoading.visibility = View.GONE
+
+                    // E-03: aggiorna CD in base all'esito del caricamento
+                    ivSymbol.contentDescription = if (
+                        drawable != null &&
+                        drawable !is BlissSignProvider.PlaceholderDrawable
+                    ) {
+                        // SVG trovato e renderizzato: TalkBack annuncia il gloss
+                        itemView.context.getString(
+                            R.string.bliss_caa_svg_ready,
+                            symbol.gloss
+                        )
+                    } else {
+                        // File SVG mancante o errore di parse: TalkBack annuncia l'id BCI-AV
+                        itemView.context.getString(
+                            R.string.bliss_caa_svg_missing,
+                            bciId.toString()
+                        )
+                    }
                 }
             }
         }
@@ -128,7 +182,6 @@ class BlissSymbolCardAdapter(
         )
 
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
-        // Cancella eventuale job in volo prima di riutilizzare il ViewHolder
         holder.loadJob?.cancel()
         holder.bind(getItem(position), position, itemCount)
     }
