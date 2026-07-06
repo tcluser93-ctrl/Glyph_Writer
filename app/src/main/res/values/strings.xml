@@ -145,7 +145,7 @@
 
     <!-- Toggle modalità auto/manuale (end-icon TextInputLayout) -->
     <string name="bliss_cd_mode_auto">Modalità anteprima automatica attiva. Tocca per passare alla modalità manuale.</string>
-    <string name="bliss_cd_mode_manual">Modalità manuale attiva. Tocca per attivare l’anteprima automatica.</string>
+    <string name="bliss_cd_mode_manual">Modalità manuale attiva. Tocca per attivare l'anteprima automatica.</string>
 
     <!-- Chip simbolo — tooltip al tap (BlissTranslateFragment.renderChips) -->
     <string name="bliss_chip_tooltip">BCI-AV: %1$d\nName: %2$s\nWord: \u2018%3$s\u2019\nMatch: %4$s\nIndicators: %5$s</string>
@@ -189,4 +189,35 @@
     <string name="bliss_a11y_translation_ready">Translation complete. %d Bliss symbols generated.</string>
     <string name="bliss_a11y_symbol_desc">Bliss symbol: %s</string>
     <string name="bliss_a11y_suggestion">Suggestion: %s. Double-tap to insert.</string>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         Blocco C — Modalità CAA simbolo per simbolo
+         ══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Switch toggle nell'UI del Fragment -->
+    <string name="bliss_caa_mode_label">Modalità CAA</string>
+    <string name="bliss_caa_mode_cd">Attiva modalità comunicazione aumentativa e alternativa: mostra ogni simbolo in una card grande con navigazione avanti/indietro</string>
+
+    <!-- Pulsanti navigazione avanti/indietro -->
+    <string name="bliss_caa_prev">← Indietro</string>
+    <string name="bliss_caa_next">Avanti →</string>
+    <string name="bliss_caa_prev_cd">Simbolo precedente</string>
+    <string name="bliss_caa_next_cd">Simbolo successivo</string>
+
+    <!-- Badge tipo di match (card CAA) -->
+    <string name="bliss_caa_badge_exact">esatto</string>
+    <string name="bliss_caa_badge_lemma">lemma</string>
+    <string name="bliss_caa_badge_ngram">frase</string>
+    <string name="bliss_caa_badge_fallback">categoria</string>
+    <string name="bliss_caa_badge_unknown">sconosciuto</string>
+
+    <!-- Annuncio TalkBack: posizione corrente nella sequenza di card -->
+    <string name="bliss_caa_position_announce">Simbolo %1$d di %2$d</string>
+
+    <!-- Etichetta contatore posizione nella card (es. "1 / 5") -->
+    <string name="bliss_caa_card_position_fmt" formatted="false">%d / %d</string>
+
+    <!-- contentDescription della card CAA (generata nel ViewHolder) -->
+    <string name="bliss_caa_card_cd">%1$s, parola: %2$s, simbolo %3$d di %4$d</string>
+
 </resources>
