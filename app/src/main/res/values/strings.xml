@@ -44,6 +44,10 @@
     <!-- Navigation drawer -->
     <string name="nav_drawer_open">Open navigation drawer</string>
     <string name="nav_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_subtitle">Blissymbolics translator</string>
+    <string name="nav_translate">Translate</string>
+    <string name="nav_history">History</string>
+    <string name="nav_settings">Settings</string>
 
     <!-- ============================================================
          Bliss Translator — fragment_translate.xml
@@ -73,7 +77,11 @@
     <string name="bliss_caa_mode_label">CAA mode — symbol by symbol</string>
     <string name="bliss_caa_mode_cd">Toggle symbol-by-symbol CAA display</string>
     <string name="bliss_caa_btn_prev">Previous</string>
+    <string name="bliss_caa_prev">Previous symbol</string>
+    <string name="bliss_caa_prev_cd">Go to previous symbol</string>
     <string name="bliss_caa_btn_next">Next</string>
+    <string name="bliss_caa_next">Next symbol</string>
+    <string name="bliss_caa_next_cd">Go to next symbol</string>
     <string name="bliss_caa_position_announce">Symbol %1$d of %2$d</string>
     <string name="bliss_caa_card_cd">%1$s, word: %2$s, symbol %3$d of %4$d</string>
 
