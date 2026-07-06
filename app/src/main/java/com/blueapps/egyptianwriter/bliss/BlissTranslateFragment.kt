@@ -52,6 +52,18 @@ import java.util.Locale
  *    ([BlissSymbolCardAdapter]) + pulsanti Indietro/Avanti ([btnPrev]/[btnNext])
  *    che scorrono il contenuto e aggiornano [caaCurrentIndex].
  *
+ * ## E-01 — Rendering SVG reale nelle card CAA
+ * [signProvider] è lazy e vive per l'intero ciclo di vita del Fragment.
+ * [cardAdapter] viene inizializzato in [setupCaaRecycler] con [signProvider]
+ * e [viewLifecycleOwner.lifecycleScope] così ogni card carica il suo
+ * drawable BCI-AV in modo asincrono senza bloccare il Main Thread.
+ *
+ * ## E-02 — Persistenza stato CAA
+ * [onSaveInstanceState] serializza [caaModeEnabled] e [caaCurrentIndex].
+ * [onViewStateRestored] li ripristina allineando switch, visibilità pannelli
+ * e stato dei pulsanti di navigazione.
+ * [onLowMemory] svuota la cache LRU di [BlissSignProvider] (fino a 8 MB).
+ *
  * La cronologia auto-salvataggio è già gestita nel ViewModel: ogni chiamata
  * [BlissViewModel.translate] salva automaticamente in [BlissHistoryRepository].
  */
@@ -60,14 +72,23 @@ class BlissTranslateFragment : Fragment() {
     // ── ViewModel ────────────────────────────────────────────────────────────
     private val vm: BlissViewModel by activityViewModels()
 
+    // ── E-01: BlissSignProvider — lazy, un'istanza per tutto il Fragment ─────
+    //
+    // Lazy con LazyThreadSafetyMode.NONE: acceduto solo dal Main Thread.
+    // Creato al primo accesso (setupCaaRecycler), distrutto col Fragment.
+    // onLowMemory chiama clearCache() per liberare la LRU da 8 MB.
+    private val signProvider: BlissSignProvider by lazy(LazyThreadSafetyMode.NONE) {
+        BlissSignProvider(requireContext().applicationContext)
+    }
+
     // ── Engine helper ─────────────────────────────────────────────────────────
     private var glyphXBuilder: BlissGlyphXBuilder? = null
 
     // ── Debounce (Blocco B) ───────────────────────────────────────────────────
-    private var debounceJob:      Job?    = null
-    private var manualModeEnabled: Boolean = false
+    private var debounceJob:       Job?     = null
+    private var manualModeEnabled: Boolean  = false
 
-    // ── CAA state (Blocco C) ──────────────────────────────────────────────────
+    // ── CAA state (Blocco C + E-02) ───────────────────────────────────────────
     /** true = vista CAA attiva; false = vista chip standard */
     private var caaModeEnabled:  Boolean = false
     /** Indice della card attualmente visibile in modalità CAA */
@@ -103,12 +124,9 @@ class BlissTranslateFragment : Fragment() {
         runTranslation()
     }
 
-    private val cardAdapter = BlissSymbolCardAdapter { position, _ ->
-        // Tap su card → focus su quella card (aggiorna indice + nav buttons)
-        caaCurrentIndex = position
-        updateCaaNavButtons()
-        scrollToCard(position)
-    }
+    // E-01: lateinit — inizializzato in setupCaaRecycler() con signProvider +
+    // lifecycleScope, dopo che requireContext() è garantito disponibile.
+    private lateinit var cardAdapter: BlissSymbolCardAdapter
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -133,12 +151,83 @@ class BlissTranslateFragment : Fragment() {
         bindViews(view)
         setupSpinner()
         setupSuggestions()
-        setupCaaRecycler()
+        setupCaaRecycler()          // inizializza cardAdapter (E-01)
         setupTextWatcher()
         reinitGlyphXBuilder()
         observeViewModel()
         setupFabShare()
         vm.uiState.value.symbols.takeIf { it.isNotEmpty() }?.let { applySymbols(it) }
+        // Nota: il ripristino stato CAA avviene in onViewStateRestored (E-02),
+        // chiamato automaticamente dal framework dopo onViewCreated.
+    }
+
+    // ── E-02: Persistenza stato CAA ───────────────────────────────────────────
+
+    /**
+     * Serializza [caaModeEnabled] e [caaCurrentIndex] nel Bundle di istanza.
+     * Chiamato dal framework prima di distruggere e ricreare il Fragment
+     * (rotazione schermo, processo kill-and-restore, ecc.).
+     */
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(KEY_CAA_MODE,  caaModeEnabled)
+        outState.putInt(KEY_CAA_INDEX, caaCurrentIndex)
+    }
+
+    /**
+     * Ripristina lo stato CAA salvato in [onSaveInstanceState].
+     * Chiamato automaticamente dopo [onViewCreated] quando esiste un Bundle
+     * di stato; non viene chiamato alla prima creazione (Bundle null).
+     *
+     * Allinea:
+     *  - [caaModeEnabled] → posizione dello switch
+     *  - [caaCurrentIndex] → scroll RecyclerView + stato nav buttons
+     *  - visibilità dei pannelli standard / CAA
+     */
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        savedInstanceState ?: return         // prima creazione: nulla da ripristinare
+
+        val restoredMode  = savedInstanceState.getBoolean(KEY_CAA_MODE,  false)
+        val restoredIndex = savedInstanceState.getInt(KEY_CAA_INDEX, 0)
+
+        if (restoredMode != caaModeEnabled || restoredIndex != 0) {
+            caaModeEnabled  = restoredMode
+            caaCurrentIndex = restoredIndex
+
+            // Aggiorna lo switch senza scatenare il listener (altrimenti reset index)
+            switchCaaMode.setOnCheckedChangeListener(null)
+            switchCaaMode.isChecked = caaModeEnabled
+            switchCaaMode.setOnCheckedChangeListener { _, checked ->
+                caaModeEnabled  = checked
+                caaCurrentIndex = 0
+                applyCaaVisibility()
+                vm.uiState.value.symbols.takeIf { it.isNotEmpty() }?.let { applySymbols(it) }
+            }
+
+            applyCaaVisibility()
+            // Se ci sono già simboli nel ViewModel, riposiziona il RecyclerView
+            vm.uiState.value.symbols.takeIf { it.isNotEmpty() }?.let { symbols ->
+                cardAdapter.submitList(symbols) {
+                    // submitList è asincrono: il callback garantisce che DiffUtil
+                    // ha completato prima di scorrere alla posizione salvata.
+                    scrollToCard(caaCurrentIndex)
+                    updateCaaNavButtons()
+                }
+            }
+        }
+    }
+
+    // ── E-02: clearCache su memory pressure ───────────────────────────────────
+
+    /**
+     * Chiamato dal sistema quando il processo è sotto pressione di memoria.
+     * Svuota la LRU di [signProvider] (max 8 MB di PictureDrawable BCI-AV).
+     * Le card ricaricheranno i drawable al prossimo scroll.
+     */
+    override fun onLowMemory() {
+        super.onLowMemory()
+        signProvider.clearCache()
     }
 
     override fun onDestroyView() {
@@ -190,11 +279,12 @@ class BlissTranslateFragment : Fragment() {
         }
 
         // ── Toggle modalità CAA (Blocco C) ────────────────────────────────
+        // Nota: onViewStateRestored può temporaneamente sostituire questo
+        // listener per evitare il reset dell'indice durante il ripristino.
         switchCaaMode.setOnCheckedChangeListener { _, checked ->
-            caaModeEnabled = checked
+            caaModeEnabled  = checked
             caaCurrentIndex = 0
             applyCaaVisibility()
-            // Ri-applica i simboli già presenti al cambio di modalità
             vm.uiState.value.symbols.takeIf { it.isNotEmpty() }?.let { applySymbols(it) }
         }
 
@@ -284,9 +374,23 @@ class BlissTranslateFragment : Fragment() {
         suggestionAdapter.submitList(suggestions)
     }
 
-    // ── RecyclerView CAA cards (Blocco C) ─────────────────────────────────────
+    // ── RecyclerView CAA cards (Blocco C + E-01) ─────────────────────────────
 
+    /**
+     * Inizializza [cardAdapter] con [signProvider] (E-01) e
+     * [viewLifecycleOwner.lifecycleScope] così i job SVG vengono
+     * cancellati automaticamente quando la view è distrutta.
+     */
     private fun setupCaaRecycler() {
+        cardAdapter = BlissSymbolCardAdapter(
+            signProvider  = signProvider,
+            adapterScope  = viewLifecycleOwner.lifecycleScope,
+            onCardFocused = { position, _ ->
+                caaCurrentIndex = position
+                updateCaaNavButtons()
+                scrollToCard(position)
+            }
+        )
         rvCaaCards.layoutManager = LinearLayoutManager(requireContext())
         rvCaaCards.adapter       = cardAdapter
         // Disabilita lo scroll interno: lo gestisce il NestedScrollView esterno
@@ -558,6 +662,10 @@ class BlissTranslateFragment : Fragment() {
         private const val CELL_SIZE_DP            = 72
         private const val FILE_PROVIDER_AUTHORITY = "com.blueapps.fileprovider"
         const val DEBOUNCE_MS                     = 400L
+
+        // E-02: chiavi Bundle per la persistenza dello stato CAA
+        private const val KEY_CAA_MODE  = "caa_mode_enabled"
+        private const val KEY_CAA_INDEX = "caa_current_index"
 
         fun newInstance(lang: String = DEFAULT_LANG): BlissTranslateFragment =
             BlissTranslateFragment().apply {
