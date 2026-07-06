@@ -8,23 +8,34 @@ import java.util.regex.Pattern
 /**
  * Translates free natural-language text into a sequence of [BlissSymbol]s.
  *
- * ## Sync pipeline (translate)
+ * ## Sync pipeline (translate) — rule-based only
  *
  *  1. **Normalise** — lowercase, collapse whitespace, strip punctuation
  *  2. **N-gram scan** — longest-match (max 4 words)
  *  3. **Token loop** (per token):
- *       a. Exact surface lookup                        → EXACT
- *       b. Plain lemma lookup                          → LEMMA
- *       c. POS-aware lemma lookup                      → LEMMA
- *       d. Rule-based de-affixation candidates         → LEMMA
- *       e. Unknown                                     → UNKNOWN
+ *       a. Exact surface lookup  (lexicon JSON)             → EXACT
+ *       b. Plain lemma lookup    (CSV HashMap)               → LEMMA
+ *       c. POS-aware lemma lookup                           → LEMMA
+ *       d. Rule-based de-affixation candidates              → LEMMA
+ *       e. Room FTS4 exact                                  → EXACT
+ *       f. Unknown                                          → UNKNOWN
  *  4. **Indicator pass** — plural / past / future tagging
  *
- * ## Async pipeline (translateAsync) — adds Morfologik tier
+ * ## Async pipeline (translateAsync) — Morfologik as primary lemmatizer
  *
- *  Same as above, but step 3 inserts:
- *       c2. MorfologikLemmatizer FSA lookup (IT/EN/DE) → LEMMA
- *  between heuristic POS (3c) and rule-based de-affixation (3d).
+ *  Same as above with an upgraded step 3:
+ *       a. Exact surface lookup  (lexicon JSON)             → EXACT
+ *       b. **Morfologik FSA**    (IT/EN/DE/FR/ES/NL/PT/PL)  → LEMMA  ← PRIMARY
+ *       c. Plain lemma lookup    (CSV HashMap, lemmas only) → LEMMA
+ *       d. POS-aware lemma lookup                           → LEMMA
+ *       e. Rule-based de-affixation candidates              → LEMMA
+ *       f. Room FTS4 exact                                  → EXACT
+ *       g. Unknown                                          → UNKNOWN
+ *
+ * ## CSV role after refactoring
+ * `lemmas_{lang}.csv` is now a **lemma-only index** (~3k–5k canonical forms
+ * per language). Morfologik handles all inflected → lemma resolution.
+ * The CSV is the final authority for lemma → BCI-AV ID mapping.
  *
  * The translator is stateless and thread-safe after construction.
  *
@@ -56,11 +67,13 @@ class BlissTranslator(
     }
 
     /**
-     * Suspend translation.  Adds **Morfologik tier** (tier 3c2) between the
-     * heuristic POS guess and the rule-based de-affixation.
+     * Suspend translation.  Morfologik is the **primary lemmatizer** (tier 3b).
+     *
+     * Pipeline per token:
+     *   surface → Morfologik FSA → lemma → CSV HashMap → BCI-AV ID
      *
      * Must be called from a coroutine (typically [BlissViewModel.translate]).
-     * The Morfologik FSA lookup runs on [Dispatchers.IO] inside
+     * Morfologik FSA lookup runs on [Dispatchers.IO] inside
      * [MorfologikLemmatizer.lemmatize].
      */
     suspend fun translateAsync(text: String): List<BlissSymbol> {
@@ -105,7 +118,7 @@ class BlissTranslator(
         return result
     }
 
-    // ── step 2+3 : greedy n-gram + per-token (suspend, with Morfologik) ───────
+    // ── step 2+3 : greedy n-gram + per-token (suspend, Morfologik primary) ────
 
     private suspend fun resolveNgramsAndTokensSuspend(
         text: String,
@@ -132,15 +145,19 @@ class BlissTranslator(
         return result
     }
 
-    // ── step 3 : single-token resolution (sync) ───────────────────────────────
+    // ── step 3 : single-token resolution (sync, rule-based only) ─────────────
 
     private fun resolveToken(word: String): BlissSymbol {
+        // 3a — exact surface (lexicon JSON)
         lookup.lookupSurface(word)?.let { return lookup.toSymbol(it, word, word, MatchType.EXACT) }
+        // 3b — plain lemma CSV
         lookup.lookupLemma(word)?.let   { return lookup.toSymbol(it, word, word, MatchType.LEMMA) }
+        // 3c — POS-aware lemma CSV
         val gPos = heuristicPos(word)
         if (gPos != null) lookup.lookupLemmaPos(word, gPos)?.let {
             return lookup.toSymbol(it, word, word, MatchType.LEMMA)
         }
+        // 3d — rule-based de-affixation
         for (candidate in simpleDeaffix(word)) {
             lookup.lookupSurface(candidate)?.let { return lookup.toSymbol(it, word, candidate, MatchType.LEMMA) }
             lookup.lookupLemma(candidate)?.let   { return lookup.toSymbol(it, word, candidate, MatchType.LEMMA) }
@@ -151,27 +168,35 @@ class BlissTranslator(
         return unknownSymbol(word)
     }
 
-    // ── step 3 : single-token resolution (suspend, adds Morfologik tier) ──────
+    // ── step 3 : single-token resolution (suspend — Morfologik is primary) ────
 
     private suspend fun resolveTokenSuspend(word: String, lang: String): BlissSymbol {
-        // Tier 3a — exact surface
+        // Tier 3a — exact surface (lexicon JSON) — fastest, no lemmatization needed
         lookup.lookupSurface(word)?.let { return lookup.toSymbol(it, word, word, MatchType.EXACT) }
-        // Tier 3b — plain lemma
-        lookup.lookupLemma(word)?.let   { return lookup.toSymbol(it, word, word, MatchType.LEMMA) }
-        // Tier 3c — POS-aware heuristic
+
+        // Tier 3b — MORFOLOGIK FSA: surface → lemma(s) → CSV HashMap
+        //   Primary lemmatization path. Covers all inflected forms for
+        //   IT/EN/DE/FR/ES/NL/PT/PL when .dict assets are present.
+        morfologik?.lemmatize(word, lang)?.forEach { lemma ->
+            lookup.lookupSurface(lemma)?.let { return lookup.toSymbol(it, word, lemma, MatchType.LEMMA) }
+            lookup.lookupLemma(lemma)?.let   { return lookup.toSymbol(it, word, lemma, MatchType.LEMMA) }
+            val gPosM = heuristicPos(lemma)
+            if (gPosM != null) lookup.lookupLemmaPos(lemma, gPosM)?.let {
+                return lookup.toSymbol(it, word, lemma, MatchType.LEMMA)
+            }
+        }
+
+        // Tier 3c — plain lemma CSV (canonical forms, e.g. word typed as-is = lemma)
+        lookup.lookupLemma(word)?.let { return lookup.toSymbol(it, word, word, MatchType.LEMMA) }
+
+        // Tier 3d — POS-aware lemma CSV
         val gPos = heuristicPos(word)
         if (gPos != null) lookup.lookupLemmaPos(word, gPos)?.let {
             return lookup.toSymbol(it, word, word, MatchType.LEMMA)
         }
-        // Tier 3c2 — MORFOLOGIK FSA (IT/EN/DE; no-op if dict absent)
-        morfologik?.lemmatize(word, lang)?.forEach { lemma ->
-            lookup.lookupSurface(lemma)?.let { return lookup.toSymbol(it, word, lemma, MatchType.LEMMA) }
-            lookup.lookupLemma(lemma)?.let   { return lookup.toSymbol(it, word, lemma, MatchType.LEMMA) }
-            if (gPos != null) lookup.lookupLemmaPos(lemma, gPos)?.let {
-                return lookup.toSymbol(it, word, lemma, MatchType.LEMMA)
-            }
-        }
-        // Tier 3d — rule-based de-affixation
+
+        // Tier 3e — rule-based de-affixation (language-agnostic heuristics)
+        //   Covers OOV words not in any FSA (rare proper nouns, neologisms)
         for (candidate in simpleDeaffix(word)) {
             lookup.lookupSurface(candidate)?.let { return lookup.toSymbol(it, word, candidate, MatchType.LEMMA) }
             lookup.lookupLemma(candidate)?.let   { return lookup.toSymbol(it, word, candidate, MatchType.LEMMA) }
@@ -179,9 +204,11 @@ class BlissTranslator(
                 return lookup.toSymbol(it, word, candidate, MatchType.LEMMA)
             }
         }
-        // Tier 3e — Room FTS4 exact (suspend DB call, catches words added later)
+
+        // Tier 3f — Room FTS4 exact (suspend DB call)
         lookup.lookupSurfaceDb(word)?.let { return lookup.toSymbol(it, word, word, MatchType.EXACT) }
-        // Tier 3f — UNKNOWN
+
+        // Tier 3g — UNKNOWN
         return unknownSymbol(word)
     }
 

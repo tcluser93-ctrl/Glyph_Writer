@@ -16,30 +16,49 @@ import java.util.Locale
 /**
  * Offline morphological lemmatizer backed by Morfologik FSA dictionaries.
  *
+ * ## Architecture
+ * This is the **primary lemmatization layer** in the BlissTranslator pipeline.
+ * Given a surface form ("mangeait", "geschrieben", "dormivano"), it returns the
+ * canonical lemma(s) used to look up BCI-AV symbol IDs in the CSV index.
+ *
+ * Pipeline position:
+ *   surface → [MorfologikLemmatizer] → lemma → CSV HashMap → BCI-AV ID
+ *
  * ## Asset layout
  * ```
  * assets/morfologik/
- *   it.dict   — Italian FSA dictionary   (~3.8 MB, LGPL)
- *   it.info   — Italian dict metadata
- *   en.dict   — English FSA dictionary   (~4.1 MB, BSD)
- *   en.info   — English dict metadata
- *   de.dict   — German FSA dictionary    (~5.2 MB, LGPL)
- *   de.info   — German dict metadata
+ *   it.dict / it.info   — Italian   FSA  (~3.8 MB, LanguageTool LGPL)
+ *   en.dict / en.info   — English   FSA  (~4.1 MB, LanguageTool BSD)
+ *   de.dict / de.info   — German    FSA  (~5.2 MB, LanguageTool LGPL)
+ *   fr.dict / fr.info   — French    FSA  (~3.5 MB, LanguageTool LGPL)
+ *   es.dict / es.info   — Spanish   FSA  (~4.8 MB, LanguageTool LGPL)
+ *   nl.dict / nl.info   — Dutch     FSA  (~2.9 MB, LanguageTool LGPL)
+ *   pt.dict / pt.info   — Portuguese FSA (~3.2 MB, LanguageTool LGPL)
+ *   pl.dict / pl.info   — Polish    FSA  (~6.1 MB, Morfologik native)
  * ```
  *
- * Dictionaries are NOT bundled in the repo (binary assets, download separately).
- * See: https://github.com/morfologik/morfologik-stemming/releases
+ * Source: extract from LanguageTool JARs:
+ *   jar xf languagetool-language-modules-{lang}.jar
+ *   → org/languagetool/resource/{lang}/{lang}.dict
+ *   → org/languagetool/resource/{lang}/{lang}.info
  *
  * ## Thread-safety
  * Each language has its own [Mutex]. The first call for a language copies the
- * asset to [Context.filesDir], opens the [DictionaryLookup] once, and caches
- * it. Subsequent calls are lock-free reads on the cached [IStemmer].
+ * asset to [Context.filesDir]/morfologik/, opens the [DictionaryLookup] once,
+ * and caches it. Subsequent calls skip the lock entirely (fast path).
+ *
+ * ## Graceful degradation
+ * If a .dict asset is absent, [lemmatize] returns an empty list — the
+ * BlissTranslator pipeline continues with rule-based de-affixation (tier 3d).
  *
  * ## Usage
  * ```kotlin
  * val lemmatizer = MorfologikLemmatizer(context)
- * val lemmas = lemmatizer.lemmatize("walking", "en")  // ["walk"]
- * val lemmas = lemmatizer.lemmatize("camminando", "it") // ["camminare"]
+ * val lemmas = lemmatizer.lemmatize("walking", "en")      // → ["walk"]
+ * val lemmas = lemmatizer.lemmatize("camminando", "it")   // → ["camminare"]
+ * val lemmas = lemmatizer.lemmatize("geschrieben", "de")  // → ["schreiben"]
+ * val lemmas = lemmatizer.lemmatize("mangeait", "fr")     // → ["manger"]
+ * val lemmas = lemmatizer.lemmatize("dormivano", "es")    // → ["dormir"]
  * ```
  *
  * @param context Application context (used for [Context.filesDir] and assets).
@@ -47,8 +66,8 @@ import java.util.Locale
 class MorfologikLemmatizer(private val context: Context) {
 
     // ── per-language stemmer cache ─────────────────────────────────────────
-    private val cache  = HashMap<String, IStemmer?>(4)
-    private val mutexMap = HashMap<String, Mutex>(4).apply {
+    private val cache    = HashMap<String, IStemmer?>(8)
+    private val mutexMap = HashMap<String, Mutex>(8).apply {
         DICT_LANGS.forEach { lang -> put(lang, Mutex()) }
     }
 
@@ -63,7 +82,7 @@ class MorfologikLemmatizer(private val context: Context) {
      * **Must** be called from a coroutine; runs on [Dispatchers.IO].
      *
      * @param word  Surface word, any case (will be lowercased internally).
-     * @param lang  ISO-639-1 code, e.g. `"it"`, `"en"`, `"de"`.
+     * @param lang  ISO-639-1 code, e.g. `"it"`, `"en"`, `"de"`, `"fr"`, `"es"`.
      */
     suspend fun lemmatize(word: String, lang: String): List<String> {
         val l = lang.lowercase(Locale.ROOT).take(2)
@@ -120,7 +139,7 @@ class MorfologikLemmatizer(private val context: Context) {
         val dir = File(context.filesDir, "morfologik").also { it.mkdirs() }
         return try {
             val dictFile = ensureExtracted(lang, "dict", dir)
-            val infoFile = ensureExtracted(lang, "info", dir)
+            ensureExtracted(lang, "info", dir)
             val dict = Dictionary.read(dictFile.toPath())
             DictionaryLookup(dict).also {
                 Log.i(TAG, "Morfologik [$lang] loaded — ${dictFile.length() / 1024} KB")
@@ -151,10 +170,26 @@ class MorfologikLemmatizer(private val context: Context) {
         private const val TAG = "MorfologikLemmatizer"
 
         /**
-         * Languages for which FSA dictionaries are expected.
-         * Extend by adding `{lang}.dict` + `{lang}.info` to
-         * `assets/morfologik/` and adding the code here.
+         * All supported language codes.
+         * Each requires `assets/morfologik/{lang}.dict` + `{lang}.info`.
+         *
+         * Source: LanguageTool language module JARs (LGPL/BSD).
+         * Polish: Morfologik native dictionary.
+         *
+         * To add a language:
+         *   1. Extract {lang}.dict + {lang}.info from the LT JAR
+         *   2. Place in app/src/main/assets/morfologik/
+         *   3. Add the ISO-639-1 code to this set
          */
-        val DICT_LANGS: Set<String> = setOf("it", "en", "de")
+        val DICT_LANGS: Set<String> = setOf(
+            "it",  // Italian   — LanguageTool LGPL
+            "en",  // English   — LanguageTool BSD
+            "de",  // German    — LanguageTool LGPL
+            "fr",  // French    — LanguageTool LGPL
+            "es",  // Spanish   — LanguageTool LGPL
+            "nl",  // Dutch     — LanguageTool LGPL
+            "pt",  // Portuguese— LanguageTool LGPL
+            "pl"   // Polish    — Morfologik native
+        )
     }
 }
