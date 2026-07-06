@@ -109,7 +109,7 @@
     <string name="bliss_chip_tooltip">BCI-AV: %1$d · %2$s · word: %3$s · match: %4$s · indicators: %5$s</string>
     <string name="bliss_chip_no_indicators">none</string>
 
-    <!-- Language names array -->
+    <!-- Language names + codes arrays (must be same length and same order) -->
     <string-array name="bliss_language_names">
         <item>English</item>
         <item>Norwegian</item>
@@ -122,25 +122,46 @@
         <item>Russian</item>
         <item>Polish</item>
     </string-array>
+    <string-array name="bliss_language_codes">
+        <item>en</item>
+        <item>no</item>
+        <item>sv</item>
+        <item>fi</item>
+        <item>hu</item>
+        <item>de</item>
+        <item>nl</item>
+        <item>lv</item>
+        <item>ru</item>
+        <item>pl</item>
+    </string-array>
 
     <!-- ============================================================
-         History — fragment_history.xml (E-04)
+         History — fragment_history.xml + BlissHistoryFragment (E-04)
     ============================================================ -->
     <string name="history_search_hint">Search history…</string>
     <string name="history_empty_title">No translations yet</string>
     <string name="history_empty_subtitle">Your translation history will appear here.</string>
     <string name="history_clear_all">Clear all</string>
     <string name="history_delete_entry">Delete entry</string>
+    <string name="history_deleted">Entry deleted</string>
     <string name="history_undo">Undo</string>
     <string name="history_coverage_fmt">Coverage: %d%%</string>
 
+    <!-- Plurals — used by BlissHistoryFragment (R.plurals.history_items_deleted) -->
+    <plurals name="history_items_deleted">
+        <item quantity="one">%d entry deleted</item>
+        <item quantity="other">%d entries deleted</item>
+    </plurals>
+
     <!-- ============================================================
-         Export — bottom_sheet_export.xml (Blocco D)
+         Export — bottom_sheet_export.xml + ExportBottomSheetFragment (Blocco D)
     ============================================================ -->
     <string name="export_title">Export translation</string>
     <string name="export_svg">Save as SVG</string>
     <string name="export_png">Save as PNG</string>
     <string name="export_pdf">Save as PDF</string>
+    <string name="export_error_generic">Export failed. Please try again.</string>
+    <string name="export_share_title">Share Bliss translation</string>
 
     <!-- ============================================================
          Vocabulary
