@@ -41,6 +41,9 @@
     <string name="menu_item_about">About this App</string>
     <string name="navigation_description">Navigation</string>
 
+    <!-- Generic actions -->
+    <string name="undo">Undo</string>
+
     <!-- Navigation drawer -->
     <string name="nav_drawer_open">Open navigation drawer</string>
     <string name="nav_drawer_close">Close navigation drawer</string>
@@ -136,7 +139,7 @@
     </string-array>
 
     <!-- ============================================================
-         History — fragment_history.xml + BlissHistoryFragment (E-04)
+         History — BlissHistoryFragment (E-04)
     ============================================================ -->
     <string name="history_search_hint">Search history…</string>
     <string name="history_empty_title">No translations yet</string>
@@ -144,8 +147,10 @@
     <string name="history_clear_all">Clear all</string>
     <string name="history_delete_entry">Delete entry</string>
     <string name="history_deleted">Entry deleted</string>
+    <string name="history_cleared">History cleared</string>
     <string name="history_undo">Undo</string>
     <string name="history_coverage_fmt">Coverage: %d%%</string>
+    <string name="history_symbol_count">%d symbol(s)</string>
 
     <!-- Plurals — used by BlissHistoryFragment (R.plurals.history_items_deleted) -->
     <plurals name="history_items_deleted">
@@ -154,7 +159,7 @@
     </plurals>
 
     <!-- ============================================================
-         Export — bottom_sheet_export.xml + ExportBottomSheetFragment (Blocco D)
+         Export — ExportBottomSheetFragment (Blocco D)
     ============================================================ -->
     <string name="export_title">Export translation</string>
     <string name="export_svg">Save as SVG</string>
