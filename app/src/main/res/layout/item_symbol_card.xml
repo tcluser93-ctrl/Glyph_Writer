@@ -17,6 +17,7 @@
         android:padding="20dp"
         android:gravity="center_horizontal">
 
+        <!-- Contatore posizione (es. "2 / 5") -->
         <TextView
             android:id="@+id/card_position"
             android:layout_width="match_parent"
@@ -26,14 +27,41 @@
             android:textColor="@color/l_textColor"
             android:layout_marginBottom="8dp" />
 
+        <!--
+            E-01 — SVG reale al posto del rettangolo beige.
+            FrameLayout sovrappone:
+              • ImageView  → mostra il PictureDrawable BCI-AV
+              • ProgressBar → visibile durante il caricamento async
+
+            layerType=SOFTWARE è obbligatorio per PictureDrawable
+            (android.graphics.Picture usa operazioni Canvas non supportate
+            da hardware acceleration su API < 28).
+        -->
         <FrameLayout
-            android:id="@+id/card_symbol_svg_placeholder"
             android:layout_width="180dp"
             android:layout_height="180dp"
             android:layout_gravity="center_horizontal"
-            android:background="@color/l_backgroundDarker"
-            android:layout_marginBottom="20dp" />
+            android:layout_marginBottom="20dp">
 
+            <ImageView
+                android:id="@+id/card_symbol_svg_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitCenter"
+                android:layerType="software"
+                android:contentDescription=""
+                android:background="@color/l_backgroundDarker" />
+
+            <ProgressBar
+                android:id="@+id/card_symbol_svg_progress"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:visibility="visible" />
+
+        </FrameLayout>
+
+        <!-- Gloss canonico BCI-AV -->
         <TextView
             android:id="@+id/card_gloss"
             android:layout_width="match_parent"
@@ -44,6 +72,7 @@
             android:textColor="@color/l_textColorPrimary"
             android:layout_marginBottom="8dp" />
 
+        <!-- Parola sorgente digitata dall'utente -->
         <TextView
             android:id="@+id/card_source_word"
             android:layout_width="match_parent"
@@ -53,6 +82,7 @@
             android:textColor="@color/l_textColor"
             android:layout_marginBottom="12dp" />
 
+        <!-- Badge tipo di match -->
         <TextView
             android:id="@+id/card_match_badge"
             android:layout_width="wrap_content"
