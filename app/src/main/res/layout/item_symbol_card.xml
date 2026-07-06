@@ -1,18 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  item_symbol_card.xml
-  Card grande per la modalita CAA simbolo per simbolo (Blocco C).
-
-  Struttura:
-    MaterialCardView
-      +-- LinearLayout (vertical)
-            +-- card_position      -- "1 / 5" (top-end, piccolo)
-            +-- card_symbol_svg_placeholder -- FrameLayout che il Fragment
-            |                                  popola con la ImageView SVG
-            +-- card_gloss         -- nome canonico BCI-AV (grande, centrato)
-            +-- card_source_word   -- parola sorgente dell'utente (secondario)
-            +-- card_match_badge   -- tipo di match (badge colorato)
--->
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -31,7 +17,6 @@
         android:padding="20dp"
         android:gravity="center_horizontal">
 
-        <!-- Contatore posizione: "1 / 5" -->
         <TextView
             android:id="@+id/card_position"
             android:layout_width="match_parent"
@@ -41,7 +26,6 @@
             android:textColor="@color/l_textColor"
             android:layout_marginBottom="8dp" />
 
-        <!-- Placeholder SVG: il Fragment inietta qui una ImageView con Bitmap -->
         <FrameLayout
             android:id="@+id/card_symbol_svg_placeholder"
             android:layout_width="180dp"
@@ -50,7 +34,6 @@
             android:background="@color/l_backgroundDarker"
             android:layout_marginBottom="20dp" />
 
-        <!-- Gloss: nome canonico BCI-AV -->
         <TextView
             android:id="@+id/card_gloss"
             android:layout_width="match_parent"
@@ -61,7 +44,6 @@
             android:textColor="@color/l_textColorPrimary"
             android:layout_marginBottom="8dp" />
 
-        <!-- Parola sorgente dell'utente -->
         <TextView
             android:id="@+id/card_source_word"
             android:layout_width="match_parent"
@@ -71,7 +53,6 @@
             android:textColor="@color/l_textColor"
             android:layout_marginBottom="12dp" />
 
-        <!-- Badge tipo di match -->
         <TextView
             android:id="@+id/card_match_badge"
             android:layout_width="wrap_content"
