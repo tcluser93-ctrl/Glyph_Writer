@@ -29,7 +29,7 @@ import java.util.regex.Pattern
  *       3d. POS-aware heuristic + CSV                   → LEMMA
  *       3e. Rule-based de-affixation                    → LEMMA
  *       3f. Room FTS4 exact                             → EXACT
- *       3g. Semantic composition ([BlissSemanticComposer])  → COMPOUND  ← PATCH 3
+ *       3g. Semantic composition ([BlissSemanticComposer])  → SEMANTIC / per-component ← PATCH 7
  *       3h. UNKNOWN
  *
  *  Tier 3b now uses [MorfologikLemmatizer.analyzeWithTags] to obtain both the
@@ -41,22 +41,17 @@ import java.util.regex.Pattern
  *  for multi-token patterns (auxiliaries, periphrastic tenses) not expressible
  *  in a single FSA tag.
  *
- *  Tier 3g (Patch 3) uses [BlissSemanticComposer.compose] as the last intelligent
- *  fallback before UNKNOWN: it decomposes the word via pivot-split and returns a
- *  [BlissSymbol.MatchType.COMPOUND] symbol when at least two fragments resolve.
+ *  Tier 3g (Patch 7) now calls [BlissSemanticComposer.composeStructured] instead
+ *  of the legacy [BlissSemanticComposer.compose] shim.  Each [ResolvedBlissComponent]
+ *  in the resulting [ComposedBlissWord] is converted to a separate [BlissSymbol]
+ *  with [MatchType.SEMANTIC], so a single input token can expand to N output symbols
+ *  (one per semantic component).  The old COMPOUND single-symbol path is removed.
  *  If [composer] is null (default), this tier is silently skipped.
  *
  * ## Patch 4 — 1-token → N-symbols
  *
- *  [resolveTokenSuspend] now returns `List<BlissSymbol>` instead of a single
- *  symbol.  [resolveNgramsAndTokensSuspend] consumes the list via `addAll()`.
- *  The change is **internal only**: the public signatures of [translate] and
- *  [translateAsync] are unchanged (`List<BlissSymbol>` in both cases).
- *
- *  Currently every tier still produces exactly one symbol, so the runtime
- *  behaviour is identical to Patch 3.  Future patches can expand tier 3g (or
- *  add a tier 3g2) to return multiple component symbols when the composer
- *  decomposes a word into N fragments.
+ *  [resolveTokenSuspend] returns `List<BlissSymbol>`.  Patch 7 takes full advantage
+ *  of this: tier 3g may now return more than one symbol per input token.
  *
  * Morfologik covers all 8 languages (it, en, de, fr, es, nl, pl, pt).
  * When the .dict asset is absent for a language, that tier degrades
@@ -156,10 +151,6 @@ class BlissTranslator(
     }
 
     // ── step 2+3 : greedy n-gram + per-token (suspend, Morfologik-first) ─────
-    //
-    // Patch 4: resolveTokenSuspend() now returns List<BlissSymbol>.
-    // result.addAll() replaces the previous single += assignment so that a
-    // single input token can expand to multiple output symbols in future tiers.
 
     private suspend fun resolveNgramsAndTokensSuspend(
         text: String,
@@ -214,13 +205,12 @@ class BlissTranslator(
     //   3d. POS-aware heuristic guess + CSV             → LEMMA
     //   3e. Rule-based de-affixation + CSV              → LEMMA
     //   3f. Room FTS4 exact                             → EXACT
-    //   3g. Semantic composition (BlissSemanticComposer) → COMPOUND     ← PATCH 3
+    //   3g. Semantic composition → one BlissSymbol per ResolvedBlissComponent ← PATCH 7
     //   3h. UNKNOWN
     //
-    // Patch 4: returns List<BlissSymbol> instead of a single BlissSymbol.
-    // All existing tiers (3a–3f, 3h) return listOf(symbol) — single-element list.
-    // Tier 3g wraps the COMPOUND symbol in listOf(); future patches may expand
-    // it to return one symbol per component fragment.
+    // Patch 7: tier 3g calls composeStructured() and expands each
+    // ResolvedBlissComponent into a separate BlissSymbol(MatchType.SEMANTIC).
+    // A single input token may now produce N output symbols.
 
     private suspend fun resolveTokenSuspend(word: String, lang: String): List<BlissSymbol> {
         // Tier 3a — exact surface (lexicon JSON: idioms, proper nouns, symbols)
@@ -229,17 +219,9 @@ class BlissTranslator(
         }
 
         // Tier 3b — MORFOLOGIK FSA: inflected form → canonical lemma + POS tag → BCI-AV
-        //
-        // analyzeWithTags() returns a List<LemmaAnalysis> where each entry carries:
-        //   • lemma       — canonical base form produced by the FSA
-        //   • rawTag      — raw POS tag string (e.g. "VER:pres:3:s", "NOU:m:p")
-        //   • blissIndicators — pre-mapped Set<String> from MorfologikTagMapper
-        //
-        // Per-token indicators are applied directly to the resolved symbol so that
-        // downstream attachIndicators() can detect already-tagged tokens and skip them.
         morfologik?.analyzeWithTags(word, lang)?.forEach { analysis ->
             val lemma           = analysis.lemma
-            val tokenIndicators = analysis.blissIndicators   // Set<String> from MorfologikTagMapper
+            val tokenIndicators = analysis.blissIndicators
 
             lookup.lookupSurface(lemma)?.let {
                 val sym = lookup.toSymbol(it, word, lemma, MatchType.LEMMA)
@@ -286,16 +268,43 @@ class BlissTranslator(
             return listOf(lookup.toSymbol(it, word, word, MatchType.EXACT))
         }
 
-        // Tier 3g — Semantic composition (last intelligent fallback before UNKNOWN).
-        // Returns listOf(compoundSymbol) — single COMPOUND symbol with componentIds.
-        // Future patch: expand to list of component symbols when composer supports it.
-        // composer is null by default; pass BlissSemanticComposer(lookup) to enable.
-        composer?.compose(word, lang)?.let {
-            return listOf(it)
+        // Tier 3g — Semantic composition (Patch 7).
+        // composeStructured() returns a ComposedBlissWord whose components list
+        // is expanded here: one BlissSymbol(SEMANTIC) per ResolvedBlissComponent.
+        // This replaces the old compose() → single COMPOUND symbol path.
+        composer?.composeStructured(word, lang)?.let { composed ->
+            val componentSymbols = composed.components.map { component ->
+                BlissSymbol(
+                    bciAvId    = component.bciSymbolId,
+                    name       = component.lemma,
+                    sourceWord = word,
+                    lemma      = component.lemma,
+                    matchType  = MatchType.SEMANTIC
+                ).let { sym ->
+                    // Carry over any indicators encoded on the component (e.g. tense overlays)
+                    val indNames = component.renderAttachments
+                        .filter { it.isOverlay }
+                        .mapNotNull { indicatorIdToName(it.bciIndicatorId) }
+                    if (indNames.isEmpty()) sym else sym.withIndicators(indNames)
+                }
+            }
+            if (componentSymbols.isNotEmpty()) return componentSymbols
         }
 
         // Tier 3h — UNKNOWN
         return listOf(unknownSymbol(word))
+    }
+
+    /**
+     * Maps a BCI combining-indicator id to the Bliss indicator name used by
+     * [attachIndicators].  Returns null for unknown ids so they are silently
+     * dropped rather than crashing the pipeline.
+     */
+    private fun indicatorIdToName(bciIndicatorId: Int): String? = when (bciIndicatorId) {
+        BCI_INDICATOR_PLURAL -> INDICATOR_PLURAL
+        BCI_INDICATOR_PAST   -> INDICATOR_PAST
+        BCI_INDICATOR_FUTURE -> INDICATOR_FUTURE
+        else                 -> null
     }
 
     private fun unknownSymbol(word: String) = BlissSymbol(
@@ -353,9 +362,6 @@ class BlissTranslator(
      * carry per-token indicators (i.e. symbols whose [BlissSymbol.indicators] list
      * is empty).  This prevents double-tagging for tokens resolved via Morfologik
      * tier 3b in [resolveTokenSuspend], which already embed per-token indicators.
-     *
-     * In the sync pipeline ([translate]) all symbols have empty indicators by
-     * construction, so this method behaves identically to the previous version.
      */
     internal fun attachIndicators(
         symbols: List<BlissSymbol>,
@@ -365,7 +371,7 @@ class BlissTranslator(
         return symbols.map { sym ->
             when {
                 sym.matchType == MatchType.UNKNOWN -> sym
-                sym.indicators.isNotEmpty()        -> sym   // already tagged by tier 3b
+                sym.indicators.isNotEmpty()        -> sym
                 else                               -> sym.withIndicators(indicators.toList())
             }
         }
@@ -439,6 +445,11 @@ class BlissTranslator(
         const val INDICATOR_PLURAL = "plural"
         const val INDICATOR_PAST   = "past"
         const val INDICATOR_FUTURE = "future"
+
+        // BCI combining-indicator ids used by indicatorIdToName()
+        private const val BCI_INDICATOR_PLURAL = 9011
+        private const val BCI_INDICATOR_PAST   = 9007
+        private const val BCI_INDICATOR_FUTURE = 9008
 
         private val PUNCT_RE = Pattern.compile("[^\\p{L}\\p{Nd}\\s'-]").toRegex()
         private val SPACE_RE = Pattern.compile("\\s+").toRegex()
