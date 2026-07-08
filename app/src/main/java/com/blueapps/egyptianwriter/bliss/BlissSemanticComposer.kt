@@ -7,7 +7,19 @@ import java.util.Locale
  * Tier 3g — Semantic composition helper.
  *
  * Replaces the legacy orthographic pivot-split with a three-stage strategy
- * that respects the BCI/Bliss compositional principles:
+ * that respects the BCI/Bliss compositional principles.
+ *
+ * ## Patch 6 additions
+ *
+ * [composeStructured] is the new primary entry point.  It returns a
+ * [ComposedBlissWord] that preserves per-component symbol, lemma, POS,
+ * indicators and render-attachment metadata.  The structured output feeds
+ * directly into [BlissRenderer]'s overlay pipeline.
+ *
+ * The legacy [compose] method is kept as a backward-compatibility shim:
+ * it calls [composeStructured] and collapses the result via
+ * [ComposedBlissWord.toFlatSymbol].  Callers should migrate to
+ * [composeStructured] at their own pace.
  *
  * ## Stage A — Direct synset match (WordNet/BlissNet)
  * If the input token can be resolved to a BCI-AV ID (surface or lemma lookup)
@@ -57,51 +69,60 @@ class BlissSemanticComposer(
             .groupBy(keySelector = { it.value }, valueTransform = { it.key })
     }
 
-    // ── public entry point ────────────────────────────────────────────────────
+    // ── public entry points ───────────────────────────────────────────────────
 
     /**
-     * Attempts to compose [word] into a [BlissSymbol] using semantic strategies.
+     * Primary structured entry point (Patch 6).
+     *
+     * Returns a [ComposedBlissWord] preserving per-component lemma, POS,
+     * indicators and overlay metadata.  Prefer this over [compose] for all
+     * new callers.
      *
      * @param word  Lower-cased surface token that has already failed tiers 3a–3f.
-     * @param lang  ISO-639-1 language code (informational; lookup is lang-independent
-     *              because [BlissLookup] is already initialised for the active language).
-     * @return      A [BlissSymbol] (SEMANTIC or COMPOUND match type), or `null` if
-     *              all stages fail.
+     * @param lang  ISO-639-1 language code.
+     * @return      A [ComposedBlissWord], or `null` if all stages fail.
      */
-    fun compose(word: String, @Suppress("UNUSED_PARAMETER") lang: String): BlissSymbol? {
+    fun composeStructured(word: String, lang: String): ComposedBlissWord? {
         val w = word.lowercase(Locale.ROOT)
         if (w.isBlank()) return null
 
-        // Stage A — direct synset match
-        stageA(w)?.let { return it }
+        stageAStructured(w, lang)?.let { return it }
+        stageBStructured(w, lang)?.let { return it }
 
-        // Stage B — hypernym classifier via synset bucket
-        stageB(w)?.let { return it }
-
-        // Stage C — orthographic pivot-split (optional legacy fallback)
         if (enableOrthographicFallback && w.length >= MIN_WORD_LEN) {
-            stageC(w, word)?.let { return it }
+            stageCStructured(w, word, lang)?.let { return it }
         }
 
-        Log.v(TAG, "compose: all stages failed for '$w'")
+        Log.v(TAG, "composeStructured: all stages failed for '$w'")
         return null
     }
 
-    // ── Stage A ───────────────────────────────────────────────────────────────
+    /**
+     * Legacy flat entry point — backward-compatibility shim.
+     *
+     * Delegates to [composeStructured] and collapses the result via
+     * [ComposedBlissWord.toFlatSymbol].  Existing callers in
+     * [BlissTranslator] tier 3g continue to work without changes.
+     *
+     * @deprecated Migrate callers to [composeStructured] to benefit from
+     *             per-component indicators and SVG overlay support.
+     */
+    fun compose(word: String, lang: String): BlissSymbol? =
+        composeStructured(word, lang)?.toFlatSymbol()
+
+    // ── Stage A (structured) ─────────────────────────────────────────────────
 
     /**
-     * Resolves [word] to a BCI-AV ID and then checks whether the inverted synset
-     * index contains that same synset offset.  On a hit, returns a [BlissSymbol]
-     * whose [BlissSymbol.matchType] is [BlissSymbol.MatchType.SEMANTIC].
+     * Resolves [word] to a BCI-AV ID and checks whether the inverted synset
+     * index contains that same synset offset.  Returns a [ComposedBlissWord]
+     * with a single [ResolvedBlissComponent] carrying [BlissSymbol.MatchType.SEMANTIC].
      *
-     * The logic:
-     * 1. Try surface lookup then lemma lookup → candidate BCI ID
-     * 2. Get its synset offset via [BlissLookup.synsetOf]
-     * 3. Find all BCI IDs sharing that synset; prefer the candidate itself,
-     *    otherwise pick the first alternative.
+     * Re-lemmatisation: if [BlissLookup.lookupSurface] misses but
+     * [BlissLookup.lookupLemma] hits, the component's [ResolvedBlissComponent.lemma]
+     * records the resolved lemma rather than the surface form.
      */
-    private fun stageA(word: String): BlissSymbol? {
-        val candidateId = lookup.lookupSurface(word) ?: lookup.lookupLemma(word) ?: return null
+    private fun stageAStructured(word: String, lang: String): ComposedBlissWord? {
+        val (candidateId, resolvedLemma) = resolveSurfaceOrLemma(word) ?: return null
         val synset = lookup.synsetOf(candidateId)
         if (synset < 0L) return null
 
@@ -109,41 +130,55 @@ class BlissSemanticComposer(
             ?.let { ids -> ids.firstOrNull { it == candidateId } ?: ids.firstOrNull() }
             ?: return null
 
-        Log.d(TAG, "stageA: '$word' → BCI $matchId (synset=$synset)")
-        return lookup.toSymbol(
+        Log.d(TAG, "stageAStructured: '$word' → BCI $matchId (synset=$synset)")
+        val symbol = lookup.toSymbol(
             id     = matchId,
             source = word,
-            lemma  = word,
+            lemma  = resolvedLemma,
             mt     = BlissSymbol.MatchType.SEMANTIC
+        )
+        val component = ResolvedBlissComponent(
+            symbol     = symbol,
+            lemma      = resolvedLemma,
+            indicators = symbol.indicators
+        )
+        return ComposedBlissWord(
+            sourceWord       = word,
+            lemma            = resolvedLemma,
+            sourceLang       = lang,
+            components       = listOf(component),
+            compositionStage = ComposedBlissWord.Stage.A
         )
     }
 
-    // ── Stage B ───────────────────────────────────────────────────────────────
+    // ── Stage A (legacy shim, kept for internal consistency) ─────────────────
+
+    private fun stageA(word: String): BlissSymbol? =
+        stageAStructured(word, "")?.toFlatSymbol()
+
+    // ── Stage B (structured) ─────────────────────────────────────────────────
 
     /**
-     * Attempts a hypernym-level semantic match.
+     * Hypernym classifier via synset bucket proximity.
      *
-     * When the token resolves to a BCI ID with a synset, we search the inverted
-     * index for the BCI symbol whose synset offset is closest within the same
-     * WordNet semantic bucket (coarse noun/verb/adj offset ranges).  That symbol
-     * acts as the BCI **classifier**.  If a direct specifier BCI ID is also
-     * available, a two-element SEMANTIC composition is returned; otherwise the
-     * classifier alone is returned as a best-effort semantic approximation.
+     * Returns a [ComposedBlissWord] with either one component (classifier ==
+     * specifier) or two components (classifier + specifier) where each carries
+     * its own [ResolvedBlissComponent.lemma] and empty indicators ready for the
+     * indicator-attachment tier.
      *
-     * WordNet offset buckets (approximate, Princeton WN 3.1):
+     * WordNet offset buckets (Princeton WN 3.1):
      * - Nouns:  100 000 000 – 113 999 999
      * - Verbs:  200 000 000 – 202 999 999
      * - Adj:    300 000 000 – 302 999 999
      * - Adv:    400 000 000 – 402 999 999
      */
-    private fun stageB(word: String): BlissSymbol? {
-        val specifierId = lookup.lookupSurface(word) ?: lookup.lookupLemma(word) ?: return null
-        val specSynset  = lookup.synsetOf(specifierId)
+    private fun stageBStructured(word: String, lang: String): ComposedBlissWord? {
+        val (specifierId, resolvedLemma) = resolveSurfaceOrLemma(word) ?: return null
+        val specSynset = lookup.synsetOf(specifierId)
         if (specSynset < 0L) return null
 
         val bucket = wordnetBucket(specSynset)
 
-        // Find BCI ID whose synset is closest within the same bucket
         var bestId    = -1
         var bestDelta = Long.MAX_VALUE
         for ((bciId, bciSynset) in lookup.synsets) {
@@ -156,43 +191,55 @@ class BlissSemanticComposer(
         }
         if (bestId < 0) return null
 
-        val classifierSynset = lookup.synsetOf(bestId)
-        Log.d(TAG, "stageB: '$word' → classifier BCI $bestId (synset=$classifierSynset, " +
-                "specifier BCI $specifierId, delta=$bestDelta)")
+        Log.d(TAG, "stageBStructured: '$word' → classifier BCI $bestId, specifier BCI $specifierId, delta=$bestDelta")
 
-        // Build a SEMANTIC composition [classifier, specifier] if they differ
-        return if (bestId != specifierId) {
-            val classifierName = lookup.nameOf(bestId)
-            val specifierName  = lookup.nameOf(specifierId)
-            BlissSymbol(
-                bciAvId      = BlissSymbol.COMPOUND_SYMBOL_ID,
-                name         = "$classifierName+$specifierName",
-                synsetId     = specSynset,
-                sourceWord   = word,
-                lemma        = word,
-                matchType    = BlissSymbol.MatchType.SEMANTIC,
-                componentIds = listOf(bestId, specifierId)
-            )
-        } else {
-            // Classifier == specifier: single-symbol approximation
-            lookup.toSymbol(
+        val components: List<ResolvedBlissComponent> = if (bestId != specifierId) {
+            val classifierSymbol = lookup.toSymbol(
                 id     = bestId,
                 source = word,
-                lemma  = word,
+                lemma  = lookup.nameOf(bestId),
                 mt     = BlissSymbol.MatchType.SEMANTIC
             )
+            val specifierSymbol = lookup.toSymbol(
+                id     = specifierId,
+                source = word,
+                lemma  = resolvedLemma,
+                mt     = BlissSymbol.MatchType.SEMANTIC
+            )
+            listOf(
+                ResolvedBlissComponent(symbol = classifierSymbol, lemma = classifierSymbol.lemma),
+                ResolvedBlissComponent(symbol = specifierSymbol,  lemma = resolvedLemma)
+            )
+        } else {
+            val single = lookup.toSymbol(
+                id     = bestId,
+                source = word,
+                lemma  = resolvedLemma,
+                mt     = BlissSymbol.MatchType.SEMANTIC
+            )
+            listOf(ResolvedBlissComponent(symbol = single, lemma = resolvedLemma))
         }
+
+        return ComposedBlissWord(
+            sourceWord       = word,
+            lemma            = resolvedLemma,
+            sourceLang       = lang,
+            components       = components,
+            compositionStage = ComposedBlissWord.Stage.B
+        )
     }
 
-    // ── Stage C (legacy orthographic pivot-split) ─────────────────────────────
+    private fun stageB(word: String): BlissSymbol? =
+        stageBStructured(word, "")?.toFlatSymbol()
+
+    // ── Stage C (structured, legacy orthographic pivot-split) ─────────────────
 
     /**
      * Exhaustive pivot-split over grapheme substrings.
+     * Returns a [ComposedBlissWord] with two [ResolvedBlissComponent]s (left/right).
      * Retained as an opt-in fallback ([enableOrthographicFallback] == `true`).
-     * Results carry [BlissSymbol.MatchType.COMPOUND] to distinguish them from
-     * semantically grounded Stage A/B results.
      */
-    private fun stageC(w: String, originalWord: String): BlissSymbol? {
+    private fun stageCStructured(w: String, originalWord: String, lang: String): ComposedBlissWord? {
         for (pivot in MIN_FRAGMENT_LEN..(w.length - MIN_FRAGMENT_LEN)) {
             val left  = w.substring(0, pivot)
             val right = w.substring(pivot)
@@ -200,22 +247,40 @@ class BlissSemanticComposer(
             val leftId  = resolveFragment(left)  ?: continue
             val rightId = resolveFragment(right) ?: continue
 
-            val composedName = "${lookup.nameOf(leftId)}+${lookup.nameOf(rightId)}"
-            Log.d(TAG, "stageC: '$w' → '$left'($leftId) + '$right'($rightId)")
-            return BlissSymbol(
-                bciAvId      = BlissSymbol.COMPOUND_SYMBOL_ID,
-                name         = composedName,
-                sourceWord   = originalWord,
-                lemma        = originalWord,
-                matchType    = BlissSymbol.MatchType.COMPOUND,
-                componentIds = listOf(leftId, rightId)
+            Log.d(TAG, "stageCStructured: '$w' → '$left'($leftId) + '$right'($rightId)")
+
+            val leftSymbol  = lookup.toSymbol(id = leftId,  source = left,  lemma = left,  mt = BlissSymbol.MatchType.COMPOUND)
+            val rightSymbol = lookup.toSymbol(id = rightId, source = right, lemma = right, mt = BlissSymbol.MatchType.COMPOUND)
+
+            return ComposedBlissWord(
+                sourceWord       = originalWord,
+                lemma            = originalWord,
+                sourceLang       = lang,
+                components       = listOf(
+                    ResolvedBlissComponent(symbol = leftSymbol,  lemma = left),
+                    ResolvedBlissComponent(symbol = rightSymbol, lemma = right)
+                ),
+                compositionStage = ComposedBlissWord.Stage.C
             )
         }
-        Log.v(TAG, "stageC: no valid split for '$w'")
+        Log.v(TAG, "stageCStructured: no valid split for '$w'")
         return null
     }
 
+    private fun stageC(w: String, originalWord: String): BlissSymbol? =
+        stageCStructured(w, originalWord, "")?.toFlatSymbol()
+
     // ── private helpers ───────────────────────────────────────────────────────
+
+    /**
+     * Returns a pair (bciAvId, resolvedLemma) trying surface lookup first,
+     * then lemma lookup.  Returns null if both miss.
+     */
+    private fun resolveSurfaceOrLemma(word: String): Pair<Int, String>? {
+        lookup.lookupSurface(word)?.let { return Pair(it, word) }
+        lookup.lookupLemma(word)?.let   { return Pair(it, word) }
+        return null
+    }
 
     private fun resolveFragment(fragment: String): Int? {
         if (fragment.length < MIN_FRAGMENT_LEN) return null
