@@ -19,13 +19,24 @@ package com.blueapps.egyptianwriter.bliss
  *   derived from the Morfologik FSA tag via [MorfologikTagMapper]. Empty by default.
  *   Set by [withIndicators] in tier 3b of the async pipeline.
  * - [componentIds]: ordered list of BCI-AV IDs that make up this compound symbol
- *   (only populated when [matchType] == [MatchType.COMPOUND]).
+ *   (only populated when [matchType] == [MatchType.COMPOUND] or [MatchType.SEMANTIC]).
  * - [withIndicators]: copy-helper that returns a new instance with [indicators] set.
  * - [isCompound]: convenience property — true when [matchType] == [MatchType.COMPOUND].
  * - [COMPOUND_SYMBOL_ID]: sentinel constant (-2) to identify synthetic compound nodes,
  *   distinct from [UNKNOWN_SYMBOL_ID] (-1-mapped to 17729).
  * - init block relaxed: bciAvId validation skipped for UNKNOWN and COMPOUND symbols
  *   to allow synthetic sentinel IDs.
+ *
+ * ## Patch 5 additions
+ *
+ * - [MatchType.SEMANTIC]: new match type produced by [BlissSemanticComposer] Stage A
+ *   and Stage B.  Marks compositions grounded in WordNet/BlissNet synset relations
+ *   (BCI-conformant) as opposed to [MatchType.COMPOUND] which is used for the
+ *   legacy orthographic pivot-split (Stage C, opt-in fallback).
+ * - [isSemanticComposition]: convenience property — true when
+ *   [matchType] == [MatchType.SEMANTIC].
+ * - init block updated: SEMANTIC symbols also skip the positive-bciAvId assertion
+ *   when they carry [COMPOUND_SYMBOL_ID] as a multi-component sentinel.
  *
  * @param bciAvId       Official BCI-AV identifier (> 0). E.g. 12335.
  *                      Sentinel values UNKNOWN_SYMBOL_ID and COMPOUND_SYMBOL_ID
@@ -40,7 +51,8 @@ package com.blueapps.egyptianwriter.bliss
  * @param indicators    Per-token morphological indicators (e.g. ["plural", "past"]).
  *                      Empty list = no morphological tag on this token.
  * @param componentIds  Ordered BCI-AV IDs of the constituent base symbols
- *                      (only meaningful when [matchType] == [MatchType.COMPOUND]).
+ *                      (only meaningful when [matchType] == [MatchType.COMPOUND]
+ *                      or [MatchType.SEMANTIC]).
  */
 data class BlissSymbol(
     val bciAvId:      Int,
@@ -54,15 +66,18 @@ data class BlissSymbol(
     val componentIds: List<Int>     = emptyList()
 ) {
     init {
-        // Allow sentinel IDs for UNKNOWN and COMPOUND synthetic symbols;
+        // Allow sentinel IDs for UNKNOWN, COMPOUND, and SEMANTIC synthetic symbols;
         // all other symbols must carry a positive BCI-AV ID.
-        if (matchType != MatchType.UNKNOWN && matchType != MatchType.COMPOUND) {
+        val isSentinel = matchType == MatchType.UNKNOWN
+                || matchType == MatchType.COMPOUND
+                || (matchType == MatchType.SEMANTIC && bciAvId == COMPOUND_SYMBOL_ID)
+        if (!isSentinel) {
             require(bciAvId > 0) { "bciAvId must be a positive integer, got: $bciAvId" }
         }
         require(name.isNotBlank()) { "name must not be blank for bciAvId=$bciAvId" }
     }
 
-    // ── display helpers ──────────────────────────────────────────────────────
+    // ── display helpers ───────────────────────────────────────────────
 
     /**
      * Human-readable gloss for display.
@@ -77,8 +92,13 @@ data class BlissSymbol(
     /** True when this symbol represents an unresolved/unknown token. */
     val isUnknown: Boolean get() = matchType == MatchType.UNKNOWN
 
-    /** True when this symbol was synthesised by [BlissSemanticComposer] (tier 4). */
+    /** True when this symbol was synthesised by [BlissSemanticComposer] Stage C
+     *  (orthographic pivot-split, legacy opt-in fallback). */
     val isCompound: Boolean get() = matchType == MatchType.COMPOUND
+
+    /** True when this symbol was synthesised by [BlissSemanticComposer] Stage A or B
+     *  (WordNet/BlissNet synset-grounded, BCI-conformant composition). */
+    val isSemanticComposition: Boolean get() = matchType == MatchType.SEMANTIC
 
     /**
      * Returns a copy of this symbol with the given [newIndicators] attached.
@@ -88,7 +108,7 @@ data class BlissSymbol(
     fun withIndicators(newIndicators: List<String>): BlissSymbol =
         copy(indicators = newIndicators)
 
-    // ── nested types ─────────────────────────────────────────────────────────
+    // ── nested types ─────────────────────────────────────────────────────
 
     enum class MatchType {
         /** Surface token matched directly in the lexicon. */
@@ -99,7 +119,16 @@ data class BlissSymbol(
         NGRAM,
         /** No word match; a generic category symbol was used as fallback. */
         FALLBACK_CATEGORY,
-        /** No direct lexical hit; composed from semantically related base symbols. */
+        /**
+         * Composed from semantically related base symbols via WordNet/BlissNet
+         * synset relations (Stage A or B of [BlissSemanticComposer]).
+         * BCI-conformant composition — preferred over [COMPOUND].
+         */
+        SEMANTIC,
+        /**
+         * Multi-word orthographic pivot-split (Stage C of [BlissSemanticComposer],
+         * legacy opt-in fallback).  Not BCI-conformant; retained for coverage.
+         */
         COMPOUND,
         /** No match at all — rendered with the \"?\" symbol (BCI-AV 17729). */
         UNKNOWN
@@ -114,8 +143,8 @@ data class BlissSymbol(
 
         /**
          * Sentinel BCI-AV ID for a synthetic compound symbol produced by
-         * [BlissSemanticComposer].  Distinct from [UNKNOWN_SYMBOL_ID] so the
-         * renderer can tell \"composed\" apart from \"not found at all\".
+         * [BlissSemanticComposer] Stage B or C.  Distinct from [UNKNOWN_SYMBOL_ID]
+         * so the renderer can tell \"composed\" apart from \"not found at all\".
          */
         const val COMPOUND_SYMBOL_ID = -2
     }
