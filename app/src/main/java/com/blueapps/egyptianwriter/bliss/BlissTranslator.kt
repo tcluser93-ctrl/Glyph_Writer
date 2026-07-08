@@ -18,18 +18,27 @@ import java.util.regex.Pattern
  *       c. POS-aware lemma lookup                      → LEMMA
  *       d. Rule-based de-affixation candidates         → LEMMA
  *       e. Unknown                                     → UNKNOWN
- *  4. **Indicator pass** — plural / past / future tagging
+ *  4. **Indicator pass** — plural / past / future tagging (sentence-level)
  *
  * ## Async pipeline (translateAsync) — Morfologik-first
  *
  *  Same as above, but step 3 uses the Morfologik-first order:
  *       3a. Exact surface lookup                        → EXACT
- *       3b. Morfologik FSA → lemma → lexicon/lemma CSV  → LEMMA  ← PRIMARY
+ *       3b. Morfologik FSA → lemma+tag → per-token indicators → LEMMA  ← PRIMARY
  *       3c. Plain lemma lookup (word already base form) → LEMMA
  *       3d. POS-aware heuristic + CSV                   → LEMMA
  *       3e. Rule-based de-affixation                    → LEMMA
  *       3f. Room FTS4 exact                             → EXACT
  *       3g. UNKNOWN
+ *
+ *  Tier 3b now uses [MorfologikLemmatizer.analyzeWithTags] to obtain both the
+ *  canonical lemma and the raw FSA POS tag for each analysis candidate.
+ *  Per-token indicators (PLURAL / PAST / FUTURE) are derived from that tag via
+ *  [MorfologikTagMapper.toBlissIndicators] and attached directly to the resolved
+ *  symbol, replacing the sentence-level [detectIndicators] heuristic for tokens
+ *  that Morfologik can analyse.  [detectIndicators] is preserved as a fallback
+ *  for multi-token patterns (auxiliaries, periphrastic tenses) not expressible
+ *  in a single FSA tag.
  *
  * Morfologik covers all 8 languages (it, en, de, fr, es, nl, pl, pt).
  * When the .dict asset is absent for a language, that tier degrades
@@ -66,11 +75,18 @@ class BlissTranslator(
 
     /**
      * Suspend translation.  Uses **Morfologik as the primary morphological tier**
-     * (tier 3b): inflected form → FSA lemma → CSV BCI-AV lookup.
+     * (tier 3b): inflected form → FSA lemma+tag → per-token indicators → CSV BCI-AV lookup.
+     *
+     * Per-token indicators derived from the FSA tag take precedence over the
+     * sentence-level [detectIndicators] heuristic.  Sentence-level detection is
+     * still applied as a fallback for multi-token patterns (e.g. "going to",
+     * compound auxiliaries) that a single-token tag cannot capture; however,
+     * tokens that already carry per-token indicators are skipped in
+     * [attachIndicators] to avoid double-tagging.
      *
      * Must be called from a coroutine (typically [BlissViewModel.translate]).
      * The Morfologik FSA lookup runs on [Dispatchers.IO] inside
-     * [MorfologikLemmatizer.lemmatize].
+     * [MorfologikLemmatizer.analyzeWithTags].
      */
     suspend fun translateAsync(text: String): List<BlissSymbol> {
         if (!lookup.isReady) {
@@ -82,7 +98,10 @@ class BlissTranslator(
         val tokens     = normalised.split(" ").filter { it.isNotBlank() }
         val lang       = lookup.currentLang ?: "en"
         val symbols    = resolveNgramsAndTokensSuspend(normalised, lang)
-        return attachIndicators(symbols, detectIndicators(tokens))
+        // Sentence-level indicators: fallback for multi-token patterns.
+        // attachIndicators skips symbols that already have per-token indicators.
+        val sentenceIndicators = detectIndicators(tokens)
+        return attachIndicators(symbols, sentenceIndicators)
     }
 
     // ── step 1 : normalise ────────────────────────────────────────────────────
@@ -164,7 +183,7 @@ class BlissTranslator(
     //
     // Pipeline:
     //   3a. Exact surface match in lexicon JSON         → EXACT
-    //   3b. Morfologik FSA → lemma → lexicon/lemma CSV  → LEMMA  ← PRIMARY
+    //   3b. Morfologik FSA → lemma+tag → per-token indicators → BCI-AV  ← PRIMARY
     //   3c. Plain lemma lookup (word already base form)  → LEMMA
     //   3d. POS-aware heuristic + CSV                   → LEMMA
     //   3e. Rule-based de-affixation + CSV              → LEMMA
@@ -175,12 +194,29 @@ class BlissTranslator(
         // Tier 3a — exact surface (lexicon JSON: idioms, proper nouns, symbols)
         lookup.lookupSurface(word)?.let { return lookup.toSymbol(it, word, word, MatchType.EXACT) }
 
-        // Tier 3b — MORFOLOGIK FSA: inflected form → canonical lemma → BCI-AV
-        // Primary morphological tier covering all 8 languages.
-        // Gracefully skipped when .dict asset is absent for the current language.
-        morfologik?.lemmatize(word, lang)?.forEach { lemma ->
-            lookup.lookupSurface(lemma)?.let { return lookup.toSymbol(it, word, lemma, MatchType.LEMMA) }
-            lookup.lookupLemma(lemma)?.let   { return lookup.toSymbol(it, word, lemma, MatchType.LEMMA) }
+        // Tier 3b — MORFOLOGIK FSA: inflected form → canonical lemma + POS tag → BCI-AV
+        //
+        // analyzeWithTags() returns a List<LemmaAnalysis> where each entry carries:
+        //   • lemma       — canonical base form produced by the FSA
+        //   • rawTag      — raw POS tag string (e.g. "VER:pres:3:s", "NOU:m:p")
+        //   • blissIndicators — pre-mapped Set<String> from MorfologikTagMapper
+        //
+        // Per-token indicators are applied directly to the resolved symbol so that
+        // downstream attachIndicators() can detect already-tagged tokens and skip them.
+        morfologik?.analyzeWithTags(word, lang)?.forEach { analysis ->
+            val lemma           = analysis.lemma
+            val tokenIndicators = analysis.blissIndicators   // Set<String> from MorfologikTagMapper
+
+            lookup.lookupSurface(lemma)?.let {
+                val sym = lookup.toSymbol(it, word, lemma, MatchType.LEMMA)
+                return if (tokenIndicators.isEmpty()) sym
+                       else sym.withIndicators(tokenIndicators.toList())
+            }
+            lookup.lookupLemma(lemma)?.let {
+                val sym = lookup.toSymbol(it, word, lemma, MatchType.LEMMA)
+                return if (tokenIndicators.isEmpty()) sym
+                       else sym.withIndicators(tokenIndicators.toList())
+            }
         }
 
         // Tier 3c — plain lemma lookup (word is already in base form)
@@ -258,14 +294,26 @@ class BlissTranslator(
         return found
     }
 
+    /**
+     * Attaches [indicators] to every non-UNKNOWN symbol that does **not** already
+     * carry per-token indicators (i.e. symbols whose [BlissSymbol.indicators] list
+     * is empty).  This prevents double-tagging for tokens resolved via Morfologik
+     * tier 3b in [resolveTokenSuspend], which already embed per-token indicators.
+     *
+     * In the sync pipeline ([translate]) all symbols have empty indicators by
+     * construction, so this method behaves identically to the previous version.
+     */
     internal fun attachIndicators(
         symbols: List<BlissSymbol>,
         indicators: Set<String>
     ): List<BlissSymbol> {
         if (indicators.isEmpty()) return symbols
         return symbols.map { sym ->
-            if (sym.matchType != MatchType.UNKNOWN) sym.withIndicators(indicators.toList())
-            else sym
+            when {
+                sym.matchType == MatchType.UNKNOWN -> sym
+                sym.indicators.isNotEmpty()        -> sym   // already tagged by tier 3b
+                else                               -> sym.withIndicators(indicators.toList())
+            }
         }
     }
 
