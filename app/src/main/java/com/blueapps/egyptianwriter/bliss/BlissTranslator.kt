@@ -29,7 +29,8 @@ import java.util.regex.Pattern
  *       3d. POS-aware heuristic + CSV                   → LEMMA
  *       3e. Rule-based de-affixation                    → LEMMA
  *       3f. Room FTS4 exact                             → EXACT
- *       3g. UNKNOWN
+ *       3g. Semantic composition ([BlissSemanticComposer])  → COMPOUND  ← PATCH 3
+ *       3h. UNKNOWN
  *
  *  Tier 3b now uses [MorfologikLemmatizer.analyzeWithTags] to obtain both the
  *  canonical lemma and the raw FSA POS tag for each analysis candidate.
@@ -40,25 +41,34 @@ import java.util.regex.Pattern
  *  for multi-token patterns (auxiliaries, periphrastic tenses) not expressible
  *  in a single FSA tag.
  *
+ *  Tier 3g (Patch 3) uses [BlissSemanticComposer.compose] as the last intelligent
+ *  fallback before UNKNOWN: it decomposes the word via pivot-split and returns a
+ *  [BlissSymbol.MatchType.COMPOUND] symbol when at least two fragments resolve.
+ *  If [composer] is null (default), this tier is silently skipped.
+ *
  * Morfologik covers all 8 languages (it, en, de, fr, es, nl, pl, pt).
  * When the .dict asset is absent for a language, that tier degrades
- * gracefully and the pipeline continues with tiers 3c–3g.
+ * gracefully and the pipeline continues with tiers 3c–3h.
  *
  * The translator is stateless and thread-safe after construction.
  *
  * @param lookup        Pre-loaded [BlissLookup] (must have isReady == true).
  * @param morfologik    Optional [MorfologikLemmatizer]; if null the Morfologik
  *                      tier is silently skipped (graceful degradation).
+ * @param composer      Optional [BlissSemanticComposer]; if null tier 3g is
+ *                      silently skipped.  Pass `BlissSemanticComposer(lookup)` to
+ *                      enable semantic composition.
  */
 class BlissTranslator(
     private val lookup:     BlissLookup,
-    private val morfologik: MorfologikLemmatizer? = null
+    private val morfologik: MorfologikLemmatizer?    = null,
+    private val composer:   BlissSemanticComposer?   = null
 ) {
 
     // ── public API ────────────────────────────────────────────────────────────
 
     /**
-     * Synchronous translation.  Rule-based only (no Morfologik).
+     * Synchronous translation.  Rule-based only (no Morfologik, no composer).
      * Safe to call from any thread after [BlissLookup.isReady] == true.
      */
     fun translate(text: String): List<BlissSymbol> {
@@ -185,10 +195,11 @@ class BlissTranslator(
     //   3a. Exact surface match in lexicon JSON         → EXACT
     //   3b. Morfologik FSA → lemma+tag → per-token indicators → BCI-AV  ← PRIMARY
     //   3c. Plain lemma lookup (word already base form)  → LEMMA
-    //   3d. POS-aware heuristic + CSV                   → LEMMA
+    //   3d. POS-aware heuristic guess + CSV             → LEMMA
     //   3e. Rule-based de-affixation + CSV              → LEMMA
     //   3f. Room FTS4 exact                             → EXACT
-    //   3g. UNKNOWN
+    //   3g. Semantic composition (BlissSemanticComposer) → COMPOUND     ← PATCH 3
+    //   3h. UNKNOWN
 
     private suspend fun resolveTokenSuspend(word: String, lang: String): BlissSymbol {
         // Tier 3a — exact surface (lexicon JSON: idioms, proper nouns, symbols)
@@ -240,7 +251,11 @@ class BlissTranslator(
         // Tier 3f — Room FTS4 exact (words added to DB after initial CSV load)
         lookup.lookupSurfaceDb(word)?.let { return lookup.toSymbol(it, word, word, MatchType.EXACT) }
 
-        // Tier 3g — UNKNOWN
+        // Tier 3g — Semantic composition (last intelligent fallback before UNKNOWN)
+        // composer is null by default; pass BlissSemanticComposer(lookup) to enable.
+        composer?.compose(word, lang)?.let { return it }
+
+        // Tier 3h — UNKNOWN
         return unknownSymbol(word)
     }
 
