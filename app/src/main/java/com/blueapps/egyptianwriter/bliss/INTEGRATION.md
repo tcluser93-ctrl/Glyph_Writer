@@ -1,177 +1,105 @@
-# Integrazione Bliss → GlyphWriter
+# BlissTranslator — Integration Guide
 
-## Panoramica architetturale
+> Last updated: Patch 7 (2026-07-09)
+
+## Architecture overview
 
 ```
-BlissTranslateFragment
-        │
-        ▼
-   BlissTranslator  ──(NLP)──▶  List<BlissSymbol>
-        │
-        ▼
-  BlissGlyphXBuilder  ──────▶  org.w3c.dom.Document  (GlyphX con codici "B{id}")
-        │
-        ▼
-   BlissViewModel.postTranslation(symbols, doc)
-        │
-        ├──▶  BlissRenderer.render(symbols, provider)   (anteprima inline nel Fragment)
-        │
-        └──▶  DocumentEditorActivity  (observer LiveData)
-                   │
-                   ▼
-             thothView.setGlyphXText(doc)
-                   │
-                   ▼
-        ThothView chiama SignProvider.getDrawable("B12335")
-                   │
-                   ▼
-          BlissSignProvider  ──▶  assets/bliss/svg/12335.svg
+Input text
+    ↓
+BlissTranslator.translateAsync()
+    ↓
+  Tier 3a  Exact surface lookup             → EXACT
+  Tier 3b  MorfologikLemmatizer             → LEMMA  (+ per-token indicators)
+  Tier 3c  Plain lemma lookup               → LEMMA
+  Tier 3d  POS heuristic + CSV              → LEMMA
+  Tier 3e  De-affixation                    → LEMMA
+  Tier 3f  Room FTS4                        → EXACT
+  Tier 3g  BlissSemanticComposer            → SEMANTIC  ← Patch 7
+  Tier 3h  UNKNOWN
+    ↓
+List<BlissSymbol>  (one or more per input token from Patch 7 tier 3g)
+    ↓
+BlissGlyphXBuilder.buildDocument()    (classic GlyphX path)
+  or
+BlissRenderer.renderWithAttachments() (structured path, Patch 7)
+    ↓
+LinearLayout (SvgCellView per symbol)
 ```
 
----
+## Tier 3g — Semantic composition (Patch 7)
 
-## Step 1 — Aggiungere AndroidSVG
+`BlissSemanticComposer.composeStructured(word, lang)` replaces the old
+`compose()` single-symbol path.  It returns a `ComposedBlissWord` with:
 
-In `app/build.gradle.kts`, aggiungere:
+- `compositionStage` — A (direct synset), B (bucket match), or C (orthographic,
+  disabled by default)
+- `components: List<ResolvedBlissComponent>` — one entry per semantic fragment
+- Each component carries `renderAttachments: List<BlissRenderAttachment>` with
+  `isOverlay`, `xOffsetPx`, `yOffsetPx`, `priority`, `bciIndicatorId`
+
+In `BlissTranslator` tier 3g, `composeStructured()` expands a single input token
+into `N` `BlissSymbol(MatchType.SEMANTIC)` items — one per component.
+
+## BlissRenderer — structured path
+
+Use `BlissRenderer.renderWithAttachments(container, composedBlissWord)` when
+you have a `ComposedBlissWord` directly (e.g. from tier 3g).  This path:
+
+1. Fetches base glyph SVGs for each `ResolvedBlissComponent.bciSymbolId`
+2. Fetches overlay SVGs for each `BlissRenderAttachment` where `isOverlay == true`
+3. Draws overlays in `SvgCellView.drawOverlays()` at density-scaled offsets
+4. Adds linear modifiers (`isOverlay == false`) as separate adjacent `SvgCellView`
+   cells after the base glyph
+
+Overlay size = `OVERLAY_SIZE_RATIO (0.35)` × cell width.
+Modifier size = `MODIFIER_SIZE_RATIO (0.55)` × cell width.
+Default Y offset for combining indicators = `BlissRenderAttachment.DEFAULT_OVERLAY_Y_OFFSET_PX = -14f` (pre-density-scale).
+
+## MatchType reference
+
+| MatchType  | Source                                   |
+|------------|------------------------------------------|
+| EXACT      | Surface lexicon JSON / FTS4 DB           |
+| NGRAM      | Multi-word phrase lookup                 |
+| LEMMA      | Morfologik FSA / CSV lemma               |
+| SEMANTIC   | BlissSemanticComposer (Patch 7)          |
+| COMPOUND   | Legacy (removed in Patch 7)              |
+| UNKNOWN    | No match found in any tier               |
+| FALLBACK_CATEGORY | Broad category fallback           |
+
+## Instantiation example
 
 ```kotlin
-implementation("com.caverock:androidsvg-aar:1.4")
+val translator = BlissTranslator(
+    lookup     = blissLookup,
+    morfologik = MorfologikLemmatizer(context, "it"),
+    composer   = BlissSemanticComposer(blissLookup)
+)
+
+// Async (recommended, uses full 3a–3g pipeline)
+val symbols: List<BlissSymbol> = translator.translateAsync("le case erano grandi")
+
+// Render via structured path when composer result is available directly:
+val composed: ComposedBlissWord? = composer.composeStructured("camminando", "it")
+if (composed != null) renderer.renderWithAttachments(container, composed)
+else renderer.render(container, glyphXBuilder.buildDocument(symbols))
 ```
 
----
+## Test coverage (Patch 7)
 
-## Step 2 — Scaricare gli SVG BCI-AV
+| Test file                        | Covers                                    |
+|----------------------------------|-------------------------------------------|
+| `BlissSemanticComposerTest.kt`   | Stage A, B, C; legacy shim; overlays     |
+| `BlissLookupTest.kt`             | CSV loading, lemma/surface/pos lookup    |
+| `BlissViewModelTest.kt`          | Async translation pipeline               |
+| `BlissGlyphXBuilderCoreTest.kt`  | GlyphX Document structure               |
+| `BlissGlyphXBuilderSvgTest.kt`   | SVG export correctness                   |
 
-Il corpus SVG è disponibile su:
-- https://www.blissymbolics.org/index.php/licensing
-- https://openassistive.org/item/blissymbolicsresources/ (CC BY-SA)
+## Indicator BCI ids
 
-Decomprimere i file SVG in:
-```
-app/src/main/assets/bliss/svg/
-    12335.svg
-    17729.svg
-    ...
-```
-Ogni file è nominato con il BCI-AV ID numerico.
-
----
-
-## Step 3 — Collegare BlissSignProvider a ThothView
-
-ThothView (da `com.github.ThothDroid:SignProvider`) espone un metodo
-`setSignProvider(provider: SignProvider)`. La API esatta dipende dalla
-versione della libreria.
-
-**Opzione A — SignProvider iniettabile (se supportato)**
-
-Se `ThothView` ha `setSignProvider()`, creare un wrapper:
-
-```kotlin
-// In DocumentEditorActivity.onCreate(), dopo thothView.setThothListener(this):
-val blissProvider = BlissSignProvider(this)
-// Wrapper che implementa l'interfaccia SignProvider di ThothDroid
-thothView.setSignProvider(BlissSignProviderAdapter(blissProvider))
-```
-
-Dove `BlissSignProviderAdapter` implementa l'interfaccia
-`com.blueapps.signprovider.SignProvider` (verifica la firma esatta
-inspezionando l'AAR con `javap` o Android Studio).
-
-**Opzione B — Fallback BlissRenderer (standalone, non dipende da ThothView)**
-
-Se ThothView non espone un SignProvider esterno, usare `BlissRenderer`
-direttamente nel Fragment come anteprima; il documento GlyphX viene comunque
-passato a ThothView per l'export/salvataggio (i codici B{id} saranno visibili
-come label di testo nel renderer nativo di ThothView).
-
----
-
-## Step 4 — Terzo tab in DocumentEditorActivity
-
-**Nel layout XML** (`activity_document_editor.xml`):
-```xml
-<!-- Aggiungere un terzo CheckableImageButton accanto a buttonWrite e buttonSettings -->
-<!-- TODO: aggiornare il package name quando il refactor da egyptianwriter a glyphwriter
-     sarà completato tramite Android Studio → Refactor → Rename Package -->
-<com.blueapps.glyphwriter.CheckableImageButton
-    android:id="@+id/buttonBliss"
-    android:layout_width="48dp"
-    android:layout_height="48dp"
-    android:src="@drawable/ic_bliss"
-    android:contentDescription="Traduttore Bliss" />
-```
-
-**In `DocumentEditorActivity.java`**:
-```java
-// Aggiungere a imageButtonGroup:
-imageButtonGroup.addImageButton(binding.buttonBliss);
-
-// Nel metodo OnPositionChanges:
-case 2:
-    BlissViewModel blissVm =
-        new ViewModelProvider(this).get(BlissViewModel.class);
-    blissVm.getGlyphXDocument().observe(this, doc -> {
-        try { thothView.setGlyphXText(doc); }
-        catch (Exception e) { e.printStackTrace(); }
-    });
-    transaction.replace(containerView.getId(),
-        BlissTranslateFragment.Companion.newInstance("it"));
-    break;
-```
-
----
-
-## Step 5 — Icona Bliss
-
-Aggiungere in `app/src/main/res/drawable/ic_bliss.xml`:
-
-```xml
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-  <!-- Simbolo Bliss semplificato: cerchio + triangolo + linea -->
-  <path android:fillColor="@color/bliss_icon"
-        android:pathData="M12,2 C9.79,2 8,3.79 8,6 C8,8.21 9.79,10 12,10
-                         C14.21,10 16,8.21 16,6 C16,3.79 14.21,2 12,2 Z"/>
-  <path android:fillColor="@color/bliss_icon"
-        android:pathData="M6,22 L12,12 L18,22 Z"/>
-  <path android:strokeColor="@color/bliss_icon"
-        android:strokeWidth="2"
-        android:pathData="M4,16 H20"/>
-</vector>
-```
-
----
-
-## Riepilogo file del modulo `bliss/`
-
-| File | Ruolo |
-|---|---|
-| `BlissSymbol.kt` | Data model (bciAvId, gloss, matchType, word) |
-| `BlissLookup.kt` | Carica asset CSV/JSON, 5 tabelle lookup |
-| `BlissTranslator.kt` | Pipeline NLP → List<BlissSymbol> |
-| `BlissGlyphXBuilder.kt` | List<BlissSymbol> → GlyphX DOM Document |
-| `BlissViewModel.kt` | LiveData bridge Fragment ↔ Activity |
-| `BlissTranslateFragment.kt` | UI con chip colorati, input testo |
-| `BlissSignProvider.kt` | Risolve codice B{id} → Drawable SVG da assets |
-| `BlissRenderer.kt` | View standalone per anteprima simboli |
-| `INTEGRATION.md` | Queste istruzioni |
-
----
-
-## Note sul refactoring del package name
-
-Il package `com.blueapps.egyptianwriter` è ancora presente in tutti i file
-sorgente. Per completare la migrazione del branding:
-
-1. In Android Studio: tasto destro sul package root → **Refactor → Rename**
-2. Scegliere il nuovo nome (es. `com.blueapps.glyphwriter`)
-3. Android Studio aggiornerà automaticamente:
-   - Tutti i file `.kt` / `.java`
-   - `AndroidManifest.xml`
-   - `build.gradle.kts` (applicationId)
-4. Rinominare anche il file `Egyptian_Writer.apk` nella root del repository
-   in `Glyph_Writer.apk` per coerenza con il nome del progetto.
+| Indicator | BCI id | Bliss name     |
+|-----------|--------|----------------|
+| plural    | 9011   | indicator_plural |
+| past      | 9007   | indicator_past   |
+| future    | 9008   | indicator_future |

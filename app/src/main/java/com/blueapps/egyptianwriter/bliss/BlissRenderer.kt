@@ -46,6 +46,12 @@ import javax.xml.parsers.DocumentBuilderFactory
  * The container is announced as a Collection; each cell carries
  * CollectionItemInfo (row/col) and a descriptive content description.
  *
+ * ## Patch 7 — BlissRenderAttachment overlay support
+ * [renderWithAttachments] is a new entry point that accepts a [ComposedBlissWord]
+ * and draws indicator overlays directly from [BlissRenderAttachment] metadata,
+ * using [BlissRenderAttachment.DEFAULT_OVERLAY_Y_OFFSET_PX] scaled by display
+ * density.  The legacy [render] path is unchanged for backward compatibility.
+ *
  * @param context  Android context (used to create Views).
  * @param provider Pre-initialised [BlissSignProvider].
  * @param scope    [CoroutineScope] whose lifetime matches the host component
@@ -59,7 +65,7 @@ class BlissRenderer(
 
     private var renderJob: Job? = null
 
-    // ── public API ─────────────────────────────────────────────────────────────────
+    // ── public API ────────────────────────────────────────────────────────────
 
     /**
      * Renders [document] into [container], replacing all existing children.
@@ -68,27 +74,13 @@ class BlissRenderer(
      * inflated (on Main).  Cancels any previously running render automatically.
      *
      * Must be called from a coroutine (typically launched on Main).
-     *
-     * ### BUG-1 fix — render() deadlock
-     * The previous implementation did:
-     *   renderJob = scope.launch(Dispatchers.Main) { … }
-     *   renderJob?.join()
-     * If the caller runs on Main, join() blocks the thread waiting for a Job
-     * that also needs Main → deadlock / ANR.
-     * Fix: use coroutineScope { } so the suspend fun awaits its child naturally,
-     * then store the resulting Job only for cancellation purposes (cancelRender).
      */
     suspend fun render(container: LinearLayout, document: Document) {
-        // Cancel any stale render before starting a new one
         renderJob?.cancelAndJoin()
-
-        // coroutineScope{} inherits the caller's Job; it suspends until the
-        // inner launch completes — no separate join() needed, no deadlock risk.
         coroutineScope {
             renderJob = launch(Dispatchers.Main) {
                 container.animate().alpha(0f).setDuration(100).start()
 
-                // BUG-2+3 fix: use the correct tag name from BlissGlyphXBuilder
                 val symbols = extractSymbols(document)
                 if (symbols.isEmpty()) {
                     container.removeAllViews()
@@ -96,16 +88,11 @@ class BlissRenderer(
                     return@launch
                 }
 
-                // Resolve cell size once before entering IO so we can pass it as size hint
                 val cellPx = resolveCellPx(container)
 
-                // ── Fetch all drawables in parallel on IO ─────────────────────
                 val drawables = withContext(Dispatchers.IO) {
                     symbols.map { sym ->
                         async {
-                            // BUG-3 fix: attribute names match BlissGlyphXBuilder constants
-                            // ATTR_CODE = "code"  (was getAttribute("bciAvId") — always null)
-                            // ATTR_MATCH = "match" (was getAttribute("matchType") — always null)
                             val codeAttr = sym.getAttribute(BlissGlyphXBuilder.ATTR_CODE) ?: ""
                             val bciId    = BlissGlyphXBuilder.parseBciAvId(codeAttr)
 
@@ -114,8 +101,6 @@ class BlissRenderer(
                                 BlissSymbol.MatchType.valueOf(matchRaw)
                             }.getOrDefault(BlissSymbol.MatchType.UNKNOWN)
 
-                            // getDrawableAsync expects (code: String, size: Float)
-                            // Bliss codes are prefixed with "B", size is the display cell in px
                             val drawable = if (bciId > 0) {
                                 provider.getDrawableAsync("${BlissGlyphXBuilder.BLISS_PREFIX}$bciId", cellPx.toFloat())
                             } else null
@@ -125,7 +110,6 @@ class BlissRenderer(
                     }.awaitAll()
                 }
 
-                // ── Build Views on Main Thread in a single pass ────────────────
                 container.removeAllViews()
 
                 val totalCols = symbols.size.coerceAtLeast(1)
@@ -151,7 +135,6 @@ class BlissRenderer(
                     cell.layoutParams = LinearLayout.LayoutParams(cellPx, cellPx)
                         .also { it.marginEnd = 4.dpToPx(context) }
 
-                    // Accessibility: item info
                     ViewCompat.setAccessibilityDelegate(cell, object : AccessibilityDelegateCompat() {
                         override fun onInitializeAccessibilityNodeInfo(
                             host: View, info: AccessibilityNodeInfoCompat
@@ -176,8 +159,161 @@ class BlissRenderer(
                 container.animate().alpha(1f).setDuration(200).start()
             }
         }
-        // renderJob is set above; coroutineScope{} has already awaited completion.
-        // We keep the field so cancelRender() can interrupt a future render.
+    }
+
+    /**
+     * Patch 7 — structured render path.
+     *
+     * Renders a [ComposedBlissWord] into [container], drawing one [SvgCellView]
+     * per [ResolvedBlissComponent] and positioning indicator SVG overlays using
+     * the [BlissRenderAttachment] metadata attached to each component.
+     *
+     * Overlay indicators (combining BCI symbols, e.g. tense dots) are drawn
+     * above the base glyph at [BlissRenderAttachment.yOffsetPx] scaled by
+     * display density.  Linear modifiers are placed as adjacent cells after
+     * the base glyph.
+     *
+     * This path does NOT replace [render]; callers that already use the GlyphX
+     * Document pipeline continue to work unchanged.  New callers (e.g.
+     * BlissViewModel tier-3g result) should prefer [renderWithAttachments].
+     *
+     * @param container Target [LinearLayout] (cleared before adding new cells).
+     * @param composed  Structured output from [BlissSemanticComposer.composeStructured].
+     */
+    suspend fun renderWithAttachments(container: LinearLayout, composed: ComposedBlissWord) {
+        renderJob?.cancelAndJoin()
+        val density = context.resources.displayMetrics.density
+
+        coroutineScope {
+            renderJob = launch(Dispatchers.Main) {
+                container.animate().alpha(0f).setDuration(100).start()
+
+                if (composed.components.isEmpty()) {
+                    container.removeAllViews()
+                    container.animate().alpha(1f).setDuration(150).start()
+                    return@launch
+                }
+
+                val cellPx = resolveCellPx(container)
+
+                // Fetch base glyphs + overlay drawables in parallel on IO
+                data class CellData(
+                    val component: ResolvedBlissComponent,
+                    val baseDrawable: android.graphics.drawable.Drawable?,
+                    val overlayDrawables: List<Pair<BlissRenderAttachment, android.graphics.drawable.Drawable?>>
+                )
+
+                val cellDataList = withContext(Dispatchers.IO) {
+                    composed.components.map { component ->
+                        async {
+                            val baseDrawable = provider.getDrawableAsync(
+                                "${BlissGlyphXBuilder.BLISS_PREFIX}${component.bciSymbolId}",
+                                cellPx.toFloat()
+                            )
+
+                            val overlayDrawables = component.renderAttachments
+                                .filter { it.isOverlay }
+                                .sortedBy { it.priority }
+                                .map { attachment ->
+                                    val d = if (attachment.bciIndicatorId > 0) {
+                                        provider.getDrawableAsync(
+                                            "${BlissGlyphXBuilder.BLISS_PREFIX}${attachment.bciIndicatorId}",
+                                            (cellPx * OVERLAY_SIZE_RATIO).toFloat()
+                                        )
+                                    } else null
+                                    attachment to d
+                                }
+
+                            CellData(component, baseDrawable, overlayDrawables)
+                        }
+                    }.awaitAll()
+                }
+
+                container.removeAllViews()
+
+                val totalCols = cellDataList.size.coerceAtLeast(1)
+                ViewCompat.setAccessibilityDelegate(container, object : AccessibilityDelegateCompat() {
+                    override fun onInitializeAccessibilityNodeInfo(
+                        host: View, info: AccessibilityNodeInfoCompat
+                    ) {
+                        super.onInitializeAccessibilityNodeInfo(host, info)
+                        info.setCollectionInfo(CollectionInfoCompat.obtain(1, totalCols, false))
+                    }
+                })
+
+                cellDataList.forEachIndexed { colIdx, cellData ->
+                    val component = cellData.component
+
+                    // Collect indicator names from overlay attachments for legacy drawIndicators
+                    val indNames = component.renderAttachments
+                        .filter { it.isOverlay }
+                        .mapNotNull { att -> bciIdToIndicatorName(att.bciIndicatorId) }
+
+                    val cell = SvgCellView(
+                        ctx       = context,
+                        bciAvId   = component.bciSymbolId,
+                        symbolName = component.lemma,
+                        matchType  = BlissSymbol.MatchType.SEMANTIC,
+                        indicators = indNames,
+                        // Overlay drawables passed for structured SVG overlay rendering
+                        overlays   = cellData.overlayDrawables
+                            .map { (att, d) ->
+                                OverlaySpec(
+                                    drawable    = d,
+                                    yOffsetPx   = att.yOffsetPx * density,
+                                    xOffsetPx   = att.xOffsetPx * density,
+                                    sizeFraction = OVERLAY_SIZE_RATIO
+                                )
+                            }
+                    )
+                    cell.setDrawableResolved(cellData.baseDrawable)
+                    cell.layoutParams = LinearLayout.LayoutParams(cellPx, cellPx)
+                        .also { it.marginEnd = 4.dpToPx(context) }
+
+                    ViewCompat.setAccessibilityDelegate(cell, object : AccessibilityDelegateCompat() {
+                        override fun onInitializeAccessibilityNodeInfo(
+                            host: View, info: AccessibilityNodeInfoCompat
+                        ) {
+                            super.onInitializeAccessibilityNodeInfo(host, info)
+                            info.setCollectionItemInfo(
+                                CollectionItemInfoCompat.obtain(0, 1, colIdx, 1, false, false)
+                            )
+                            info.contentDescription = buildString {
+                                append("Symbol ${colIdx + 1} of $totalCols: ${component.lemma}, Semantic match")
+                                if (indNames.isNotEmpty())
+                                    append(", indicators: ${indNames.joinToString()}")
+                            }
+                        }
+                    })
+
+                    container.addView(cell)
+
+                    // Linear modifiers: add as separate adjacent cells
+                    component.renderAttachments
+                        .filter { !it.isOverlay }
+                        .sortedBy { it.priority }
+                        .forEach { modifier ->
+                            if (modifier.bciIndicatorId > 0) {
+                                val modCell = SvgCellView(
+                                    ctx        = context,
+                                    bciAvId    = modifier.bciIndicatorId,
+                                    symbolName = "modifier",
+                                    matchType  = BlissSymbol.MatchType.SEMANTIC,
+                                    indicators = emptyList()
+                                )
+                                modCell.setDrawableAsync(modifier.bciIndicatorId, (cellPx * MODIFIER_SIZE_RATIO).toFloat())
+                                modCell.layoutParams = LinearLayout.LayoutParams(
+                                    (cellPx * MODIFIER_SIZE_RATIO).toInt(),
+                                    (cellPx * MODIFIER_SIZE_RATIO).toInt()
+                                ).also { it.marginEnd = 2.dpToPx(context) }
+                                container.addView(modCell)
+                            }
+                        }
+                }
+
+                container.animate().alpha(1f).setDuration(200).start()
+            }
+        }
     }
 
     /** Cancels any in-flight render.  Call from [View.onDetachedFromWindow]. */
@@ -187,10 +323,6 @@ class BlissRenderer(
 
     // ── SVG export ───────────────────────────────────────────────────────────────
 
-    /**
-     * Renders all cells onto a [Bitmap] at the given [scale] factor.
-     * Must be called from a **worker thread** (heavy Canvas operations).
-     */
     @WorkerThread
     fun exportBitmap(container: LinearLayout, scale: Float = 1f): Bitmap {
         require(Looper.myLooper() != Looper.getMainLooper()) {
@@ -205,11 +337,6 @@ class BlissRenderer(
         return bmp
     }
 
-    /**
-     * Produces an SVG string with one `<use>` per symbol referencing
-     * `#B{bciAvId}` anchors.
-     * Pure string building — safe to call from any thread.
-     */
     fun exportSvgString(container: LinearLayout, cellSizePx: Int): String {
         val symbols = (0 until container.childCount)
             .mapNotNull { container.getChildAt(it) as? SvgCellView }
@@ -224,23 +351,14 @@ class BlissRenderer(
         }
     }
 
-    // ── internal helpers ─────────────────────────────────────────────────────────
+    // ── internal helpers ───────────────────────────────────────────────────────────
 
-    /**
-     * BUG-2 fix: the GlyphX schema uses <sign> elements (BlissGlyphXBuilder.TAG_SIGN),
-     * NOT <symbol>. The previous getElementsByTagName("symbol") always returned
-     * an empty NodeList, so nothing was ever rendered.
-     *
-     * We search one level deeper: blissText → line → group → sign.
-     * Using TAG_SIGN directly keeps this in sync with the builder constant.
-     */
     private fun extractSymbols(document: Document): List<Element> {
         val nodeList = document.getElementsByTagName(BlissGlyphXBuilder.TAG_SIGN)
         return (0 until nodeList.length).map { nodeList.item(it) as Element }
     }
 
     private fun parseIndicators(element: Element): List<String> {
-        // <indicator> elements are siblings of <sign> inside the parent <group>
         val parent   = element.parentNode as? Element ?: return emptyList()
         val indNodes = parent.getElementsByTagName(BlissGlyphXBuilder.TAG_INDICATOR)
         return (0 until indNodes.length).map { (indNodes.item(it) as Element).getAttribute(BlissGlyphXBuilder.ATTR_TYPE) }
@@ -255,15 +373,47 @@ class BlissRenderer(
         return ((available / count) - 4.dpToPx(context)).coerceIn(minPx, maxPx)
     }
 
+    /**
+     * Maps a BCI combining-indicator id to the Bliss indicator string name.
+     * Returns null for ids not currently mapped (silently dropped).
+     */
+    private fun bciIdToIndicatorName(bciIndicatorId: Int): String? = when (bciIndicatorId) {
+        9011 -> "plural"
+        9007 -> "past"
+        9008 -> "future"
+        else -> null
+    }
+
     private fun Int.dpToPx(ctx: Context): Int =
         (this * ctx.resources.displayMetrics.density).toInt()
 
     companion object {
-        private const val TAG          = "BlissRenderer"
-        const val DEFAULT_CELL_DP = 72
-        private const val MIN_CELL_DP  = 40
-        private const val MAX_CELL_DP  = 120
+        private const val TAG               = "BlissRenderer"
+        const val DEFAULT_CELL_DP           = 72
+        private const val MIN_CELL_DP       = 40
+        private const val MAX_CELL_DP       = 120
+        /** Overlay indicators are rendered at this fraction of the base cell size. */
+        const val OVERLAY_SIZE_RATIO        = 0.35f
+        /** Linear modifiers (non-overlay) rendered at this fraction of the base cell. */
+        const val MODIFIER_SIZE_RATIO       = 0.55f
     }
+
+    // ── data classes ───────────────────────────────────────────────────────────────
+
+    /**
+     * Resolved overlay spec passed to [SvgCellView] for density-aware SVG overlay drawing.
+     *
+     * @param drawable     The indicator SVG drawable (may be null if asset not found).
+     * @param yOffsetPx    Y offset in **device pixels** (scaled from [BlissRenderAttachment.yOffsetPx]).
+     * @param xOffsetPx    X offset in device pixels.
+     * @param sizeFraction Size of the overlay as a fraction of the host cell size.
+     */
+    data class OverlaySpec(
+        val drawable: android.graphics.drawable.Drawable?,
+        val yOffsetPx: Float,
+        val xOffsetPx: Float,
+        val sizeFraction: Float
+    )
 
     // ── inner View ───────────────────────────────────────────────────────────────
 
@@ -271,18 +421,19 @@ class BlissRenderer(
      * Lightweight custom View that displays one Bliss symbol SVG.
      *
      * - [isDirty] gate: [onDraw] returns immediately when the drawable
-     *   has not changed since the last draw (avoids redundant SVG rasterisation).
+     *   has not changed since the last draw.
      * - Focus ring drawn in [onDraw] when [isFocused] or [isSelected].
-     * - Indicator overlay drawn via [drawIndicators].
-     * - [setDrawableAsync] cancels the previous load Job before starting a new
-     *   one to prevent drawable swap races.
+     * - Indicator overlay drawn via [drawIndicators] (legacy named indicators).
+     * - SVG overlay drawables drawn via [drawOverlays] (Patch 7 structured path).
+     * - [setDrawableAsync] cancels the previous load Job before starting a new one.
      */
     inner class SvgCellView(
         ctx: Context,
         val bciAvId: Int,
         private val symbolName: String,
         private val matchType: BlissSymbol.MatchType,
-        private val indicators: List<String>
+        private val indicators: List<String>,
+        private val overlays: List<OverlaySpec> = emptyList()
     ) : View(ctx) {
 
         private var drawable: android.graphics.drawable.Drawable? = null
@@ -290,17 +441,14 @@ class BlissRenderer(
         private var loadJob: Job? = null
 
         private val focusPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style   = Paint.Style.STROKE
+            style       = Paint.Style.STROKE
             strokeWidth = 3f
-            color   = Color.parseColor("#01696F")  // --color-primary
-        }
-        private val overlayPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#80000000")
+            color       = Color.parseColor("#01696F")
         }
         private val indicatorPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.WHITE
+            color       = Color.WHITE
             strokeWidth = 2f
-            style = Paint.Style.FILL_AND_STROKE
+            style       = Paint.Style.FILL_AND_STROKE
         }
         private val fallbackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = when (matchType) {
@@ -316,25 +464,16 @@ class BlissRenderer(
             contentDescription = "$symbolName (BCI $bciAvId)"
         }
 
-        /** Set drawable resolved synchronously (called from Main Thread render pass). */
         fun setDrawableResolved(d: android.graphics.drawable.Drawable?) {
             drawable = d
             isDirty  = true
             invalidate()
         }
 
-        /**
-         * Asynchronously swaps the drawable.  Cancels any pending load before
-         * starting a new one — safe to call multiple times (e.g. on recycle).
-         *
-         * Uses the current view's intrinsic size as the render size hint so the
-         * SVG is rasterised at the correct display resolution.
-         */
         fun setDrawableAsync(bciId: Int, sizePx: Float = DEFAULT_CELL_DP.toFloat()) {
             loadJob?.cancel()
             loadJob = scope.launch {
                 val d = withContext(Dispatchers.IO) {
-                    // getDrawableAsync expects (code: String, size: Float)
                     provider.getDrawableAsync("${BlissGlyphXBuilder.BLISS_PREFIX}$bciId", sizePx)
                 }
                 setDrawableResolved(d)
@@ -359,7 +498,6 @@ class BlissRenderer(
                 d.setBounds(0, 0, width, height)
                 d.draw(canvas)
             } else {
-                // Fallback: coloured rectangle + "?" text
                 canvas.drawRect(0f, 0f, w, h, fallbackPaint)
                 val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     color     = Color.DKGRAY
@@ -369,12 +507,32 @@ class BlissRenderer(
                 canvas.drawText("?", w / 2f, h / 2f + textPaint.textSize / 3f, textPaint)
             }
 
-            // Indicator overlays
-            drawIndicators(canvas, w, h)
+            // Patch 7: draw SVG overlay drawables (density-scaled, from BlissRenderAttachment)
+            if (overlays.isNotEmpty()) drawOverlays(canvas, w, h)
 
-            // Focus / selected ring
+            // Legacy named-indicator drawing (plural/past/future dots & arrows)
+            if (indicators.isNotEmpty()) drawIndicators(canvas, w, h)
+
             if (isFocused || isSelected) {
                 canvas.drawRect(RectF(2f, 2f, w - 2f, h - 2f), focusPaint)
+            }
+        }
+
+        /**
+         * Draws SVG overlay drawables resolved from [BlissRenderAttachment].
+         * Each overlay is positioned at ([OverlaySpec.xOffsetPx], [OverlaySpec.yOffsetPx])
+         * relative to the top-left of the cell, sized at [OverlaySpec.sizeFraction] * cellW.
+         */
+        private fun drawOverlays(canvas: Canvas, w: Float, h: Float) {
+            overlays.forEach { spec ->
+                val d = spec.drawable ?: return@forEach
+                val size = (w * spec.sizeFraction).toInt().coerceAtLeast(1)
+                val left = (spec.xOffsetPx).toInt().coerceIn(0, (w - size).toInt())
+                // yOffsetPx is negative when overlay sits above the base glyph
+                val top  = (h / 2f + spec.yOffsetPx - size / 2f)
+                    .toInt().coerceIn(0, (h - size).toInt())
+                d.setBounds(left, top, left + size, top + size)
+                d.draw(canvas)
             }
         }
 
@@ -385,19 +543,14 @@ class BlissRenderer(
             indicators.forEachIndexed { i, type ->
                 val cx = dotR * 2.5f + i * (dotR * 3f)
                 when (type) {
-                    "plural" -> {
-                        // Filled circle = plural
-                        canvas.drawCircle(cx, baseY, dotR, indicatorPaint)
-                    }
-                    "past" -> {
-                        // Left-pointing arrow = past
+                    "plural" -> canvas.drawCircle(cx, baseY, dotR, indicatorPaint)
+                    "past"   -> {
                         val paint = Paint(indicatorPaint).apply { strokeWidth = dotR * 0.8f }
                         canvas.drawLine(cx + dotR, baseY, cx - dotR, baseY, paint)
                         canvas.drawLine(cx - dotR, baseY, cx, baseY - dotR, paint)
                         canvas.drawLine(cx - dotR, baseY, cx, baseY + dotR, paint)
                     }
                     "future" -> {
-                        // Right-pointing arrow = future
                         val paint = Paint(indicatorPaint).apply { strokeWidth = dotR * 0.8f }
                         canvas.drawLine(cx - dotR, baseY, cx + dotR, baseY, paint)
                         canvas.drawLine(cx + dotR, baseY, cx, baseY - dotR, paint)
