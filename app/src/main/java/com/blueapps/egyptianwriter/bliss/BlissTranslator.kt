@@ -46,6 +46,18 @@ import java.util.regex.Pattern
  *  [BlissSymbol.MatchType.COMPOUND] symbol when at least two fragments resolve.
  *  If [composer] is null (default), this tier is silently skipped.
  *
+ * ## Patch 4 — 1-token → N-symbols
+ *
+ *  [resolveTokenSuspend] now returns `List<BlissSymbol>` instead of a single
+ *  symbol.  [resolveNgramsAndTokensSuspend] consumes the list via `addAll()`.
+ *  The change is **internal only**: the public signatures of [translate] and
+ *  [translateAsync] are unchanged (`List<BlissSymbol>` in both cases).
+ *
+ *  Currently every tier still produces exactly one symbol, so the runtime
+ *  behaviour is identical to Patch 3.  Future patches can expand tier 3g (or
+ *  add a tier 3g2) to return multiple component symbols when the composer
+ *  decomposes a word into N fragments.
+ *
  * Morfologik covers all 8 languages (it, en, de, fr, es, nl, pl, pt).
  * When the .dict asset is absent for a language, that tier degrades
  * gracefully and the pipeline continues with tiers 3c–3h.
@@ -144,6 +156,10 @@ class BlissTranslator(
     }
 
     // ── step 2+3 : greedy n-gram + per-token (suspend, Morfologik-first) ─────
+    //
+    // Patch 4: resolveTokenSuspend() now returns List<BlissSymbol>.
+    // result.addAll() replaces the previous single += assignment so that a
+    // single input token can expand to multiple output symbols in future tiers.
 
     private suspend fun resolveNgramsAndTokensSuspend(
         text: String,
@@ -163,7 +179,7 @@ class BlissTranslator(
                 if (matched) break
             }
             if (!matched) {
-                result += resolveTokenSuspend(tokens[i], lang)
+                result.addAll(resolveTokenSuspend(tokens[i], lang))
                 i++
             }
         }
@@ -200,10 +216,17 @@ class BlissTranslator(
     //   3f. Room FTS4 exact                             → EXACT
     //   3g. Semantic composition (BlissSemanticComposer) → COMPOUND     ← PATCH 3
     //   3h. UNKNOWN
+    //
+    // Patch 4: returns List<BlissSymbol> instead of a single BlissSymbol.
+    // All existing tiers (3a–3f, 3h) return listOf(symbol) — single-element list.
+    // Tier 3g wraps the COMPOUND symbol in listOf(); future patches may expand
+    // it to return one symbol per component fragment.
 
-    private suspend fun resolveTokenSuspend(word: String, lang: String): BlissSymbol {
+    private suspend fun resolveTokenSuspend(word: String, lang: String): List<BlissSymbol> {
         // Tier 3a — exact surface (lexicon JSON: idioms, proper nouns, symbols)
-        lookup.lookupSurface(word)?.let { return lookup.toSymbol(it, word, word, MatchType.EXACT) }
+        lookup.lookupSurface(word)?.let {
+            return listOf(lookup.toSymbol(it, word, word, MatchType.EXACT))
+        }
 
         // Tier 3b — MORFOLOGIK FSA: inflected form → canonical lemma + POS tag → BCI-AV
         //
@@ -220,43 +243,59 @@ class BlissTranslator(
 
             lookup.lookupSurface(lemma)?.let {
                 val sym = lookup.toSymbol(it, word, lemma, MatchType.LEMMA)
-                return if (tokenIndicators.isEmpty()) sym
-                       else sym.withIndicators(tokenIndicators.toList())
+                return listOf(
+                    if (tokenIndicators.isEmpty()) sym
+                    else sym.withIndicators(tokenIndicators.toList())
+                )
             }
             lookup.lookupLemma(lemma)?.let {
                 val sym = lookup.toSymbol(it, word, lemma, MatchType.LEMMA)
-                return if (tokenIndicators.isEmpty()) sym
-                       else sym.withIndicators(tokenIndicators.toList())
+                return listOf(
+                    if (tokenIndicators.isEmpty()) sym
+                    else sym.withIndicators(tokenIndicators.toList())
+                )
             }
         }
 
         // Tier 3c — plain lemma lookup (word is already in base form)
-        lookup.lookupLemma(word)?.let { return lookup.toSymbol(it, word, word, MatchType.LEMMA) }
+        lookup.lookupLemma(word)?.let {
+            return listOf(lookup.toSymbol(it, word, word, MatchType.LEMMA))
+        }
 
         // Tier 3d — POS-aware heuristic guess + CSV
         val gPos = heuristicPos(word)
         if (gPos != null) lookup.lookupLemmaPos(word, gPos)?.let {
-            return lookup.toSymbol(it, word, word, MatchType.LEMMA)
+            return listOf(lookup.toSymbol(it, word, word, MatchType.LEMMA))
         }
 
         // Tier 3e — rule-based de-affixation (language-agnostic suffix stripping)
         for (candidate in simpleDeaffix(word)) {
-            lookup.lookupSurface(candidate)?.let { return lookup.toSymbol(it, word, candidate, MatchType.LEMMA) }
-            lookup.lookupLemma(candidate)?.let   { return lookup.toSymbol(it, word, candidate, MatchType.LEMMA) }
+            lookup.lookupSurface(candidate)?.let {
+                return listOf(lookup.toSymbol(it, word, candidate, MatchType.LEMMA))
+            }
+            lookup.lookupLemma(candidate)?.let {
+                return listOf(lookup.toSymbol(it, word, candidate, MatchType.LEMMA))
+            }
             if (gPos != null) lookup.lookupLemmaPos(candidate, gPos)?.let {
-                return lookup.toSymbol(it, word, candidate, MatchType.LEMMA)
+                return listOf(lookup.toSymbol(it, word, candidate, MatchType.LEMMA))
             }
         }
 
         // Tier 3f — Room FTS4 exact (words added to DB after initial CSV load)
-        lookup.lookupSurfaceDb(word)?.let { return lookup.toSymbol(it, word, word, MatchType.EXACT) }
+        lookup.lookupSurfaceDb(word)?.let {
+            return listOf(lookup.toSymbol(it, word, word, MatchType.EXACT))
+        }
 
-        // Tier 3g — Semantic composition (last intelligent fallback before UNKNOWN)
+        // Tier 3g — Semantic composition (last intelligent fallback before UNKNOWN).
+        // Returns listOf(compoundSymbol) — single COMPOUND symbol with componentIds.
+        // Future patch: expand to list of component symbols when composer supports it.
         // composer is null by default; pass BlissSemanticComposer(lookup) to enable.
-        composer?.compose(word, lang)?.let { return it }
+        composer?.compose(word, lang)?.let {
+            return listOf(it)
+        }
 
         // Tier 3h — UNKNOWN
-        return unknownSymbol(word)
+        return listOf(unknownSymbol(word))
     }
 
     private fun unknownSymbol(word: String) = BlissSymbol(
