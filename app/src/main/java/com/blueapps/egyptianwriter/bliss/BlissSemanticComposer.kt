@@ -143,11 +143,11 @@ class BlissSemanticComposer(
             indicators = symbol.indicators
         )
         return ComposedBlissWord(
-            sourceWord       = word,
-            lemma            = resolvedLemma,
-            sourceLang       = lang,
-            components       = listOf(component),
-            compositionStage = ComposedBlissWord.Stage.A
+            sourceWord      = word,
+            lemma           = resolvedLemma,
+            sourceLang      = lang,
+            components      = listOf(component),
+            compositionPath = CompositionPath.SYNONYM_SYNSET
         )
     }
 
@@ -221,11 +221,11 @@ class BlissSemanticComposer(
         }
 
         return ComposedBlissWord(
-            sourceWord       = word,
-            lemma            = resolvedLemma,
-            sourceLang       = lang,
-            components       = components,
-            compositionStage = ComposedBlissWord.Stage.B
+            sourceWord      = word,
+            lemma           = resolvedLemma,
+            sourceLang      = lang,
+            components      = components,
+            compositionPath = CompositionPath.SEMANTIC_DECOMPOSITION
         )
     }
 
@@ -253,14 +253,14 @@ class BlissSemanticComposer(
             val rightSymbol = lookup.toSymbol(id = rightId, source = right, lemma = right, mt = BlissSymbol.MatchType.COMPOUND)
 
             return ComposedBlissWord(
-                sourceWord       = originalWord,
-                lemma            = originalWord,
-                sourceLang       = lang,
-                components       = listOf(
+                sourceWord      = originalWord,
+                lemma           = originalWord,
+                sourceLang      = lang,
+                components      = listOf(
                     ResolvedBlissComponent(symbol = leftSymbol,  lemma = left),
                     ResolvedBlissComponent(symbol = rightSymbol, lemma = right)
                 ),
-                compositionStage = ComposedBlissWord.Stage.C
+                compositionPath = CompositionPath.ORTHOGRAPHIC
             )
         }
         Log.v(TAG, "stageCStructured: no valid split for '$w'")

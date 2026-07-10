@@ -563,7 +563,7 @@ class BlissTranslateFragment : Fragment() {
         mixedRowView.bind(slots)
 
         slots.filterIsInstance<MixedTokenSlot.SvgSlot>().forEach { svgSlot ->
-            val container = mixedRowView.svgContainerFor(svgSlot.composedWord.sourceToken)
+            val container = mixedRowView.svgContainerFor(svgSlot.composedWord.sourceWord)
                 as? LinearLayout ?: return@forEach
             viewLifecycleOwner.lifecycleScope.launch {
                 renderer.renderWithAttachments(container, svgSlot.composedWord)

@@ -44,7 +44,7 @@ import com.google.android.material.chip.Chip
  * 2. Chiamare `bind(slots)` una volta.
  * 3. Per ogni [MixedTokenSlot.SvgSlot], lanciare
  *    `BlissRenderer.renderWithAttachments()` passando il FrameLayout
- *    recuperato via `findViewWithTag("svg_slot_<sourceToken>")`.
+ *    recuperato via `findViewWithTag("svg_slot_<sourceWord>")`.
  *
  * @see MixedTokenSlot
  * @see BlissRenderer
@@ -108,14 +108,14 @@ class MixedBlissRowView @JvmOverloads constructor(
     }
 
     /**
-     * Restituisce il [FrameLayout] container del token SVG identificato da [sourceToken],
+     * Restituisce il [FrameLayout] container del token SVG identificato da [sourceWord],
      * oppure `null` se lo slot non è presente o non è un [MixedTokenSlot.SvgSlot].
      *
      * Il Fragment lo usa per passare il container a
      * `BlissRenderer.renderWithAttachments(container, composedWord)`.
      */
-    fun svgContainerFor(sourceToken: String): FrameLayout? =
-        findViewWithTag(svgTag(sourceToken))
+    fun svgContainerFor(sourceWord: String): FrameLayout? =
+        findViewWithTag(svgTag(sourceWord))
 
     // ── Costruzione view ───────────────────────────────────────────────
 
@@ -149,7 +149,7 @@ class MixedBlissRowView @JvmOverloads constructor(
 
     /**
      * FrameLayout container per il rendering SVG asincrono.
-     * Il tag `svg_slot_<sourceToken>` consente al Fragment di recuperare
+     * Il tag `svg_slot_<sourceWord>` consente al Fragment di recuperare
      * il container via [svgContainerFor] o `findViewWithTag`.
      *
      * La dimensione minima garantisce che il placeholder non collassi a 0
@@ -158,12 +158,13 @@ class MixedBlissRowView @JvmOverloads constructor(
     private fun buildSvgContainer(composedWord: ComposedBlissWord): FrameLayout {
         val minSizePx = with(DpUtil) { 48.dpToPx(resources) }
         return FrameLayout(context).apply {
-            tag = svgTag(composedWord.sourceToken)
+            tag = svgTag(composedWord.sourceWord)
             minimumWidth  = minSizePx
             minimumHeight = minSizePx
             contentDescription = composedWord.components
-                .mapNotNull { it.symbol.label }
-                .joinToString(separator = " ")
+                .joinToString(separator = " ") { component: ResolvedBlissComponent ->
+                    component.symbol.name
+                }
             layoutParams = MarginLayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
@@ -207,8 +208,9 @@ class MixedBlissRowView @JvmOverloads constructor(
                         slot.symbol.displayLabel() ?: ""
                     is MixedTokenSlot.SvgSlot     ->
                         slot.composedWord.components
-                            .mapNotNull { it.symbol.label }
-                            .joinToString(" ")
+                            .joinToString(" ") { component: ResolvedBlissComponent ->
+                                component.symbol.name
+                            }
                     is MixedTokenSlot.PendingSlot ->
                         context.getString(android.R.string.unknownName)
                 }
@@ -230,7 +232,7 @@ class MixedBlissRowView @JvmOverloads constructor(
 
     // ── Helpers ────────────────────────────────────────────────────────
 
-    private fun svgTag(sourceToken: String) = "svg_slot_$sourceToken"
+    private fun svgTag(sourceWord: String) = "svg_slot_$sourceWord"
 }
 
 // ── MixedTokenSlot — sealed hierarchy ────────────────────────────────────────
