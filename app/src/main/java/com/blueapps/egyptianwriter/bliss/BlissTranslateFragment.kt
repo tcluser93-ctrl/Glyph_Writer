@@ -84,6 +84,11 @@ import java.util.Locale
  * Il branch multi-token STRUCTURED ora delega a [renderMixedRow] che usa
  * [MixedBlissRowView.bind] per garantire ordine token e spacing uniforme.
  * [renderStructuredMultiToken] è stato rimosso.
+ *
+ * ## Patch 14 — fix cast FrameLayout in renderMixedRow
+ * [MixedBlissRowView.svgContainerFor] restituisce [FrameLayout], non [LinearLayout].
+ * Il cast corretto è `as? FrameLayout`; [BlissRenderer.renderWithAttachments] accetta
+ * [ViewGroup] in entrambi i casi, quindi nessuna modifica alla firma del renderer.
  */
 class BlissTranslateFragment : Fragment() {
 
@@ -539,7 +544,7 @@ class BlissTranslateFragment : Fragment() {
         }
     }
 
-    // ── Patch 11 — renderMixedRow ──────────────────────────────────────
+    // ── Patch 11 + Patch 14 — renderMixedRow ──────────────────────────
 
     /**
      * Renders a multi-token result via [MixedBlissRowView].
@@ -549,8 +554,10 @@ class BlissTranslateFragment : Fragment() {
      * (guaranteeing visual order), then launches one coroutine per [MixedTokenSlot.SvgSlot]
      * to drive [BlissRenderer.renderWithAttachments] against the pre-allocated container.
      *
-     * This replaces the old `renderStructuredMultiToken()` + `applySymbols()` two-call
-     * pattern that had a race condition on SVG coroutine completion order.
+     * ## Patch 14 fix
+     * [MixedBlissRowView.svgContainerFor] returns [FrameLayout], not [LinearLayout].
+     * The safe cast `as? FrameLayout` replaces the incorrect `as? LinearLayout` that
+     * would have thrown [ClassCastException] at runtime for every SVG slot.
      */
     private fun renderMixedRow(state: BlissViewModel.UiState) {
         val slots = state.symbols.mapIndexed { i, sym ->
@@ -563,8 +570,9 @@ class BlissTranslateFragment : Fragment() {
         mixedRowView.bind(slots)
 
         slots.filterIsInstance<MixedTokenSlot.SvgSlot>().forEach { svgSlot ->
+            // Patch 14: svgContainerFor() returns FrameLayout, not LinearLayout.
             val container = mixedRowView.svgContainerFor(svgSlot.composedWord.sourceWord)
-                as? LinearLayout ?: return@forEach
+                ?: return@forEach
             viewLifecycleOwner.lifecycleScope.launch {
                 renderer.renderWithAttachments(container, svgSlot.composedWord)
             }

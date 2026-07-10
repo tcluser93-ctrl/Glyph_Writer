@@ -1,6 +1,6 @@
 # BlissTranslator — Integration Guide
 
-> Last updated: **Patch 11 — Fragment MixedBlissRowView integration** (2026-07-10)
+> Last updated: **Patch 14 — fix cast FrameLayout in renderMixedRow** (2026-07-10)
 
 ---
 
@@ -34,8 +34,8 @@ List<BlissSymbol>  (1..N per token da Tier 4)
 BlissViewModel: resolve ComposedBlissWord? per ogni SEMANTIC symbol
     ↓
   renderMode == CLASSIC              →  BlissGlyphXBuilder → BlissRenderer.render()
-  renderMode == STRUCTURED (1 token) →  BlissRenderer.renderWithAttachments()  ✅ Patch 9
-  renderMode == STRUCTURED (multi)   →  MixedBlissRowView.bind() + svgContainerFor() ✅ Patch 11
+  renderMode == STRUCTURED (1 token) →  BlissRenderer.renderWithAttachments()  ✅ P9
+  renderMode == STRUCTURED (multi)   →  MixedBlissRowView.bind() + svgContainerFor() ✅ P11/P14
     ↓
 FlexboxLayout (classic) / MixedBlissRowView (multi structured) / CAA RecyclerView
 ```
@@ -57,6 +57,8 @@ FlexboxLayout (classic) / MixedBlissRowView (multi structured) / CAA RecyclerVie
 | MorfologikTagMapperTest | test isolato mapper | ✅ CLOSED (post-P9) |
 | MixedBlissRowView | container unificato chip+SVG multi-token | ✅ CLOSED (P10) |
 | Fragment integrazione MixedBlissRowView | renderMixedRow sostituisce renderStructuredMultiToken | ✅ CLOSED (P11) |
+| MixedBlissRowView nel layout XML | fragment_translate.xml mixed_bliss_row_view | ✅ CLOSED (P12) |
+| cast FrameLayout in renderMixedRow | svgContainerFor() as? FrameLayout (era LinearLayout) | ✅ CLOSED (P14) |
 
 ---
 
@@ -78,6 +80,58 @@ consentono migrazione graduale senza breaking change.
 
 ---
 
+## Patch 14 — fix cast FrameLayout in renderMixedRow
+
+`MixedBlissRowView.svgContainerFor()` restituisce `FrameLayout?`, non `LinearLayout?`.
+Il cast `as? LinearLayout` in `renderMixedRow()` era silenziosamente `null` per ogni
+`SvgSlot`, rendendo il rendering SVG multi-token completamente non funzionante a runtime
+senza produrre crash visibili (il `?: return@forEach` mascherava il problema).
+
+**Fix applicato in `BlissTranslateFragment.kt`:**
+
+```kotlin
+// Prima (errato — sempre null a runtime)
+val container = mixedRowView.svgContainerFor(svgSlot.composedWord.sourceWord)
+    as? LinearLayout ?: return@forEach
+
+// Dopo (corretto — FrameLayout è il tipo effettivo restituito)
+val container = mixedRowView.svgContainerFor(svgSlot.composedWord.sourceWord)
+    ?: return@forEach
+```
+
+`BlissRenderer.renderWithAttachments()` accetta `ViewGroup` come primo parametro,
+super-classe sia di `FrameLayout` che di `LinearLayout` — nessuna modifica al renderer.
+
+---
+
+## Patch 13 — fix alias, campi e componenti
+
+Risolti 15 errori di compilazione in 3 file:
+
+| File | Errori | Fix |
+|---|---|---|
+| `BlissSemanticComposer.kt` | 3 | `compositionStage=Stage.*` → `compositionPath=CompositionPath.*` |
+| `MixedBlissRowView.kt` | 5 | `sourceToken`→`sourceWord`, `it.symbol.label`→`component.symbol.name` |
+| `BlissTranslateFragment.kt` | 1 (riga 566) | `sourceToken`→`sourceWord` |
+
+---
+
+## Patch 12 — MixedBlissRowView nel layout XML
+
+`fragment_translate.xml`: aggiunto blocco dopo `@id/symbol_container`:
+```xml
+<com.blueapps.egyptianwriter.bliss.MixedBlissRowView
+    android:id="@+id/mixed_bliss_row_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    android:visibility="gone"
+    tools:visibility="visible" />
+```
+`bindViews()` può ora trovare la view senza `NullPointerException`.
+
+---
+
 ## Patch 11 — Fragment MixedBlissRowView integration
 
 `renderStructuredMultiToken()` è stato rimosso da `BlissTranslateFragment`.
@@ -87,30 +141,6 @@ Il branch multi-token STRUCTURED ora chiama `renderMixedRow(state)` che:
 2. Chiama `mixedRowView.bind(slots)` — ordine visivo garantito per indice
 3. Per ogni `SvgSlot`, lancia una coroutine che chiama
    `BlissRenderer.renderWithAttachments(mixedRowView.svgContainerFor(token), composedWord)`
-
-### Modifiche al Fragment
-
-| Area | Prima (Patch 10) | Dopo (Patch 11) |
-|---|---|---|
-| `bindViews()` | — | Aggiunge `mixedRowView = v.findViewById(R.id.mixed_bliss_row_view)` |
-| `applyCaaVisibility()` | Nasconde solo `symbolContainer` | Nasconde anche `mixedRowView` |
-| `scheduleDebounce()` | Solo `removeAllViews()` | Aggiunge `mixedRowView.bind(emptyList())` |
-| `runTranslation()` clear | Solo `removeAllViews()` | Aggiunge `mixedRowView.bind(emptyList())` |
-| `observeViewModel()` multi-token | `applySymbols + renderStructuredMultiToken` | `renderMixedRow(state)` |
-| `renderStructuredMultiToken()` | Presente | **Rimossa** |
-| `renderMixedRow()` | Assente | **Aggiunta** |
-
-### Prerequisito layout XML
-
-Il file `fragment_translate.xml` deve esporre:
-```xml
-<com.blueapps.egyptianwriter.bliss.MixedBlissRowView
-    android:id="@+id/mixed_bliss_row_view"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:visibility="gone" />
-```
-Positionarlo dopo `@id/symbol_container` e prima di `@id/caa_container`.
 
 ---
 
@@ -137,7 +167,7 @@ mixedRowView.bind(slots: List<MixedTokenSlot>)
 mixedRowView.resolveSlot(index: Int, composedWord: ComposedBlissWord)
 
 // Recupera il FrameLayout container per il renderer SVG
-mixedRowView.svgContainerFor(sourceToken: String): FrameLayout?
+mixedRowView.svgContainerFor(sourceWord: String): FrameLayout?
 ```
 
 ### Problemi risolti
@@ -165,14 +195,16 @@ mixedRowView.svgContainerFor(sourceToken: String): FrameLayout?
 | `CompositionPath` rename (GAP-2) | 100% | ✅ post-P9 |
 | `MixedBlissRowView` container | 100% | ✅ P10 |
 | Fragment integra MixedBlissRowView | 100% | ✅ P11 |
+| `MixedBlissRowView` nel layout XML | 100% | ✅ P12 |
+| Fix alias/campi (sourceToken, label) | 100% | ✅ P13 |
+| Cast FrameLayout in renderMixedRow | 100% | ✅ P14 |
 
 ---
 
-## Roadmap post-Patch 11
+## Roadmap post-Patch 14
 
 | Priorità | Task | Note |
 |---|---|---|
-| MEDIA | Aggiungere `MixedBlissRowView` a `fragment_translate.xml` | Prerequisito già documentato in Patch 11 — `gone` di default |
 | BASSA | Rimuovere `typealias Stage` e `@Deprecated compositionStage` | Dopo migrazione completa di tutti i call-site a `CompositionPath` |
 | BASSA | `ComposedBlissWord.Stage.A/B/C` → `CompositionPath.*` in `BlissSemanticComposerTest` | Prerequisito per la rimozione del typealias |
 
