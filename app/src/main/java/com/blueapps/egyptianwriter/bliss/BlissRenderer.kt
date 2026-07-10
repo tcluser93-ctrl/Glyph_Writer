@@ -52,6 +52,12 @@ import javax.xml.parsers.DocumentBuilderFactory
  * using [BlissRenderAttachment.DEFAULT_OVERLAY_Y_OFFSET_PX] scaled by display
  * density.  The legacy [render] path is unchanged for backward compatibility.
  *
+ * ## Patch 14 — ViewGroup widening
+ * [renderWithAttachments] now accepts [ViewGroup] instead of [LinearLayout],
+ * resolving the ClassCastException when called with [FrameLayout] (from
+ * [MixedBlissRowView.svgContainerFor]) or [FlexboxLayout] (symbolContainer).
+ * [ViewGroup.MarginLayoutParams] replaces [LinearLayout.LayoutParams] for cells.
+ *
  * @param context  Android context (used to create Views).
  * @param provider Pre-initialised [BlissSignProvider].
  * @param scope    [CoroutineScope] whose lifetime matches the host component
@@ -162,7 +168,7 @@ class BlissRenderer(
     }
 
     /**
-     * Patch 7 — structured render path.
+     * Patch 7 — structured render path.  Patch 14 — ViewGroup widening.
      *
      * Renders a [ComposedBlissWord] into [container], drawing one [SvgCellView]
      * per [ResolvedBlissComponent] and positioning indicator SVG overlays using
@@ -177,10 +183,17 @@ class BlissRenderer(
      * Document pipeline continue to work unchanged.  New callers (e.g.
      * BlissViewModel tier-3g result) should prefer [renderWithAttachments].
      *
-     * @param container Target [LinearLayout] (cleared before adding new cells).
+     * ## Patch 14
+     * Parameter type widened from [LinearLayout] to [ViewGroup] so the method
+     * accepts both [FrameLayout] (from [MixedBlissRowView.svgContainerFor]) and
+     * [FlexboxLayout] (symbolContainer) without a ClassCastException.
+     * [ViewGroup.MarginLayoutParams] is used instead of [LinearLayout.LayoutParams]
+     * since [marginEnd] is available on [ViewGroup.MarginLayoutParams].
+     *
+     * @param container Target [ViewGroup] (cleared before adding new cells).
      * @param composed  Structured output from [BlissSemanticComposer.composeStructured].
      */
-    suspend fun renderWithAttachments(container: LinearLayout, composed: ComposedBlissWord) {
+    suspend fun renderWithAttachments(container: ViewGroup, composed: ComposedBlissWord) {
         renderJob?.cancelAndJoin()
         val density = context.resources.displayMetrics.density
 
@@ -267,7 +280,8 @@ class BlissRenderer(
                             }
                     )
                     cell.setDrawableResolved(cellData.baseDrawable)
-                    cell.layoutParams = LinearLayout.LayoutParams(cellPx, cellPx)
+                    // Patch 14: ViewGroup.MarginLayoutParams (marginEnd available, no LinearLayout cast)
+                    cell.layoutParams = ViewGroup.MarginLayoutParams(cellPx, cellPx)
                         .also { it.marginEnd = 4.dpToPx(context) }
 
                     ViewCompat.setAccessibilityDelegate(cell, object : AccessibilityDelegateCompat() {
@@ -302,7 +316,8 @@ class BlissRenderer(
                                     indicators = emptyList()
                                 )
                                 modCell.setDrawableAsync(modifier.bciIndicatorId, (cellPx * MODIFIER_SIZE_RATIO).toFloat())
-                                modCell.layoutParams = LinearLayout.LayoutParams(
+                                // Patch 14: ViewGroup.MarginLayoutParams invece di LinearLayout.LayoutParams
+                                modCell.layoutParams = ViewGroup.MarginLayoutParams(
                                     (cellPx * MODIFIER_SIZE_RATIO).toInt(),
                                     (cellPx * MODIFIER_SIZE_RATIO).toInt()
                                 ).also { it.marginEnd = 2.dpToPx(context) }
