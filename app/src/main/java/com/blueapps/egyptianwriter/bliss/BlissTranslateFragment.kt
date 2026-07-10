@@ -80,15 +80,10 @@ import java.util.Locale
  *   con il primo [ComposedBlissWord] non-null da [BlissViewModel.UiState.composedWords].
  * - [BlissViewModel.RenderMode.CLASSIC]: percorso classico via [BlissGlyphXBuilder] e chip.
  *
- * ## post-Patch 9 — Multi-token STRUCTURED dispatch
- * Quando [BlissViewModel.UiState.renderMode] è [BlissViewModel.RenderMode.STRUCTURED]
- * e [BlissViewModel.UiState.composedWords] contiene **più** voci non-null,
- * [renderStructuredMultiToken] svuota il container e chiama
- * [BlissRenderer.renderWithAttachments] per ciascun [ComposedBlissWord] non-null
- * in sequenza, lasciando i token classic (null) come chip BCI-flat.
- *
- * La cronologia auto-salvataggio è già gestita nel ViewModel: ogni chiamata
- * [BlissViewModel.translate] salva automaticamente in [BlissHistoryRepository].
+ * ## Patch 11 — MixedBlissRowView integrazione
+ * Il branch multi-token STRUCTURED ora delega a [renderMixedRow] che usa
+ * [MixedBlissRowView.bind] per garantire ordine token e spacing uniforme.
+ * [renderStructuredMultiToken] è stato rimosso.
  */
 class BlissTranslateFragment : Fragment() {
 
@@ -132,6 +127,7 @@ class BlissTranslateFragment : Fragment() {
     private lateinit var textOutput:       TextView
     private lateinit var labelSymbols:     TextView
     private lateinit var symbolContainer:  FlexboxLayout
+    private lateinit var mixedRowView:     MixedBlissRowView
     private lateinit var fabShare:         ExtendedFloatingActionButton
     // Blocco C
     private lateinit var switchCaaMode:   SwitchMaterial
@@ -253,6 +249,7 @@ class BlissTranslateFragment : Fragment() {
         textOutput       = v.findViewById(R.id.text_output)
         labelSymbols     = v.findViewById(R.id.label_symbols)
         symbolContainer  = v.findViewById(R.id.symbol_container)
+        mixedRowView     = v.findViewById(R.id.mixed_bliss_row_view)
         fabShare         = v.findViewById(R.id.fab_share)
         switchCaaMode    = v.findViewById(R.id.switch_caa_mode)
         caaContainer     = v.findViewById(R.id.caa_container)
@@ -366,6 +363,7 @@ class BlissTranslateFragment : Fragment() {
         debounceJob?.cancel()
         if (text.isBlank()) {
             symbolContainer.removeAllViews()
+            mixedRowView.bind(emptyList())
             cardAdapter.submitList(emptyList())
             textOutput.text    = ""
             fabShare.isVisible = false
@@ -414,6 +412,7 @@ class BlissTranslateFragment : Fragment() {
         val isCAA = caaModeEnabled
         labelSymbols.isVisible    = !isCAA
         symbolContainer.isVisible = !isCAA
+        mixedRowView.isVisible    = !isCAA
         caaContainer.isVisible    = isCAA
     }
 
@@ -456,14 +455,14 @@ class BlissTranslateFragment : Fragment() {
      * Collects [BlissViewModel.uiState] and dispatches rendering.
      *
      * ## Patch 9 — STRUCTURED dispatch (single first composed word)
-     * ## post-Patch 9 — Multi-token STRUCTURED dispatch
+     * ## Patch 11 — Multi-token STRUCTURED dispatch via MixedBlissRowView
      *
      * When [BlissViewModel.UiState.renderMode] is [BlissViewModel.RenderMode.STRUCTURED]:
      * - If [BlissViewModel.UiState.composedWords] has **exactly one** non-null entry,
      *   calls [BlissRenderer.renderWithAttachments] for that entry.
-     * - If it has **multiple** non-null entries, calls [renderStructuredMultiToken]
-     *   which renders each composed word in order, interleaving classic chip fallbacks
-     *   for null (non-semantic) token positions.
+     * - If it has **multiple** non-null entries, calls [renderMixedRow] which delegates
+     *   to [MixedBlissRowView.bind] + [MixedBlissRowView.svgContainerFor] for each
+     *   structured token, guaranteeing visual order and uniform spacing.
      * - Classic path (all null or renderMode==CLASSIC): uses [applySymbols] with chip/CAA.
      */
     private fun observeViewModel() {
@@ -496,6 +495,8 @@ class BlissTranslateFragment : Fragment() {
                             state.renderMode == BlissViewModel.RenderMode.STRUCTURED
                                     && composedNonNull.size == 1 -> {
                                 // Single-token structured path (Patch 9)
+                                symbolContainer.isVisible = true
+                                mixedRowView.isVisible    = false
                                 applySymbols(state.symbols)
                                 viewLifecycleOwner.lifecycleScope.launch {
                                     renderer.renderWithAttachments(
@@ -506,15 +507,19 @@ class BlissTranslateFragment : Fragment() {
                             }
                             state.renderMode == BlissViewModel.RenderMode.STRUCTURED
                                     && composedNonNull.size > 1 -> {
-                                // Multi-token structured path (post-Patch 9)
-                                applySymbols(state.symbols)
-                                renderStructuredMultiToken(
-                                    state.symbols,
-                                    state.composedWords
-                                )
+                                // Multi-token structured path (Patch 11) — MixedBlissRowView
+                                symbolContainer.isVisible = false
+                                mixedRowView.isVisible    = !caaModeEnabled
+                                if (!caaModeEnabled) {
+                                    renderMixedRow(state)
+                                } else {
+                                    renderCaaCards(state.symbols)
+                                }
                             }
                             else -> {
                                 // Classic path: chip / CAA
+                                symbolContainer.isVisible = !caaModeEnabled
+                                mixedRowView.isVisible    = false
                                 applySymbols(state.symbols)
                             }
                         }
@@ -534,37 +539,34 @@ class BlissTranslateFragment : Fragment() {
         }
     }
 
+    // ── Patch 11 — renderMixedRow ──────────────────────────────────────
+
     /**
-     * Renders a multi-token result where some tokens are structured ([ComposedBlissWord])
-     * and others are classic (null entries in [composedWords]).
+     * Renders a multi-token result via [MixedBlissRowView].
      *
-     * For each token at index `i`:
-     * - If `composedWords[i]` is non-null → calls [BlissRenderer.renderWithAttachments].
-     * - If null → the flat [BlissSymbol] at `symbols[i]` is already rendered as a chip
-     *   by [applySymbols] (which was called before this method); no extra work needed
-     *   since the symbolContainer is a FlexboxLayout and both paths add views to it.
+     * Builds a [MixedTokenSlot] list from [BlissViewModel.UiState.symbols] and
+     * [BlissViewModel.UiState.composedWords], calls [MixedBlissRowView.bind] once
+     * (guaranteeing visual order), then launches one coroutine per [MixedTokenSlot.SvgSlot]
+     * to drive [BlissRenderer.renderWithAttachments] against the pre-allocated container.
      *
-     * **Note**: this method appends SVG views via [BlissRenderer.renderWithAttachments].
-     * Call [applySymbols] first to populate chips for non-semantic tokens; structured
-     * tokens will overlay their SVG rendering on top of the chip row.
-     * A full redesign to a single mixed-mode LinearLayout is tracked as a future item.
+     * This replaces the old `renderStructuredMultiToken()` + `applySymbols()` two-call
+     * pattern that had a race condition on SVG coroutine completion order.
      */
-    private fun renderStructuredMultiToken(
-        symbols:       List<BlissSymbol>,
-        composedWords: List<ComposedBlissWord?>
-    ) {
-        val paired = symbols.zip(
-            composedWords + List((symbols.size - composedWords.size).coerceAtLeast(0)) { null }
-        )
-        viewLifecycleOwner.lifecycleScope.launch {
-            paired.forEach { (_, composed) ->
-                if (composed != null) {
-                    renderer.renderWithAttachments(
-                        symbolContainer as android.widget.LinearLayout,
-                        composed
-                    )
-                }
-                // null tokens: already rendered as chips by applySymbols()
+    private fun renderMixedRow(state: BlissViewModel.UiState) {
+        val slots = state.symbols.mapIndexed { i, sym ->
+            val composed = state.composedWords.getOrNull(i)
+            if (composed != null)
+                MixedTokenSlot.SvgSlot(i, composed)
+            else
+                MixedTokenSlot.ChipSlot(i, sym)
+        }
+        mixedRowView.bind(slots)
+
+        slots.filterIsInstance<MixedTokenSlot.SvgSlot>().forEach { svgSlot ->
+            val container = mixedRowView.svgContainerFor(svgSlot.composedWord.sourceToken)
+                as? LinearLayout ?: return@forEach
+            viewLifecycleOwner.lifecycleScope.launch {
+                renderer.renderWithAttachments(container, svgSlot.composedWord)
             }
         }
     }
@@ -708,6 +710,7 @@ class BlissTranslateFragment : Fragment() {
         if (text.isEmpty()) {
             vm.clearSuggestions()
             symbolContainer.removeAllViews()
+            mixedRowView.bind(emptyList())
             cardAdapter.submitList(emptyList())
             textOutput.text    = getString(R.string.bliss_msg_empty_input)
             fabShare.isVisible = false
