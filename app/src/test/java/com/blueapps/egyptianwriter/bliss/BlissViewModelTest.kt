@@ -15,6 +15,14 @@ import org.junit.jupiter.api.Assertions.*
  * Note: InstantTaskExecutorRule (JUnit 4) is NOT used here — this suite tests
  * only StateFlow-based state via FakeViewModel, which does not require the
  * ArchTaskExecutor override.
+ *
+ * ## Patch 9 additions
+ * - [UiStateTests.renderModeDefaultIsClassic]: asserts [UiState.renderMode] defaults to CLASSIC.
+ * - [UiStateTests.composedWordsDefaultIsEmpty]: asserts [UiState.composedWords] defaults empty.
+ * - [StatsTests.statsCountsSemanticBucket]: asserts [TranslationStats.semantic] counts SEMANTIC symbols.
+ * - [StatsTests.statsMixedWithSemantic]: asserts SEMANTIC counted separately from EXACT/LEMMA.
+ * - [StateMutations.setRenderModeStructured]: FakeViewModel helper sets renderMode=STRUCTURED.
+ * - [StateMutations.setComposedWords]: FakeViewModel helper sets composedWords list.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @DisplayName("BlissViewModel — state, suggestions, stats")
@@ -63,6 +71,40 @@ class BlissViewModelTest {
             assertFalse(original.isLoading)
             assertEquals("en", modified.langCode)
             assertTrue(modified.isLoading)
+        }
+
+        // ── Patch 9: renderMode and composedWords ──────────────────────────
+
+        @Test
+        @DisplayName("Patch 9 — default UiState.renderMode is CLASSIC")
+        fun renderModeDefaultIsClassic() {
+            val state = BlissViewModel.UiState()
+            assertEquals(BlissViewModel.RenderMode.CLASSIC, state.renderMode)
+        }
+
+        @Test
+        @DisplayName("Patch 9 — default UiState.composedWords is empty")
+        fun composedWordsDefaultIsEmpty() {
+            val state = BlissViewModel.UiState()
+            assertTrue(state.composedWords.isEmpty())
+        }
+
+        @Test
+        @DisplayName("Patch 9 — copy with renderMode=STRUCTURED preserves other fields")
+        fun copyWithStructuredRenderMode() {
+            val base     = BlissViewModel.UiState(langCode = "it")
+            val modified = base.copy(renderMode = BlissViewModel.RenderMode.STRUCTURED)
+            assertEquals(BlissViewModel.RenderMode.STRUCTURED, modified.renderMode)
+            assertEquals("it", modified.langCode)
+        }
+
+        @Test
+        @DisplayName("Patch 9 — copy with composedWords non-empty preserves other fields")
+        fun copyWithComposedWords() {
+            val base     = BlissViewModel.UiState(langCode = "en")
+            val modified = base.copy(composedWords = listOf(null, null))
+            assertEquals(2, modified.composedWords.size)
+            assertEquals("en", modified.langCode)
         }
     }
 
@@ -142,6 +184,43 @@ class BlissViewModelTest {
         fun coverageEmptyList() {
             assertEquals(0f, TranslationStats.from(emptyList<BlissSymbol>()).coverage)
         }
+
+        // ── Patch 9: semantic counter ──────────────────────────────────────
+
+        @Test
+        @DisplayName("Patch 9 — from() counts SEMANTIC symbols in .semantic field")
+        fun statsCountsSemanticBucket() {
+            val symbols = List(3) { sym(MatchType.SEMANTIC) }
+            val s = TranslationStats.from(symbols)
+            assertEquals(3, s.semantic)
+            assertEquals(3, s.total)
+            assertEquals(0, s.unknown)
+            assertEquals(1.0f, s.coverage, 0.001f)
+        }
+
+        @Test
+        @DisplayName("Patch 9 — from() mixed with SEMANTIC counts each bucket independently")
+        fun statsMixedWithSemantic() {
+            val symbols = listOf(
+                sym(MatchType.EXACT),
+                sym(MatchType.SEMANTIC),
+                sym(MatchType.SEMANTIC),
+                sym(MatchType.UNKNOWN)
+            )
+            val s = TranslationStats.from(symbols)
+            assertEquals(4,    s.total)
+            assertEquals(1,    s.exact)
+            assertEquals(2,    s.semantic)
+            assertEquals(1,    s.unknown)
+            assertEquals(0.75f, s.coverage, 0.001f)
+        }
+
+        @Test
+        @DisplayName("Patch 9 — semantic=0 when no SEMANTIC symbols present")
+        fun statsSemanticZeroWhenAbsent() {
+            val s = TranslationStats.from(List(3) { sym(MatchType.EXACT) })
+            assertEquals(0, s.semantic)
+        }
     }
 
     // ── StateFlow / ViewModel state mutation tests ─────────────────────────────────────
@@ -172,6 +251,13 @@ class BlissViewModelTest {
                     _state.value = _state.value.copy(suggestions = emptyList())
                 }
             }
+        }
+        // Patch 9 helpers
+        fun setRenderMode(mode: BlissViewModel.RenderMode) {
+            _state.value = _state.value.copy(renderMode = mode)
+        }
+        fun setComposedWords(words: List<ComposedBlissWord?>) {
+            _state.value = _state.value.copy(composedWords = words)
         }
     }
 
@@ -248,6 +334,39 @@ class BlissViewModelTest {
         @DisplayName("onSuggestionQuery with empty string does not crash")
         fun oneLengthBoundary() {
             assertDoesNotThrow { vm.onSuggestionQueryShortPrefix("") }
+        }
+
+        // ── Patch 9: renderMode and composedWords mutations ────────────────
+
+        @Test
+        @DisplayName("Patch 9 — setRenderMode(STRUCTURED) transitions renderMode correctly")
+        fun setRenderModeStructured() {
+            assertEquals(BlissViewModel.RenderMode.CLASSIC, vm.uiState.renderMode)
+            vm.setRenderMode(BlissViewModel.RenderMode.STRUCTURED)
+            assertEquals(BlissViewModel.RenderMode.STRUCTURED, vm.uiState.renderMode)
+        }
+
+        @Test
+        @DisplayName("Patch 9 — setRenderMode(CLASSIC) after STRUCTURED reverts correctly")
+        fun setRenderModeBackToClassic() {
+            vm.setRenderMode(BlissViewModel.RenderMode.STRUCTURED)
+            vm.setRenderMode(BlissViewModel.RenderMode.CLASSIC)
+            assertEquals(BlissViewModel.RenderMode.CLASSIC, vm.uiState.renderMode)
+        }
+
+        @Test
+        @DisplayName("Patch 9 — setComposedWords stores list with null entries")
+        fun setComposedWordsWithNulls() {
+            vm.setComposedWords(listOf(null, null, null))
+            assertEquals(3, vm.uiState.composedWords.size)
+            assertTrue(vm.uiState.composedWords.all { it == null })
+        }
+
+        @Test
+        @DisplayName("Patch 9 — setComposedWords empty list resets to empty")
+        fun setComposedWordsEmpty() {
+            vm.setComposedWords(emptyList())
+            assertTrue(vm.uiState.composedWords.isEmpty())
         }
     }
 

@@ -74,6 +74,13 @@ import java.util.Locale
  * usando [VibrationEffect.createOneShot] su API 26+ oppure il metodo
  * legacy [Vibrator.vibrate] su API più vecchie.
  *
+ * ## Patch 9 — Render dispatch STRUCTURED
+ * [observeViewModel] controlla [BlissViewModel.UiState.renderMode]:
+ * - [BlissViewModel.RenderMode.STRUCTURED]: invoca [BlissRenderer.renderWithAttachments]
+ *   con il primo [ComposedBlissWord] non-null da [BlissViewModel.UiState.composedWords].
+ * - [BlissViewModel.RenderMode.CLASSIC]: percorso classico via [BlissGlyphXBuilder] e
+ *   [BlissRenderer.render] con il documento GlyphX.
+ *
  * La cronologia auto-salvataggio è già gestita nel ViewModel: ogni chiamata
  * [BlissViewModel.translate] salva automaticamente in [BlissHistoryRepository].
  */
@@ -85,6 +92,15 @@ class BlissTranslateFragment : Fragment() {
     // ── E-01: BlissSignProvider — lazy, un'istanza per tutto il Fragment ─────
     private val signProvider: BlissSignProvider by lazy(LazyThreadSafetyMode.NONE) {
         BlissSignProvider(requireContext().applicationContext)
+    }
+
+    // ── Renderer (Patch 9 — structured path) ──────────────────────────────────
+    private val renderer: BlissRenderer by lazy(LazyThreadSafetyMode.NONE) {
+        BlissRenderer(
+            context  = requireContext().applicationContext,
+            provider = signProvider,
+            scope    = viewLifecycleOwner.lifecycleScope
+        )
     }
 
     // ── Engine helper ─────────────────────────────────────────────────────
@@ -207,6 +223,7 @@ class BlissTranslateFragment : Fragment() {
     override fun onDestroyView() {
         debounceJob?.cancel()
         debounceJob = null
+        renderer.cancelRender()
         super.onDestroyView()
     }
 
@@ -435,6 +452,18 @@ class BlissTranslateFragment : Fragment() {
 
     // ── ViewModel observers ───────────────────────────────────────────
 
+    /**
+     * Collects [BlissViewModel.uiState] and dispatches rendering.
+     *
+     * ## Patch 9 — STRUCTURED dispatch
+     * When [BlissViewModel.UiState.renderMode] is [BlissViewModel.RenderMode.STRUCTURED]
+     * and [BlissViewModel.UiState.composedWords] contains at least one non-null entry,
+     * [BlissRenderer.renderWithAttachments] is called with that [ComposedBlissWord].
+     * Otherwise the classic [BlissRenderer.render] path is used with [UiState.glyphXDoc].
+     *
+     * The accessibility announcement uses the first composed word's source word when
+     * available, falling back to the flat symbol list count.
+     */
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -459,12 +488,39 @@ class BlissTranslateFragment : Fragment() {
                     }
 
                     if (state.symbols.isNotEmpty() && state.error == null) {
-                        applySymbols(state.symbols)
+                        // Patch 9: dispatch to structured or classic renderer
+                        val firstComposed = state.composedWords.firstOrNull { it != null }
+                        if (state.renderMode == BlissViewModel.RenderMode.STRUCTURED
+                            && firstComposed != null) {
+                            // STRUCTURED path: use BlissRenderer.renderWithAttachments()
+                            // for the symbol container (standard chip mode shows flat symbols)
+                            applySymbols(state.symbols)
+                            viewLifecycleOwner.lifecycleScope.launch {
+                                val container = symbolContainer
+                                renderer.renderWithAttachments(
+                                    container as android.widget.LinearLayout,
+                                    firstComposed
+                                )
+                            }
+                            announceForA11y(
+                                getString(
+                                    R.string.bliss_a11y_translation_ready,
+                                    state.symbols.size
+                                )
+                            )
+                        } else {
+                            // CLASSIC path: chip/CAA render driven by applySymbols()
+                            applySymbols(state.symbols)
+                            announceForA11y(
+                                getString(
+                                    R.string.bliss_a11y_translation_ready,
+                                    state.symbols.size
+                                )
+                            )
+                        }
+
                         textOutput.text    = state.symbols.joinToString(" ") { it.displayLabel() }
                         fabShare.isVisible = true
-                        announceForA11y(
-                            getString(R.string.bliss_a11y_translation_ready, state.symbols.size)
-                        )
                     } else if (!state.isLoading && state.error == null) {
                         fabShare.isVisible = false
                     }
