@@ -1,21 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   fragment_translate.xml
-  Layout per BlissTranslateFragment — Fase 6 Blocco C (modalità CAA).
+  Layout per BlissTranslateFragment — Patch 12 (2026-07-10).
 
-  Novità Blocco C rispetto al Blocco B:
-  - Row toggle CAA: SwitchMaterial + label
-  - caa_container (GONE di default): RecyclerView verticale per le card grandi
-    + row navigazione avanti/indietro (btn_prev, btn_next)
-  - La modalità chip standard (symbol_container) diventa GONE in modalità CAA
-    e viceversa.
+  Novità Patch 12 rispetto al Blocco C:
+  - Aggiunto MixedBlissRowView (@id/mixed_bliss_row_view) dopo symbol_container
+    per il rendering misto testo+SVG in modalità standard multi-token.
 
   View IDs usati da BlissTranslateFragment.bindViews():
     spinner_language, input_layout_text, edit_input_text,
     label_suggestions, rv_suggestions, btn_translate,
     progress_translate, text_output_label, text_output,
-    label_symbols, symbol_container, fab_share,
-    switch_caa_mode,
+    label_symbols, symbol_container, mixed_bliss_row_view,
+    fab_share, switch_caa_mode,
     caa_container, rv_caa_cards, btn_prev, btn_next
 -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -207,6 +204,19 @@
                 app:alignContent="flex_start"
                 android:accessibilityLiveRegion="polite"
                 tools:ignore="UnusedAttribute" />
+
+            <!-- ═══════════════════════════════════════════════════════════════
+                 PATCH 12 — Riga mista testo+SVG in modalità standard multi-token
+                 GONE di default; il Fragment la mostra via applyCaaVisibility()
+                 quando CAA=false e la traduzione contiene più token.
+                 ═══════════════════════════════════════════════════════════════ -->
+            <com.blueapps.egyptianwriter.bliss.MixedBlissRowView
+                android:id="@+id/mixed_bliss_row_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
             <!-- ═══════════════════════════════════════════════════════════════
                  BLOCCO C — Modalità CAA: card singole + navigazione
