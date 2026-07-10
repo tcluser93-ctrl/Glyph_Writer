@@ -85,10 +85,11 @@ import java.util.Locale
  * [MixedBlissRowView.bind] per garantire ordine token e spacing uniforme.
  * [renderStructuredMultiToken] è stato rimosso.
  *
- * ## Patch 14 — fix cast FrameLayout in renderMixedRow
- * [MixedBlissRowView.svgContainerFor] restituisce [FrameLayout], non [LinearLayout].
- * Il cast corretto è `as? FrameLayout`; [BlissRenderer.renderWithAttachments] accetta
- * [ViewGroup] in entrambi i casi, quindi nessuna modifica alla firma del renderer.
+ * ## Patch 14 — fix cast FlexboxLayout in single-token path
+ * [symbolContainer] è [FlexboxLayout], non [LinearLayout].
+ * [BlissRenderer.renderWithAttachments] ora accetta [ViewGroup] (Patch 14 BlissRenderer),
+ * quindi il cast `as android.widget.LinearLayout` è stato rimosso:
+ * si passa [symbolContainer] direttamente senza cast.
  */
 class BlissTranslateFragment : Fragment() {
 
@@ -461,10 +462,12 @@ class BlissTranslateFragment : Fragment() {
      *
      * ## Patch 9 — STRUCTURED dispatch (single first composed word)
      * ## Patch 11 — Multi-token STRUCTURED dispatch via MixedBlissRowView
+     * ## Patch 14 — cast rimosso nel single-token path
      *
      * When [BlissViewModel.UiState.renderMode] is [BlissViewModel.RenderMode.STRUCTURED]:
      * - If [BlissViewModel.UiState.composedWords] has **exactly one** non-null entry,
-     *   calls [BlissRenderer.renderWithAttachments] for that entry.
+     *   calls [BlissRenderer.renderWithAttachments] passing [symbolContainer] directly
+     *   (FlexboxLayout extends ViewGroup — nessun cast necessario dopo Patch 14).
      * - If it has **multiple** non-null entries, calls [renderMixedRow] which delegates
      *   to [MixedBlissRowView.bind] + [MixedBlissRowView.svgContainerFor] for each
      *   structured token, guaranteeing visual order and uniform spacing.
@@ -499,13 +502,15 @@ class BlissTranslateFragment : Fragment() {
                         when {
                             state.renderMode == BlissViewModel.RenderMode.STRUCTURED
                                     && composedNonNull.size == 1 -> {
-                                // Single-token structured path (Patch 9)
+                                // Single-token structured path (Patch 9 + Patch 14)
+                                // symbolContainer è FlexboxLayout (extends ViewGroup):
+                                // nessun cast necessario, renderWithAttachments accetta ViewGroup.
                                 symbolContainer.isVisible = true
                                 mixedRowView.isVisible    = false
                                 applySymbols(state.symbols)
                                 viewLifecycleOwner.lifecycleScope.launch {
                                     renderer.renderWithAttachments(
-                                        symbolContainer as android.widget.LinearLayout,
+                                        symbolContainer,
                                         composedNonNull.first()
                                     )
                                 }
