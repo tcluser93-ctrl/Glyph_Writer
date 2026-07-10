@@ -17,26 +17,31 @@ package com.blueapps.egyptianwriter.bliss
  * 3. **Backward-compatible shim** — [toFlatSymbol] collapses the structure
  *    into the legacy [BlissSymbol] shape expected by existing callers that
  *    have not yet been migrated to the structured API.
- * 4. **Pipeline stage marker** — [compositionStage] records which stage of
- *    [BlissSemanticComposer] produced this result (A, B, or C) for debugging
- *    and analytics.
+ * 4. **Pipeline stage marker** — [compositionPath] records which stage of
+ *    [BlissSemanticComposer] produced this result for debugging and analytics.
  *
- * @param sourceWord     Original surface word from user input.
- * @param lemma          Top-level lemma resolved from [sourceWord].
- * @param sourceLang     ISO-639-1 code of the input language.
- * @param components     Ordered list of resolved Bliss components.
- *                       At least one element; classifiers precede specifiers.
- * @param compositionStage  Which composer stage produced this result.
- *                       [Stage.A] = direct synset match,
- *                       [Stage.B] = hypernym classifier,
- *                       [Stage.C] = orthographic pivot-split (legacy).
+ * ## GAP-2 (post-Patch 9) — Rename
+ * `compositionStage: Stage` → `compositionPath: CompositionPath`.
+ * The old `Stage` enum is preserved as a `typealias` so existing call-sites
+ * that reference `ComposedBlissWord.Stage.A/B/C` continue to compile without
+ * changes during migration; it will be removed in a future cleanup patch.
+ *
+ * @param sourceWord       Original surface word from user input.
+ * @param lemma            Top-level lemma resolved from [sourceWord].
+ * @param sourceLang       ISO-639-1 code of the input language.
+ * @param components       Ordered list of resolved Bliss components.
+ *                         At least one element; classifiers precede specifiers.
+ * @param compositionPath  Which composer stage produced this result.
+ *                         [CompositionPath.SYNONYM_SYNSET]         = direct synset match (Stage A),
+ *                         [CompositionPath.SEMANTIC_DECOMPOSITION] = hypernym classifier (Stage B),
+ *                         [CompositionPath.ORTHOGRAPHIC]           = orthographic pivot-split (Stage C).
  */
 data class ComposedBlissWord(
     val sourceWord:        String,
     val lemma:             String,
     val sourceLang:        String,
     val components:        List<ResolvedBlissComponent>,
-    val compositionStage:  Stage
+    val compositionPath:   CompositionPath
 ) {
     init {
         require(components.isNotEmpty()) {
@@ -61,6 +66,11 @@ data class ComposedBlissWord(
      * - Single-component results: returns [primarySymbol] directly.
      * - Multi-component results: returns a synthetic [BlissSymbol] with
      *   [BlissSymbol.MatchType.SEMANTIC] and [componentIds] populated.
+     *
+     * MatchType mapping:
+     * - [CompositionPath.SYNONYM_SYNSET]         → [BlissSymbol.MatchType.SEMANTIC]
+     * - [CompositionPath.SEMANTIC_DECOMPOSITION] → [BlissSymbol.MatchType.SEMANTIC]
+     * - [CompositionPath.ORTHOGRAPHIC]           → [BlissSymbol.MatchType.COMPOUND] (legacy opt-in)
      */
     fun toFlatSymbol(): BlissSymbol {
         if (components.size == 1) return primarySymbol
@@ -70,7 +80,7 @@ data class ComposedBlissWord(
             synsetId     = primarySymbol.synsetId,
             sourceWord   = sourceWord,
             lemma        = lemma,
-            matchType    = if (compositionStage == Stage.C)
+            matchType    = if (compositionPath == CompositionPath.ORTHOGRAPHIC)
                                BlissSymbol.MatchType.COMPOUND
                            else
                                BlissSymbol.MatchType.SEMANTIC,
@@ -79,17 +89,38 @@ data class ComposedBlissWord(
         )
     }
 
-    // ── nested types ──────────────────────────────────────────────────────────
-
-    /**
-     * Records which stage of [BlissSemanticComposer] produced this result.
-     */
-    enum class Stage {
-        /** Direct synset match via inverted BlissNet index. */
-        A,
-        /** Hypernym classifier via WordNet coarse-bucket proximity. */
-        B,
-        /** Orthographic pivot-split (legacy opt-in fallback). */
-        C
-    }
+    // ── Backward-compat accessor (deprecated) ─────────────────────────────────
+    /** @deprecated Use [compositionPath] instead. Will be removed in a future patch. */
+    @Deprecated(
+        message = "Use compositionPath instead",
+        replaceWith = ReplaceWith("compositionPath")
+    )
+    val compositionStage: CompositionPath get() = compositionPath
 }
+
+/**
+ * Records which stage of [BlissSemanticComposer] produced a [ComposedBlissWord].
+ *
+ * ## GAP-2 (post-Patch 9)
+ * Renamed from `ComposedBlissWord.Stage` to top-level `CompositionPath`
+ * with explicit semantic names aligned to the target architecture (Tier 4a/4b/4c).
+ */
+enum class CompositionPath {
+    /** Tier 4a — direct synset match via inverted BlissNet index. */
+    SYNONYM_SYNSET,
+    /** Tier 4b — hypernym classifier via WordNet coarse-bucket proximity. */
+    SEMANTIC_DECOMPOSITION,
+    /** Tier 4c — orthographic pivot-split (legacy opt-in fallback). */
+    ORTHOGRAPHIC
+}
+
+/**
+ * Backward-compatibility typealias.
+ * Existing call-sites using `ComposedBlissWord.Stage.A/B/C` will continue to
+ * compile; migrate to [CompositionPath] constants at your convenience.
+ */
+@Deprecated(
+    message = "Use CompositionPath enum directly",
+    replaceWith = ReplaceWith("CompositionPath", "com.blueapps.egyptianwriter.bliss.CompositionPath")
+)
+typealias Stage = CompositionPath

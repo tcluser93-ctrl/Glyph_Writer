@@ -1,6 +1,6 @@
 # BlissTranslator — Integration Guide
 
-> Last updated: **Patch 9** (2026-07-10)
+> Last updated: **post-Patch 9** (2026-07-10)
 
 ---
 
@@ -15,141 +15,92 @@ BlissTranslator.translateAsync()
     ↓
   Tier 3a  lookupSurface()                     → EXACT
   Tier 3b  MorfologikLemmatizer.analyzeWithTags()
-  │        └─ lemma + blissIndicators            → LEMMA  (per-token indicators)
-  │        [ GAP-1: ✅ CLOSED — MorfologikTagMapper è object pubblico;
-  │                              LemmaAnalysis espone rawTag: String? ]
+  │        └─ MorfologikTagMapper.toBlissIndicators(rawTag)
+  │        └─ lemma + rawTag + blissIndicators   → LEMMA  ✅
   Tier 3c  lookupLemma(word)                   → LEMMA
   Tier 3d  heuristicPos() + lookupLemmaPos()   → LEMMA
   Tier 3e  simpleDeaffix() + lookup            → LEMMA
   Tier 3f  lookupSurfaceDb() Room FTS4         → EXACT
-  Tier 4 (ex 3g)  BlissSemanticComposer
-  │        Solo se tutti i tier precedenti → UNKNOWN
-  │        Stage A (4a) synset diretto        → SEMANTIC
-  │        [ GAP-3: ✅ CLOSED — MatchType.COMPOUND presente in BlissSymbol.MatchType;
-  │                              Stage B → COMPOUND, Stage A → SEMANTIC ]
-  │        Stage B (4b) scomposizione bucket  → COMPOUND
-  │        Stage C (4c) ortografico (off)     → SEMANTIC
-  │        [ GAP-2: compositionStage usa Stage A/B/C — KDoc è preciso;
-  │                  rinominare a CompositionPath è opzionale (bassa priorità) ]
+  Tier 4   BlissSemanticComposer
+  │        Stage A (4a) synset → SEMANTIC   [CompositionPath.SYNONYM_SYNSET]
+  │        Stage B (4b) bucket → COMPOUND   [CompositionPath.SEMANTIC_DECOMPOSITION]
+  │        Stage C (4c) ortog  → COMPOUND   [CompositionPath.ORTHOGRAPHIC]
   Tier 3h  UNKNOWN
     ↓
 attachIndicators()    ← conforme al target ✓
     ↓
-List<BlissSymbol>  (1..N per token da tier 4)
+List<BlissSymbol>  (1..N per token da Tier 4)
     ↓
-BlissViewModel: resolve ComposedBlissWord? per ogni SEMANTIC symbol (Patch 8)
+BlissViewModel: resolve ComposedBlissWord? per ogni SEMANTIC symbol
     ↓
-  renderMode == CLASSIC     →  BlissGlyphXBuilder → BlissRenderer.render()
-  renderMode == STRUCTURED  →  BlissRenderer.renderWithAttachments()  (Patch 7+9)
+  renderMode == CLASSIC              →  BlissGlyphXBuilder → BlissRenderer.render()
+  renderMode == STRUCTURED (1 token) →  BlissRenderer.renderWithAttachments()  ✅ Patch 9
+  renderMode == STRUCTURED (multi)   →  renderStructuredMultiToken()           ✅ post-P9
     ↓
-LinearLayout (one SvgCellView per symbol / component)
+FlexboxLayout / LinearLayout (chip per classic, SvgCellView per structured)
 ```
 
 ---
 
-## Gap Analysis — stato aggiornato a Patch 9
+## Gap Analysis — stato finale (tutti chiusi)
 
-### GAP-1 — `MorfologikTagMapper`: ✅ CHIUSO
-
-**Verificato da sorgente**: `MorfologikTagMapper` è già un `object` standalone
-(`MorfologikTagMapper.kt`) con `toBlissIndicators(rawTag)` pubblico e testabile.
-`LemmaAnalysis` espone già `rawTag: String?` e `blissIndicators: List<String>`.
-`MorfologikLemmatizer.analyzeWithTags()` delega a `MorfologikTagMapper`.
-
-**Nessuna modifica richiesta.**
-
----
-
-### GAP-2 — `compositionStage` naming `[BASSA]`
-
-**Stato**: Non critico. `ComposedBlissWord.compositionStage` usa `Stage.A/B/C`
-con KDoc preciso. Rinominare in `CompositionPath` con `SYNONYM_SYNSET /
-SEMANTIC_DECOMPOSITION / ORTHOGRAPHIC` è migliorativo ma è un breaking rename
-che tocca test e BlissTranslator. Rimandato a patch futura.
+| GAP | Titolo | Stato |
+|---|---|---|
+| GAP-1 | MorfologikTagMapper pubblico + rawPosTags | ✅ CLOSED |
+| GAP-2 | compositionStage → compositionPath rename | ✅ CLOSED (post-P9) |
+| GAP-3 | MatchType.COMPOUND ripristinato | ✅ CLOSED |
+| GAP-4 | attachIndicators() conforme | ✅ CLOSED |
+| GAP-5 | Naming Tier 3g → Tier 4 | ✅ CLOSED (P9) |
+| Fragment dispatch single-token | observeViewModel() STRUCTURED | ✅ CLOSED (P9) |
+| Fragment dispatch multi-token | renderStructuredMultiToken() | ✅ CLOSED (post-P9) |
+| BlissViewModelTest Patch 8 fields | renderMode, composedWords, semantic | ✅ CLOSED (P9) |
+| MorfologikTagMapperTest | test isolato mapper | ✅ CLOSED (post-P9) |
 
 ---
 
-### GAP-3 — `MatchType.COMPOUND`: ✅ CHIUSO
+## GAP-2 — CompositionPath rename (post-Patch 9)
 
-**Verificato da sorgente**: `MatchType.COMPOUND` è presente in
-`BlissSymbol.MatchType` con KDoc preciso ("Stage C, legacy opt-in fallback").
-`ComposedBlissWord.toFlatSymbol()` usa `COMPOUND` per Stage C e `SEMANTIC`
-per Stage A/B — allineato al target.
+`ComposedBlissWord.compositionStage: Stage` → `compositionPath: CompositionPath`.
 
-**Nessuna modifica richiesta.**
-
----
-
-### GAP-4 — `attachIndicators()` ✅ CHIUSO (conforme)
-
-Already implemented correctly in `BlissTranslator.attachIndicators()`.
-
----
-
-### GAP-5 — Naming Tier 3g → Tier 4 `[BASSA]`
-
-Documentazione aggiornata in questo file. I commenti in `BlissTranslator.kt`
-allineati a "Tier 4 (Semantic composition)" a Patch 9.
-
----
-
-### Fragment render dispatch: ✅ CHIUSO — Patch 9
-
-**Implementato in `BlissTranslateFragment.observeViewModel()`**:
-
+`CompositionPath` è ora una top-level enum:
 ```kotlin
-val firstComposed = state.composedWords.firstOrNull { it != null }
-if (state.renderMode == BlissViewModel.RenderMode.STRUCTURED
-    && firstComposed != null) {
-    renderer.renderWithAttachments(container, firstComposed)
-} else {
-    // classic chip/CAA path via applySymbols()
+enum class CompositionPath {
+    SYNONYM_SYNSET,         // Tier 4a: synset diretto
+    SEMANTIC_DECOMPOSITION, // Tier 4b: classificatore hypernym
+    ORTHOGRAPHIC            // Tier 4c: pivot ortografico (legacy)
 }
 ```
 
-`BlissRenderer` è ora istanza lazy del Fragment; `cancelRender()` chiamato in
-`onDestroyView()` per evitare memory leak.
+Backward-compat: `typealias Stage = CompositionPath` + `@Deprecated compositionStage`
+consentono migrazione graduale senza breaking change.
 
 ---
 
-### `BlissViewModelTest` Patch 8 fields: ✅ CHIUSO — Patch 9
+## Conformità finale
 
-Aggiunti in `BlissViewModelTest.kt`:
-- `renderModeDefaultIsClassic` — asserta default `CLASSIC`
-- `composedWordsDefaultIsEmpty` — asserta default `emptyList()`
-- `copyWithStructuredRenderMode` — copy con `STRUCTURED`
-- `copyWithComposedWords` — copy con lista non-null
-- `statsCountsSemanticBucket` — `TranslationStats.semantic` conta SEMANTIC
-- `statsMixedWithSemantic` — bucket indipendenti
-- `statsSemanticZeroWhenAbsent` — zero quando nessun SEMANTIC
-- `setRenderModeStructured` / `setRenderModeBackToClassic` — FakeViewModel helpers
-- `setComposedWordsWithNulls` / `setComposedWordsEmpty` — FakeViewModel helpers
-
----
-
-## Conformità attuale vs. target
-
-| Componente | Conformità | Gap | Stato |
-|---|---|---|---|
-| Tier 3a exact surface | 100% | — | ✅ |
-| Tier 3b Morfologik lemma+tag | 100% | GAP-1 | ✅ CLOSED |
-| Tier 3c–3f fallback | 100% | — | ✅ |
-| Tier 4 composer | 100% | GAP-2 naming (opzionale), GAP-3 | ✅ CLOSED |
-| `attachIndicators()` | 100% | — | ✅ |
-| `MorfologikTagMapper` pubblico | 100% | GAP-1 | ✅ CLOSED |
-| Fragment render dispatch | 100% | — | ✅ Patch 9 |
-| `BlissViewModelTest` Patch 8 | 100% | — | ✅ Patch 9 |
-| Documentazione naming Tier 4 | 100% | GAP-5 | ✅ Patch 9 |
-
----
-
-## Roadmap post-Patch 9
-
-| Priorità | Task | File coinvolti |
+| Componente | Conformità | Patch |
 |---|---|---|
-| BASSA | GAP-2: Rinominare `compositionStage` → `compositionPath` con enum esplicito | `ComposedBlissWord.kt`, `BlissSemanticComposer.kt` |
-| MEDIA | `MorfologikTagMapperTest.kt` — test mapper isolato | test/ |
-| MEDIA | Estendere Fragment dispatch per render multi-token (più ComposedBlissWord) | `BlissTranslateFragment.kt` |
+| Tier 3a exact surface | 100% | ✅ |
+| Tier 3b Morfologik lemma+tag | 100% | ✅ |
+| Tier 3c–3f fallback | 100% | ✅ |
+| Tier 4 composer | 100% | ✅ |
+| `attachIndicators()` | 100% | ✅ |
+| `MorfologikTagMapper` pubblico | 100% | ✅ |
+| `MorfologikTagMapperTest` | 100% | ✅ post-P9 |
+| Fragment render dispatch single | 100% | ✅ P9 |
+| Fragment render dispatch multi | 100% | ✅ post-P9 |
+| `BlissViewModelTest` Patch 8 | 100% | ✅ P9 |
+| `CompositionPath` rename (GAP-2) | 100% | ✅ post-P9 |
+
+---
+
+## Roadmap post-post-Patch 9
+
+| Priorità | Task | Note |
+|---|---|---|
+| MEDIA | Unificare container chip+SVG in un unico `MixedBlissRowView` | `renderStructuredMultiToken` attuale appende SVG dopo chip; una view dedicata sarebbe più pulita |
+| BASSA | Rimuovere `typealias Stage` e `@Deprecated compositionStage` | Dopo la migrazione di tutti i call-site a `CompositionPath` |
+| BASSA | `ComposedBlissWord.Stage.A/B/C` → `CompositionPath.*` in `BlissSemanticComposerTest` | Seguire migration guide nel KDoc |
 
 ---
 
@@ -169,57 +120,29 @@ Default Y offset = `BlissRenderAttachment.DEFAULT_OVERLAY_Y_OFFSET_PX = -14f`.
 
 ## MatchType reference
 
-| MatchType | Source | `TranslationStats` field | Note |
-|---|---|---|---|
-| EXACT | Surface / FTS4 | `exact` | |
-| NGRAM | Multi-word phrase | `ngram` | |
-| LEMMA | Morfologik / CSV lemma | `lemma` | |
-| SEMANTIC | Stage A / 4a synset | `semantic` | |
-| COMPOUND | Stage B/C / 4b bucket | — | presente in enum (GAP-3 ✅ CLOSED) |
-| UNKNOWN | Nessun match | `unknown` | |
-| FALLBACK_CATEGORY | Categoria broad | — | |
+| MatchType | Source | `TranslationStats` field |
+|---|---|---|
+| EXACT | Surface / FTS4 | `exact` |
+| NGRAM | Multi-word phrase | `ngram` |
+| LEMMA | Morfologik / CSV lemma | `lemma` |
+| SEMANTIC | Tier 4a (SYNONYM_SYNSET) | `semantic` |
+| COMPOUND | Tier 4b/4c (SEMANTIC_DECOMPOSITION/ORTHOGRAPHIC) | — |
+| UNKNOWN | Nessun match | `unknown` |
+| FALLBACK_CATEGORY | Categoria broad | — |
 
 ---
 
-## TranslationStats (Patch 8)
+## TranslationStats
 
 ```kotlin
 data class TranslationStats(
-    val total:    Int,   // tutti i simboli
-    val exact:    Int,   // EXACT
-    val lemma:    Int,   // LEMMA
-    val ngram:    Int,   // NGRAM
-    val semantic: Int,   // SEMANTIC (Stage A / 4a) — aggiunto Patch 8
-    val unknown:  Int    // UNKNOWN
+    val total:    Int,
+    val exact:    Int,
+    val lemma:    Int,
+    val ngram:    Int,
+    val semantic: Int,   // SEMANTIC (Tier 4a)
+    val unknown:  Int
 )
-// coverage = (total - unknown) / total
-```
-
----
-
-## UiState fields (Patch 8 + 9)
-
-| Field | Type | Description |
-|---|---|---|
-| `composedWords` | `List<ComposedBlissWord?>` | Per-token strutturato; null = non-semantic |
-| `renderMode` | `RenderMode` | `CLASSIC` o `STRUCTURED` |
-
----
-
-## Fragment render dispatch — ✅ implementato in Patch 9
-
-```kotlin
-// BlissTranslateFragment.observeViewModel() — Patch 9
-val firstComposed = state.composedWords.firstOrNull { it != null }
-if (state.renderMode == BlissViewModel.RenderMode.STRUCTURED
-    && firstComposed != null) {
-    renderer.renderWithAttachments(
-        container as LinearLayout,
-        firstComposed
-    )
-} else {
-    applySymbols(state.symbols)  // classic chip/CAA path
-}
 ```
 
 ---
@@ -242,5 +165,5 @@ if (state.renderMode == BlissViewModel.RenderMode.STRUCTURED
 | `BlissLookupTest.kt` | CSV loading, lemma/surface/pos | ✅ |
 | `BlissGlyphXBuilderCoreTest.kt` | GlyphX Document | ✅ |
 | `BlissGlyphXBuilderSvgTest.kt` | SVG export | ✅ |
-| `BlissViewModelTest.kt` | UiState, Stats, renderMode, composedWords (Patch 9) | ✅ |
-| `MorfologikTagMapperTest.kt` | Tag mapper isolato | TODO post-Patch 9 |
+| `BlissViewModelTest.kt` | UiState, Stats, renderMode, composedWords | ✅ |
+| `MorfologikTagMapperTest.kt` | toBlissIndicators: null/plural/past/future/mixed | ✅ post-P9 |

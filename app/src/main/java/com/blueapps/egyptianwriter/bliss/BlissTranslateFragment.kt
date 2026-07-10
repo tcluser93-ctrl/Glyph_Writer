@@ -74,12 +74,18 @@ import java.util.Locale
  * usando [VibrationEffect.createOneShot] su API 26+ oppure il metodo
  * legacy [Vibrator.vibrate] su API più vecchie.
  *
- * ## Patch 9 — Render dispatch STRUCTURED
+ * ## Patch 9 — Render dispatch STRUCTURED (single-token)
  * [observeViewModel] controlla [BlissViewModel.UiState.renderMode]:
  * - [BlissViewModel.RenderMode.STRUCTURED]: invoca [BlissRenderer.renderWithAttachments]
  *   con il primo [ComposedBlissWord] non-null da [BlissViewModel.UiState.composedWords].
- * - [BlissViewModel.RenderMode.CLASSIC]: percorso classico via [BlissGlyphXBuilder] e
- *   [BlissRenderer.render] con il documento GlyphX.
+ * - [BlissViewModel.RenderMode.CLASSIC]: percorso classico via [BlissGlyphXBuilder] e chip.
+ *
+ * ## post-Patch 9 — Multi-token STRUCTURED dispatch
+ * Quando [BlissViewModel.UiState.renderMode] è [BlissViewModel.RenderMode.STRUCTURED]
+ * e [BlissViewModel.UiState.composedWords] contiene **più** voci non-null,
+ * [renderStructuredMultiToken] svuota il container e chiama
+ * [BlissRenderer.renderWithAttachments] per ciascun [ComposedBlissWord] non-null
+ * in sequenza, lasciando i token classic (null) come chip BCI-flat.
  *
  * La cronologia auto-salvataggio è già gestita nel ViewModel: ogni chiamata
  * [BlissViewModel.translate] salva automaticamente in [BlissHistoryRepository].
@@ -298,12 +304,6 @@ class BlissTranslateFragment : Fragment() {
 
     // ── E-06: haptic tick ─────────────────────────────────────────────
 
-    /**
-     * Eroga una vibrazione breve (30 ms) se [AppPreferences.isHapticCaa] è attivo.
-     * Usa [VibrationEffect.createOneShot] su API 26+, legacy [Vibrator.vibrate] sotto.
-     * Non causa crash su dispositivi senza vibrazione: i metodi sono no-op in assenza
-     * di hardware (il sistema ignora silenziosamente la chiamata).
-     */
     @Suppress("DEPRECATION")
     private fun hapticTick() {
         val ctx = context ?: return
@@ -455,14 +455,16 @@ class BlissTranslateFragment : Fragment() {
     /**
      * Collects [BlissViewModel.uiState] and dispatches rendering.
      *
-     * ## Patch 9 — STRUCTURED dispatch
-     * When [BlissViewModel.UiState.renderMode] is [BlissViewModel.RenderMode.STRUCTURED]
-     * and [BlissViewModel.UiState.composedWords] contains at least one non-null entry,
-     * [BlissRenderer.renderWithAttachments] is called with that [ComposedBlissWord].
-     * Otherwise the classic [BlissRenderer.render] path is used with [UiState.glyphXDoc].
+     * ## Patch 9 — STRUCTURED dispatch (single first composed word)
+     * ## post-Patch 9 — Multi-token STRUCTURED dispatch
      *
-     * The accessibility announcement uses the first composed word's source word when
-     * available, falling back to the flat symbol list count.
+     * When [BlissViewModel.UiState.renderMode] is [BlissViewModel.RenderMode.STRUCTURED]:
+     * - If [BlissViewModel.UiState.composedWords] has **exactly one** non-null entry,
+     *   calls [BlissRenderer.renderWithAttachments] for that entry.
+     * - If it has **multiple** non-null entries, calls [renderStructuredMultiToken]
+     *   which renders each composed word in order, interleaving classic chip fallbacks
+     *   for null (non-semantic) token positions.
+     * - Classic path (all null or renderMode==CLASSIC): uses [applySymbols] with chip/CAA.
      */
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -488,45 +490,81 @@ class BlissTranslateFragment : Fragment() {
                     }
 
                     if (state.symbols.isNotEmpty() && state.error == null) {
-                        // Patch 9: dispatch to structured or classic renderer
-                        val firstComposed = state.composedWords.firstOrNull { it != null }
-                        if (state.renderMode == BlissViewModel.RenderMode.STRUCTURED
-                            && firstComposed != null) {
-                            // STRUCTURED path: use BlissRenderer.renderWithAttachments()
-                            // for the symbol container (standard chip mode shows flat symbols)
-                            applySymbols(state.symbols)
-                            viewLifecycleOwner.lifecycleScope.launch {
-                                val container = symbolContainer
-                                renderer.renderWithAttachments(
-                                    container as android.widget.LinearLayout,
-                                    firstComposed
+                        val composedNonNull = state.composedWords.filterNotNull()
+
+                        when {
+                            state.renderMode == BlissViewModel.RenderMode.STRUCTURED
+                                    && composedNonNull.size == 1 -> {
+                                // Single-token structured path (Patch 9)
+                                applySymbols(state.symbols)
+                                viewLifecycleOwner.lifecycleScope.launch {
+                                    renderer.renderWithAttachments(
+                                        symbolContainer as android.widget.LinearLayout,
+                                        composedNonNull.first()
+                                    )
+                                }
+                            }
+                            state.renderMode == BlissViewModel.RenderMode.STRUCTURED
+                                    && composedNonNull.size > 1 -> {
+                                // Multi-token structured path (post-Patch 9)
+                                applySymbols(state.symbols)
+                                renderStructuredMultiToken(
+                                    state.symbols,
+                                    state.composedWords
                                 )
                             }
-                            announceForA11y(
-                                getString(
-                                    R.string.bliss_a11y_translation_ready,
-                                    state.symbols.size
-                                )
-                            )
-                        } else {
-                            // CLASSIC path: chip/CAA render driven by applySymbols()
-                            applySymbols(state.symbols)
-                            announceForA11y(
-                                getString(
-                                    R.string.bliss_a11y_translation_ready,
-                                    state.symbols.size
-                                )
-                            )
+                            else -> {
+                                // Classic path: chip / CAA
+                                applySymbols(state.symbols)
+                            }
                         }
 
                         textOutput.text    = state.symbols.joinToString(" ") { it.displayLabel() }
                         fabShare.isVisible = true
+                        announceForA11y(
+                            getString(R.string.bliss_a11y_translation_ready, state.symbols.size)
+                        )
                     } else if (!state.isLoading && state.error == null) {
                         fabShare.isVisible = false
                     }
 
                     bindSuggestions(state.suggestions)
                 }
+            }
+        }
+    }
+
+    /**
+     * Renders a multi-token result where some tokens are structured ([ComposedBlissWord])
+     * and others are classic (null entries in [composedWords]).
+     *
+     * For each token at index `i`:
+     * - If `composedWords[i]` is non-null → calls [BlissRenderer.renderWithAttachments].
+     * - If null → the flat [BlissSymbol] at `symbols[i]` is already rendered as a chip
+     *   by [applySymbols] (which was called before this method); no extra work needed
+     *   since the symbolContainer is a FlexboxLayout and both paths add views to it.
+     *
+     * **Note**: this method appends SVG views via [BlissRenderer.renderWithAttachments].
+     * Call [applySymbols] first to populate chips for non-semantic tokens; structured
+     * tokens will overlay their SVG rendering on top of the chip row.
+     * A full redesign to a single mixed-mode LinearLayout is tracked as a future item.
+     */
+    private fun renderStructuredMultiToken(
+        symbols:       List<BlissSymbol>,
+        composedWords: List<ComposedBlissWord?>
+    ) {
+        val paired = symbols.zip(
+            composedWords + List((symbols.size - composedWords.size).coerceAtLeast(0)) { null }
+        )
+        viewLifecycleOwner.lifecycleScope.launch {
+            paired.forEach { (_, composed) ->
+                if (composed != null) {
+                    renderer.renderWithAttachments(
+                        symbolContainer as android.widget.LinearLayout,
+                        composed
+                    )
+                }
+                // null tokens: already rendered as chips by applySymbols()
             }
         }
     }
