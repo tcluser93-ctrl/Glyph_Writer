@@ -21,7 +21,7 @@ import org.w3c.dom.Document
  *
  *     ExportBottomSheetFragment
  *         .newInstance(builder, glyphXDocument)
- *         .show(childFragmentManager, "export")
+ *         .show(childFragmentManager, TAG)
  *
  * Il Fragment mantiene riferimenti transient a [builder] e [doc]: non vengono
  * serializzati in Bundle perche Document non e Parcelable. Se il processo
@@ -96,6 +96,8 @@ class ExportBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     companion object {
+        const val TAG = "ExportBottomSheet"
+
         fun newInstance(
             builder: BlissGlyphXBuilder,
             doc: Document
