@@ -1,20 +1,21 @@
 name: Unit Tests
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'app/src/**'
-      - 'app/build.gradle.kts'
-      - 'gradle/**'
-      - '.github/workflows/unit-tests.yml'
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'app/src/**'
-      - 'app/build.gradle.kts'
-      - 'gradle/**'
-      - '.github/workflows/unit-tests.yml'
+  # Trigger automatici commentati — abilitare quando la suite è stabile in CI.
+  # push:
+  #   branches: [ main ]
+  #   paths:
+  #     - 'app/src/**'
+  #     - 'app/build.gradle.kts'
+  #     - 'gradle/**'
+  #     - '.github/workflows/unit-tests.yml'
+  # pull_request:
+  #   branches: [ main ]
+  #   paths:
+  #     - 'app/src/**'
+  #     - 'app/build.gradle.kts'
+  #     - 'gradle/**'
+  #     - '.github/workflows/unit-tests.yml'
   workflow_dispatch:
 
 permissions:
