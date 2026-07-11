@@ -1,6 +1,5 @@
 package com.blueapps.egyptianwriter.bliss
 
-import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -14,8 +13,6 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 import android.widget.*
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
-import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -26,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.blueapps.egyptianwriter.AppPreferences
 import com.blueapps.egyptianwriter.R
+import com.blueapps.egyptianwriter.ui.ExportBottomSheetFragment
 import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
@@ -33,13 +31,10 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
 import java.util.Locale
 
 /**
@@ -55,6 +50,12 @@ import java.util.Locale
  *  - **CAA**: RecyclerView verticale ([rvCaaCards]) con card grandi
  *    ([BlissSymbolCardAdapter]) + pulsanti Indietro/Avanti ([btnPrev]/[btnNext])
  *    che scorrono il contenuto e aggiornano [caaCurrentIndex].
+ *
+ * ## Blocco D — Export SVG / PNG / PDF
+ * Il [fabShare] apre [ExportBottomSheetFragment] passando il [BlissGlyphXBuilder]
+ * corrente e il [BlissGlyphXDoc] prodotto dall'ultimo render. La bottom sheet
+ * delega a [com.blueapps.egyptianwriter.bliss.BlissExportHelper] per la
+ * generazione e la condivisione del file.
  *
  * ## E-01 — Rendering SVG reale nelle card CAA
  * [signProvider] è lazy e vive per l'intero ciclo di vita del Fragment.
@@ -503,8 +504,6 @@ class BlissTranslateFragment : Fragment() {
                             state.renderMode == BlissViewModel.RenderMode.STRUCTURED
                                     && composedNonNull.size == 1 -> {
                                 // Single-token structured path (Patch 9 + Patch 14)
-                                // symbolContainer è FlexboxLayout (extends ViewGroup):
-                                // nessun cast necessario, renderWithAttachments accetta ViewGroup.
                                 symbolContainer.isVisible = true
                                 mixedRowView.isVisible    = false
                                 applySymbols(state.symbols)
@@ -575,7 +574,6 @@ class BlissTranslateFragment : Fragment() {
         mixedRowView.bind(slots)
 
         slots.filterIsInstance<MixedTokenSlot.SvgSlot>().forEach { svgSlot ->
-            // Patch 14: svgContainerFor() returns FrameLayout, not LinearLayout.
             val container = mixedRowView.svgContainerFor(svgSlot.composedWord.sourceWord)
                 ?: return@forEach
             viewLifecycleOwner.lifecycleScope.launch {
@@ -664,40 +662,22 @@ class BlissTranslateFragment : Fragment() {
         BlissSymbol.MatchType.UNKNOWN           -> 0xFFFFD0D0.toInt()
     }
 
-    // ── FAB share SVG ─────────────────────────────────────────────────
+    // ── Blocco D: FAB share → ExportBottomSheetFragment ───────────────
 
+    /**
+     * Apre [ExportBottomSheetFragment] passando il documento SVG corrente.
+     *
+     * Guard: se [glyphXBuilder] o [BlissViewModel.UiState.glyphXDoc] sono null
+     * (nessuna traduzione ancora eseguita) il click viene ignorato silenziosamente.
+     * La bottom sheet espone SVG, PNG e PDF tramite [BlissExportHelper].
+     */
     private fun setupFabShare() {
-        fabShare.setOnClickListener { shareSvg() }
-    }
-
-    private fun shareSvg() {
-        val doc = vm.uiState.value.glyphXDoc ?: return
-        viewLifecycleOwner.lifecycleScope.launch {
-            val svgBytes: ByteArray = withContext(Dispatchers.IO) {
-                val b = glyphXBuilder ?: return@withContext ByteArray(0)
-                b.toSvgBytes(doc)
-            }
-            if (svgBytes.isEmpty()) {
-                Toast.makeText(
-                    requireContext(), getString(R.string.bliss_msg_error), Toast.LENGTH_SHORT
-                ).show()
-                return@launch
-            }
-            val shareDir = File(requireContext().cacheDir, "bliss_share").also { it.mkdirs() }
-            val svgFile  = File(shareDir, "bliss_translation.svg")
-            withContext(Dispatchers.IO) { svgFile.writeBytes(svgBytes) }
-            val uri = FileProvider.getUriForFile(
-                requireContext(), FILE_PROVIDER_AUTHORITY, svgFile
-            )
-            val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "image/svg+xml"
-                putExtra(Intent.EXTRA_STREAM, uri)
-                putExtra(Intent.EXTRA_SUBJECT, getString(R.string.bliss_msg_share_title))
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-            startActivity(
-                Intent.createChooser(sendIntent, getString(R.string.bliss_msg_share_chooser))
-            )
+        fabShare.setOnClickListener {
+            val builder = glyphXBuilder ?: return@setOnClickListener
+            val doc     = vm.uiState.value.glyphXDoc ?: return@setOnClickListener
+            ExportBottomSheetFragment
+                .newInstance(builder, doc)
+                .show(childFragmentManager, ExportBottomSheetFragment.TAG)
         }
     }
 
@@ -743,7 +723,6 @@ class BlissTranslateFragment : Fragment() {
         private const val ARG_LANG                = "arg_lang"
         private const val DEFAULT_LANG            = "it"
         private const val CELL_SIZE_DP            = 72
-        private const val FILE_PROVIDER_AUTHORITY = "com.blueapps.fileprovider"
         const val DEBOUNCE_MS                     = 400L
 
         private const val KEY_CAA_MODE  = "caa_mode_enabled"
