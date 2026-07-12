@@ -10,6 +10,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.LinearLayout
 import androidx.annotation.WorkerThread
 import androidx.core.view.AccessibilityDelegateCompat
@@ -58,6 +59,30 @@ import javax.xml.parsers.DocumentBuilderFactory
  * [MixedBlissRowView.svgContainerFor]) or [FlexboxLayout] (symbolContainer).
  * [ViewGroup.MarginLayoutParams] replaces [LinearLayout.LayoutParams] for cells.
  *
+ * ## Patch 20 — Three SVG blank-cell fixes
+ *
+ * ### isDirty gate (critical)
+ * [SvgCellView.onDraw] previously cleared `isDirty` at the **top** of the
+ * method, before the `w==0 || h==0` guard.  If the View was not yet measured
+ * when the drawable arrived (common on the first render after a translation),
+ * `onDraw` exited early but had already set `isDirty=false`, permanently
+ * suppressing all future [invalidate] calls.  The cell stayed blank forever
+ * even after the asset was fully loaded.  Fix: move `isDirty = false` to
+ * **after** the dimension guard so an un-measured early-exit does not consume
+ * the dirty flag.
+ *
+ * ### resolveCellPx denominator
+ * [resolveCellPx] was called before [ViewGroup.removeAllViews], so
+ * `container.childCount` included stale children from the previous render
+ * pass, inflating the divisor and producing undersized cells.  The method now
+ * receives the intended `symbolCount` explicitly.
+ *
+ * ### setDrawableAsync post-layout guard
+ * Linear-modifier [SvgCellView]s were created and added before the first
+ * layout pass, causing [setDrawableAsync] to fetch at [DEFAULT_CELL_DP]
+ * instead of the actual measured size.  A [ViewTreeObserver.OnPreDrawListener]
+ * defers the load until after the first measure.
+ *
  * @param context  Android context (used to create Views).
  * @param provider Pre-initialised [BlissSignProvider].
  * @param scope    [CoroutineScope] whose lifetime matches the host component
@@ -80,6 +105,10 @@ class BlissRenderer(
      * inflated (on Main).  Cancels any previously running render automatically.
      *
      * Must be called from a coroutine (typically launched on Main).
+     *
+     * ## Patch 20 — resolveCellPx called with symbolCount before removeAllViews
+     * [resolveCellPx] now receives the intended [symbols].size so stale
+     * children from the previous render pass do not inflate the divisor.
      */
     suspend fun render(container: LinearLayout, document: Document) {
         renderJob?.cancelAndJoin()
@@ -94,7 +123,9 @@ class BlissRenderer(
                     return@launch
                 }
 
-                val cellPx = resolveCellPx(container)
+                // Patch 20: pass symbols.size so resolveCellPx uses the correct
+                // denominator regardless of stale childCount before removeAllViews.
+                val cellPx = resolveCellPx(container, symbols.size)
 
                 val drawables = withContext(Dispatchers.IO) {
                     symbols.map { sym ->
@@ -174,24 +205,8 @@ class BlissRenderer(
      * per [ResolvedBlissComponent] and positioning indicator SVG overlays using
      * the [BlissRenderAttachment] metadata attached to each component.
      *
-     * Overlay indicators (combining BCI symbols, e.g. tense dots) are drawn
-     * above the base glyph at [BlissRenderAttachment.yOffsetPx] scaled by
-     * display density.  Linear modifiers are placed as adjacent cells after
-     * the base glyph.
-     *
-     * This path does NOT replace [render]; callers that already use the GlyphX
-     * Document pipeline continue to work unchanged.  New callers (e.g.
-     * BlissViewModel tier-3g result) should prefer [renderWithAttachments].
-     *
-     * ## Patch 14
-     * Parameter type widened from [LinearLayout] to [ViewGroup] so the method
-     * accepts both [FrameLayout] (from [MixedBlissRowView.svgContainerFor]) and
-     * [FlexboxLayout] (symbolContainer) without a ClassCastException.
-     * [ViewGroup.MarginLayoutParams] is used instead of [LinearLayout.LayoutParams]
-     * since [marginEnd] is available on [ViewGroup.MarginLayoutParams].
-     *
-     * @param container Target [ViewGroup] (cleared before adding new cells).
-     * @param composed  Structured output from [BlissSemanticComposer.composeStructured].
+     * ## Patch 20 — resolveCellPx denominator + modifier post-layout guard
+     * See class-level KDoc for details.
      */
     suspend fun renderWithAttachments(container: ViewGroup, composed: ComposedBlissWord) {
         renderJob?.cancelAndJoin()
@@ -207,7 +222,9 @@ class BlissRenderer(
                     return@launch
                 }
 
-                val cellPx = resolveCellPx(container)
+                // Patch 20: use composed.components.size so the denominator is
+                // independent of stale childCount before removeAllViews.
+                val cellPx = resolveCellPx(container, composed.components.size)
 
                 // Fetch base glyphs + overlay drawables in parallel on IO
                 data class CellData(
@@ -257,30 +274,27 @@ class BlissRenderer(
                 cellDataList.forEachIndexed { colIdx, cellData ->
                     val component = cellData.component
 
-                    // Collect indicator names from overlay attachments for legacy drawIndicators
                     val indNames = component.renderAttachments
                         .filter { it.isOverlay }
                         .mapNotNull { att -> bciIdToIndicatorName(att.bciIndicatorId) }
 
                     val cell = SvgCellView(
-                        ctx       = context,
-                        bciAvId   = component.symbol.bciAvId,
+                        ctx        = context,
+                        bciAvId    = component.symbol.bciAvId,
                         symbolName = component.lemma,
                         matchType  = BlissSymbol.MatchType.SEMANTIC,
                         indicators = indNames,
-                        // Overlay drawables passed for structured SVG overlay rendering
                         overlays   = cellData.overlayDrawables
                             .map { (att, d) ->
                                 OverlaySpec(
-                                    drawable    = d,
-                                    yOffsetPx   = att.yOffsetPx * density,
-                                    xOffsetPx   = att.xOffsetPx * density,
+                                    drawable     = d,
+                                    yOffsetPx    = att.yOffsetPx * density,
+                                    xOffsetPx    = att.xOffsetPx * density,
                                     sizeFraction = OVERLAY_SIZE_RATIO
                                 )
                             }
                     )
                     cell.setDrawableResolved(cellData.baseDrawable)
-                    // Patch 14: ViewGroup.MarginLayoutParams (marginEnd available, no LinearLayout cast)
                     cell.layoutParams = ViewGroup.MarginLayoutParams(cellPx, cellPx)
                         .also { it.marginEnd = 4.dpToPx(context) }
 
@@ -302,12 +316,15 @@ class BlissRenderer(
 
                     container.addView(cell)
 
-                    // Linear modifiers: add as separate adjacent cells
+                    // Linear modifiers: add as separate adjacent cells.
+                    // Patch 20: defer setDrawableAsync via doOnNextPreDraw so the
+                    // cell has been measured and sizePx reflects the real pixel size.
                     component.renderAttachments
                         .filter { !it.isOverlay }
                         .sortedBy { it.priority }
                         .forEach { modifier ->
                             if (modifier.bciIndicatorId > 0) {
+                                val modSizePx = (cellPx * MODIFIER_SIZE_RATIO).toInt()
                                 val modCell = SvgCellView(
                                     ctx        = context,
                                     bciAvId    = modifier.bciIndicatorId,
@@ -315,13 +332,28 @@ class BlissRenderer(
                                     matchType  = BlissSymbol.MatchType.SEMANTIC,
                                     indicators = emptyList()
                                 )
-                                modCell.setDrawableAsync(modifier.bciIndicatorId, (cellPx * MODIFIER_SIZE_RATIO).toFloat())
-                                // Patch 14: ViewGroup.MarginLayoutParams invece di LinearLayout.LayoutParams
                                 modCell.layoutParams = ViewGroup.MarginLayoutParams(
-                                    (cellPx * MODIFIER_SIZE_RATIO).toInt(),
-                                    (cellPx * MODIFIER_SIZE_RATIO).toInt()
+                                    modSizePx, modSizePx
                                 ).also { it.marginEnd = 2.dpToPx(context) }
                                 container.addView(modCell)
+
+                                // Patch 20: defer the drawable load until after the
+                                // first layout pass so modCell.width > 0 and the
+                                // provider scales the SVG to the correct pixel size.
+                                modCell.viewTreeObserver.addOnPreDrawListener(
+                                    object : ViewTreeObserver.OnPreDrawListener {
+                                        override fun onPreDraw(): Boolean {
+                                            modCell.viewTreeObserver.removeOnPreDrawListener(this)
+                                            val actualPx = modCell.width
+                                                .takeIf { it > 0 } ?: modSizePx
+                                            modCell.setDrawableAsync(
+                                                modifier.bciIndicatorId,
+                                                actualPx.toFloat()
+                                            )
+                                            return true
+                                        }
+                                    }
+                                )
                             }
                         }
                 }
@@ -336,7 +368,7 @@ class BlissRenderer(
         renderJob?.cancel()
     }
 
-    // ── SVG export ───────────────────────────────────────────────────────────────
+    // ── SVG export ─────────────────────────────────────────────────────────────
 
     @WorkerThread
     fun exportBitmap(container: LinearLayout, scale: Float = 1f): Bitmap {
@@ -366,7 +398,7 @@ class BlissRenderer(
         }
     }
 
-    // ── internal helpers ───────────────────────────────────────────────────────────
+    // ── internal helpers ──────────────────────────────────────────────────────────
 
     private fun extractSymbols(document: Document): List<Element> {
         val nodeList = document.getElementsByTagName(BlissGlyphXBuilder.TAG_SIGN)
@@ -379,19 +411,24 @@ class BlissRenderer(
         return (0 until indNodes.length).map { (indNodes.item(it) as Element).getAttribute(BlissGlyphXBuilder.ATTR_TYPE) }
     }
 
-    private fun resolveCellPx(container: ViewGroup): Int {
+    /**
+     * Computes the cell size in pixels for a single Bliss symbol.
+     *
+     * ## Patch 20 — explicit symbolCount parameter
+     * Previously used `container.childCount + 1` which read stale children from
+     * the **previous** render pass (before [ViewGroup.removeAllViews] is called).
+     * Now receives the intended [symbolCount] from the caller so the formula is
+     * always `available / symbolCount`, clamped to [MIN_CELL_DP]..[MAX_CELL_DP].
+     */
+    private fun resolveCellPx(container: ViewGroup, symbolCount: Int): Int {
         val available = container.width
             .takeIf { it > 0 } ?: (context.resources.displayMetrics.widthPixels)
-        val count     = (container.childCount + 1).coerceAtLeast(1)
+        val count     = symbolCount.coerceAtLeast(1)
         val minPx     = (MIN_CELL_DP * context.resources.displayMetrics.density).toInt()
         val maxPx     = (MAX_CELL_DP * context.resources.displayMetrics.density).toInt()
         return ((available / count) - 4.dpToPx(context)).coerceIn(minPx, maxPx)
     }
 
-    /**
-     * Maps a BCI combining-indicator id to the Bliss indicator string name.
-     * Returns null for ids not currently mapped (silently dropped).
-     */
     private fun bciIdToIndicatorName(bciIndicatorId: Int): String? = when (bciIndicatorId) {
         9011 -> "plural"
         9007 -> "past"
@@ -407,22 +444,12 @@ class BlissRenderer(
         const val DEFAULT_CELL_DP           = 72
         private const val MIN_CELL_DP       = 40
         private const val MAX_CELL_DP       = 120
-        /** Overlay indicators are rendered at this fraction of the base cell size. */
         const val OVERLAY_SIZE_RATIO        = 0.35f
-        /** Linear modifiers (non-overlay) rendered at this fraction of the base cell. */
         const val MODIFIER_SIZE_RATIO       = 0.55f
     }
 
-    // ── data classes ───────────────────────────────────────────────────────────────
+    // ── data classes ───────────────────────────────────────────────────────────
 
-    /**
-     * Resolved overlay spec passed to [SvgCellView] for density-aware SVG overlay drawing.
-     *
-     * @param drawable     The indicator SVG drawable (may be null if asset not found).
-     * @param yOffsetPx    Y offset in **device pixels** (scaled from [BlissRenderAttachment.yOffsetPx]).
-     * @param xOffsetPx    X offset in device pixels.
-     * @param sizeFraction Size of the overlay as a fraction of the host cell size.
-     */
     data class OverlaySpec(
         val drawable: android.graphics.drawable.Drawable?,
         val yOffsetPx: Float,
@@ -430,17 +457,16 @@ class BlissRenderer(
         val sizeFraction: Float
     )
 
-    // ── inner View ───────────────────────────────────────────────────────────────
+    // ── inner View ────────────────────────────────────────────────────────────
 
     /**
      * Lightweight custom View that displays one Bliss symbol SVG.
      *
-     * - [isDirty] gate: [onDraw] returns immediately when the drawable
-     *   has not changed since the last draw.
-     * - Focus ring drawn in [onDraw] when [isFocused] or [isSelected].
-     * - Indicator overlay drawn via [drawIndicators] (legacy named indicators).
-     * - SVG overlay drawables drawn via [drawOverlays] (Patch 7 structured path).
-     * - [setDrawableAsync] cancels the previous load Job before starting a new one.
+     * ## Patch 20 — isDirty gate fix
+     * `isDirty` is now cleared **after** the `w==0 || h==0` guard in [onDraw].
+     * Previously it was cleared at the top, meaning an un-measured early-exit
+     * would permanently suppress subsequent [invalidate] calls, leaving the
+     * cell blank even after the drawable was fully loaded.
      */
     inner class SvgCellView(
         ctx: Context,
@@ -501,12 +527,18 @@ class BlissRenderer(
         }
 
         override fun onDraw(canvas: Canvas) {
+            // Patch 20 — isDirty gate fix:
+            // Do NOT clear isDirty before the dimension guard.  If w==0 or h==0
+            // the View is not yet measured; returning here while isDirty is still
+            // true ensures that the next invalidate() from setDrawableResolved()
+            // will trigger a real draw once the View has been laid out.
             if (!isDirty) return
-            isDirty = false
 
             val w = width.toFloat()
             val h = height.toFloat()
-            if (w == 0f || h == 0f) return
+            if (w == 0f || h == 0f) return   // not yet measured — isDirty stays true
+
+            isDirty = false   // consume the dirty flag only after confirming we can draw
 
             val d = drawable
             if (d != null) {
@@ -522,10 +554,7 @@ class BlissRenderer(
                 canvas.drawText("?", w / 2f, h / 2f + textPaint.textSize / 3f, textPaint)
             }
 
-            // Patch 7: draw SVG overlay drawables (density-scaled, from BlissRenderAttachment)
             if (overlays.isNotEmpty()) drawOverlays(canvas, w, h)
-
-            // Legacy named-indicator drawing (plural/past/future dots & arrows)
             if (indicators.isNotEmpty()) drawIndicators(canvas, w, h)
 
             if (isFocused || isSelected) {
@@ -533,17 +562,11 @@ class BlissRenderer(
             }
         }
 
-        /**
-         * Draws SVG overlay drawables resolved from [BlissRenderAttachment].
-         * Each overlay is positioned at ([OverlaySpec.xOffsetPx], [OverlaySpec.yOffsetPx])
-         * relative to the top-left of the cell, sized at [OverlaySpec.sizeFraction] * cellW.
-         */
         private fun drawOverlays(canvas: Canvas, w: Float, h: Float) {
             overlays.forEach { spec ->
                 val d = spec.drawable ?: return@forEach
                 val size = (w * spec.sizeFraction).toInt().coerceAtLeast(1)
                 val left = (spec.xOffsetPx).toInt().coerceIn(0, (w - size).toInt())
-                // yOffsetPx is negative when overlay sits above the base glyph
                 val top  = (h / 2f + spec.yOffsetPx - size / 2f)
                     .toInt().coerceIn(0, (h - size).toInt())
                 d.setBounds(left, top, left + size, top + size)
