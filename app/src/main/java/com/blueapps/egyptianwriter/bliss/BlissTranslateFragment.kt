@@ -1,6 +1,7 @@
 package com.blueapps.egyptianwriter.bliss
 
 import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -13,6 +14,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 import android.widget.*
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -91,6 +93,13 @@ import java.util.Locale
  * [BlissRenderer.renderWithAttachments] ora accetta [ViewGroup] (Patch 14 BlissRenderer),
  * quindi il cast `as android.widget.LinearLayout` è stato rimosso:
  * si passa [symbolContainer] direttamente senza cast.
+ *
+ * ## Patch 16 — Chip text: textSize 14f + WCAG contrast color
+ * [renderChips] imposta `textSize = 14f` (era 11f) e usa
+ * [ColorUtils.calculateContrast] per scegliere dinamicamente [Color.WHITE]
+ * o [Color.BLACK] in base al rapporto di contrasto WCAG rispetto allo sfondo
+ * opaco restituito da [chipColor]. Questo garantisce leggibilità in qualsiasi
+ * tema (chiaro / scuro / alto contrasto).
  */
 class BlissTranslateFragment : Fragment() {
 
@@ -595,6 +604,16 @@ class BlissTranslateFragment : Fragment() {
         updateCaaNavButtons()
     }
 
+    /**
+     * Renderizza i simboli Bliss come [Chip] nel [symbolContainer] (FlexboxLayout).
+     *
+     * ## Patch 16 — leggibilità chip
+     * - `textSize = 14f` (era 11f): dimensione minima leggibile su schermi medi.
+     * - `setTextColor` dinamico: [ColorUtils.calculateContrast] confronta il rapporto
+     *   di contrasto WCAG di [Color.WHITE] e [Color.BLACK] rispetto allo sfondo opaco
+     *   restituito da [chipColor] e sceglie il colore con contrasto maggiore.
+     *   Questo garantisce AA/AAA compliance indipendentemente dal tema di sistema.
+     */
     private fun renderChips(symbols: List<BlissSymbol>) {
         symbolContainer.removeAllViews()
         if (symbols.isEmpty()) return
@@ -615,16 +634,20 @@ class BlissTranslateFragment : Fragment() {
                 }
             }
             val chip = Chip(ctx).apply {
+                val bgColor = chipColor(sym.matchType)
+                val whiteContrast = ColorUtils.calculateContrast(Color.WHITE, bgColor)
+                val blackContrast = ColorUtils.calculateContrast(Color.BLACK, bgColor)
+                val fgColor = if (whiteContrast >= blackContrast) Color.WHITE else Color.BLACK
+
                 text = "${sym.displayLabel()}$indicatorBadge"
-                textSize = 11f
+                textSize = 14f
+                setTextColor(fgColor)
                 contentDescription = getString(
                     R.string.bliss_a11y_symbol_desc,
                     "${sym.name} (BCI ${sym.bciAvId}, ${sym.matchType.name})"
                 )
                 isCheckable = false
-                chipBackgroundColor = android.content.res.ColorStateList.valueOf(
-                    chipColor(sym.matchType)
-                )
+                chipBackgroundColor = android.content.res.ColorStateList.valueOf(bgColor)
                 layoutParams = ViewGroup.MarginLayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
