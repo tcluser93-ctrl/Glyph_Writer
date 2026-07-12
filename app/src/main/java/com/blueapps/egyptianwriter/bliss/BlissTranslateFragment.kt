@@ -1,7 +1,6 @@
 package com.blueapps.egyptianwriter.bliss
 
 import android.content.res.Configuration
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -14,7 +13,6 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 import android.widget.*
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -28,15 +26,17 @@ import com.blueapps.egyptianwriter.R
 import com.blueapps.egyptianwriter.ui.ExportBottomSheetFragment
 import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.Chip
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 /**
@@ -48,7 +48,7 @@ import java.util.Locale
  *
  * ## Blocco C — Modalità CAA simbolo per simbolo
  * Un [SwitchMaterial] (`switch_caa_mode`) alterna tra due viste:
- *  - **Standard**: FlexboxLayout di chip compatti (comportamento precedente)
+ *  - **Standard**: FlexboxLayout di mini-card grafiche (Patch 17)
  *  - **CAA**: RecyclerView verticale ([rvCaaCards]) con card grandi
  *    ([BlissSymbolCardAdapter]) + pulsanti Indietro/Avanti ([btnPrev]/[btnNext])
  *    che scorrono il contenuto e aggiornano [caaCurrentIndex].
@@ -95,11 +95,23 @@ import java.util.Locale
  * si passa [symbolContainer] direttamente senza cast.
  *
  * ## Patch 16 — Chip text: textSize 14f + WCAG contrast color
- * [renderChips] imposta `textSize = 14f` (era 11f) e usa
- * [ColorUtils.calculateContrast] per scegliere dinamicamente [Color.WHITE]
- * o [Color.BLACK] in base al rapporto di contrasto WCAG rispetto allo sfondo
- * opaco restituito da [chipColor]. Questo garantisce leggibilità in qualsiasi
- * tema (chiaro / scuro / alto contrasto).
+ * [renderChips] impostava `textSize = 14f` e usava
+ * [ColorUtils.calculateContrast] per il colore dinamico foreground.
+ * Sostituito interamente dalla Patch 17.
+ *
+ * ## Patch 17 — Mini-card SVG Bliss al posto dei Chip testuali
+ * [renderChips] ora non costruisce più [Chip] Material con testo numerico.
+ * Ogni simbolo Bliss viene presentato come mini-card (item_bliss_mini_chip.xml)
+ * con:
+ * - [ImageView] che carica il drawable SVG tramite
+ *   [signProvider.getDrawableAsync] ("B{bciAvId}") in una coroutine
+ *   su [Dispatchers.IO], senza bloccare il Main Thread.
+ * - [TextView] con [BlissSymbol.sourceWord] (fallback: [BlissSymbol.name])
+ *   come label leggibile, mai [displayLabel()].
+ * - [TextView] opzionale per i badge indicatori (×, ↩, →).
+ * - `strokeColor` della card derivato da [chipColor] per preservare la
+ *   codifica visiva per [BlissSymbol.MatchType].
+ * - `contentDescription` accessibile: nome + parola sorgente + matchType.
  */
 class BlissTranslateFragment : Fragment() {
 
@@ -481,7 +493,7 @@ class BlissTranslateFragment : Fragment() {
      * - If it has **multiple** non-null entries, calls [renderMixedRow] which delegates
      *   to [MixedBlissRowView.bind] + [MixedBlissRowView.svgContainerFor] for each
      *   structured token, guaranteeing visual order and uniform spacing.
-     * - Classic path (all null or renderMode==CLASSIC): uses [applySymbols] with chip/CAA.
+     * - Classic path (all null or renderMode==CLASSIC): uses [applySymbols] with mini-card/CAA.
      */
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -535,7 +547,7 @@ class BlissTranslateFragment : Fragment() {
                                 }
                             }
                             else -> {
-                                // Classic path: chip / CAA
+                                // Classic path: mini-card SVG / CAA
                                 symbolContainer.isVisible = !caaModeEnabled
                                 mixedRowView.isVisible    = false
                                 applySymbols(state.symbols)
@@ -605,73 +617,94 @@ class BlissTranslateFragment : Fragment() {
     }
 
     /**
-     * Renderizza i simboli Bliss come [Chip] nel [symbolContainer] (FlexboxLayout).
+     * Patch 17 — Renderizza i simboli Bliss come mini-card grafiche SVG
+     * nel [symbolContainer] (FlexboxLayout).
      *
-     * ## Patch 16 — leggibilità chip
-     * - `textSize = 14f` (era 11f): dimensione minima leggibile su schermi medi.
-     * - `setTextColor` dinamico: [ColorUtils.calculateContrast] confronta il rapporto
-     *   di contrasto WCAG di [Color.WHITE] e [Color.BLACK] rispetto allo sfondo opaco
-     *   restituito da [chipColor] e sceglie il colore con contrasto maggiore.
-     *   Questo garantisce AA/AAA compliance indipendentemente dal tema di sistema.
+     * Ogni item usa il layout `item_bliss_mini_chip.xml`:
+     * - `iv_symbol` (ImageView 48dp) carica il drawable BCI-AV tramite
+     *   [signProvider.getDrawableAsync]("B{bciAvId}") su [Dispatchers.IO].
+     * - `tv_label` mostra [BlissSymbol.sourceWord] (fallback: [BlissSymbol.name]);
+     *   mai [displayLabel()] per evitare la visualizzazione di ID numerici.
+     * - `tv_indicators` mostra i badge (×, ↩, →) se presenti, altrimenti GONE.
+     * - `strokeColor` della [MaterialCardView] riflette [chipColor] per mantenere
+     *   la codifica visiva per [BlissSymbol.MatchType].
      */
     private fun renderChips(symbols: List<BlissSymbol>) {
         symbolContainer.removeAllViews()
         if (symbols.isEmpty()) return
 
-        val ctx = requireContext()
-        val dp  = ctx.resources.displayMetrics.density
+        val ctx      = requireContext()
+        val inflater = LayoutInflater.from(ctx)
+        val dp       = ctx.resources.displayMetrics.density
         fun Int.px() = (this * dp).toInt()
 
         symbols.forEach { sym ->
+            val item = inflater.inflate(
+                R.layout.item_bliss_mini_chip,
+                symbolContainer,
+                false
+            ) as MaterialCardView
+
+            val ivSymbol     = item.findViewById<ImageView>(R.id.iv_symbol)
+            val tvLabel      = item.findViewById<TextView>(R.id.tv_label)
+            val tvIndicators = item.findViewById<TextView>(R.id.tv_indicators)
+
+            // Label leggibile: sourceWord > name (mai displayLabel)
+            tvLabel.text = sym.sourceWord.ifBlank { sym.name }
+
+            // Badge indicatori
             val indicatorBadge = buildString {
                 val inds = sym.indicators
-                if (inds.isNotEmpty()) {
-                    append(" [")
-                    if (BlissTranslator.INDICATOR_PLURAL in inds) append("×")
-                    if (BlissTranslator.INDICATOR_PAST   in inds) append("↩")
-                    if (BlissTranslator.INDICATOR_FUTURE in inds) append("→")
-                    append("]")
-                }
-            }
-            val chip = Chip(ctx).apply {
-                val bgColor = chipColor(sym.matchType)
-                val whiteContrast = ColorUtils.calculateContrast(Color.WHITE, bgColor)
-                val blackContrast = ColorUtils.calculateContrast(Color.BLACK, bgColor)
-                val fgColor = if (whiteContrast >= blackContrast) Color.WHITE else Color.BLACK
+                if (BlissTranslator.INDICATOR_PLURAL in inds) append("× ")
+                if (BlissTranslator.INDICATOR_PAST   in inds) append("↩ ")
+                if (BlissTranslator.INDICATOR_FUTURE in inds) append("→ ")
+            }.trim()
+            tvIndicators.isVisible = indicatorBadge.isNotEmpty()
+            tvIndicators.text      = indicatorBadge
 
-                text = "${sym.displayLabel()}$indicatorBadge"
-                textSize = 14f
-                setTextColor(fgColor)
-                contentDescription = getString(
-                    R.string.bliss_a11y_symbol_desc,
-                    "${sym.name} (BCI ${sym.bciAvId}, ${sym.matchType.name})"
-                )
-                isCheckable = false
-                chipBackgroundColor = android.content.res.ColorStateList.valueOf(bgColor)
-                layoutParams = ViewGroup.MarginLayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                ).also {
-                    it.marginEnd    = 4.px()
-                    it.bottomMargin = 4.px()
-                }
-                setOnClickListener {
-                    val indStr = if (sym.indicators.isEmpty())
-                        getString(R.string.bliss_chip_no_indicators)
-                    else
-                        sym.indicators.joinToString()
-                    Toast.makeText(
-                        ctx,
-                        getString(
-                            R.string.bliss_chip_tooltip,
-                            sym.bciAvId, sym.name, sym.sourceWord,
-                            sym.matchType.name, indStr
-                        ),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+            // Codifica visiva MatchType tramite strokeColor
+            item.strokeColor = chipColor(sym.matchType)
+
+            // Accessibilità
+            item.contentDescription = getString(
+                R.string.bliss_a11y_symbol_desc,
+                "${sym.name}, ${sym.sourceWord}, ${sym.matchType.name}"
+            )
+
+            item.layoutParams = ViewGroup.MarginLayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).also {
+                it.marginEnd    = 6.px()
+                it.bottomMargin = 6.px()
             }
-            symbolContainer.addView(chip)
+
+            // Caricamento asincrono drawable SVG
+            viewLifecycleOwner.lifecycleScope.launch {
+                val drawable = withContext(Dispatchers.IO) {
+                    signProvider.getDrawableAsync("B${sym.bciAvId}", 96f)
+                }
+                ivSymbol.setImageDrawable(drawable)
+            }
+
+            // Toast al click (utile per debug/audit)
+            item.setOnClickListener {
+                val indStr = if (sym.indicators.isEmpty())
+                    getString(R.string.bliss_chip_no_indicators)
+                else
+                    sym.indicators.joinToString()
+                Toast.makeText(
+                    ctx,
+                    getString(
+                        R.string.bliss_chip_tooltip,
+                        sym.bciAvId, sym.name, sym.sourceWord,
+                        sym.matchType.name, indStr
+                    ),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            symbolContainer.addView(item)
         }
     }
 
