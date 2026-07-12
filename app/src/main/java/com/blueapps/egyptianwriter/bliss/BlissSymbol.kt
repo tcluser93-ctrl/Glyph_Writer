@@ -38,35 +38,48 @@ package com.blueapps.egyptianwriter.bliss
  * - init block updated: SEMANTIC symbols also skip the positive-bciAvId assertion
  *   when they carry [COMPOUND_SYMBOL_ID] as a multi-component sentinel.
  *
- * @param bciAvId       Official BCI-AV identifier (> 0). E.g. 12335.
- *                      Sentinel values UNKNOWN_SYMBOL_ID and COMPOUND_SYMBOL_ID
- *                      are also accepted (init validates accordingly).
- * @param name          English canonical name from bci_names.json (non-blank).
- * @param category      Semantic category tag (e.g. "action", "thing", "description").
- *                      Empty string if not present in dataset.
- * @param synsetId      WordNet 3.1 synset offset (from bci_blissnet.json), null if absent.
- * @param sourceWord    The surface word from user input that produced this lookup.
- * @param lemma         The lemma that matched (may differ from sourceWord after stemming).
- * @param matchType     How the match was found (see [MatchType]).
- * @param indicators    Per-token morphological indicators (e.g. ["plural", "past"]).
- *                      Empty list = no morphological tag on this token.
- * @param componentIds  Ordered BCI-AV IDs of the constituent base symbols
- *                      (only meaningful when [matchType] == [MatchType.COMPOUND]
- *                      or [MatchType.SEMANTIC]).
+ * ## Patch 19 additions
+ *
+ * - [resolutionSource]: optional diagnostic string tracking how this symbol was resolved.
+ *   Examples: "function-word:it:default", "function-word:it:contracted-of",
+ *   "unknown:casa". Empty string means resolved through the standard lexicon pipeline.
+ * - [MatchType.FUNCTION_WORD]: new match type for symbols resolved by the Tier-0
+ *   function-word fast-path. Distinct from EXACT (which means CSV/JSON lexicon match)
+ *   so UI and tests can distinguish them.
+ *
+ * @param bciAvId          Official BCI-AV identifier (> 0). E.g. 12335.
+ *                         Sentinel values UNKNOWN_SYMBOL_ID and COMPOUND_SYMBOL_ID
+ *                         are also accepted (init validates accordingly).
+ * @param name             English canonical name from bci_names.json (non-blank).
+ * @param category         Semantic category tag (e.g. "action", "thing", "description").
+ *                         Empty string if not present in dataset.
+ * @param synsetId         WordNet 3.1 synset offset (from bci_blissnet.json), null if absent.
+ * @param sourceWord       The surface word from user input that produced this lookup.
+ * @param lemma            The lemma that matched (may differ from sourceWord after stemming).
+ * @param matchType        How the match was found (see [MatchType]).
+ * @param indicators       Per-token morphological indicators (e.g. ["plural", "past"]).
+ *                         Empty list = no morphological tag on this token.
+ * @param componentIds     Ordered BCI-AV IDs of the constituent base symbols
+ *                         (only meaningful when [matchType] == [MatchType.COMPOUND]
+ *                         or [MatchType.SEMANTIC]).
+ * @param resolutionSource Diagnostic tag describing how this symbol was resolved.
+ *                         Populated by the function-word fast-path and the unknown
+ *                         fallback. Empty for standard lexicon lookups.
  */
 data class BlissSymbol(
-    val bciAvId:      Int,
-    val name:         String,
-    val category:     String        = "",
-    val synsetId:     Long?         = null,
-    val sourceWord:   String        = "",
-    val lemma:        String        = "",
-    val matchType:    MatchType     = MatchType.UNKNOWN,
-    val indicators:   List<String>  = emptyList(),
-    val componentIds: List<Int>     = emptyList()
+    val bciAvId:          Int,
+    val name:             String,
+    val category:         String        = "",
+    val synsetId:         Long?         = null,
+    val sourceWord:       String        = "",
+    val lemma:            String        = "",
+    val matchType:        MatchType     = MatchType.UNKNOWN,
+    val indicators:       List<String>  = emptyList(),
+    val componentIds:     List<Int>     = emptyList(),
+    val resolutionSource: String        = ""
 ) {
     init {
-        // Allow sentinel IDs for UNKNOWN, COMPOUND, and SEMANTIC synthetic symbols;
+        // Allow sentinel IDs for UNKNOWN, COMPOUND, SEMANTIC, and FUNCTION_WORD symbols;
         // all other symbols must carry a positive BCI-AV ID.
         val isSentinel = matchType == MatchType.UNKNOWN
                 || matchType == MatchType.COMPOUND
@@ -100,6 +113,9 @@ data class BlissSymbol(
      *  (WordNet/BlissNet synset-grounded, BCI-conformant composition). */
     val isSemanticComposition: Boolean get() = matchType == MatchType.SEMANTIC
 
+    /** True when this symbol was resolved by the Tier-0 function-word fast-path. */
+    val isFunctionWord: Boolean get() = matchType == MatchType.FUNCTION_WORD
+
     /**
      * Returns a copy of this symbol with the given [newIndicators] attached.
      * Used by the async pipeline (tier 3b) to propagate per-token morphological
@@ -111,7 +127,7 @@ data class BlissSymbol(
     // ── nested types ─────────────────────────────────────────────────────
 
     enum class MatchType {
-        /** Surface token matched directly in the lexicon. */
+        /** Surface token matched directly in the lexicon (CSV/JSON). */
         EXACT,
         /** Matched after lemmatisation or de-affixation. */
         LEMMA,
@@ -119,6 +135,13 @@ data class BlissSymbol(
         NGRAM,
         /** No word match; a generic category symbol was used as fallback. */
         FALLBACK_CATEGORY,
+        /**
+         * Resolved by the Tier-0 function-word fast-path (Patch 19).
+         * Covers conjunctions, prepositions, articles, contractions, and
+         * other high-frequency grammatical words. Distinct from EXACT
+         * (which means a CSV/JSON lexicon hit) so UI and tests can differentiate.
+         */
+        FUNCTION_WORD,
         /**
          * Composed from semantically related base symbols via WordNet/BlissNet
          * synset relations (Stage A or B of [BlissSemanticComposer]).

@@ -23,7 +23,7 @@ import java.util.regex.Pattern
  * ## Async pipeline (translateAsync) — Morfologik-first
  *
  *  Same as above, but step 3 uses the Morfologik-first order:
- *       3-0. Function-word fast-path (tier 0)           → EXACT  ← PATCH 18
+ *       3-0. Function-word fast-path (tier 0)           → FUNCTION_WORD  ← PATCH 19
  *       3a.  Exact surface lookup                       → EXACT
  *       3b.  Morfologik FSA → lemma+tag → indicators    → LEMMA  ← PRIMARY
  *       3c.  Plain lemma lookup                         → LEMMA
@@ -31,22 +31,23 @@ import java.util.regex.Pattern
  *       3e.  Rule-based de-affixation                   → LEMMA
  *       3f.  Room FTS4 exact                            → EXACT
  *       3g.  Semantic composition                       → SEMANTIC / per-component ← PATCH 7
- *       3h.  UNKNOWN
+ *       3h.  UNKNOWN (distinct per token)
  *
  * ## Patch 18 — Tier-0 function-word fast-path
  *
- *  Short function words (conjunctions, prepositions, negators) of length ≤ 4
- *  are resolved against [FUNCTION_WORDS] before any CSV / Morfologik lookup.
- *  The map covers the 30 most common function words across IT/EN/DE/FR/ES.
- *  BCI-AV IDs are taken from the official BCI-AV symbol list:
+ *  Short function words (conjunctions, prepositions, negators) resolved
+ *  against [FUNCTION_WORDS] before any CSV / Morfologik lookup.
  *
- *    12335 = and       12343 = or        12346 = but       12344 = if
- *    12348 = because   14951 = with      14960 = for       25564 = to
- *    25563 = of        25565 = in        17720 = not       17744 = no
- *    12347 = when      12349 = so/then   14941 = from      14945 = by
- *    14942 = at        14943 = on
+ * ## Patch 19 — Structured function-word resolver
  *
- *  Per-language aliases map to the canonical English BCI-AV entry.
+ *  Replaces the flat-map lookup with [resolveFunctionWord] which:
+ *  - Normalises apostrophes (Unicode curly → ASCII) before lookup
+ *  - Expands Italian contractions: all'→al, dell'→del, nell'→nel, sull'→sul etc.
+ *  - Covers articles, particles (ci, si, ne, mi, ti, vi)
+ *  - Produces [MatchType.FUNCTION_WORD] (distinct from EXACT)
+ *  - Carries [BlissSymbol.resolutionSource] for diagnostics
+ *  - Unknown tokens get a distinct resolutionSource ("unknown:<word>")
+ *    to prevent visual collapse of different UNKNOWN chips on ID 17729.
  *
  * @param lookup        Pre-loaded [BlissLookup] (must have isReady == true).
  * @param morfologik    Optional [MorfologikLemmatizer]; if null the Morfologik
@@ -103,6 +104,11 @@ class BlissTranslator(
 
     private fun normalise(raw: String): String =
         raw.lowercase(Locale.ROOT)
+            // Patch 19: normalise Unicode curly apostrophes to ASCII before PUNCT_RE
+            // so contractions like all\u2019, dell\u2019, nell\u2019 are preserved
+            // as all', dell', nell' and correctly handled by normalizeFunctionWordForm().
+            .replace('\u2019', '\'')   // RIGHT SINGLE QUOTATION MARK → ASCII apostrophe
+            .replace('\u2018', '\'')   // LEFT SINGLE QUOTATION MARK  → ASCII apostrophe
             .replace(PUNCT_RE, " ")
             .replace(SPACE_RE, " ")
             .trim()
@@ -155,13 +161,179 @@ class BlissTranslator(
         return result
     }
 
+    // ── Patch 19: function-word resolver ──────────────────────────────────────
+
+    /**
+     * Data class carrying the result of a function-word rule lookup.
+     * Used internally by [resolveFunctionWord] to build a [BlissSymbol]
+     * with full diagnostic metadata.
+     */
+    private data class FunctionWordRule(
+        val bciAvId:          Int,
+        val resolutionSource: String,
+        val canonicalForm:    String
+    )
+
+    /**
+     * Normalises a token for function-word lookup.
+     *
+     * Handles:
+     * - Lowercasing (already done by normalise(), but safe to repeat)
+     * - Italian elisions with ASCII apostrophe: all'→al, dell'→del,
+     *   nell'→nel, sull'→sul, coll'→col, un'→un, l'→il
+     *
+     * Note: Unicode curly apostrophes are normalised to ASCII in [normalise()]
+     * before tokenisation, so this function only needs to handle ASCII '.
+     */
+    internal fun normalizeFunctionWordForm(token: String): String {
+        val t = token.lowercase(Locale.ROOT).trim()
+        return when {
+            // Italian elisions — most common contractions
+            t == "all'"   -> "al"
+            t == "all'"   -> "al"
+            t == "dell'"  -> "del"
+            t == "nell'"  -> "nel"
+            t == "sull'"  -> "sul"
+            t == "coll'"  -> "col"
+            t == "dall'"  -> "da"
+            t == "un'"    -> "un"
+            t == "l'"     -> "il"
+            t == "l'"     -> "il"
+            t == "un'"    -> "un"
+            else -> t
+        }
+    }
+
+    /**
+     * Tier-0 function-word resolver (Patch 19).
+     *
+     * Resolves [word] against the structured function-word rules covering:
+     * - Italian prepositions (semplici + contratte)
+     * - Italian conjunctions and particles
+     * - Italian articles
+     * - Multi-language entries via [FUNCTION_WORDS] fallback
+     *
+     * Returns null if the word is not a known function word.
+     * Returned [BlissSymbol] carries:
+     * - [MatchType.FUNCTION_WORD] (not EXACT)
+     * - [BlissSymbol.resolutionSource] with a diagnostic tag
+     */
+    private fun resolveFunctionWord(word: String): BlissSymbol? {
+        val normalized = normalizeFunctionWordForm(word)
+
+        val rule: FunctionWordRule? = when (normalized) {
+            // ── Italian prepositions semplici ──────────────────────────────
+            "a"   -> FunctionWordRule(25564, "function-word:it:a-to",   "a")
+            "di"  -> FunctionWordRule(25563, "function-word:it:direct",  "di")
+            "da"  -> FunctionWordRule(14941, "function-word:it:direct",  "da")
+            "in"  -> FunctionWordRule(25565, "function-word:it:direct",  "in")
+            "su"  -> FunctionWordRule(14943, "function-word:it:direct",  "su")
+            "con" -> FunctionWordRule(14951, "function-word:it:direct",  "con")
+            "per" -> FunctionWordRule(14960, "function-word:it:direct",  "per")
+            "tra" -> FunctionWordRule(14942, "function-word:it:approx",  "tra")
+            "fra" -> FunctionWordRule(14942, "function-word:it:approx",  "fra")
+            // ── Contrazioni articolate IT: a+art ──────────────────────────
+            "al"    -> FunctionWordRule(25564, "function-word:it:contracted-a-il",   "al")
+            "allo"  -> FunctionWordRule(25564, "function-word:it:contracted-a-lo",   "allo")
+            "alla"  -> FunctionWordRule(25564, "function-word:it:contracted-a-la",   "alla")
+            "ai"    -> FunctionWordRule(25564, "function-word:it:contracted-a-i",    "ai")
+            "agli"  -> FunctionWordRule(25564, "function-word:it:contracted-a-gli",  "agli")
+            "alle"  -> FunctionWordRule(25564, "function-word:it:contracted-a-le",   "alle")
+            // ── Contrazioni articolate IT: di+art ─────────────────────────
+            "del"   -> FunctionWordRule(25563, "function-word:it:contracted-di-il",  "del")
+            "dello" -> FunctionWordRule(25563, "function-word:it:contracted-di-lo",  "dello")
+            "della" -> FunctionWordRule(25563, "function-word:it:contracted-di-la",  "della")
+            "dei"   -> FunctionWordRule(25563, "function-word:it:contracted-di-i",   "dei")
+            "degli" -> FunctionWordRule(25563, "function-word:it:contracted-di-gli", "degli")
+            "delle" -> FunctionWordRule(25563, "function-word:it:contracted-di-le",  "delle")
+            // ── Contrazioni articolate IT: in+art ─────────────────────────
+            "nel"   -> FunctionWordRule(25565, "function-word:it:contracted-in-il",  "nel")
+            "nello" -> FunctionWordRule(25565, "function-word:it:contracted-in-lo",  "nello")
+            "nella" -> FunctionWordRule(25565, "function-word:it:contracted-in-la",  "nella")
+            "nei"   -> FunctionWordRule(25565, "function-word:it:contracted-in-i",   "nei")
+            "negli" -> FunctionWordRule(25565, "function-word:it:contracted-in-gli", "negli")
+            "nelle" -> FunctionWordRule(25565, "function-word:it:contracted-in-le",  "nelle")
+            // ── Contrazioni articolate IT: su+art ─────────────────────────
+            "sul"   -> FunctionWordRule(14943, "function-word:it:contracted-su-il",  "sul")
+            "sullo" -> FunctionWordRule(14943, "function-word:it:contracted-su-lo",  "sullo")
+            "sulla" -> FunctionWordRule(14943, "function-word:it:contracted-su-la",  "sulla")
+            "sui"   -> FunctionWordRule(14943, "function-word:it:contracted-su-i",   "sui")
+            "sugli" -> FunctionWordRule(14943, "function-word:it:contracted-su-gli", "sugli")
+            "sulle" -> FunctionWordRule(14943, "function-word:it:contracted-su-le",  "sulle")
+            // ── Contrazioni articolate IT: con+art ────────────────────────
+            "col"   -> FunctionWordRule(14951, "function-word:it:contracted-con-il", "col")
+            "coi"   -> FunctionWordRule(14951, "function-word:it:contracted-con-i",  "coi")
+            // ── Contrazioni IT: da+art ────────────────────────────────────
+            "dal"   -> FunctionWordRule(14941, "function-word:it:contracted-da-il",  "dal")
+            "dallo" -> FunctionWordRule(14941, "function-word:it:contracted-da-lo",  "dallo")
+            "dalla" -> FunctionWordRule(14941, "function-word:it:contracted-da-la",  "dalla")
+            "dai"   -> FunctionWordRule(14941, "function-word:it:contracted-da-i",   "dai")
+            "dagli" -> FunctionWordRule(14941, "function-word:it:contracted-da-gli", "dagli")
+            "dalle" -> FunctionWordRule(14941, "function-word:it:contracted-da-le",  "dalle")
+            // ── Articoli IT ───────────────────────────────────────────────
+            "il"    -> FunctionWordRule(14942, "function-word:it:article",  "il")
+            "lo"    -> FunctionWordRule(14942, "function-word:it:article",  "lo")
+            "la"    -> FunctionWordRule(14942, "function-word:it:article",  "la")
+            "i"     -> FunctionWordRule(14942, "function-word:it:article",  "i")
+            "gli"   -> FunctionWordRule(14942, "function-word:it:article",  "gli")
+            "le"    -> FunctionWordRule(14942, "function-word:it:article",  "le")
+            "un"    -> FunctionWordRule(14942, "function-word:it:article",  "un")
+            "uno"   -> FunctionWordRule(14942, "function-word:it:article",  "uno")
+            "una"   -> FunctionWordRule(14942, "function-word:it:article",  "una")
+            // ── Congiunzioni IT ───────────────────────────────────────────
+            "e"     -> FunctionWordRule(12335, "function-word:it:direct",   "e")
+            "ed"    -> FunctionWordRule(12335, "function-word:it:direct",   "ed")
+            "o"     -> FunctionWordRule(12343, "function-word:it:direct",   "o")
+            "od"    -> FunctionWordRule(12343, "function-word:it:direct",   "od")
+            "ma"    -> FunctionWordRule(12346, "function-word:it:direct",   "ma")
+            "però"  -> FunctionWordRule(12346, "function-word:it:direct",   "però")
+            "se"    -> FunctionWordRule(12344, "function-word:it:direct",   "se")
+            "che"   -> FunctionWordRule(12347, "function-word:it:approx-that", "che")
+            "perché" -> FunctionWordRule(12348, "function-word:it:direct",  "perché")
+            "perche" -> FunctionWordRule(12348, "function-word:it:direct",  "perche")
+            "quindi" -> FunctionWordRule(12349, "function-word:it:direct",  "quindi")
+            "però"   -> FunctionWordRule(12346, "function-word:it:direct",  "però")
+            "quando" -> FunctionWordRule(12347, "function-word:it:direct",  "quando")
+            // ── Negazione IT ──────────────────────────────────────────────
+            "non"   -> FunctionWordRule(17720, "function-word:it:direct",   "non")
+            "no"    -> FunctionWordRule(17744, "function-word:it:direct",   "no")
+            // ── Particelle pronominali IT ─────────────────────────────────
+            // Mapped to BCI-AV approximations for short grammatical particles.
+            // ci=here/there≈25565(in), si=self≈reflexive marker, ne=of-it≈25563(of)
+            "ci"    -> FunctionWordRule(25565, "function-word:it:particle-ci",  "ci")
+            "ne"    -> FunctionWordRule(25563, "function-word:it:particle-ne",  "ne")
+            "mi"    -> FunctionWordRule(12335, "function-word:it:particle-mi",  "mi")
+            "ti"    -> FunctionWordRule(12335, "function-word:it:particle-ti",  "ti")
+            "vi"    -> FunctionWordRule(25565, "function-word:it:particle-vi",  "vi")
+            "si"    -> FunctionWordRule(12344, "function-word:it:particle-si",  "si")
+            // ── Fallback: look up in the flat FUNCTION_WORDS map (EN/DE/FR/ES/NL/PL) ──
+            else -> FUNCTION_WORDS[normalized]?.let { id ->
+                FunctionWordRule(id, "function-word:generic", normalized)
+            }
+        }
+
+        rule ?: return null
+
+        // Look up canonical name from the Bliss lexicon for this BCI-AV ID.
+        // Falls back to the normalized form itself if the ID is not in the loaded lexicon.
+        val symbolName = lookup.getNameForId(rule.bciAvId) ?: rule.canonicalForm
+
+        return BlissSymbol(
+            bciAvId          = rule.bciAvId,
+            name             = symbolName,
+            sourceWord       = word,
+            lemma            = rule.canonicalForm,
+            matchType        = MatchType.FUNCTION_WORD,
+            resolutionSource = rule.resolutionSource
+        )
+    }
+
     // ── step 3 : single-token resolution (sync) ───────────────────────────────
 
     private fun resolveToken(word: String): BlissSymbol {
-        // Tier 0 — function-word fast-path (Patch 18)
-        FUNCTION_WORDS[word]?.let {
-            return lookup.toSymbol(it, word, word, MatchType.EXACT)
-        }
+        // Tier 0 — structured function-word resolver (Patch 19)
+        resolveFunctionWord(word)?.let { return it }
+
         lookup.lookupSurface(word)?.let { return lookup.toSymbol(it, word, word, MatchType.EXACT) }
         lookup.lookupLemma(word)?.let   { return lookup.toSymbol(it, word, word, MatchType.LEMMA) }
         val gPos = heuristicPos(word)
@@ -181,11 +353,9 @@ class BlissTranslator(
     // ── step 3 : single-token resolution (suspend, Morfologik-first) ─────────
 
     private suspend fun resolveTokenSuspend(word: String, lang: String): List<BlissSymbol> {
-        // Tier 0 — function-word fast-path: conjunctions/prepositions/negators (Patch 18)
-        // Bypasses CSV and Morfologik entirely for the ~30 most common function words.
-        FUNCTION_WORDS[word]?.let {
-            return listOf(lookup.toSymbol(it, word, word, MatchType.EXACT))
-        }
+        // Tier 0 — structured function-word resolver (Patch 19)
+        // Handles normalisation, contractions, articles, particles.
+        resolveFunctionWord(word)?.let { return listOf(it) }
 
         // Tier 3a — exact surface (lexicon JSON)
         lookup.lookupSurface(word)?.let {
@@ -261,7 +431,8 @@ class BlissTranslator(
             if (componentSymbols.isNotEmpty()) return componentSymbols
         }
 
-        // Tier 3h — UNKNOWN
+        // Tier 3h — UNKNOWN (distinct resolutionSource per token to avoid
+        // visual collapse of different UNKNOWN chips on the same BCI-AV ID 17729)
         return listOf(unknownSymbol(word))
     }
 
@@ -277,11 +448,12 @@ class BlissTranslator(
     }
 
     private fun unknownSymbol(word: String) = BlissSymbol(
-        bciAvId    = BlissSymbol.UNKNOWN_SYMBOL_ID,
-        name       = "unknown",
-        sourceWord = word,
-        lemma      = word,
-        matchType  = MatchType.UNKNOWN
+        bciAvId          = BlissSymbol.UNKNOWN_SYMBOL_ID,
+        name             = "unknown",
+        sourceWord       = word,
+        lemma            = word,
+        matchType        = MatchType.UNKNOWN,
+        resolutionSource = "unknown:$word"
     )
 
     // ── step 4a : indicator detection ────────────────────────────────────────
@@ -422,35 +594,23 @@ class BlissTranslator(
         private val SPACE_RE = Pattern.compile("\\s+").toRegex()
 
         /**
-         * Patch 18 — Tier-0 function-word map.
+         * Patch 18/19 — Tier-0 function-word map (flat fallback).
          *
-         * Maps each function-word surface form (lowercased) to its canonical BCI-AV ID.
-         * Covers IT / EN / DE / FR / ES / NL / PT / PL aliases.
+         * This map is the fallback for [resolveFunctionWord] when the structured
+         * Italian-first rules do not match. It covers EN/DE/FR/ES/NL/PL.
+         * Italian entries are handled by the structured resolver above.
          *
          * BCI-AV IDs (official BCI-AV symbol list):
-         *   12335 = and/e/und/et/y/en/e/i
-         *   12343 = or/o/oder/ou/o/of/ou/lub
-         *   12346 = but/ma/aber/mais/pero/maar/mas/ale
-         *   12344 = if/se/wenn/si/si/als/se/jesli
-         *   12348 = because/perche/weil/parce/porque/omdat/porque/bo
-         *   14951 = with/con/mit/avec/con/met/com/z
-         *   14960 = for/per/fuer/pour/para/voor/para/dla
-         *   25564 = to/a/zu/a/a/naar/a/do
-         *   25563 = of/di/von/de/de/van/de/od
-         *   25565 = in/in/in/en/en/in/em/w
-         *   17720 = not/non/nicht/ne/no/niet/nao/nie
-         *   17744 = no/no/nein/non/no/nee/nao/nie
-         *   12347 = when/quando/wenn/quand/cuando/wanneer/quando/kiedy
-         *   12349 = so/quindi/also/donc/entonces/dus/entao/wiec
-         *   14941 = from/da/von/de/de/van/de/od
-         *   14945 = by/da/von/par/por/door/por/przez
-         *   14942 = at/a/an/a/a/bij/em/przy
-         *   14943 = on/su/auf/sur/en/op/em/na
+         *   12335 = and       12343 = or        12346 = but       12344 = if
+         *   12348 = because   14951 = with      14960 = for       25564 = to
+         *   25563 = of        25565 = in        17720 = not       17744 = no
+         *   12347 = when      12349 = so/then   14941 = from      14945 = by
+         *   14942 = at        14943 = on
          */
         val FUNCTION_WORDS: Map<String, Int> = mapOf(
             // ── and ──
             "and"     to 12335,
-            "e"       to 12335,  // IT
+            "e"       to 12335,  // IT (also in structured resolver)
             "und"     to 12335,  // DE
             "et"      to 12335,  // FR
             "y"       to 12335,  // ES
@@ -488,6 +648,8 @@ class BlissTranslator(
             // ── for ──
             "for"     to 14960,
             "per"     to 14960,  // IT
+            "fuer"    to 14960,  // DE romanised
+            "f\u00fcr" to 14960, // DE with umlaut
             "pour"    to 14960,  // FR
             "para"    to 14960,  // ES/PT
             "voor"    to 14960,  // NL
@@ -506,7 +668,7 @@ class BlissTranslator(
             "in"      to 25565,
             "w"       to 25565,  // PL
             // ── of ──
-            "di"      to 25563,  // IT
+            "di"      to 25563,  // IT (also in structured resolver)
             "von"     to 25563,  // DE
             "de"      to 25563,  // FR/ES/PT/NL
             "van"     to 25563,  // NL (also DE)
@@ -519,11 +681,11 @@ class BlissTranslator(
             // ── at/on/from/by — short prepositions ──
             "at"      to 14942,
             "on"      to 14943,
-            "su"      to 14943,  // IT
+            "su"      to 14943,  // IT (also in structured resolver)
             "op"      to 14943,  // NL
             "na"      to 14943,  // PL
             "from"    to 14941,
-            "da"      to 14941,  // IT/PT
+            "da"      to 14941,  // IT/PT (also in structured resolver)
             "by"      to 14945,
             "par"     to 14945,  // FR
             "por"     to 14945,  // ES/PT
@@ -543,30 +705,46 @@ class BlissTranslator(
             "entonces" to 12349, // ES
             "dus"     to 12349,  // NL
             "entao"   to 12349,  // PT
-            "wiec"    to 12349   // PL
+            "wiec"    to 12349,  // PL
+            // ── because ──
+            "because" to 12348,
+            "perche"  to 12348,  // IT (no accent)
+            "perch\u00e9" to 12348, // IT with accent
+            "weil"    to 12348,  // DE
+            "parce"   to 12348,  // FR (parce que)
+            "porque"  to 12348,  // ES/PT
+            "omdat"   to 12348,  // NL
+            "bo"      to 12348,  // PL
+            // ── that/che ──
+            "that"    to 12347,
+            "che"     to 12347,  // IT (also in structured resolver)
+            "que"     to 12347,  // FR/ES/PT
+            "dass"    to 12347,  // DE
+            "dat"     to 12347,  // NL
+            "ze"      to 12347   // PL
         )
 
         private val PAST_IT_AUX_RE =
-            Regex("\\b(ha|hanno|aveva|avevano|ebbe|ebbero|è stato|sono stati|ho|abbiamo)\\b")
+            Regex("\\b(ha|hanno|aveva|avevano|ebbe|ebbero|\u00e8 stato|sono stati|ho|abbiamo)\\b")
         private val PAST_IT_PARTICIPLE_RE = Regex("[a-z]{3,}(ato|ito|uto)")
         private val PAST_EN_RE =
             Regex("\\b(had|has|have|was|were|did)\\b.*\\b\\w+ed\\b")
         private val PAST_FR_RE =
-            Regex("\\b(avait|avaient|avais|a|ont|est|sont)\\b.*\\b\\w+(é|i|u)\\b")
+            Regex("\\b(avait|avaient|avais|a|ont|est|sont)\\b.*\\b\\w+(\u00e9|i|u)\\b")
         private val PAST_DE_RE =
             Regex("\\b(hatte|hatten|hat|ist|sind|wurde|wurden)\\b.*\\bge\\w+\\b")
         private val PAST_ES_RE =
-            Regex("\\b(tuvo|tuvieron|había|habían|ha|han|fue|fueron)\\b.*\\b\\w+(ado|ido)\\b")
+            Regex("\\b(tuvo|tuvieron|hab\u00eda|hab\u00edan|ha|han|fue|fueron)\\b.*\\b\\w+(ado|ido)\\b")
 
         private val FUTURE_EN_RE =
             Regex("\\b(will|shall|going to|won't|shan't)\\b")
         private val FUTURE_IT_RE =
-            Regex("\\b(andrà|andranno|verrà|verranno|sarà|saranno|farà|faranno|" +
-                       "dovrà|dovranno|potrà|potranno|vorrà|vorranno|" +
-                       "\\w+(erà|irà|arà|eranno|iranno|aranno))\\b")
+            Regex("\\b(andr\u00e0|andranno|verr\u00e0|verranno|sar\u00e0|saranno|far\u00e0|faranno|" +
+                       "dovr\u00e0|dovranno|potr\u00e0|potranno|vorr\u00e0|vorranno|" +
+                       "\\w+(er\u00e0|ir\u00e0|ar\u00e0|eranno|iranno|aranno))\\b")
         private val FUTURE_ES_RE =
-            Regex("\\b(irá|irán|será|serán|hará|harán|tendrá|tendrán|" +
-                       "\\w+(ará|erá|irá|arán|erán|irán))\\b")
+            Regex("\\b(ir\u00e1|ir\u00e1n|ser\u00e1|ser\u00e1n|har\u00e1|har\u00e1n|tendr\u00e1|tendr\u00e1n|" +
+                       "\\w+(ar\u00e1|er\u00e1|ir\u00e1|ar\u00e1n|er\u00e1n|ir\u00e1n))\\b")
         private val FUTURE_DE_RE =
             Regex("\\b(wird|werden|werde|wirst|werdet)\\b")
         private val FUTURE_FR_RE =
