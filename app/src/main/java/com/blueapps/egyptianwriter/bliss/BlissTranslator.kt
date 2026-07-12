@@ -576,9 +576,9 @@ class BlissTranslator(
         private const val TAG          = "BlissTranslator"
         private const val MAX_NGRAM_LEN = 4
 
-        private const val INDICATOR_PLURAL = "plural"
-        private const val INDICATOR_PAST   = "past"
-        private const val INDICATOR_FUTURE = "future"
+        const val INDICATOR_PLURAL = "plural"
+        const val INDICATOR_PAST   = "past"
+        const val INDICATOR_FUTURE = "future"
 
         private const val BCI_INDICATOR_PLURAL = 9011
         private const val BCI_INDICATOR_PAST   = 9007

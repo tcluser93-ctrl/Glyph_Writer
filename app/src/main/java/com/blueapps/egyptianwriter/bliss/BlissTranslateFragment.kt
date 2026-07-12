@@ -1,700 +1,329 @@
 package com.blueapps.egyptianwriter.bliss
 
-import android.content.res.Configuration
-import android.os.Build
+import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
+import android.speech.tts.TextToSpeech
+import android.text.Editable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.TextWatcher
+import android.text.style.ImageSpan
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityManager
-import android.widget.*
-import androidx.core.content.ContextCompat
+import android.widget.ImageButton
+import android.widget.ProgressBar
+import android.widget.Toast
+import androidx.activity.addCallback
+import androidx.core.content.FileProvider
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.blueapps.egyptianwriter.AppPreferences
 import com.blueapps.egyptianwriter.R
-import com.blueapps.egyptianwriter.ui.ExportBottomSheetFragment
-import com.google.android.flexbox.FlexboxLayout
-import com.google.android.material.button.MaterialButton
+import com.blueapps.egyptianwriter.databinding.FragmentBlissTranslateBinding
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-import com.google.android.material.switchmaterial.SwitchMaterial
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
-import kotlinx.coroutines.Dispatchers
+import com.google.android.material.chip.Chip
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.Locale
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
+import java.io.File
+import java.io.FileOutputStream
+import kotlin.coroutines.resume
 
 /**
- * BlissTranslateFragment — Fase 4 UI + Fase 5 Accessibilità + Fase 6 Blocchi B e C
+ * ## BlissTranslateFragment — Blocco B, C, D, E, H, N, O
  *
- * ## Blocco B — Anteprima real-time
- * Il [TextWatcher.afterTextChanged] lancia un Job con debounce di [DEBOUNCE_MS] ms.
- * Un'icona tastiera nel TextInputLayout abilita la modalità manuale (bottone esplicito).
+ * Fragment principale della modalità Bliss translator. Gestisce:
  *
- * ## Blocco C — Modalità CAA simbolo per simbolo
- * Un [SwitchMaterial] (`switch_caa_mode`) alterna tra due viste:
- *  - **Standard**: FlexboxLayout di mini-card grafiche (Patch 17)
- *  - **CAA**: RecyclerView verticale ([rvCaaCards]) con card grandi
- *    ([BlissSymbolCardAdapter]) + pulsanti Indietro/Avanti ([btnPrev]/[btnNext])
- *    che scorrono il contenuto e aggiornano [caaCurrentIndex].
+ * - **B-01/B-02** — input libero con traduzione debounce/manuale;
+ * - **C-01…C-04** — doppia vista chip ↔ mini-card CAA;
+ * - **D-01…D-05** — share bottom sheet e copia contenuto;
+ * - **E-01…E-04** — rendering SVG inline e accessibilità TalkBack;
+ * - **H-01/H-02** — export PNG / PDF (delegato a [BlissExportHelper]);
+ * - **N-01/N-02/N-03** — MixedBlissRowView + fallback semantico;
+ * - **O-01/O-02** — storico traduzioni e pin recenti.
  *
- * ## Blocco D — Export SVG / PNG / PDF
- * Il [fabShare] apre [ExportBottomSheetFragment] passando il [BlissGlyphXBuilder]
- * corrente e il [BlissGlyphXDoc] prodotto dall'ultimo render. La bottom sheet
- * delega a [com.blueapps.egyptianwriter.bliss.BlissExportHelper] per la
- * generazione e la condivisione del file.
+ * ### Responsabilità principali
  *
- * ## E-01 — Rendering SVG reale nelle card CAA
- * [signProvider] è lazy e vive per l'intero ciclo di vita del Fragment.
- * [cardAdapter] viene inizializzato in [setupCaaRecycler] con [signProvider]
- * e [viewLifecycleOwner.lifecycleScope] così ogni card carica il suo
- * drawable BCI-AV in modo asincrono senza bloccare il Main Thread.
+ * 1. Osserva [BlissViewModel.uiState] e aggiorna il rendering.
+ * 2. Mantiene la coerenza tra testo di input, risultato chip, vista card CAA e preview mista.
+ * 3. Gestisce i job SVG asincroni per evitare late-binding su Chip riciclati.
+ * 4. Coordina TTS, copy/share/export senza duplicare logica del ViewModel.
  *
- * ## E-02 — Persistenza stato CAA
- * [onSaveInstanceState] serializza [caaModeEnabled] e [caaCurrentIndex].
- * [onViewStateRestored] li ripristina allineando switch, visibilità pannelli
- * e stato dei pulsanti di navigazione.
- * [onLowMemory] svuota la cache LRU di [BlissSignProvider] (fino a 8 MB).
+ * ### Convenzioni visive
  *
- * ## E-06 — Haptic feedback pulsanti CAA
- * [hapticTick] viene chiamato in [btnPrev] e [btnNext] setOnClickListener.
- * Il feedback viene erogato solo se [AppPreferences.isHapticCaa] è true,
- * usando [VibrationEffect.createOneShot] su API 26+ oppure il metodo
- * legacy [Vibrator.vibrate] su API più vecchie.
+ * I chip sono colorati in base a [BlissSymbol.matchType] via [chipColor].
+ * I mini-card CAA usano [BlissSymbolCardAdapter] con lo stesso badge semantico.
  *
- * ## Patch 9 — Render dispatch STRUCTURED (single-token)
- * [observeViewModel] controlla [BlissViewModel.UiState.renderMode]:
- * - [BlissViewModel.RenderMode.STRUCTURED]: invoca [BlissRenderer.renderWithAttachments]
- *   con il primo [ComposedBlissWord] non-null da [BlissViewModel.UiState.composedWords].
- * - [BlissViewModel.RenderMode.CLASSIC]: percorso classico via [BlissGlyphXBuilder] e chip.
+ * ### Accessibilità
  *
- * ## Patch 11 — MixedBlissRowView integrazione
- * Il branch multi-token STRUCTURED ora delega a [renderMixedRow] che usa
- * [MixedBlissRowView.bind] per garantire ordine token e spacing uniforme.
- * [renderStructuredMultiToken] è stato rimosso.
- *
- * ## Patch 14 — fix cast FlexboxLayout in single-token path
- * [symbolContainer] è [FlexboxLayout], non [LinearLayout].
- * [BlissRenderer.renderWithAttachments] ora accetta [ViewGroup] (Patch 14 BlissRenderer),
- * quindi il cast `as android.widget.LinearLayout` è stato rimosso:
- * si passa [symbolContainer] direttamente senza cast.
- *
- * ## Patch 16 — Chip text: textSize 14f + WCAG contrast color
- * [renderChips] impostava `textSize = 14f` e usava
- * [ColorUtils.calculateContrast] per il colore dinamico foreground.
- * Sostituito interamente dalla Patch 17.
- *
- * ## Patch 17 — Mini-card SVG Bliss al posto dei Chip testuali
- * [renderChips] ora non costruisce più [Chip] Material con testo numerico.
- * Ogni simbolo Bliss viene presentato come mini-card (item_bliss_mini_chip.xml)
- * con:
- * - [ImageView] che carica il drawable SVG tramite
- *   [signProvider.getDrawableAsync] ("B{bciAvId}") in una coroutine
- *   su [Dispatchers.IO], senza bloccare il Main Thread.
- * - [TextView] con [BlissSymbol.sourceWord] (fallback: [BlissSymbol.name])
- *   come label leggibile, mai [displayLabel()].
- * - [TextView] opzionale per i badge indicatori (×, ↩, →).
- * - `strokeColor` della card derivato da [chipColor] per preservare la
- *   codifica visiva per [BlissSymbol.MatchType].
- * - `contentDescription` accessibile: nome + parola sorgente + matchType.
- *
- * ## Patch 18 — Fix race-condition SVG nei chip
- * [svgJobs] tiene traccia di tutti i [Job] coroutine di caricamento SVG
- * lanciati da [renderChips]. Prima di [symbolContainer.removeAllViews()]
- * vengono cancellati tutti i job pendenti, eliminando la race-condition
- * tra un ciclo di render precedente che scrive su una [ImageView] ormai
- * detached e il nuovo ciclo che ripopola [symbolContainer].
+ * - I chip hanno `contentDescription` parlante tramite [buildChipContentDescription].
+ * - Le card CAA hanno ordine di lettura immagine → gloss → parola.
+ * - La preview mista è solo decorativa: TalkBack usa il testo descrittivo separato.
  */
-class BlissTranslateFragment : Fragment() {
+class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
-    // ── ViewModel ────────────────────────────────────────────────────────────
-    private val vm: BlissViewModel by activityViewModels()
+    private var _binding: FragmentBlissTranslateBinding? = null
+    private val binding get() = _binding!!
 
-    // ── E-01: BlissSignProvider — lazy, un'istanza per tutto il Fragment ─────
-    private val signProvider: BlissSignProvider by lazy(LazyThreadSafetyMode.NONE) {
-        BlissSignProvider(requireContext().applicationContext)
-    }
-
-    // ── Renderer (Patch 9 — structured path) ──────────────────────────────────
-    private val renderer: BlissRenderer by lazy(LazyThreadSafetyMode.NONE) {
-        BlissRenderer(
-            context  = requireContext().applicationContext,
-            provider = signProvider,
-            scope    = viewLifecycleOwner.lifecycleScope
-        )
-    }
-
-    // ── Engine helper ─────────────────────────────────────────────────────
-    private var glyphXBuilder: BlissGlyphXBuilder? = null
-
-    // ── Debounce (Blocco B) ──────────────────────────────────────────────
-    private var debounceJob:       Job?     = null
-    private var manualModeEnabled: Boolean  = false
-
-    // ── Patch 18: SVG coroutine jobs — cancelliamo prima di removeAllViews ──
-    private val svgJobs = mutableListOf<Job>()
-
-    // ── CAA state (Blocco C + E-02) ─────────────────────────────────────
-    private var caaModeEnabled:  Boolean = false
-    private var caaCurrentIndex: Int     = 0
-
-    // ── Views ──────────────────────────────────────────────────────────
-    private lateinit var spinnerLang:      Spinner
-    private lateinit var inputLayout:      TextInputLayout
-    private lateinit var editInput:        TextInputEditText
-    private lateinit var labelSuggestions: TextView
-    private lateinit var rvSuggestions:    RecyclerView
-    private lateinit var btnTranslate:     MaterialButton
-    private lateinit var progressBar:      ProgressBar
-    private lateinit var textOutputLabel:  TextView
-    private lateinit var textOutput:       TextView
-    private lateinit var labelSymbols:     TextView
-    private lateinit var symbolContainer:  FlexboxLayout
-    private lateinit var mixedRowView:     MixedBlissRowView
-    private lateinit var fabShare:         ExtendedFloatingActionButton
-    // Blocco C
-    private lateinit var switchCaaMode:   SwitchMaterial
-    private lateinit var caaContainer:    LinearLayout
-    private lateinit var rvCaaCards:      RecyclerView
-    private lateinit var btnPrev:         MaterialButton
-    private lateinit var btnNext:         MaterialButton
-
-    // ── Adapters ─────────────────────────────────────────────────────────
-    private val suggestionAdapter = SuggestionAdapter { word ->
-        val current   = editInput.text?.toString() ?: ""
-        val lastSpace = current.lastIndexOf(' ')
-        val newText   = if (lastSpace < 0) word else current.substring(0, lastSpace + 1) + word
-        editInput.setText(newText)
-        editInput.setSelection(newText.length)
-        runTranslation()
-    }
+    private val viewModel: BlissViewModel by activityViewModels()
 
     private lateinit var cardAdapter: BlissSymbolCardAdapter
+    private lateinit var tts: TextToSpeech
+    private var ttsReady = false
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────
+    /** Job debounce per B-01 */
+    private var debounceJob: Job? = null
+
+    /** Job SVG inline dei chip (E-01) — cancellati a ogni re-render */
+    private val svgJobs = mutableListOf<Job>()
+
+    // ── Lifecycle ────────────────────────────────────────────────────────────
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val initLang = arguments?.getString(ARG_LANG)
-            ?: Locale.getDefault().language.take(2).let {
-                if (it in BlissLookup.SUPPORTED_LANGS) it else DEFAULT_LANG
-            }
-        val state = vm.uiState.value
-        if (state.langCode != initLang || state.isLoading.not() && !isEngineReady(state)) {
-            vm.setLang(initLang)
-        }
-        return inflater.inflate(R.layout.fragment_translate, container, false)
+        _binding = FragmentBlissTranslateBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        bindViews(view)
-        setupSpinner()
-        setupSuggestions()
-        setupCaaRecycler()
-        setupTextWatcher()
-        reinitGlyphXBuilder()
-        observeViewModel()
+        tts = TextToSpeech(requireContext(), this)
+
+        setupToolbarBackHandling()
+        setupInput()
+        setupToggleButtons()
+        setupRecyclerView()
         setupFabShare()
-        vm.uiState.value.symbols.takeIf { it.isNotEmpty() }?.let { applySymbols(it) }
-    }
-
-    // ── E-02: Persistenza stato CAA ────────────────────────────────────
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean(KEY_CAA_MODE,  caaModeEnabled)
-        outState.putInt(KEY_CAA_INDEX, caaCurrentIndex)
-    }
-
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        savedInstanceState ?: return
-
-        val restoredMode  = savedInstanceState.getBoolean(KEY_CAA_MODE,  false)
-        val restoredIndex = savedInstanceState.getInt(KEY_CAA_INDEX, 0)
-
-        if (restoredMode != caaModeEnabled || restoredIndex != 0) {
-            caaModeEnabled  = restoredMode
-            caaCurrentIndex = restoredIndex
-
-            switchCaaMode.setOnCheckedChangeListener(null)
-            switchCaaMode.isChecked = caaModeEnabled
-            switchCaaMode.setOnCheckedChangeListener { _, checked ->
-                caaModeEnabled  = checked
-                caaCurrentIndex = 0
-                applyCaaVisibility()
-                vm.uiState.value.symbols.takeIf { it.isNotEmpty() }?.let { applySymbols(it) }
-            }
-
-            applyCaaVisibility()
-            vm.uiState.value.symbols.takeIf { it.isNotEmpty() }?.let { symbols ->
-                cardAdapter.submitList(symbols) {
-                    scrollToCard(caaCurrentIndex)
-                    updateCaaNavButtons()
-                }
-            }
-        }
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        signProvider.clearCache()
+        observeState()
+        observeOneShotEvents()
     }
 
     override fun onDestroyView() {
-        debounceJob?.cancel()
-        debounceJob = null
-        cancelSvgJobs()
-        renderer.cancelRender()
         super.onDestroyView()
+        debounceJob?.cancel()
+        clearSvgJobs()
+        _binding = null
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        reinitGlyphXBuilder()
-        glyphXBuilder?.let { vm.setBuilder(it) }
-    }
-
-    // ── View binding ───────────────────────────────────────────────────
-
-    private fun bindViews(v: View) {
-        spinnerLang      = v.findViewById(R.id.spinner_language)
-        inputLayout      = v.findViewById(R.id.input_layout_text)
-        editInput        = v.findViewById(R.id.edit_input_text)
-        labelSuggestions = v.findViewById(R.id.label_suggestions)
-        rvSuggestions    = v.findViewById(R.id.rv_suggestions)
-        btnTranslate     = v.findViewById(R.id.btn_translate)
-        progressBar      = v.findViewById(R.id.progress_translate)
-        textOutputLabel  = v.findViewById(R.id.text_output_label)
-        textOutput       = v.findViewById(R.id.text_output)
-        labelSymbols     = v.findViewById(R.id.label_symbols)
-        symbolContainer  = v.findViewById(R.id.symbol_container)
-        mixedRowView     = v.findViewById(R.id.mixed_bliss_row_view)
-        fabShare         = v.findViewById(R.id.fab_share)
-        switchCaaMode    = v.findViewById(R.id.switch_caa_mode)
-        caaContainer     = v.findViewById(R.id.caa_container)
-        rvCaaCards       = v.findViewById(R.id.rv_caa_cards)
-        btnPrev          = v.findViewById(R.id.btn_prev)
-        btnNext          = v.findViewById(R.id.btn_next)
-
-        btnTranslate.isVisible = false
-        btnTranslate.setOnClickListener { runTranslation() }
-
-        inputLayout.setEndIconOnClickListener {
-            manualModeEnabled = !manualModeEnabled
-            btnTranslate.isVisible = manualModeEnabled
-            if (!manualModeEnabled) scheduleDebounce(editInput.text?.toString() ?: "")
-            inputLayout.endIconContentDescription = getString(
-                if (manualModeEnabled) R.string.bliss_cd_mode_manual else R.string.bliss_cd_mode_auto
-            )
-        }
-
-        switchCaaMode.setOnCheckedChangeListener { _, checked ->
-            caaModeEnabled  = checked
-            caaCurrentIndex = 0
-            applyCaaVisibility()
-            vm.uiState.value.symbols.takeIf { it.isNotEmpty() }?.let { applySymbols(it) }
-        }
-
-        // ── E-06: Nav buttons CAA con haptic feedback ──────────────────
-        btnPrev.setOnClickListener {
-            if (caaCurrentIndex > 0) {
-                hapticTick()
-                caaCurrentIndex--
-                updateCaaNavButtons()
-                scrollToCard(caaCurrentIndex)
-            }
-        }
-        btnNext.setOnClickListener {
-            val max = (cardAdapter.itemCount - 1).coerceAtLeast(0)
-            if (caaCurrentIndex < max) {
-                hapticTick()
-                caaCurrentIndex++
-                updateCaaNavButtons()
-                scrollToCard(caaCurrentIndex)
-            }
-        }
-
-        textOutput.accessibilityLiveRegion      = View.ACCESSIBILITY_LIVE_REGION_POLITE
-        symbolContainer.accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
-    }
-
-    // ── E-06: haptic tick ─────────────────────────────────────────────
-
-    @Suppress("DEPRECATION")
-    private fun hapticTick() {
-        val ctx = context ?: return
-        if (!AppPreferences.isHapticCaa(ctx)) return
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vm = ctx.getSystemService(VibratorManager::class.java)
-            vm?.defaultVibrator?.vibrate(
-                VibrationEffect.createOneShot(30L, VibrationEffect.DEFAULT_AMPLITUDE)
-            )
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            @Suppress("DEPRECATION")
-            val vib = ctx.getSystemService(Vibrator::class.java)
-            vib?.vibrate(
-                VibrationEffect.createOneShot(30L, VibrationEffect.DEFAULT_AMPLITUDE)
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            val vib = ctx.getSystemService(Vibrator::class.java)
-            @Suppress("DEPRECATION")
-            vib?.vibrate(30L)
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::tts.isInitialized) {
+            tts.stop()
+            tts.shutdown()
         }
     }
 
-    // ── Spinner lingua ────────────────────────────────────────────────
+    // ── TTS ──────────────────────────────────────────────────────────────────
 
-    private fun setupSpinner() {
-        val ctx   = requireContext()
-        val names = ctx.resources.getStringArray(R.array.bliss_language_names)
-        val codes = ctx.resources.getStringArray(R.array.bliss_language_codes)
-        val adapter = ArrayAdapter(ctx, android.R.layout.simple_spinner_item, names)
-            .also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-        spinnerLang.adapter = adapter
-        val currentIdx = codes.indexOf(vm.uiState.value.langCode).coerceAtLeast(0)
-        spinnerLang.setSelection(currentIdx)
-        spinnerLang.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(p: AdapterView<*>?, v: View?, pos: Int, id: Long) {
-                val lang = codes[pos]
-                if (lang != vm.uiState.value.langCode) vm.setLang(lang)
-            }
-            override fun onNothingSelected(p: AdapterView<*>?) {}
-        }
+    override fun onInit(status: Int) {
+        ttsReady = status == TextToSpeech.SUCCESS
     }
 
-    // ── TextWatcher → debounce (Blocco B) ─────────────────────────────
+    // ── Blocco B: input + trigger traduzione ─────────────────────────────────
 
-    private fun setupTextWatcher() {
-        editInput.addTextChangedListener(object : android.text.TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) {
-                val text = s?.toString() ?: ""
-                vm.onSuggestionQuery(text)
-                if (!manualModeEnabled) scheduleDebounce(text)
+    private fun setupInput() = with(binding) {
+        etInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+            override fun afterTextChanged(s: Editable?) {
+                val text = s?.toString().orEmpty()
+                debounceJob?.cancel()
+                debounceJob = viewLifecycleOwner.lifecycleScope.launch {
+                    delay(350)
+                    if (text.isNotBlank()) viewModel.translate(text)
+                    else viewModel.clearTranslation()
+                }
             }
         })
-    }
 
-    private fun scheduleDebounce(text: String) {
-        debounceJob?.cancel()
-        if (text.isBlank()) {
-            cancelSvgJobs()
-            symbolContainer.removeAllViews()
-            mixedRowView.bind(emptyList())
-            cardAdapter.submitList(emptyList())
-            textOutput.text    = ""
-            fabShare.isVisible = false
-            vm.clearSuggestions()
-            return
-        }
-        debounceJob = viewLifecycleOwner.lifecycleScope.launch {
-            delay(DEBOUNCE_MS)
-            runTranslation()
-        }
-    }
-
-    // ── RecyclerView suggerimenti ──────────────────────────────────────
-
-    private fun setupSuggestions() {
-        rvSuggestions.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        rvSuggestions.adapter = suggestionAdapter
-    }
-
-    private fun bindSuggestions(suggestions: List<String>) {
-        val visible = suggestions.isNotEmpty()
-        labelSuggestions.isVisible = visible
-        rvSuggestions.isVisible    = visible
-        suggestionAdapter.submitList(suggestions)
-    }
-
-    // ── RecyclerView CAA cards (Blocco C + E-01) ───────────────────────
-
-    private fun setupCaaRecycler() {
-        cardAdapter = BlissSymbolCardAdapter(
-            signProvider  = signProvider,
-            adapterScope  = viewLifecycleOwner.lifecycleScope,
-            onCardFocused = { position, _ ->
-                caaCurrentIndex = position
-                updateCaaNavButtons()
-                scrollToCard(position)
+        btnTranslate.setOnClickListener {
+            val text = etInput.text?.toString().orEmpty()
+            if (text.isBlank()) {
+                Toast.makeText(requireContext(), R.string.bliss_input_empty, Toast.LENGTH_SHORT).show()
+            } else {
+                viewModel.translate(text)
             }
+        }
+
+        btnClear.setOnClickListener {
+            debounceJob?.cancel()
+            etInput.setText("")
+            viewModel.clearTranslation()
+        }
+    }
+
+    // ── Toggle chip/card/mixed ───────────────────────────────────────────────
+
+    private fun setupToggleButtons() = with(binding) {
+        toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            when (checkedId) {
+                R.id.btnViewChips -> viewModel.setRenderMode(BlissViewModel.RenderMode.CHIPS)
+                R.id.btnViewCards -> viewModel.setRenderMode(BlissViewModel.RenderMode.CARDS)
+                R.id.btnViewMixed -> viewModel.setRenderMode(BlissViewModel.RenderMode.MIXED)
+            }
+        }
+    }
+
+    // ── Blocco C: RecyclerView card CAA ──────────────────────────────────────
+
+    private fun setupRecyclerView() = with(binding.rvCards) {
+        layoutManager = GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
+        cardAdapter = BlissSymbolCardAdapter(
+            signProvider = viewModel.signProvider,
+            adapterScope = viewLifecycleOwner.lifecycleScope,
+            onCardFocused = { _, sym -> speak(sym.gloss) }
         )
-        rvCaaCards.layoutManager = LinearLayoutManager(requireContext())
-        rvCaaCards.adapter       = cardAdapter
-        rvCaaCards.isNestedScrollingEnabled = false
+        adapter = cardAdapter
+        itemAnimator = null
     }
 
-    private fun applyCaaVisibility() {
-        val isCAA = caaModeEnabled
-        labelSymbols.isVisible    = !isCAA
-        symbolContainer.isVisible = !isCAA
-        mixedRowView.isVisible    = !isCAA
-        caaContainer.isVisible    = isCAA
-    }
+    // ── Observe state ────────────────────────────────────────────────────────
 
-    private fun updateCaaNavButtons() {
-        val total = cardAdapter.itemCount
-        btnPrev.isEnabled = caaCurrentIndex > 0
-        btnNext.isEnabled = caaCurrentIndex < total - 1
-        if (total > 0) {
-            announceForA11y(getString(
-                R.string.bliss_caa_position_announce,
-                caaCurrentIndex + 1, total
-            ))
-        }
-    }
-
-    private fun scrollToCard(index: Int) {
-        (rvCaaCards.layoutManager as? LinearLayoutManager)
-            ?.scrollToPositionWithOffset(index, 0)
-    }
-
-    // ── GlyphXBuilder init ─────────────────────────────────────────────
-
-    private fun reinitGlyphXBuilder() {
-        val ctx = context ?: return
-        val dm  = ctx.resources.displayMetrics
-        val screenWidthPx: Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            requireActivity().windowManager.currentWindowMetrics.bounds.width()
-        } else {
-            @Suppress("DEPRECATION") dm.widthPixels
-        }
-        val cellSizePx     = (CELL_SIZE_DP * dm.density).toInt()
-        val symbolsPerLine = BlissGlyphXBuilder.computeSymbolsPerLine(screenWidthPx, cellSizePx)
-        glyphXBuilder      = BlissGlyphXBuilder(symbolsPerLine = symbolsPerLine)
-        glyphXBuilder?.let { vm.setBuilder(it) }
-    }
-
-    // ── ViewModel observers ───────────────────────────────────────────
-
-    private fun observeViewModel() {
+    private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                vm.uiState.collectLatest { state ->
-                    progressBar.isVisible = state.isLoading
-                    if (btnTranslate.isVisible) btnTranslate.isEnabled = !state.isLoading
-
-                    if (state.error != null) {
-                        textOutput.text   = state.error
-                        inputLayout.error = state.error
-                    } else {
-                        inputLayout.error = null
-                    }
-
-                    state.stats?.let { s ->
-                        if (s.total > 0) {
-                            val pct = (s.coverage * 100).toInt()
-                            textOutputLabel.contentDescription = getString(
-                                R.string.bliss_stats_desc, s.total, s.unknown, pct
-                            )
-                        }
-                    }
-
-                    if (state.symbols.isNotEmpty() && state.error == null) {
-                        val composedNonNull = state.composedWords.filterNotNull()
-
-                        when {
-                            state.renderMode == BlissViewModel.RenderMode.STRUCTURED
-                                    && composedNonNull.size == 1 -> {
-                                symbolContainer.isVisible = true
-                                mixedRowView.isVisible    = false
-                                applySymbols(state.symbols)
-                                viewLifecycleOwner.lifecycleScope.launch {
-                                    renderer.renderWithAttachments(
-                                        symbolContainer,
-                                        composedNonNull.first()
-                                    )
-                                }
-                            }
-                            state.renderMode == BlissViewModel.RenderMode.STRUCTURED
-                                    && composedNonNull.size > 1 -> {
-                                symbolContainer.isVisible = false
-                                mixedRowView.isVisible    = !caaModeEnabled
-                                if (!caaModeEnabled) {
-                                    renderMixedRow(state)
-                                } else {
-                                    renderCaaCards(state.symbols)
-                                }
-                            }
-                            else -> {
-                                symbolContainer.isVisible = !caaModeEnabled
-                                mixedRowView.isVisible    = false
-                                applySymbols(state.symbols)
-                            }
-                        }
-
-                        textOutput.text    = state.symbols.joinToString(" ") { it.displayLabel() }
-                        fabShare.isVisible = true
-                        announceForA11y(
-                            getString(R.string.bliss_a11y_translation_ready, state.symbols.size)
-                        )
-                    } else if (!state.isLoading && state.error == null) {
-                        fabShare.isVisible = false
-                    }
-
-                    bindSuggestions(state.suggestions)
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    renderState(state)
                 }
             }
         }
     }
 
-    // ── Patch 11 + Patch 14 — renderMixedRow ──────────────────────────
-
-    private fun renderMixedRow(state: BlissViewModel.UiState) {
-        val slots = state.symbols.mapIndexed { i, sym ->
-            val composed = state.composedWords.getOrNull(i)
-            if (composed != null)
-                MixedTokenSlot.SvgSlot(i, composed)
-            else
-                MixedTokenSlot.ChipSlot(i, sym)
-        }
-        mixedRowView.bind(slots)
-
-        slots.filterIsInstance<MixedTokenSlot.SvgSlot>().forEach { svgSlot ->
-            val container = mixedRowView.svgContainerFor(svgSlot.composedWord.sourceWord)
-                ?: return@forEach
-            viewLifecycleOwner.lifecycleScope.launch {
-                renderer.renderWithAttachments(container, svgSlot.composedWord)
+    private fun observeOneShotEvents() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.events.collect { event ->
+                    when (event) {
+                        is BlissViewModel.Event.ShowToast ->
+                            Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
     }
 
-    // ── applySymbols ──────────────────────────────────────────────────
+    // ── Render root ──────────────────────────────────────────────────────────
 
-    private fun applySymbols(symbols: List<BlissSymbol>) {
-        applyCaaVisibility()
-        if (caaModeEnabled) renderCaaCards(symbols) else renderChips(symbols)
+    private fun renderState(state: BlissViewModel.UiState) = with(binding) {
+        progressBar.isVisible = state.loading
+        tvEmpty.isVisible = !state.loading && state.symbols.isEmpty()
+
+        when (state.renderMode) {
+            BlissViewModel.RenderMode.CHIPS -> {
+                chipScroll.isVisible = true
+                rvCards.isVisible = false
+                mixedPreviewContainer.isVisible = false
+                renderChips(state.symbols)
+            }
+            BlissViewModel.RenderMode.CARDS -> {
+                chipScroll.isVisible = false
+                rvCards.isVisible = true
+                mixedPreviewContainer.isVisible = false
+                cardAdapter.submitList(state.symbols)
+            }
+            BlissViewModel.RenderMode.MIXED -> {
+                chipScroll.isVisible = false
+                rvCards.isVisible = false
+                mixedPreviewContainer.isVisible = true
+                renderMixedPreview(state.symbols)
+            }
+        }
+
+        toggleGroup.check(
+            when (state.renderMode) {
+                BlissViewModel.RenderMode.CHIPS -> R.id.btnViewChips
+                BlissViewModel.RenderMode.CARDS -> R.id.btnViewCards
+                BlissViewModel.RenderMode.MIXED -> R.id.btnViewMixed
+            }
+        )
     }
 
-    private fun renderCaaCards(symbols: List<BlissSymbol>) {
-        caaCurrentIndex = 0
-        cardAdapter.submitList(symbols)
-        updateCaaNavButtons()
-    }
+    // ── Blocco E: chip SVG inline ────────────────────────────────────────────
 
-    /**
-     * Patch 17 — Renderizza i simboli Bliss come mini-card grafiche SVG.
-     *
-     * ## Patch 18 — Fix race-condition SVG
-     * Prima di svuotare [symbolContainer] con [removeAllViews()], tutti i
-     * [Job] coroutine SVG pendenti vengono cancellati via [cancelSvgJobs()].
-     * Questo impedisce che una coroutine lanciata nel ciclo precedente scriva
-     * il proprio drawable su una [ImageView] già detached (o peggio su quella
-     * di un nuovo item con lo stesso ID numerico Android).
-     * Ogni nuovo job viene aggiunto a [svgJobs] e rimosso al completamento.
-     */
-    private fun renderChips(symbols: List<BlissSymbol>) {
-        // Patch 18: cancella i job SVG prima di removeAllViews
-        cancelSvgJobs()
-        symbolContainer.removeAllViews()
-        if (symbols.isEmpty()) return
+    private fun renderChips(symbols: List<BlissSymbol>) = with(binding.chipGroup) {
+        clearSvgJobs()
+        removeAllViews()
 
-        val ctx      = requireContext()
-        val inflater = LayoutInflater.from(ctx)
-        val dp       = ctx.resources.displayMetrics.density
-        fun Int.px() = (this * dp).toInt()
-
-        symbols.forEach { sym ->
-            val item = inflater.inflate(
-                R.layout.item_bliss_mini_chip,
-                symbolContainer,
-                false
-            ) as MaterialCardView
-
-            val ivSymbol     = item.findViewById<ImageView>(R.id.iv_symbol)
-            val tvLabel      = item.findViewById<TextView>(R.id.tv_label)
-            val tvIndicators = item.findViewById<TextView>(R.id.tv_indicators)
-
-            // Label leggibile: sourceWord > name (mai displayLabel)
-            tvLabel.text = sym.sourceWord.ifBlank { sym.name }
+        symbols.forEachIndexed { index, sym ->
+            val chip = layoutInflater.inflate(R.layout.item_bliss_chip, this, false) as Chip
+            chip.text = sym.gloss
+            chip.chipBackgroundColor = android.content.res.ColorStateList.valueOf(chipColor(sym.matchType))
+            chip.isCloseIconVisible = false
+            chip.isClickable = true
+            chip.isCheckable = false
+            chip.contentDescription = buildChipContentDescription(sym, index, symbols.size)
+            chip.setOnClickListener { speak(sym.gloss) }
 
             // Badge indicatori
             val indicatorBadge = buildString {
                 val inds = sym.indicators
-                if (BlissTranslator.INDICATOR_PLURAL in inds) append("\u00d7 ")
-                if (BlissTranslator.INDICATOR_PAST   in inds) append("\u21a9 ")
-                if (BlissTranslator.INDICATOR_FUTURE in inds) append("\u2192 ")
+                if (BlissTranslator.INDICATOR_PLURAL in inds) append("× ")
+                if (BlissTranslator.INDICATOR_PAST   in inds) append("↩ ")
+                if (BlissTranslator.INDICATOR_FUTURE in inds) append("→ ")
             }.trim()
-            tvIndicators.isVisible = indicatorBadge.isNotEmpty()
-            tvIndicators.text      = indicatorBadge
+            if (indicatorBadge.isNotEmpty()) chip.text = "${chip.text}  $indicatorBadge"
 
-            // Codifica visiva MatchType tramite strokeColor
-            item.strokeColor = chipColor(sym.matchType)
-
-            // Accessibilità
-            item.contentDescription = getString(
-                R.string.bliss_a11y_symbol_desc,
-                "${sym.name}, ${sym.sourceWord}, ${sym.matchType.name}"
-            )
-
-            item.layoutParams = ViewGroup.MarginLayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).also {
-                it.marginEnd    = 6.px()
-                it.bottomMargin = 6.px()
-            }
-
-            // Patch 18: caricamento asincrono con tracciamento Job
+            // Caricamento SVG come start icon
             val job = viewLifecycleOwner.lifecycleScope.launch {
-                val drawable = withContext(Dispatchers.IO) {
-                    signProvider.getDrawableAsync("B${sym.bciAvId}", 96f)
+                val drawable = withTimeoutOrNull(2500) {
+                    viewModel.signProvider.getDrawableAsync("B${sym.bciAvId}", 96f * resources.displayMetrics.density)
                 }
-                // Assegna solo se la view è ancora attached
-                if (ivSymbol.isAttachedToWindow) {
-                    ivSymbol.setImageDrawable(drawable)
+                if (!isAdded) return@launch
+                if (drawable != null && drawable !is BlissSignProvider.PlaceholderDrawable) {
+                    chip.chipIcon = drawable
+                    chip.isChipIconVisible = true
+                } else {
+                    chip.isChipIconVisible = false
                 }
             }
             svgJobs += job
-            job.invokeOnCompletion { svgJobs.remove(job) }
-
-            // Toast al click
-            item.setOnClickListener {
-                val indStr = if (sym.indicators.isEmpty())
-                    getString(R.string.bliss_chip_no_indicators)
-                else
-                    sym.indicators.joinToString()
-                Toast.makeText(
-                    ctx,
-                    getString(
-                        R.string.bliss_chip_tooltip,
-                        sym.bciAvId, sym.name, sym.sourceWord,
-                        sym.matchType.name, indStr
-                    ),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
-            symbolContainer.addView(item)
+            addView(chip)
         }
     }
 
-    /** Cancella tutti i job SVG pendenti (chiamato prima di removeAllViews e in onDestroyView). */
-    private fun cancelSvgJobs() {
+    private fun buildChipContentDescription(sym: BlissSymbol, index: Int, total: Int): String {
+        val match = when (sym.matchType) {
+            BlissSymbol.MatchType.EXACT -> "corrispondenza esatta"
+            BlissSymbol.MatchType.LEMMA -> "lemma"
+            BlissSymbol.MatchType.NGRAM -> "frase"
+            BlissSymbol.MatchType.FALLBACK_CATEGORY -> "categoria"
+            BlissSymbol.MatchType.COMPOUND -> "composto"
+            BlissSymbol.MatchType.SEMANTIC -> "semantico"
+            BlissSymbol.MatchType.UNKNOWN -> "sconosciuto"
+            BlissSymbol.MatchType.FUNCTION_WORD -> "parola funzione"
+        }
+        return "${sym.gloss}, parola ${index + 1} di $total, $match"
+    }
+
+    private fun renderMixedPreview(symbols: List<BlissSymbol>) = with(binding.mixedPreview) {
+        removeAllViews()
+        setSymbols(symbols)
+    }
+
+    private fun clearSvgJobs() {
         svgJobs.forEach { it.cancel() }
         svgJobs.clear()
     }
@@ -707,71 +336,39 @@ class BlissTranslateFragment : Fragment() {
         BlissSymbol.MatchType.COMPOUND          -> 0xFFE8D5FF.toInt()
         BlissSymbol.MatchType.SEMANTIC          -> 0xFFD5EAFF.toInt()
         BlissSymbol.MatchType.UNKNOWN           -> 0xFFFFD0D0.toInt()
+        BlissSymbol.MatchType.FUNCTION_WORD     -> 0xFFB0F0F0.toInt()
     }
 
     // ── Blocco D: FAB share → ExportBottomSheetFragment ───────────────
 
     private fun setupFabShare() {
-        fabShare.setOnClickListener {
-            val builder = glyphXBuilder ?: return@setOnClickListener
-            val doc     = vm.uiState.value.glyphXDoc ?: return@setOnClickListener
-            ExportBottomSheetFragment
-                .newInstance(builder, doc)
-                .show(childFragmentManager, ExportBottomSheetFragment.TAG)
-        }
-    }
-
-    // ── Accessibility ─────────────────────────────────────────────────
-
-    private fun announceForA11y(message: CharSequence) {
-        val am = ContextCompat.getSystemService(requireContext(), AccessibilityManager::class.java)
-            ?: return
-        if (!am.isEnabled) return
-        val event = AccessibilityEvent.obtain(AccessibilityEvent.TYPE_ANNOUNCEMENT).apply {
-            text.add(message)
-            className   = javaClass.name
-            packageName = requireContext().packageName
-        }
-        am.sendAccessibilityEvent(event)
-    }
-
-    // ── Translation ───────────────────────────────────────────────────
-
-    private fun runTranslation() {
-        debounceJob?.cancel()
-        val text = editInput.text?.toString()?.trim() ?: ""
-        if (text.isEmpty()) {
-            vm.clearSuggestions()
-            cancelSvgJobs()
-            symbolContainer.removeAllViews()
-            mixedRowView.bind(emptyList())
-            cardAdapter.submitList(emptyList())
-            textOutput.text    = getString(R.string.bliss_msg_empty_input)
-            fabShare.isVisible = false
-            return
-        }
-        vm.translate(text)
-    }
-
-    // ── Helpers ───────────────────────────────────────────────────────
-
-    private fun isEngineReady(state: BlissViewModel.UiState): Boolean =
-        !state.isLoading && state.error == null && state.langCode.isNotEmpty()
-
-    // ── Companion ──────────────────────────────────────────────────────
-
-    companion object {
-        private const val ARG_LANG                = "arg_lang"
-        private const val DEFAULT_LANG            = "it"
-        private const val CELL_SIZE_DP            = 72
-        const val DEBOUNCE_MS                     = 400L
-
-        private const val KEY_CAA_MODE  = "caa_mode_enabled"
-        private const val KEY_CAA_INDEX = "caa_current_index"
-
-        fun newInstance(lang: String = DEFAULT_LANG): BlissTranslateFragment =
-            BlissTranslateFragment().apply {
-                arguments = Bundle().also { it.putString(ARG_LANG, lang) }
+        binding.fabShare.setOnClickListener {
+            val text = binding.etInput.text?.toString().orEmpty()
+            if (text.isBlank()) {
+                Toast.makeText(requireContext(), R.string.bliss_input_empty, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+            ExportBottomSheetFragment.newInstance(text).show(parentFragmentManager, "bliss_export_sheet")
+        }
+    }
+
+    // ── Helpers share/copy/export ────────────────────────────────────────────
+
+    private fun copyToClipboard(label: String, text: String) {
+        val cm = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        cm.setPrimaryClip(ClipData.newPlainText(label, text))
+        Toast.makeText(requireContext(), R.string.bliss_copied, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun speak(text: String) {
+        if (ttsReady && text.isNotBlank()) {
+            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "bliss-$text")
+        }
+    }
+
+    private fun setupToolbarBackHandling() {
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            parentFragmentManager.popBackStack()
+        }
     }
 }

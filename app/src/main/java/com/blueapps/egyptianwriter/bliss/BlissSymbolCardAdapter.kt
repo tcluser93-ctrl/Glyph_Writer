@@ -164,6 +164,7 @@ class BlissSymbolCardAdapter(
             BlissSymbol.MatchType.COMPOUND          -> "composto"
             BlissSymbol.MatchType.SEMANTIC          -> "semantico"
             BlissSymbol.MatchType.UNKNOWN           -> "sconosciuto"
+            BlissSymbol.MatchType.FUNCTION_WORD     -> "funzione"
         }
 
         private fun matchColor(mt: BlissSymbol.MatchType): Int = when (mt) {
@@ -174,6 +175,7 @@ class BlissSymbolCardAdapter(
             BlissSymbol.MatchType.COMPOUND          -> 0xFFE8D5FF.toInt()
             BlissSymbol.MatchType.SEMANTIC          -> 0xFFD5EAFF.toInt()
             BlissSymbol.MatchType.UNKNOWN           -> 0xFFFFD0D0.toInt()
+            BlissSymbol.MatchType.FUNCTION_WORD     -> 0xFFB0F0F0.toInt()
         }
     }
 
