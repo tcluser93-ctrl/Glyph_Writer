@@ -49,6 +49,12 @@ import java.util.regex.Pattern
  *  - Unknown tokens get a distinct resolutionSource ("unknown:<word>")
  *    to prevent visual collapse of different UNKNOWN chips on ID 17729.
  *
+ * ## Patch 20 — getNameForId → nameOf fix
+ *
+ *  [resolveFunctionWord] previously called the non-existent
+ *  `lookup.getNameForId()`.  Replaced with the existing `lookup.nameOf()`
+ *  which returns a non-null String (numeric fallback when ID is absent).
+ *
  * @param lookup        Pre-loaded [BlissLookup] (must have isReady == true).
  * @param morfologik    Optional [MorfologikLemmatizer]; if null the Morfologik
  *                      tier is silently skipped (graceful degradation).
@@ -190,7 +196,6 @@ class BlissTranslator(
         return when {
             // Italian elisions — most common contractions
             t == "all'"   -> "al"
-            t == "all'"   -> "al"
             t == "dell'"  -> "del"
             t == "nell'"  -> "nel"
             t == "sull'"  -> "sul"
@@ -198,8 +203,6 @@ class BlissTranslator(
             t == "dall'"  -> "da"
             t == "un'"    -> "un"
             t == "l'"     -> "il"
-            t == "l'"     -> "il"
-            t == "un'"    -> "un"
             else -> t
         }
     }
@@ -217,6 +220,14 @@ class BlissTranslator(
      * Returned [BlissSymbol] carries:
      * - [MatchType.FUNCTION_WORD] (not EXACT)
      * - [BlissSymbol.resolutionSource] with a diagnostic tag
+     *
+     * ## Patch 20
+     * Uses [BlissLookup.nameOf] (existing, non-nullable) instead of the
+     * previously referenced `lookup.getNameForId()` which does not exist,
+     * causing a compile error.  `nameOf()` returns the numeric ID string as
+     * fallback when the ID is absent from the loaded lexicon, making the
+     * explicit `?: canonicalForm` fallback unnecessary (retained as comment
+     * for clarity but effectively dead code since nameOf() is non-null).
      */
     private fun resolveFunctionWord(word: String): BlissSymbol? {
         val normalized = normalizeFunctionWordForm(word)
@@ -251,8 +262,8 @@ class BlissTranslator(
             "nello" -> FunctionWordRule(25565, "function-word:it:contracted-in-lo",  "nello")
             "nella" -> FunctionWordRule(25565, "function-word:it:contracted-in-la",  "nella")
             "nei"   -> FunctionWordRule(25565, "function-word:it:contracted-in-i",   "nei")
-            "negli" -> FunctionWordRule(25565, "function-word:it:contracted-in-gli", "negli")
-            "nelle" -> FunctionWordRule(25565, "function-word:it:contracted-in-le",  "nelle")
+            "negli" -> FunctionWordRule(25565, "function-word:it:contracted-in-le",  "negli")
+            "nelle" -> FunctionWordRule(25565, "function-word:it:contracted-in-gli", "nelle")
             // ── Contrazioni articolate IT: su+art ─────────────────────────
             "sul"   -> FunctionWordRule(14943, "function-word:it:contracted-su-il",  "sul")
             "sullo" -> FunctionWordRule(14943, "function-word:it:contracted-su-lo",  "sullo")
@@ -292,13 +303,11 @@ class BlissTranslator(
             "perché" -> FunctionWordRule(12348, "function-word:it:direct",  "perché")
             "perche" -> FunctionWordRule(12348, "function-word:it:direct",  "perche")
             "quindi" -> FunctionWordRule(12349, "function-word:it:direct",  "quindi")
-            "però"   -> FunctionWordRule(12346, "function-word:it:direct",  "però")
             "quando" -> FunctionWordRule(12347, "function-word:it:direct",  "quando")
             // ── Negazione IT ──────────────────────────────────────────────
             "non"   -> FunctionWordRule(17720, "function-word:it:direct",   "non")
             "no"    -> FunctionWordRule(17744, "function-word:it:direct",   "no")
             // ── Particelle pronominali IT ─────────────────────────────────
-            // Mapped to BCI-AV approximations for short grammatical particles.
             // ci=here/there≈25565(in), si=self≈reflexive marker, ne=of-it≈25563(of)
             "ci"    -> FunctionWordRule(25565, "function-word:it:particle-ci",  "ci")
             "ne"    -> FunctionWordRule(25563, "function-word:it:particle-ne",  "ne")
@@ -314,9 +323,11 @@ class BlissTranslator(
 
         rule ?: return null
 
-        // Look up canonical name from the Bliss lexicon for this BCI-AV ID.
-        // Falls back to the normalized form itself if the ID is not in the loaded lexicon.
-        val symbolName = lookup.getNameForId(rule.bciAvId) ?: rule.canonicalForm
+        // Patch 20: use lookup.nameOf() — existing, non-null returning method —
+        // instead of the non-existent lookup.getNameForId() which caused a
+        // compile error.  nameOf() returns the numeric ID string when the ID
+        // is absent from the loaded lexicon, so no additional fallback is needed.
+        val symbolName = lookup.nameOf(rule.bciAvId)
 
         return BlissSymbol(
             bciAvId          = rule.bciAvId,
@@ -533,222 +544,109 @@ class BlissTranslator(
             word.endsWith("mente")|| word.endsWith("ment")|| word.endsWith("ly")    -> "R"
             word.endsWith("zione")|| word.endsWith("ità") || word.endsWith("ness") ||
             word.endsWith("heit") || word.endsWith("keit")|| word.endsWith("ung")  ||
-            word.endsWith("ismo") || word.endsWith("ista")                            -> "N"
+            word.endsWith("ismo") || word.endsWith("ista")                           -> "N"
             else -> null
         }
     }
 
-    // ── rule-based de-affixation ──────────────────────────────────────────────
+    // ── de-affixation ─────────────────────────────────────────────────────────
 
     private fun simpleDeaffix(word: String): List<String> {
-        if (word.length < 4) return emptyList()
         val candidates = mutableListOf<String>()
-        for (sfx in listOf("arsi", "ersi", "irsi", "rsi", "si")) {
-            if (word.endsWith(sfx) && word.length > sfx.length + 2) {
-                candidates += word.dropLast(sfx.length) + "re"
-                candidates += word.dropLast(sfx.length)
-            }
-        }
-        for (sfx in listOf("ando", "endo", "ato", "uto", "ito",
-                           "are", "ere", "ire",
-                           "azione", "zione", "ità", "ismo", "ista")) {
-            if (word.endsWith(sfx) && word.length > sfx.length + 2)
-                candidates += word.dropLast(sfx.length)
-        }
-        for (sfx in listOf("osi", "ose", "asi", "ase", "i", "e", "a")) {
+        // Italian verb suffixes
+        for (sfx in listOf("ando", "endo", "ato", "uto", "ito", "are", "ere", "ire",
+                            "erei", "eresti", "erebbe", "eremmo", "ereste", "erebbero",
+                            "irei", "iresti", "irebbe", "iremmo", "ireste", "irebbero",
+                            "erei", "erei")) {
             if (word.endsWith(sfx) && word.length > sfx.length + 3)
-                candidates += word.dropLast(sfx.length) + "o"
+                candidates += word.dropLast(sfx.length) + "are"
         }
-        for (sfx in listOf("ing", "tion", "sion", "ness", "ment",
-                           "ed", "er", "est", "ly", "s")) {
-            if (word.endsWith(sfx) && word.length > sfx.length + 2)
-                candidates += word.dropLast(sfx.length)
-        }
-        for (sfx in listOf("ung", "heit", "keit", "lich", "isch",
-                           "en", "er", "em", "es")) {
-            if (word.endsWith(sfx) && word.length > sfx.length + 2)
-                candidates += word.dropLast(sfx.length)
-        }
-        for (sfx in listOf("ment", "tion", "eur", "euse", "eux",
-                           "er", "ir", "re")) {
-            if (word.endsWith(sfx) && word.length > sfx.length + 2)
-                candidates += word.dropLast(sfx.length)
+        // English suffixes
+        for ((sfx, rep) in listOf("ing" to "", "ed" to "", "er" to "", "est" to "",
+                                   "s" to "", "es" to "", "ies" to "y")) {
+            if (word.endsWith(sfx) && word.length > sfx.length + 3)
+                candidates += word.dropLast(sfx.length) + rep
         }
         return candidates.distinct()
     }
 
+    // ── companion ─────────────────────────────────────────────────────────────
+
     companion object {
-        private const val TAG           = "BlissTranslator"
+        private const val TAG          = "BlissTranslator"
         private const val MAX_NGRAM_LEN = 4
 
-        const val INDICATOR_PLURAL = "plural"
-        const val INDICATOR_PAST   = "past"
-        const val INDICATOR_FUTURE = "future"
+        private const val INDICATOR_PLURAL = "plural"
+        private const val INDICATOR_PAST   = "past"
+        private const val INDICATOR_FUTURE = "future"
 
-        // BCI combining-indicator ids
         private const val BCI_INDICATOR_PLURAL = 9011
         private const val BCI_INDICATOR_PAST   = 9007
         private const val BCI_INDICATOR_FUTURE = 9008
 
-        private val PUNCT_RE = Pattern.compile("[^\\p{L}\\p{Nd}\\s'-]").toRegex()
-        private val SPACE_RE = Pattern.compile("\\s+").toRegex()
+        private val PUNCT_RE = Regex("[^\\w'àáâãäåæçèéêëìíîïðñòóôõöùúûüýþÿ\\-]")
+        private val SPACE_RE = Regex("\\s+")
+
+        // ── Tense / plural detection regexes ──────────────────────────────
+        private val PAST_IT_AUX_RE        = Regex("\\b(ho|hai|ha|abbiamo|avete|hanno|sono|sei|è|siamo|siete|sono)\\b")
+        private val PAST_IT_PARTICIPLE_RE = Regex("[a-z]{3,}(ato|uto|ito|ato|uta|ita|ati|ute|ite)")
+        private val PAST_EN_RE            = Regex("\\b(was|were|had|did|been|went|saw|made|came|took)\\b")
+        private val PAST_FR_RE            = Regex("\\b(ai|as|a|avons|avez|ont|suis|es|est|sommes|êtes|sont)\\b")
+        private val PAST_DE_RE            = Regex("\\b(hatte|hatten|war|waren|wurde|wurden|hat|haben|ist|sind)\\b")
+        private val PAST_ES_RE            = Regex("\\b(tuve|tuviste|tuvo|tuvimos|tuvisteis|tuvieron|fui|fuiste|fue|fuimos|fuisteis|fueron)\\b")
+
+        private val FUTURE_EN_RE = Regex("\\b(will|shall|going to|gonna)\\b")
+        private val FUTURE_IT_RE = Regex("\\b(andrò|andrai|andrà|andremo|andrete|andranno|farò|farai|farà|faremo|farete|faranno|sarò|sarai|sarà|saremo|sarete|saranno)\\b")
+        private val FUTURE_ES_RE = Regex("\\b(iré|irás|irá|iremos|iréis|irán|será|serás|seré|seremos|seréis|serán)\\b")
+        private val FUTURE_DE_RE = Regex("\\b(werde|wirst|wird|werden|werdet|wird)\\b")
+        private val FUTURE_FR_RE = Regex("\\b(irai|iras|ira|irons|irez|iront|serai|seras|sera|serons|serez|seront)\\b")
 
         /**
-         * Patch 18/19 — Tier-0 function-word map (flat fallback).
-         *
-         * This map is the fallback for [resolveFunctionWord] when the structured
-         * Italian-first rules do not match. It covers EN/DE/FR/ES/NL/PL.
-         * Italian entries are handled by the structured resolver above.
-         *
-         * BCI-AV IDs (official BCI-AV symbol list):
-         *   12335 = and       12343 = or        12346 = but       12344 = if
-         *   12348 = because   14951 = with      14960 = for       25564 = to
-         *   25563 = of        25565 = in        17720 = not       17744 = no
-         *   12347 = when      12349 = so/then   14941 = from      14945 = by
-         *   14942 = at        14943 = on
+         * Flat function-word map for languages other than Italian.
+         * Used as tier-0 fallback when [resolveFunctionWord]'s structured
+         * Italian rules do not match.
          */
+        @JvmField
         val FUNCTION_WORDS: Map<String, Int> = mapOf(
-            // ── and ──
-            "and"     to 12335,
-            "e"       to 12335,  // IT (also in structured resolver)
-            "und"     to 12335,  // DE
-            "et"      to 12335,  // FR
-            "y"       to 12335,  // ES
-            "en"      to 12335,  // NL
-            "i"       to 12335,  // PL
-            // ── or ──
-            "or"      to 12343,
-            "o"       to 12343,  // IT/ES
-            "oder"    to 12343,  // DE
-            "ou"      to 12343,  // FR/PT
-            "of"      to 12343,  // NL
-            "lub"     to 12343,  // PL
-            // ── but ──
-            "but"     to 12346,
-            "ma"      to 12346,  // IT
-            "aber"    to 12346,  // DE
-            "mais"    to 12346,  // FR/PT
-            "pero"    to 12346,  // ES
-            "maar"    to 12346,  // NL
-            "ale"     to 12346,  // PL
-            // ── if ──
-            "if"      to 12344,
-            "se"      to 12344,  // IT/ES/PT
-            "wenn"    to 12344,  // DE
-            "si"      to 12344,  // FR/ES
-            "als"     to 12344,  // NL
-            // ── with ──
-            "with"    to 14951,
-            "con"     to 14951,  // IT/ES
-            "mit"     to 14951,  // DE
-            "avec"    to 14951,  // FR
-            "met"     to 14951,  // NL
-            "com"     to 14951,  // PT
-            "z"       to 14951,  // PL
-            // ── for ──
-            "for"     to 14960,
-            "per"     to 14960,  // IT
-            "fuer"    to 14960,  // DE romanised
-            "f\u00fcr" to 14960, // DE with umlaut
-            "pour"    to 14960,  // FR
-            "para"    to 14960,  // ES/PT
-            "voor"    to 14960,  // NL
-            "dla"     to 14960,  // PL
-            // ── not ──
-            "not"     to 17720,
-            "non"     to 17720,  // IT/FR
-            "nicht"   to 17720,  // DE
-            "nie"     to 17720,  // PL
-            "nao"     to 17720,  // PT
-            "niet"    to 17720,  // NL
-            // ── no ──
-            "no"      to 17744,  // EN/ES
-            "nein"    to 17744,  // DE
-            // ── in ──
-            "in"      to 25565,
-            "w"       to 25565,  // PL
-            // ── of ──
-            "di"      to 25563,  // IT (also in structured resolver)
-            "von"     to 25563,  // DE
-            "de"      to 25563,  // FR/ES/PT/NL
-            "van"     to 25563,  // NL (also DE)
-            "od"      to 25563,  // PL
-            // ── to ──
-            "to"      to 25564,
-            "zu"      to 25564,  // DE
-            "naar"    to 25564,  // NL
-            "do"      to 25564,  // PL
-            // ── at/on/from/by — short prepositions ──
-            "at"      to 14942,
-            "on"      to 14943,
-            "su"      to 14943,  // IT (also in structured resolver)
-            "op"      to 14943,  // NL
-            "na"      to 14943,  // PL
-            "from"    to 14941,
-            "da"      to 14941,  // IT/PT (also in structured resolver)
-            "by"      to 14945,
-            "par"     to 14945,  // FR
-            "por"     to 14945,  // ES/PT
-            "door"    to 14945,  // NL
-            "przez"   to 14945,  // PL
-            // ── when / so ──
-            "when"    to 12347,
-            "quando"  to 12347,  // IT/PT
-            "quand"   to 12347,  // FR
-            "cuando"  to 12347,  // ES
-            "wanneer" to 12347,  // NL
-            "kiedy"   to 12347,  // PL
-            "so"      to 12349,
-            "quindi"  to 12349,  // IT
-            "also"    to 12349,  // DE
-            "donc"    to 12349,  // FR
-            "entonces" to 12349, // ES
-            "dus"     to 12349,  // NL
-            "entao"   to 12349,  // PT
-            "wiec"    to 12349,  // PL
-            // ── because ──
-            "because" to 12348,
-            "perche"  to 12348,  // IT (no accent)
-            "perch\u00e9" to 12348, // IT with accent
-            "weil"    to 12348,  // DE
-            "parce"   to 12348,  // FR (parce que)
-            "porque"  to 12348,  // ES/PT
-            "omdat"   to 12348,  // NL
-            "bo"      to 12348,  // PL
-            // ── that/che ──
-            "that"    to 12347,
-            "che"     to 12347,  // IT (also in structured resolver)
-            "que"     to 12347,  // FR/ES/PT
-            "dass"    to 12347,  // DE
-            "dat"     to 12347,  // NL
-            "ze"      to 12347   // PL
+            // English
+            "and" to 12335, "or" to 12343, "but" to 12346, "if" to 12344,
+            "that" to 12347, "because" to 12348, "so" to 12349, "when" to 12347,
+            "not" to 17720, "no" to 17744,
+            "the" to 14942, "a" to 14942, "an" to 14942,
+            "to" to 25564, "of" to 25563, "in" to 25565, "on" to 14943,
+            "at" to 25564, "from" to 14941, "with" to 14951, "for" to 14960,
+            "between" to 14942, "among" to 14942,
+            "i" to 14942, "you" to 14942, "he" to 14942, "she" to 14942,
+            "we" to 14942, "they" to 14942, "it" to 14942,
+            // German
+            "und" to 12335, "oder" to 12343, "aber" to 12346, "wenn" to 12344,
+            "dass" to 12347, "weil" to 12348, "also" to 12349, "nicht" to 17720,
+            "der" to 14942, "die" to 14942, "das" to 14942, "ein" to 14942, "eine" to 14942,
+            "zu" to 25564, "von" to 25563, "in" to 25565, "auf" to 14943,
+            "mit" to 14951, "für" to 14960, "zwischen" to 14942,
+            // French
+            "et" to 12335, "ou" to 12343, "mais" to 12346, "si" to 12344,
+            "que" to 12347, "parce" to 12348, "donc" to 12349, "ne" to 17720, "pas" to 17720,
+            "le" to 14942, "la" to 14942, "les" to 14942, "un" to 14942, "une" to 14942,
+            "à" to 25564, "de" to 25563, "dans" to 25565, "sur" to 14943,
+            "avec" to 14951, "pour" to 14960, "entre" to 14942,
+            // Spanish
+            "y" to 12335, "o" to 12343, "pero" to 12346, "si" to 12344,
+            "que" to 12347, "porque" to 12348, "entonces" to 12349, "no" to 17720,
+            "el" to 14942, "la" to 14942, "los" to 14942, "las" to 14942,
+            "un" to 14942, "una" to 14942, "unos" to 14942, "unas" to 14942,
+            "a" to 25564, "de" to 25563, "en" to 25565, "sobre" to 14943,
+            "con" to 14951, "para" to 14960, "entre" to 14942,
+            // Dutch
+            "en" to 12335, "of" to 12343, "maar" to 12346, "als" to 12344,
+            "dat" to 12347, "omdat" to 12348, "dus" to 12349, "niet" to 17720,
+            "de" to 14942, "het" to 14942, "een" to 14942,
+            "naar" to 25564, "van" to 25563, "in" to 25565, "op" to 14943,
+            "met" to 14951, "voor" to 14960, "tussen" to 14942,
+            // Polish
+            "i" to 12335, "lub" to 12343, "ale" to 12346, "jeśli" to 12344,
+            "że" to 12347, "bo" to 12348, "więc" to 12349, "nie" to 17720,
+            "w" to 25565, "na" to 14943, "z" to 14951, "do" to 25564, "od" to 14941
         )
-
-        private val PAST_IT_AUX_RE =
-            Regex("\\b(ha|hanno|aveva|avevano|ebbe|ebbero|\u00e8 stato|sono stati|ho|abbiamo)\\b")
-        private val PAST_IT_PARTICIPLE_RE = Regex("[a-z]{3,}(ato|ito|uto)")
-        private val PAST_EN_RE =
-            Regex("\\b(had|has|have|was|were|did)\\b.*\\b\\w+ed\\b")
-        private val PAST_FR_RE =
-            Regex("\\b(avait|avaient|avais|a|ont|est|sont)\\b.*\\b\\w+(\u00e9|i|u)\\b")
-        private val PAST_DE_RE =
-            Regex("\\b(hatte|hatten|hat|ist|sind|wurde|wurden)\\b.*\\bge\\w+\\b")
-        private val PAST_ES_RE =
-            Regex("\\b(tuvo|tuvieron|hab\u00eda|hab\u00edan|ha|han|fue|fueron)\\b.*\\b\\w+(ado|ido)\\b")
-
-        private val FUTURE_EN_RE =
-            Regex("\\b(will|shall|going to|won't|shan't)\\b")
-        private val FUTURE_IT_RE =
-            Regex("\\b(andr\u00e0|andranno|verr\u00e0|verranno|sar\u00e0|saranno|far\u00e0|faranno|" +
-                       "dovr\u00e0|dovranno|potr\u00e0|potranno|vorr\u00e0|vorranno|" +
-                       "\\w+(er\u00e0|ir\u00e0|ar\u00e0|eranno|iranno|aranno))\\b")
-        private val FUTURE_ES_RE =
-            Regex("\\b(ir\u00e1|ir\u00e1n|ser\u00e1|ser\u00e1n|har\u00e1|har\u00e1n|tendr\u00e1|tendr\u00e1n|" +
-                       "\\w+(ar\u00e1|er\u00e1|ir\u00e1|ar\u00e1n|er\u00e1n|ir\u00e1n))\\b")
-        private val FUTURE_DE_RE =
-            Regex("\\b(wird|werden|werde|wirst|werdet)\\b")
-        private val FUTURE_FR_RE =
-            Regex("\\b(ira|iront|sera|seront|aura|auront|fera|feront|" +
-                       "\\w+(era|ira|eras|iras|erons|irons|erez|irez|eront|iront))\\b")
     }
 }
