@@ -112,6 +112,13 @@ import java.util.Locale
  * - `strokeColor` della card derivato da [chipColor] per preservare la
  *   codifica visiva per [BlissSymbol.MatchType].
  * - `contentDescription` accessibile: nome + parola sorgente + matchType.
+ *
+ * ## Patch 18 — Fix race-condition SVG nei chip
+ * [svgJobs] tiene traccia di tutti i [Job] coroutine di caricamento SVG
+ * lanciati da [renderChips]. Prima di [symbolContainer.removeAllViews()]
+ * vengono cancellati tutti i job pendenti, eliminando la race-condition
+ * tra un ciclo di render precedente che scrive su una [ImageView] ormai
+ * detached e il nuovo ciclo che ripopola [symbolContainer].
  */
 class BlissTranslateFragment : Fragment() {
 
@@ -138,6 +145,9 @@ class BlissTranslateFragment : Fragment() {
     // ── Debounce (Blocco B) ──────────────────────────────────────────────
     private var debounceJob:       Job?     = null
     private var manualModeEnabled: Boolean  = false
+
+    // ── Patch 18: SVG coroutine jobs — cancelliamo prima di removeAllViews ──
+    private val svgJobs = mutableListOf<Job>()
 
     // ── CAA state (Blocco C + E-02) ─────────────────────────────────────
     private var caaModeEnabled:  Boolean = false
@@ -253,6 +263,7 @@ class BlissTranslateFragment : Fragment() {
     override fun onDestroyView() {
         debounceJob?.cancel()
         debounceJob = null
+        cancelSvgJobs()
         renderer.cancelRender()
         super.onDestroyView()
     }
@@ -390,6 +401,7 @@ class BlissTranslateFragment : Fragment() {
     private fun scheduleDebounce(text: String) {
         debounceJob?.cancel()
         if (text.isBlank()) {
+            cancelSvgJobs()
             symbolContainer.removeAllViews()
             mixedRowView.bind(emptyList())
             cardAdapter.submitList(emptyList())
@@ -479,22 +491,6 @@ class BlissTranslateFragment : Fragment() {
 
     // ── ViewModel observers ───────────────────────────────────────────
 
-    /**
-     * Collects [BlissViewModel.uiState] and dispatches rendering.
-     *
-     * ## Patch 9 — STRUCTURED dispatch (single first composed word)
-     * ## Patch 11 — Multi-token STRUCTURED dispatch via MixedBlissRowView
-     * ## Patch 14 — cast rimosso nel single-token path
-     *
-     * When [BlissViewModel.UiState.renderMode] is [BlissViewModel.RenderMode.STRUCTURED]:
-     * - If [BlissViewModel.UiState.composedWords] has **exactly one** non-null entry,
-     *   calls [BlissRenderer.renderWithAttachments] passing [symbolContainer] directly
-     *   (FlexboxLayout extends ViewGroup — nessun cast necessario dopo Patch 14).
-     * - If it has **multiple** non-null entries, calls [renderMixedRow] which delegates
-     *   to [MixedBlissRowView.bind] + [MixedBlissRowView.svgContainerFor] for each
-     *   structured token, guaranteeing visual order and uniform spacing.
-     * - Classic path (all null or renderMode==CLASSIC): uses [applySymbols] with mini-card/CAA.
-     */
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -524,7 +520,6 @@ class BlissTranslateFragment : Fragment() {
                         when {
                             state.renderMode == BlissViewModel.RenderMode.STRUCTURED
                                     && composedNonNull.size == 1 -> {
-                                // Single-token structured path (Patch 9 + Patch 14)
                                 symbolContainer.isVisible = true
                                 mixedRowView.isVisible    = false
                                 applySymbols(state.symbols)
@@ -537,7 +532,6 @@ class BlissTranslateFragment : Fragment() {
                             }
                             state.renderMode == BlissViewModel.RenderMode.STRUCTURED
                                     && composedNonNull.size > 1 -> {
-                                // Multi-token structured path (Patch 11) — MixedBlissRowView
                                 symbolContainer.isVisible = false
                                 mixedRowView.isVisible    = !caaModeEnabled
                                 if (!caaModeEnabled) {
@@ -547,7 +541,6 @@ class BlissTranslateFragment : Fragment() {
                                 }
                             }
                             else -> {
-                                // Classic path: mini-card SVG / CAA
                                 symbolContainer.isVisible = !caaModeEnabled
                                 mixedRowView.isVisible    = false
                                 applySymbols(state.symbols)
@@ -571,19 +564,6 @@ class BlissTranslateFragment : Fragment() {
 
     // ── Patch 11 + Patch 14 — renderMixedRow ──────────────────────────
 
-    /**
-     * Renders a multi-token result via [MixedBlissRowView].
-     *
-     * Builds a [MixedTokenSlot] list from [BlissViewModel.UiState.symbols] and
-     * [BlissViewModel.UiState.composedWords], calls [MixedBlissRowView.bind] once
-     * (guaranteeing visual order), then launches one coroutine per [MixedTokenSlot.SvgSlot]
-     * to drive [BlissRenderer.renderWithAttachments] against the pre-allocated container.
-     *
-     * ## Patch 14 fix
-     * [MixedBlissRowView.svgContainerFor] returns [FrameLayout], not [LinearLayout].
-     * The safe cast `as? FrameLayout` replaces the incorrect `as? LinearLayout` that
-     * would have thrown [ClassCastException] at runtime for every SVG slot.
-     */
     private fun renderMixedRow(state: BlissViewModel.UiState) {
         val slots = state.symbols.mapIndexed { i, sym ->
             val composed = state.composedWords.getOrNull(i)
@@ -617,19 +597,19 @@ class BlissTranslateFragment : Fragment() {
     }
 
     /**
-     * Patch 17 — Renderizza i simboli Bliss come mini-card grafiche SVG
-     * nel [symbolContainer] (FlexboxLayout).
+     * Patch 17 — Renderizza i simboli Bliss come mini-card grafiche SVG.
      *
-     * Ogni item usa il layout `item_bliss_mini_chip.xml`:
-     * - `iv_symbol` (ImageView 48dp) carica il drawable BCI-AV tramite
-     *   [signProvider.getDrawableAsync]("B{bciAvId}") su [Dispatchers.IO].
-     * - `tv_label` mostra [BlissSymbol.sourceWord] (fallback: [BlissSymbol.name]);
-     *   mai [displayLabel()] per evitare la visualizzazione di ID numerici.
-     * - `tv_indicators` mostra i badge (×, ↩, →) se presenti, altrimenti GONE.
-     * - `strokeColor` della [MaterialCardView] riflette [chipColor] per mantenere
-     *   la codifica visiva per [BlissSymbol.MatchType].
+     * ## Patch 18 — Fix race-condition SVG
+     * Prima di svuotare [symbolContainer] con [removeAllViews()], tutti i
+     * [Job] coroutine SVG pendenti vengono cancellati via [cancelSvgJobs()].
+     * Questo impedisce che una coroutine lanciata nel ciclo precedente scriva
+     * il proprio drawable su una [ImageView] già detached (o peggio su quella
+     * di un nuovo item con lo stesso ID numerico Android).
+     * Ogni nuovo job viene aggiunto a [svgJobs] e rimosso al completamento.
      */
     private fun renderChips(symbols: List<BlissSymbol>) {
+        // Patch 18: cancella i job SVG prima di removeAllViews
+        cancelSvgJobs()
         symbolContainer.removeAllViews()
         if (symbols.isEmpty()) return
 
@@ -655,9 +635,9 @@ class BlissTranslateFragment : Fragment() {
             // Badge indicatori
             val indicatorBadge = buildString {
                 val inds = sym.indicators
-                if (BlissTranslator.INDICATOR_PLURAL in inds) append("× ")
-                if (BlissTranslator.INDICATOR_PAST   in inds) append("↩ ")
-                if (BlissTranslator.INDICATOR_FUTURE in inds) append("→ ")
+                if (BlissTranslator.INDICATOR_PLURAL in inds) append("\u00d7 ")
+                if (BlissTranslator.INDICATOR_PAST   in inds) append("\u21a9 ")
+                if (BlissTranslator.INDICATOR_FUTURE in inds) append("\u2192 ")
             }.trim()
             tvIndicators.isVisible = indicatorBadge.isNotEmpty()
             tvIndicators.text      = indicatorBadge
@@ -679,15 +659,20 @@ class BlissTranslateFragment : Fragment() {
                 it.bottomMargin = 6.px()
             }
 
-            // Caricamento asincrono drawable SVG
-            viewLifecycleOwner.lifecycleScope.launch {
+            // Patch 18: caricamento asincrono con tracciamento Job
+            val job = viewLifecycleOwner.lifecycleScope.launch {
                 val drawable = withContext(Dispatchers.IO) {
                     signProvider.getDrawableAsync("B${sym.bciAvId}", 96f)
                 }
-                ivSymbol.setImageDrawable(drawable)
+                // Assegna solo se la view è ancora attached
+                if (ivSymbol.isAttachedToWindow) {
+                    ivSymbol.setImageDrawable(drawable)
+                }
             }
+            svgJobs += job
+            job.invokeOnCompletion { svgJobs.remove(job) }
 
-            // Toast al click (utile per debug/audit)
+            // Toast al click
             item.setOnClickListener {
                 val indStr = if (sym.indicators.isEmpty())
                     getString(R.string.bliss_chip_no_indicators)
@@ -708,6 +693,12 @@ class BlissTranslateFragment : Fragment() {
         }
     }
 
+    /** Cancella tutti i job SVG pendenti (chiamato prima di removeAllViews e in onDestroyView). */
+    private fun cancelSvgJobs() {
+        svgJobs.forEach { it.cancel() }
+        svgJobs.clear()
+    }
+
     private fun chipColor(mt: BlissSymbol.MatchType): Int = when (mt) {
         BlissSymbol.MatchType.EXACT             -> 0xFFD0F0D0.toInt()
         BlissSymbol.MatchType.LEMMA             -> 0xFFD0E8FF.toInt()
@@ -720,13 +711,6 @@ class BlissTranslateFragment : Fragment() {
 
     // ── Blocco D: FAB share → ExportBottomSheetFragment ───────────────
 
-    /**
-     * Apre [ExportBottomSheetFragment] passando il documento SVG corrente.
-     *
-     * Guard: se [glyphXBuilder] o [BlissViewModel.UiState.glyphXDoc] sono null
-     * (nessuna traduzione ancora eseguita) il click viene ignorato silenziosamente.
-     * La bottom sheet espone SVG, PNG e PDF tramite [BlissExportHelper].
-     */
     private fun setupFabShare() {
         fabShare.setOnClickListener {
             val builder = glyphXBuilder ?: return@setOnClickListener
@@ -758,6 +742,7 @@ class BlissTranslateFragment : Fragment() {
         val text = editInput.text?.toString()?.trim() ?: ""
         if (text.isEmpty()) {
             vm.clearSuggestions()
+            cancelSvgJobs()
             symbolContainer.removeAllViews()
             mixedRowView.bind(emptyList())
             cardAdapter.submitList(emptyList())

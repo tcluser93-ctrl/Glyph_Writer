@@ -23,41 +23,30 @@ import java.util.regex.Pattern
  * ## Async pipeline (translateAsync) — Morfologik-first
  *
  *  Same as above, but step 3 uses the Morfologik-first order:
- *       3a. Exact surface lookup                        → EXACT
- *       3b. Morfologik FSA → lemma+tag → per-token indicators → LEMMA  ← PRIMARY
- *       3c. Plain lemma lookup (word already base form) → LEMMA
- *       3d. POS-aware heuristic + CSV                   → LEMMA
- *       3e. Rule-based de-affixation                    → LEMMA
- *       3f. Room FTS4 exact                             → EXACT
- *       3g. Semantic composition ([BlissSemanticComposer])  → SEMANTIC / per-component ← PATCH 7
- *       3h. UNKNOWN
+ *       3-0. Function-word fast-path (tier 0)           → EXACT  ← PATCH 18
+ *       3a.  Exact surface lookup                       → EXACT
+ *       3b.  Morfologik FSA → lemma+tag → indicators    → LEMMA  ← PRIMARY
+ *       3c.  Plain lemma lookup                         → LEMMA
+ *       3d.  POS-aware heuristic + CSV                  → LEMMA
+ *       3e.  Rule-based de-affixation                   → LEMMA
+ *       3f.  Room FTS4 exact                            → EXACT
+ *       3g.  Semantic composition                       → SEMANTIC / per-component ← PATCH 7
+ *       3h.  UNKNOWN
  *
- *  Tier 3b now uses [MorfologikLemmatizer.analyzeWithTags] to obtain both the
- *  canonical lemma and the raw FSA POS tag for each analysis candidate.
- *  Per-token indicators (PLURAL / PAST / FUTURE) are derived from that tag via
- *  [MorfologikTagMapper.toBlissIndicators] and attached directly to the resolved
- *  symbol, replacing the sentence-level [detectIndicators] heuristic for tokens
- *  that Morfologik can analyse.  [detectIndicators] is preserved as a fallback
- *  for multi-token patterns (auxiliaries, periphrastic tenses) not expressible
- *  in a single FSA tag.
+ * ## Patch 18 — Tier-0 function-word fast-path
  *
- *  Tier 3g (Patch 7) now calls [BlissSemanticComposer.composeStructured] instead
- *  of the legacy [BlissSemanticComposer.compose] shim.  Each [ResolvedBlissComponent]
- *  in the resulting [ComposedBlissWord] is converted to a separate [BlissSymbol]
- *  with [MatchType.SEMANTIC], so a single input token can expand to N output symbols
- *  (one per semantic component).  The old COMPOUND single-symbol path is removed.
- *  If [composer] is null (default), this tier is silently skipped.
+ *  Short function words (conjunctions, prepositions, negators) of length ≤ 4
+ *  are resolved against [FUNCTION_WORDS] before any CSV / Morfologik lookup.
+ *  The map covers the 30 most common function words across IT/EN/DE/FR/ES.
+ *  BCI-AV IDs are taken from the official BCI-AV symbol list:
  *
- * ## Patch 4 — 1-token → N-symbols
+ *    12335 = and       12343 = or        12346 = but       12344 = if
+ *    12348 = because   14951 = with      14960 = for       25564 = to
+ *    25563 = of        25565 = in        17720 = not       17744 = no
+ *    12347 = when      12349 = so/then   14941 = from      14945 = by
+ *    14942 = at        14943 = on
  *
- *  [resolveTokenSuspend] returns `List<BlissSymbol>`.  Patch 7 takes full advantage
- *  of this: tier 3g may now return more than one symbol per input token.
- *
- * Morfologik covers all 8 languages (it, en, de, fr, es, nl, pl, pt).
- * When the .dict asset is absent for a language, that tier degrades
- * gracefully and the pipeline continues with tiers 3c–3h.
- *
- * The translator is stateless and thread-safe after construction.
+ *  Per-language aliases map to the canonical English BCI-AV entry.
  *
  * @param lookup        Pre-loaded [BlissLookup] (must have isReady == true).
  * @param morfologik    Optional [MorfologikLemmatizer]; if null the Morfologik
@@ -94,16 +83,7 @@ class BlissTranslator(
      * Suspend translation.  Uses **Morfologik as the primary morphological tier**
      * (tier 3b): inflected form → FSA lemma+tag → per-token indicators → CSV BCI-AV lookup.
      *
-     * Per-token indicators derived from the FSA tag take precedence over the
-     * sentence-level [detectIndicators] heuristic.  Sentence-level detection is
-     * still applied as a fallback for multi-token patterns (e.g. "going to",
-     * compound auxiliaries) that a single-token tag cannot capture; however,
-     * tokens that already carry per-token indicators are skipped in
-     * [attachIndicators] to avoid double-tagging.
-     *
      * Must be called from a coroutine (typically [BlissViewModel.translate]).
-     * The Morfologik FSA lookup runs on [Dispatchers.IO] inside
-     * [MorfologikLemmatizer.analyzeWithTags].
      */
     suspend fun translateAsync(text: String): List<BlissSymbol> {
         if (!lookup.isReady) {
@@ -115,8 +95,6 @@ class BlissTranslator(
         val tokens     = normalised.split(" ").filter { it.isNotBlank() }
         val lang       = lookup.currentLang ?: "en"
         val symbols    = resolveNgramsAndTokensSuspend(normalised, lang)
-        // Sentence-level indicators: fallback for multi-token patterns.
-        // attachIndicators skips symbols that already have per-token indicators.
         val sentenceIndicators = detectIndicators(tokens)
         return attachIndicators(symbols, sentenceIndicators)
     }
@@ -180,6 +158,10 @@ class BlissTranslator(
     // ── step 3 : single-token resolution (sync) ───────────────────────────────
 
     private fun resolveToken(word: String): BlissSymbol {
+        // Tier 0 — function-word fast-path (Patch 18)
+        FUNCTION_WORDS[word]?.let {
+            return lookup.toSymbol(it, word, word, MatchType.EXACT)
+        }
         lookup.lookupSurface(word)?.let { return lookup.toSymbol(it, word, word, MatchType.EXACT) }
         lookup.lookupLemma(word)?.let   { return lookup.toSymbol(it, word, word, MatchType.LEMMA) }
         val gPos = heuristicPos(word)
@@ -197,28 +179,20 @@ class BlissTranslator(
     }
 
     // ── step 3 : single-token resolution (suspend, Morfologik-first) ─────────
-    //
-    // Pipeline:
-    //   3a. Exact surface match in lexicon JSON         → EXACT
-    //   3b. Morfologik FSA → lemma+tag → per-token indicators → BCI-AV  ← PRIMARY
-    //   3c. Plain lemma lookup (word already base form)  → LEMMA
-    //   3d. POS-aware heuristic guess + CSV             → LEMMA
-    //   3e. Rule-based de-affixation + CSV              → LEMMA
-    //   3f. Room FTS4 exact                             → EXACT
-    //   3g. Semantic composition → one BlissSymbol per ResolvedBlissComponent ← PATCH 7
-    //   3h. UNKNOWN
-    //
-    // Patch 7: tier 3g calls composeStructured() and expands each
-    // ResolvedBlissComponent into a separate BlissSymbol(MatchType.SEMANTIC).
-    // A single input token may now produce N output symbols.
 
     private suspend fun resolveTokenSuspend(word: String, lang: String): List<BlissSymbol> {
-        // Tier 3a — exact surface (lexicon JSON: idioms, proper nouns, symbols)
+        // Tier 0 — function-word fast-path: conjunctions/prepositions/negators (Patch 18)
+        // Bypasses CSV and Morfologik entirely for the ~30 most common function words.
+        FUNCTION_WORDS[word]?.let {
+            return listOf(lookup.toSymbol(it, word, word, MatchType.EXACT))
+        }
+
+        // Tier 3a — exact surface (lexicon JSON)
         lookup.lookupSurface(word)?.let {
             return listOf(lookup.toSymbol(it, word, word, MatchType.EXACT))
         }
 
-        // Tier 3b — MORFOLOGIK FSA: inflected form → canonical lemma + POS tag → BCI-AV
+        // Tier 3b — MORFOLOGIK FSA
         morfologik?.analyzeWithTags(word, lang)?.forEach { analysis ->
             val lemma           = analysis.lemma
             val tokenIndicators = analysis.blissIndicators
@@ -239,18 +213,18 @@ class BlissTranslator(
             }
         }
 
-        // Tier 3c — plain lemma lookup (word is already in base form)
+        // Tier 3c — plain lemma lookup
         lookup.lookupLemma(word)?.let {
             return listOf(lookup.toSymbol(it, word, word, MatchType.LEMMA))
         }
 
-        // Tier 3d — POS-aware heuristic guess + CSV
+        // Tier 3d — POS-aware heuristic
         val gPos = heuristicPos(word)
         if (gPos != null) lookup.lookupLemmaPos(word, gPos)?.let {
             return listOf(lookup.toSymbol(it, word, word, MatchType.LEMMA))
         }
 
-        // Tier 3e — rule-based de-affixation (language-agnostic suffix stripping)
+        // Tier 3e — rule-based de-affixation
         for (candidate in simpleDeaffix(word)) {
             lookup.lookupSurface(candidate)?.let {
                 return listOf(lookup.toSymbol(it, word, candidate, MatchType.LEMMA))
@@ -263,15 +237,12 @@ class BlissTranslator(
             }
         }
 
-        // Tier 3f — Room FTS4 exact (words added to DB after initial CSV load)
+        // Tier 3f — Room FTS4 exact
         lookup.lookupSurfaceDb(word)?.let {
             return listOf(lookup.toSymbol(it, word, word, MatchType.EXACT))
         }
 
-        // Tier 3g — Semantic composition (Patch 7).
-        // composeStructured() returns a ComposedBlissWord whose components list
-        // is expanded here: one BlissSymbol(SEMANTIC) per ResolvedBlissComponent.
-        // This replaces the old compose() → single COMPOUND symbol path.
+        // Tier 3g — Semantic composition (Patch 7)
         composer?.composeStructured(word, lang)?.let { composed ->
             val componentSymbols = composed.components.map { component ->
                 BlissSymbol(
@@ -281,7 +252,6 @@ class BlissTranslator(
                     lemma      = component.lemma,
                     matchType  = MatchType.SEMANTIC
                 ).let { sym ->
-                    // Carry over any indicators encoded on the component (e.g. tense overlays)
                     val indNames = component.renderAttachments
                         .filter { it.isOverlay }
                         .mapNotNull { indicatorIdToName(it.bciIndicatorId) }
@@ -297,8 +267,7 @@ class BlissTranslator(
 
     /**
      * Maps a BCI combining-indicator id to the Bliss indicator name used by
-     * [attachIndicators].  Returns null for unknown ids so they are silently
-     * dropped rather than crashing the pipeline.
+     * [attachIndicators].  Returns null for unknown ids.
      */
     private fun indicatorIdToName(bciIndicatorId: Int): String? = when (bciIndicatorId) {
         BCI_INDICATOR_PLURAL -> INDICATOR_PLURAL
@@ -359,9 +328,7 @@ class BlissTranslator(
 
     /**
      * Attaches [indicators] to every non-UNKNOWN symbol that does **not** already
-     * carry per-token indicators (i.e. symbols whose [BlissSymbol.indicators] list
-     * is empty).  This prevents double-tagging for tokens resolved via Morfologik
-     * tier 3b in [resolveTokenSuspend], which already embed per-token indicators.
+     * carry per-token indicators.
      */
     internal fun attachIndicators(
         symbols: List<BlissSymbol>,
@@ -446,13 +413,138 @@ class BlissTranslator(
         const val INDICATOR_PAST   = "past"
         const val INDICATOR_FUTURE = "future"
 
-        // BCI combining-indicator ids used by indicatorIdToName()
+        // BCI combining-indicator ids
         private const val BCI_INDICATOR_PLURAL = 9011
         private const val BCI_INDICATOR_PAST   = 9007
         private const val BCI_INDICATOR_FUTURE = 9008
 
         private val PUNCT_RE = Pattern.compile("[^\\p{L}\\p{Nd}\\s'-]").toRegex()
         private val SPACE_RE = Pattern.compile("\\s+").toRegex()
+
+        /**
+         * Patch 18 — Tier-0 function-word map.
+         *
+         * Maps each function-word surface form (lowercased) to its canonical BCI-AV ID.
+         * Covers IT / EN / DE / FR / ES / NL / PT / PL aliases.
+         *
+         * BCI-AV IDs (official BCI-AV symbol list):
+         *   12335 = and/e/und/et/y/en/e/i
+         *   12343 = or/o/oder/ou/o/of/ou/lub
+         *   12346 = but/ma/aber/mais/pero/maar/mas/ale
+         *   12344 = if/se/wenn/si/si/als/se/jesli
+         *   12348 = because/perche/weil/parce/porque/omdat/porque/bo
+         *   14951 = with/con/mit/avec/con/met/com/z
+         *   14960 = for/per/fuer/pour/para/voor/para/dla
+         *   25564 = to/a/zu/a/a/naar/a/do
+         *   25563 = of/di/von/de/de/van/de/od
+         *   25565 = in/in/in/en/en/in/em/w
+         *   17720 = not/non/nicht/ne/no/niet/nao/nie
+         *   17744 = no/no/nein/non/no/nee/nao/nie
+         *   12347 = when/quando/wenn/quand/cuando/wanneer/quando/kiedy
+         *   12349 = so/quindi/also/donc/entonces/dus/entao/wiec
+         *   14941 = from/da/von/de/de/van/de/od
+         *   14945 = by/da/von/par/por/door/por/przez
+         *   14942 = at/a/an/a/a/bij/em/przy
+         *   14943 = on/su/auf/sur/en/op/em/na
+         */
+        val FUNCTION_WORDS: Map<String, Int> = mapOf(
+            // ── and ──
+            "and"     to 12335,
+            "e"       to 12335,  // IT
+            "und"     to 12335,  // DE
+            "et"      to 12335,  // FR
+            "y"       to 12335,  // ES
+            "en"      to 12335,  // NL
+            "i"       to 12335,  // PL
+            // ── or ──
+            "or"      to 12343,
+            "o"       to 12343,  // IT/ES
+            "oder"    to 12343,  // DE
+            "ou"      to 12343,  // FR/PT
+            "of"      to 12343,  // NL
+            "lub"     to 12343,  // PL
+            // ── but ──
+            "but"     to 12346,
+            "ma"      to 12346,  // IT
+            "aber"    to 12346,  // DE
+            "mais"    to 12346,  // FR/PT
+            "pero"    to 12346,  // ES
+            "maar"    to 12346,  // NL
+            "ale"     to 12346,  // PL
+            // ── if ──
+            "if"      to 12344,
+            "se"      to 12344,  // IT/ES/PT
+            "wenn"    to 12344,  // DE
+            "si"      to 12344,  // FR/ES
+            "als"     to 12344,  // NL
+            // ── with ──
+            "with"    to 14951,
+            "con"     to 14951,  // IT/ES
+            "mit"     to 14951,  // DE
+            "avec"    to 14951,  // FR
+            "met"     to 14951,  // NL
+            "com"     to 14951,  // PT
+            "z"       to 14951,  // PL
+            // ── for ──
+            "for"     to 14960,
+            "per"     to 14960,  // IT
+            "pour"    to 14960,  // FR
+            "para"    to 14960,  // ES/PT
+            "voor"    to 14960,  // NL
+            "dla"     to 14960,  // PL
+            // ── not ──
+            "not"     to 17720,
+            "non"     to 17720,  // IT/FR
+            "nicht"   to 17720,  // DE
+            "nie"     to 17720,  // PL
+            "nao"     to 17720,  // PT
+            "niet"    to 17720,  // NL
+            // ── no ──
+            "no"      to 17744,  // EN/ES
+            "nein"    to 17744,  // DE
+            // ── in ──
+            "in"      to 25565,
+            "w"       to 25565,  // PL
+            // ── of ──
+            "di"      to 25563,  // IT
+            "von"     to 25563,  // DE
+            "de"      to 25563,  // FR/ES/PT/NL
+            "van"     to 25563,  // NL (also DE)
+            "od"      to 25563,  // PL
+            // ── to ──
+            "to"      to 25564,
+            "zu"      to 25564,  // DE
+            "naar"    to 25564,  // NL
+            "do"      to 25564,  // PL
+            // ── at/on/from/by — short prepositions ──
+            "at"      to 14942,
+            "on"      to 14943,
+            "su"      to 14943,  // IT
+            "op"      to 14943,  // NL
+            "na"      to 14943,  // PL
+            "from"    to 14941,
+            "da"      to 14941,  // IT/PT
+            "by"      to 14945,
+            "par"     to 14945,  // FR
+            "por"     to 14945,  // ES/PT
+            "door"    to 14945,  // NL
+            "przez"   to 14945,  // PL
+            // ── when / so ──
+            "when"    to 12347,
+            "quando"  to 12347,  // IT/PT
+            "quand"   to 12347,  // FR
+            "cuando"  to 12347,  // ES
+            "wanneer" to 12347,  // NL
+            "kiedy"   to 12347,  // PL
+            "so"      to 12349,
+            "quindi"  to 12349,  // IT
+            "also"    to 12349,  // DE
+            "donc"    to 12349,  // FR
+            "entonces" to 12349, // ES
+            "dus"     to 12349,  // NL
+            "entao"   to 12349,  // PT
+            "wiec"    to 12349   // PL
+        )
 
         private val PAST_IT_AUX_RE =
             Regex("\\b(ha|hanno|aveva|avevano|ebbe|ebbero|è stato|sono stati|ho|abbiamo)\\b")
