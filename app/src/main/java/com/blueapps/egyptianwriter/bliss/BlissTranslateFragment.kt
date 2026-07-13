@@ -300,23 +300,43 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
             if (indicatorBadge.isNotEmpty()) chip.text = "${chip.text}  $indicatorBadge"
 
             val job = viewLifecycleOwner.lifecycleScope.launch {
+                // ── Guard: bciAvId deve essere un intero valido 4-6 cifre (≥ 1000)
+                //    BlissSignProvider.VALID_BCI_ID = ^\d{4,6}$ quindi id < 1000 o
+                //    sentinel COMPOUND_SYMBOL_ID (-2) verrebbero rigettati silenziosamente.
+                val bciId = sym.bciAvId
+                val svgCode = "B$bciId"
+                if (bciId < 1000) {
+                    appendDebugLog("[SVG] SKIP bciAvId=$bciId gloss='${sym.gloss}' match=${sym.matchType} — id non valido per asset SVG")
+                    chip.isChipIconVisible = false
+                    return@launch
+                }
+
+                appendDebugLog("[SVG] REQUEST $svgCode gloss='${sym.gloss}' match=${sym.matchType}")
                 val drawable = withTimeoutOrNull(2500) {
                     viewModel.signProvider.getDrawableAsync(
-                        "B${sym.bciAvId}",
+                        svgCode,
                         96f * resources.displayMetrics.density
                     )
                 }
                 if (!isAdded) return@launch
-                if (drawable != null && drawable !is BlissSignProvider.PlaceholderDrawable) {
-                    // tinta scura sul SVG per garantire contrasto uniforme con il testo
-                    drawable.setTint(chipTextColor())
-                    chip.chipIcon = drawable
-                    chip.chipIconTint =
-                        android.content.res.ColorStateList.valueOf(chipTextColor())
-                    chip.isChipIconVisible = true
-                } else {
-                    chip.isChipIconVisible = false
-                    appendDebugLog("[SVG] placeholder o null per B${sym.bciAvId} (${sym.gloss})")
+                when {
+                    drawable == null -> {
+                        chip.isChipIconVisible = false
+                        appendDebugLog("[SVG] NULL $svgCode — timeout o id non in corpus (${sym.gloss})")
+                    }
+                    drawable is BlissSignProvider.PlaceholderDrawable -> {
+                        chip.isChipIconVisible = false
+                        appendDebugLog("[SVG] PLACEHOLDER $svgCode — asset mancante o corrotto (${sym.gloss})")
+                    }
+                    else -> {
+                        // tinta scura sul SVG per garantire contrasto uniforme con il testo
+                        drawable.setTint(chipTextColor())
+                        chip.chipIcon = drawable
+                        chip.chipIconTint =
+                            android.content.res.ColorStateList.valueOf(chipTextColor())
+                        chip.isChipIconVisible = true
+                        appendDebugLog("[SVG] OK $svgCode (${sym.gloss})")
+                    }
                 }
             }
             svgJobs += job
