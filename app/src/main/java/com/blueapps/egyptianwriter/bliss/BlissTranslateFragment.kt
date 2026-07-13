@@ -371,4 +371,19 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
             parentFragmentManager.popBackStack()
         }
     }
+
+    // ── Factory ──────────────────────────────────────────────────────────────
+
+    companion object {
+        private const val ARG_LANG = "arg_lang"
+
+        /**
+         * Crea una nuova istanza del fragment con la lingua iniziale.
+         * @param lang codice BCP-47 a 2 caratteri (es. "it", "en"), default "it".
+         */
+        fun newInstance(lang: String = "it"): BlissTranslateFragment =
+            BlissTranslateFragment().apply {
+                arguments = Bundle().apply { putString(ARG_LANG, lang) }
+            }
+    }
 }
