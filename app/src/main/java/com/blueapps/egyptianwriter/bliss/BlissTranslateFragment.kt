@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,6 +41,11 @@ import kotlinx.coroutines.withTimeoutOrNull
  * - **H-01/H-02** — export PNG / PDF (delegato a [BlissExportHelper]);
  * - **N-01/N-02/N-03** — MixedBlissRowView + fallback semantico;
  * - **O-01/O-02** — storico traduzioni e pin recenti.
+ *
+ * ## Debug log panel
+ * Il campo `etDebugLog` mostra a schermo i passaggi chiave del flusso
+ * di traduzione (click → ViewModel → stato → rendering).
+ * Rimuovere o nascondere in produzione.
  */
 class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
@@ -54,6 +60,18 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
     private var debounceJob: Job? = null
     private val svgJobs = mutableListOf<Job>()
+
+    // ── Debug log ────────────────────────────────────────────────────────────
+
+    /** Aggiunge [message] al pannello di log visibile a schermo e a Logcat. */
+    private fun appendDebugLog(message: String) {
+        val b = _binding ?: return
+        val old = b.etDebugLog.text?.toString().orEmpty()
+        val next = if (old.isBlank()) message else "$old\n$message"
+        b.etDebugLog.setText(next)
+        b.etDebugLog.setSelection(next.length)
+        Log.d(TAG, message)
+    }
 
     // ── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -76,6 +94,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         setupFabShare()
         observeState()
         observeOneShotEvents()
+        appendDebugLog("[INIT] onViewCreated — fragment pronto")
     }
 
     override fun onDestroyView() {
@@ -94,6 +113,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
     override fun onInit(status: Int) {
         ttsReady = status == TextToSpeech.SUCCESS
+        appendDebugLog("[TTS] init status=$status ttsReady=$ttsReady")
     }
 
     // ── Blocco B ─────────────────────────────────────────────────────────────
@@ -107,22 +127,31 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
                 debounceJob?.cancel()
                 debounceJob = viewLifecycleOwner.lifecycleScope.launch {
                     delay(350)
-                    if (text.isNotBlank()) viewModel.translate(text)
-                    else viewModel.clearTranslation()
+                    if (text.isNotBlank()) {
+                        appendDebugLog("[DEBOUNCE] translate='$text'")
+                        viewModel.translate(text)
+                    } else {
+                        appendDebugLog("[DEBOUNCE] testo vuoto → clearTranslation")
+                        viewModel.clearTranslation()
+                    }
                 }
             }
         })
 
         btnTranslate.setOnClickListener {
-            val text = etInput.text?.toString().orEmpty()
+            val text = etInput.text?.toString().orEmpty().trim()
+            appendDebugLog("[BTN] translate clicked; input='$text'")
             if (text.isBlank()) {
+                appendDebugLog("[BTN] input vuoto — nessuna traduzione")
                 Toast.makeText(requireContext(), R.string.bliss_input_empty, Toast.LENGTH_SHORT).show()
             } else {
+                appendDebugLog("[BTN] invio a ViewModel.translate")
                 viewModel.translate(text)
             }
         }
 
         btnClear.setOnClickListener {
+            appendDebugLog("[BTN] clear clicked")
             debounceJob?.cancel()
             etInput.setText("")
             viewModel.clearTranslation()
@@ -134,11 +163,14 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     private fun setupToggleButtons() = with(binding) {
         toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
-            when (checkedId) {
-                R.id.btnViewChips -> viewModel.setRenderMode(BlissViewModel.ViewMode.CHIPS)
-                R.id.btnViewCards -> viewModel.setRenderMode(BlissViewModel.ViewMode.CARDS)
-                R.id.btnViewMixed -> viewModel.setRenderMode(BlissViewModel.ViewMode.MIXED)
+            val mode = when (checkedId) {
+                R.id.btnViewChips -> BlissViewModel.ViewMode.CHIPS
+                R.id.btnViewCards -> BlissViewModel.ViewMode.CARDS
+                R.id.btnViewMixed -> BlissViewModel.ViewMode.MIXED
+                else -> return@addOnButtonCheckedListener
             }
+            appendDebugLog("[TOGGLE] setRenderMode=$mode")
+            viewModel.setRenderMode(mode)
         }
     }
 
@@ -160,7 +192,14 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state -> renderState(state) }
+                viewModel.uiState.collect { state ->
+                    appendDebugLog(
+                        "[STATE] loading=${state.isLoading} " +
+                        "symbols=${state.symbols.size} " +
+                        "mode=${state.viewMode}"
+                    )
+                    renderState(state)
+                }
             }
         }
     }
@@ -170,8 +209,10 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.events.collect { event ->
                     when (event) {
-                        is BlissViewModel.Event.ShowToast ->
+                        is BlissViewModel.Event.ShowToast -> {
+                            appendDebugLog("[EVENT] ShowToast: ${event.message}")
                             Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
@@ -195,6 +236,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
                 chipScroll.isVisible = false
                 rvCards.isVisible = true
                 mixedPreviewContainer.isVisible = false
+                appendDebugLog("[RENDER] CARDS submitList count=${state.symbols.size}")
                 cardAdapter.submitList(state.symbols)
             }
             BlissViewModel.ViewMode.MIXED -> {
@@ -219,6 +261,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     private fun renderChips(symbols: List<BlissSymbol>) = with(binding.chipGroup) {
         clearSvgJobs()
         removeAllViews()
+        appendDebugLog("[RENDER] CHIPS count=${symbols.size}")
 
         symbols.forEachIndexed { index, sym ->
             val chip = layoutInflater.inflate(R.layout.item_bliss_chip, this, false) as Chip
@@ -252,6 +295,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
                     chip.isChipIconVisible = true
                 } else {
                     chip.isChipIconVisible = false
+                    appendDebugLog("[SVG] placeholder o null per B${sym.bciAvId} (${sym.gloss})")
                 }
             }
             svgJobs += job
@@ -277,6 +321,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
     private fun renderMixedPreview(state: BlissViewModel.UiState) {
         val slots = buildMixedSlots(state.symbols, state.composedWords)
+        appendDebugLog("[RENDER] MIXED slots=${slots.size}")
         binding.mixedPreview.bind(slots)
     }
 
@@ -344,6 +389,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     // ── Factory ───────────────────────────────────────────────────────────────
 
     companion object {
+        private const val TAG = "BlissTranslateFragment"
         private const val ARG_LANG = "arg_lang"
 
         fun newInstance(lang: String = "it"): BlissTranslateFragment =
