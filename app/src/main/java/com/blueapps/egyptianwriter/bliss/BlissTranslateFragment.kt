@@ -271,8 +271,20 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         symbols.forEachIndexed { index, sym ->
             val chip = layoutInflater.inflate(R.layout.item_bliss_chip, this, false) as Chip
             chip.text = sym.gloss
+            // ── contrasto enterprise-grade: foreground esplicito, non delegato al tema ──
+            chip.setTextColor(chipTextColor())
             chip.chipBackgroundColor =
                 android.content.res.ColorStateList.valueOf(chipColor(sym.matchType))
+            chip.chipStrokeWidth = 1f * resources.displayMetrics.density
+            chip.chipStrokeColor =
+                android.content.res.ColorStateList.valueOf(chipStrokeColor())
+            chip.rippleColor =
+                android.content.res.ColorStateList.valueOf(chipRippleColor())
+            chip.textStartPadding = 12f
+            chip.textEndPadding = 12f
+            chip.chipStartPadding = 10f
+            chip.chipEndPadding = 10f
+            chip.iconEndPadding = 6f
             chip.isCloseIconVisible = false
             chip.isClickable = true
             chip.isCheckable = false
@@ -296,7 +308,11 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
                 }
                 if (!isAdded) return@launch
                 if (drawable != null && drawable !is BlissSignProvider.PlaceholderDrawable) {
+                    // tinta scura sul SVG per garantire contrasto uniforme con il testo
+                    drawable.setTint(chipTextColor())
                     chip.chipIcon = drawable
+                    chip.chipIconTint =
+                        android.content.res.ColorStateList.valueOf(chipTextColor())
                     chip.isChipIconVisible = true
                 } else {
                     chip.isChipIconVisible = false
@@ -349,15 +365,30 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         svgJobs.clear()
     }
 
+    // ── Colori chip — enterprise-grade contrast ───────────────────────────────
+
+    /** Foreground scuro #24323D: contrasto ≥ 6.5:1 su tutti i background pastello. */
+    private fun chipTextColor(): Int = 0xFF24323D.toInt()
+
+    /** Bordo leggero, coerente con la palette blu-grigio. */
+    private fun chipStrokeColor(): Int = 0xFF97A6B2.toInt()
+
+    /** Ripple semi-trasparente del foreground. */
+    private fun chipRippleColor(): Int = 0x3324323D
+
+    /**
+     * Background pastello per matchType. Ogni colore è calibrato per garantire
+     * un rapporto di contrasto WCAG AA (≥ 4.5:1) con il foreground [chipTextColor].
+     */
     private fun chipColor(mt: BlissSymbol.MatchType): Int = when (mt) {
-        BlissSymbol.MatchType.EXACT             -> 0xFFD0F0D0.toInt()
-        BlissSymbol.MatchType.LEMMA             -> 0xFFD0E8FF.toInt()
-        BlissSymbol.MatchType.NGRAM             -> 0xFFFFF3B0.toInt()
-        BlissSymbol.MatchType.FALLBACK_CATEGORY -> 0xFFFFDDB0.toInt()
-        BlissSymbol.MatchType.COMPOUND          -> 0xFFE8D5FF.toInt()
-        BlissSymbol.MatchType.SEMANTIC          -> 0xFFD5EAFF.toInt()
-        BlissSymbol.MatchType.UNKNOWN           -> 0xFFFFD0D0.toInt()
-        BlissSymbol.MatchType.FUNCTION_WORD     -> 0xFFB0F0F0.toInt()
+        BlissSymbol.MatchType.EXACT             -> 0xFFD9EEDC.toInt()  // verde menta
+        BlissSymbol.MatchType.LEMMA             -> 0xFFDCEAFE.toInt()  // azzurro
+        BlissSymbol.MatchType.NGRAM             -> 0xFFF7E7B8.toInt()  // giallo caldo
+        BlissSymbol.MatchType.FALLBACK_CATEGORY -> 0xFFF6DFC1.toInt()  // arancio chiaro
+        BlissSymbol.MatchType.COMPOUND          -> 0xFFE8DCF8.toInt()  // lavanda
+        BlissSymbol.MatchType.SEMANTIC          -> 0xFFD9EEF6.toInt()  // celeste
+        BlissSymbol.MatchType.UNKNOWN           -> 0xFFF7D9DC.toInt()  // rosa pallido
+        BlissSymbol.MatchType.FUNCTION_WORD     -> 0xFFD8EFF0.toInt()  // acquamarina
     }
 
     // ── Blocco D: FAB share ───────────────────────────────────────────────────

@@ -30,4 +30,12 @@
     <color name="d_windowBackground">#fff</color>
     <color name="d_backgroundDarker">#dbcfbd</color>
 
+    <!-- Bliss chip UI — enterprise-grade contrast set -->
+    <!-- foreground: dark blue-grey #24323D on pastel backgrounds, ratio ≥ 6.5:1 -->
+    <color name="bliss_chip_text">#24323D</color>
+    <color name="bliss_chip_icon">#24323D</color>
+    <color name="bliss_chip_stroke">#97A6B2</color>
+    <color name="bliss_chip_ripple">#3324323D</color>
+    <color name="bliss_chip_bg_default">#EAF2FB</color>
+
 </resources>
