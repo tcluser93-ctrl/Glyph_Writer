@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    item_bliss_chip.xml
+    Chip template per la vista CHIPS del BlissTranslateFragment (blocco E-01).
+    Inflated da renderChips() in un ChipGroup; nessun android:id (creazione dinamica).
+    Il Fragment imposta:
+      chip.text              → BlissSymbol.gloss
+      chip.chipBackgroundColor → colore per matchType
+      chip.chipIcon          → drawable SVG via BlissSignProvider
+      chip.contentDescription→ a11y label
+-->
+<com.google.android.material.chip.Chip
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    style="@style/Widget.MaterialComponents.Chip.Action"
+    android:textAppearance="?attr/textAppearanceLabelMedium"
+    android:ellipsize="end"
+    android:maxLines="1"
+    app:chipIconVisible="false"
+    app:chipIconSize="28dp"
+    app:chipStartPadding="8dp"
+    app:chipEndPadding="8dp"
+    app:iconStartPadding="4dp"
+    app:ensureMinTouchTargetSize="true" />

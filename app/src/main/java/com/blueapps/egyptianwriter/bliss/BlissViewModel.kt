@@ -6,8 +6,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -76,6 +79,24 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
      */
     enum class RenderMode { CLASSIC, STRUCTURED }
 
+    /**
+     * Controls which output view the Fragment renders in the result area.
+     * Orthogonal to [RenderMode] (which drives the SVG renderer path):
+     * - [CHIPS]  — Horizontal chip-strip (E-01) — default.
+     * - [CARDS]  — CAA mini-card grid ([BlissSymbolCardAdapter]).
+     * - [MIXED]  — [MixedBlissRowView] composited preview.
+     */
+    enum class ViewMode { CHIPS, CARDS, MIXED }
+
+    /**
+     * One-shot UI events emitted via [events].
+     * Collected by the Fragment in a `repeatOnLifecycle(STARTED)` block.
+     */
+    sealed class Event {
+        /** Show a short [android.widget.Toast] with localised [message]. */
+        data class ShowToast(val message: String) : Event()
+    }
+
     // ── UI state ──────────────────────────────────────────────────────────────
 
     /**
@@ -98,6 +119,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
      * @param historySearchQuery Current text in the history search field.
      * @param recentInputs       Distinct recent input texts (autocomplete chips).
      * @param historyVisible     Whether the history panel is open.
+     * @param viewMode           Which output view the Fragment is rendering.
      */
     data class UiState(
         val symbols:             List<BlissSymbol>          = emptyList(),
@@ -113,17 +135,32 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
         val filteredHistory:     List<BlissHistoryEntry>    = emptyList(),
         val historySearchQuery:  String                     = "",
         val recentInputs:        List<String>               = emptyList(),
-        val historyVisible:      Boolean                    = false
+        val historyVisible:      Boolean                    = false,
+        val viewMode:            ViewMode                   = ViewMode.CHIPS
     )
+
+    /** Extension alias: [UiState.isLoading] → [UiState.loading] for Fragment convenience. */
+    val UiState.loading: Boolean get() = isLoading
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    private val _events = MutableSharedFlow<Event>(extraBufferCapacity = 8)
+    /** One-shot events for Fragment consumption. Never replayed. */
+    val events: SharedFlow<Event> = _events.asSharedFlow()
 
     private val _historySearchQuery = MutableStateFlow("")
 
     // ── engine components ───────────────────────────────────────────────────────
 
     private val lookup:     BlissLookup            = BlissLookup.getInstance(application)
+
+    /**
+     * Provides BCI-AV SVG drawables.  Shared with [BlissTranslateFragment] and
+     * [BlissSymbolCardAdapter] to avoid duplicate asset loading.
+     */
+    val signProvider: BlissSignProvider = BlissSignProvider(application)
+
     private val morfologik: MorfologikLemmatizer   = MorfologikLemmatizer(application)
     private val repository: BlissHistoryRepository = BlissHistoryRepository(
         BlissDatabase.getInstance(application)
@@ -197,6 +234,9 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     fun setBuilder(glyphXBuilder: BlissGlyphXBuilder) {
         builder = glyphXBuilder
     }
+
+    /** Returns the current [BlissGlyphXBuilder], or null if not yet initialised. */
+    fun getBuilder(): BlissGlyphXBuilder? = builder
 
     // ── translation ──────────────────────────────────────────────────────────────
 
@@ -388,6 +428,33 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
                     _uiState.value = _uiState.value.copy(filteredHistory = results)
                 }
         }
+    }
+
+    // ── view mode ────────────────────────────────────────────────────────────────
+
+    /**
+     * Changes the active output [ViewMode] (chip-strip / CAA cards / mixed preview).
+     * Called by the Fragment's [MaterialButtonToggleGroup] listener.
+     */
+    fun setRenderMode(mode: ViewMode) {
+        _uiState.value = _uiState.value.copy(viewMode = mode)
+    }
+
+    /**
+     * Resets the translation result to the empty state.
+     * Cancels any in-flight [translateJob].
+     */
+    fun clearTranslation() {
+        translateJob?.cancel()
+        _uiState.value = _uiState.value.copy(
+            symbols       = emptyList(),
+            glyphXDoc     = null,
+            composedWords = emptyList(),
+            renderMode    = RenderMode.CLASSIC,
+            stats         = null,
+            error         = null,
+            isLoading     = false
+        )
     }
 
     // ── private: reactive observers ────────────────────────────────────────────
