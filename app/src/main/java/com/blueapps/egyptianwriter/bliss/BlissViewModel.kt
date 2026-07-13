@@ -263,14 +263,18 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
      * based on [UiState.renderMode].
      */
     fun translate(text: String) {
+        Log.d(TAG, "[VM] translate called input='$text'")
         val t = translator ?: run {
+            Log.e(TAG, "[VM] translator is null — engine not ready")
             _uiState.value = _uiState.value.copy(
                 error = getApplication<Application>().getString(R.string.bliss_error_engine_not_ready)
             )
+            viewModelScope.launch { _events.emit(Event.ShowToast("Motore non pronto. Attendi e riprova.")) }
             return
         }
         translateJob?.cancel()
         translateJob = viewModelScope.launch {
+            Log.d(TAG, "[VM] set loading=true")
             _uiState.value = _uiState.value.copy(
                 isLoading    = true,
                 error        = null,
@@ -278,12 +282,16 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
             )
             try {
                 val lang = _uiState.value.langCode
+                Log.d(TAG, "[VM] lang='$lang' before translateAsync")
 
                 val symbols = withContext(Dispatchers.Default) {
                     t.translateAsync(text)
                 }
+                Log.d(TAG, "[VM] translateAsync returned symbols=${symbols.size}")
+                if (symbols.isEmpty()) {
+                    Log.w(TAG, "[VM] WARNING: symbols is empty — lookup may not be ready or text unmatched")
+                }
 
-                // Patch 8: resolve ComposedBlissWord for each SEMANTIC symbol
                 val composedWords: List<ComposedBlissWord?> = withContext(Dispatchers.Default) {
                     symbols.map { sym ->
                         if (sym.matchType == BlissSymbol.MatchType.SEMANTIC) {
@@ -294,13 +302,14 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
 
                 val hasStructured = composedWords.any { it != null }
                 val renderMode    = if (hasStructured) RenderMode.STRUCTURED else RenderMode.CLASSIC
+                Log.d(TAG, "[VM] renderMode=$renderMode hasStructured=$hasStructured")
 
-                // Build GlyphX doc only for the classic path (avoids wasted work)
                 val doc = if (renderMode == RenderMode.CLASSIC) {
                     withContext(Dispatchers.Default) { builder?.build(symbols) }
                 } else null
 
                 val stats = TranslationStats.from(symbols)
+                Log.d(TAG, "[VM] stats exact=${stats.exact} lemma=${stats.lemma} ngram=${stats.ngram} semantic=${stats.semantic} unknown=${stats.unknown}")
 
                 _uiState.value = _uiState.value.copy(
                     symbols       = symbols,
@@ -310,6 +319,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
                     stats         = stats,
                     isLoading     = false
                 )
+                Log.d(TAG, "[VM] state published — translation complete")
 
                 viewModelScope.launch(Dispatchers.IO) {
                     repository.saveTranslation(
@@ -319,11 +329,12 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 }
             } catch (e: Exception) {
+                Log.e(TAG, "[VM] translate failed: ${e.javaClass.simpleName} — ${e.message}", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error     = e.message
                 )
-                Log.e(TAG, "Translation error", e)
+                _events.emit(Event.ShowToast("Errore traduzione: ${e.message ?: "sconosciuto"}"))
             }
         }
     }
