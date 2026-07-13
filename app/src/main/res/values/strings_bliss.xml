@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- BlissTranslateFragment -->
+    <string name="bliss_input_empty">Inserisci del testo prima di tradurre</string>
+    <string name="bliss_copied">Testo copiato negli appunti</string>
+    <string name="bliss_share_title">Condividi traduzione Bliss</string>
+
+    <!-- Bottom sheet export -->
+    <string name="bliss_export_share_text">Condividi testo</string>
+    <string name="bliss_export_copy_text">Copia testo</string>
+    <string name="bliss_export_export_png">Esporta come PNG</string>
+    <string name="bliss_export_export_pdf">Esporta come PDF</string>
+</resources>
