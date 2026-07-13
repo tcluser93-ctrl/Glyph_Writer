@@ -58,6 +58,9 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     private lateinit var tts: TextToSpeech
     private var ttsReady = false
 
+    /** true solo dopo che setLang() ha completato il bootstrap del motore */
+    private var engineReady = false
+
     private var debounceJob: Job? = null
     private val svgJobs = mutableListOf<Job>()
 
@@ -95,6 +98,15 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         observeState()
         observeOneShotEvents()
         appendDebugLog("[INIT] onViewCreated — fragment pronto")
+
+        // ── Bootstrap motore ────────────────────────────────────────────────
+        val lang = arguments?.getString(ARG_LANG) ?: "it"
+        appendDebugLog("[INIT] setLang('$lang') — avvio bootstrap motore")
+        viewModel.setLang(lang) {
+            // Callback onReady: invocato dal ViewModel quando translator != null
+            engineReady = true
+            appendDebugLog("[INIT] motore pronto — engineReady=true lang='$lang'")
+        }
     }
 
     override fun onDestroyView() {
@@ -127,6 +139,10 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
                 debounceJob?.cancel()
                 debounceJob = viewLifecycleOwner.lifecycleScope.launch {
                     delay(350)
+                    if (!engineReady) {
+                        appendDebugLog("[DEBOUNCE] motore non pronto — debounce ignorato per '$text'")
+                        return@launch
+                    }
                     if (text.isNotBlank()) {
                         appendDebugLog("[DEBOUNCE] translate='$text'")
                         viewModel.translate(text)
@@ -141,6 +157,11 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         btnTranslate.setOnClickListener {
             val text = etInput.text?.toString().orEmpty().trim()
             appendDebugLog("[BTN] translate clicked; input='$text'")
+            if (!engineReady) {
+                appendDebugLog("[BTN] motore non pronto — click ignorato")
+                Toast.makeText(requireContext(), R.string.bliss_error_engine_not_ready, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             if (text.isBlank()) {
                 appendDebugLog("[BTN] input vuoto — nessuna traduzione")
                 Toast.makeText(requireContext(), R.string.bliss_input_empty, Toast.LENGTH_SHORT).show()
