@@ -2,7 +2,6 @@
 <resources>
     <!-- fragment_bliss_translate.xml layout strings -->
     <string name="bliss_input_hint">Scrivi il testo da tradurre…</string>
-    <string name="bliss_btn_translate">Traduci</string>
     <string name="bliss_btn_clear">Cancella</string>
     <string name="bliss_view_chips">Chip</string>
     <string name="bliss_view_cards">Card</string>
@@ -14,10 +13,4 @@
     <string name="bliss_input_empty">Inserisci del testo prima di tradurre</string>
     <string name="bliss_copied">Testo copiato negli appunti</string>
     <string name="bliss_share_title">Condividi traduzione Bliss</string>
-
-    <!-- bottom_sheet_export.xml -->
-    <string name="export_title">Esporta</string>
-    <string name="export_svg">Condividi testo</string>
-    <string name="export_png">Esporta come PNG</string>
-    <string name="export_pdf">Esporta come PDF</string>
 </resources>
