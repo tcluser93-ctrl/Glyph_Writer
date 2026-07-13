@@ -1,31 +1,17 @@
 package com.blueapps.egyptianwriter.bliss
 
-import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.text.Editable
-import android.text.SpannableStringBuilder
-import android.text.Spanned
 import android.text.TextWatcher
-import android.text.style.ImageSpan
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.addCallback
-import androidx.core.content.FileProvider
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -33,20 +19,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.blueapps.egyptianwriter.R
 import com.blueapps.egyptianwriter.databinding.FragmentBlissTranslateBinding
-import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
-import java.io.File
-import java.io.FileOutputStream
-import kotlin.coroutines.resume
 
 /**
  * ## BlissTranslateFragment — Blocco B, C, D, E, H, N, O
@@ -60,24 +40,6 @@ import kotlin.coroutines.resume
  * - **H-01/H-02** — export PNG / PDF (delegato a [BlissExportHelper]);
  * - **N-01/N-02/N-03** — MixedBlissRowView + fallback semantico;
  * - **O-01/O-02** — storico traduzioni e pin recenti.
- *
- * ### Responsabilità principali
- *
- * 1. Osserva [BlissViewModel.uiState] e aggiorna il rendering.
- * 2. Mantiene la coerenza tra testo di input, risultato chip, vista card CAA e preview mista.
- * 3. Gestisce i job SVG asincroni per evitare late-binding su Chip riciclati.
- * 4. Coordina TTS, copy/share/export senza duplicare logica del ViewModel.
- *
- * ### Convenzioni visive
- *
- * I chip sono colorati in base a [BlissSymbol.matchType] via [chipColor].
- * I mini-card CAA usano [BlissSymbolCardAdapter] con lo stesso badge semantico.
- *
- * ### Accessibilità
- *
- * - I chip hanno `contentDescription` parlante tramite [buildChipContentDescription].
- * - Le card CAA hanno ordine di lettura immagine → gloss → parola.
- * - La preview mista è solo decorativa: TalkBack usa il testo descrittivo separato.
  */
 class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
@@ -90,10 +52,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     private lateinit var tts: TextToSpeech
     private var ttsReady = false
 
-    /** Job debounce per B-01 */
     private var debounceJob: Job? = null
-
-    /** Job SVG inline dei chip (E-01) — cancellati a ogni re-render */
     private val svgJobs = mutableListOf<Job>()
 
     // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -110,7 +69,6 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         tts = TextToSpeech(requireContext(), this)
-
         setupToolbarBackHandling()
         setupInput()
         setupToggleButtons()
@@ -129,10 +87,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (::tts.isInitialized) {
-            tts.stop()
-            tts.shutdown()
-        }
+        if (::tts.isInitialized) { tts.stop(); tts.shutdown() }
     }
 
     // ── TTS ──────────────────────────────────────────────────────────────────
@@ -141,7 +96,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         ttsReady = status == TextToSpeech.SUCCESS
     }
 
-    // ── Blocco B: input + trigger traduzione ─────────────────────────────────
+    // ── Blocco B ─────────────────────────────────────────────────────────────
 
     private fun setupInput() = with(binding) {
         etInput.addTextChangedListener(object : TextWatcher {
@@ -180,9 +135,9 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
             when (checkedId) {
-                R.id.btnViewChips -> viewModel.setRenderMode(BlissViewModel.RenderMode.CHIPS)
-                R.id.btnViewCards -> viewModel.setRenderMode(BlissViewModel.RenderMode.CARDS)
-                R.id.btnViewMixed -> viewModel.setRenderMode(BlissViewModel.RenderMode.MIXED)
+                R.id.btnViewChips -> viewModel.setRenderMode(BlissViewModel.ViewMode.CHIPS)
+                R.id.btnViewCards -> viewModel.setRenderMode(BlissViewModel.ViewMode.CARDS)
+                R.id.btnViewMixed -> viewModel.setRenderMode(BlissViewModel.ViewMode.MIXED)
             }
         }
     }
@@ -205,9 +160,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    renderState(state)
-                }
+                viewModel.uiState.collect { state -> renderState(state) }
             }
         }
     }
@@ -228,35 +181,35 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     // ── Render root ──────────────────────────────────────────────────────────
 
     private fun renderState(state: BlissViewModel.UiState) = with(binding) {
-        progressBar.isVisible = state.loading
-        tvEmpty.isVisible = !state.loading && state.symbols.isEmpty()
+        progressBar.isVisible = state.isLoading
+        tvEmpty.isVisible = !state.isLoading && state.symbols.isEmpty()
 
-        when (state.renderMode) {
-            BlissViewModel.RenderMode.CHIPS -> {
+        when (state.viewMode) {
+            BlissViewModel.ViewMode.CHIPS -> {
                 chipScroll.isVisible = true
                 rvCards.isVisible = false
                 mixedPreviewContainer.isVisible = false
                 renderChips(state.symbols)
             }
-            BlissViewModel.RenderMode.CARDS -> {
+            BlissViewModel.ViewMode.CARDS -> {
                 chipScroll.isVisible = false
                 rvCards.isVisible = true
                 mixedPreviewContainer.isVisible = false
                 cardAdapter.submitList(state.symbols)
             }
-            BlissViewModel.RenderMode.MIXED -> {
+            BlissViewModel.ViewMode.MIXED -> {
                 chipScroll.isVisible = false
                 rvCards.isVisible = false
                 mixedPreviewContainer.isVisible = true
-                renderMixedPreview(state.symbols)
+                renderMixedPreview(state)
             }
         }
 
         toggleGroup.check(
-            when (state.renderMode) {
-                BlissViewModel.RenderMode.CHIPS -> R.id.btnViewChips
-                BlissViewModel.RenderMode.CARDS -> R.id.btnViewCards
-                BlissViewModel.RenderMode.MIXED -> R.id.btnViewMixed
+            when (state.viewMode) {
+                BlissViewModel.ViewMode.CHIPS -> R.id.btnViewChips
+                BlissViewModel.ViewMode.CARDS -> R.id.btnViewCards
+                BlissViewModel.ViewMode.MIXED -> R.id.btnViewMixed
             }
         )
     }
@@ -270,14 +223,14 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         symbols.forEachIndexed { index, sym ->
             val chip = layoutInflater.inflate(R.layout.item_bliss_chip, this, false) as Chip
             chip.text = sym.gloss
-            chip.chipBackgroundColor = android.content.res.ColorStateList.valueOf(chipColor(sym.matchType))
+            chip.chipBackgroundColor =
+                android.content.res.ColorStateList.valueOf(chipColor(sym.matchType))
             chip.isCloseIconVisible = false
             chip.isClickable = true
             chip.isCheckable = false
             chip.contentDescription = buildChipContentDescription(sym, index, symbols.size)
             chip.setOnClickListener { speak(sym.gloss) }
 
-            // Badge indicatori
             val indicatorBadge = buildString {
                 val inds = sym.indicators
                 if (BlissTranslator.INDICATOR_PLURAL in inds) append("× ")
@@ -286,10 +239,12 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
             }.trim()
             if (indicatorBadge.isNotEmpty()) chip.text = "${chip.text}  $indicatorBadge"
 
-            // Caricamento SVG come start icon
             val job = viewLifecycleOwner.lifecycleScope.launch {
                 val drawable = withTimeoutOrNull(2500) {
-                    viewModel.signProvider.getDrawableAsync("B${sym.bciAvId}", 96f * resources.displayMetrics.density)
+                    viewModel.signProvider.getDrawableAsync(
+                        "B${sym.bciAvId}",
+                        96f * resources.displayMetrics.density
+                    )
                 }
                 if (!isAdded) return@launch
                 if (drawable != null && drawable !is BlissSignProvider.PlaceholderDrawable) {
@@ -306,21 +261,37 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
     private fun buildChipContentDescription(sym: BlissSymbol, index: Int, total: Int): String {
         val match = when (sym.matchType) {
-            BlissSymbol.MatchType.EXACT -> "corrispondenza esatta"
-            BlissSymbol.MatchType.LEMMA -> "lemma"
-            BlissSymbol.MatchType.NGRAM -> "frase"
-            BlissSymbol.MatchType.FALLBACK_CATEGORY -> "categoria"
-            BlissSymbol.MatchType.COMPOUND -> "composto"
-            BlissSymbol.MatchType.SEMANTIC -> "semantico"
-            BlissSymbol.MatchType.UNKNOWN -> "sconosciuto"
-            BlissSymbol.MatchType.FUNCTION_WORD -> "parola funzione"
+            BlissSymbol.MatchType.EXACT            -> "corrispondenza esatta"
+            BlissSymbol.MatchType.LEMMA            -> "lemma"
+            BlissSymbol.MatchType.NGRAM            -> "frase"
+            BlissSymbol.MatchType.FALLBACK_CATEGORY-> "categoria"
+            BlissSymbol.MatchType.COMPOUND         -> "composto"
+            BlissSymbol.MatchType.SEMANTIC         -> "semantico"
+            BlissSymbol.MatchType.UNKNOWN          -> "sconosciuto"
+            BlissSymbol.MatchType.FUNCTION_WORD    -> "parola funzione"
         }
         return "${sym.gloss}, parola ${index + 1} di $total, $match"
     }
 
-    private fun renderMixedPreview(symbols: List<BlissSymbol>) = with(binding.mixedPreview) {
-        removeAllViews()
-        setSymbols(symbols)
+    // ── Blocco N: MixedBlissRowView ──────────────────────────────────────────
+
+    private fun renderMixedPreview(state: BlissViewModel.UiState) {
+        val slots = buildMixedSlots(state.symbols, state.composedWords)
+        binding.mixedPreview.bind(slots)
+    }
+
+    /**
+     * Costruisce la lista di [MixedTokenSlot] da symbols + composedWords.
+     * - Se composedWords[i] != null → SvgSlot (token structured)
+     * - Altrimenti → ChipSlot (token classic)
+     */
+    private fun buildMixedSlots(
+        symbols: List<BlissSymbol>,
+        composedWords: List<ComposedBlissWord?>
+    ): List<MixedTokenSlot> = symbols.mapIndexed { i, sym ->
+        val composed = composedWords.getOrNull(i)
+        if (composed != null) MixedTokenSlot.SvgSlot(i, composed)
+        else MixedTokenSlot.ChipSlot(i, sym)
     }
 
     private fun clearSvgJobs() {
@@ -339,7 +310,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         BlissSymbol.MatchType.FUNCTION_WORD     -> 0xFFB0F0F0.toInt()
     }
 
-    // ── Blocco D: FAB share → ExportBottomSheetFragment ───────────────
+    // ── Blocco D: FAB share ───────────────────────────────────────────────────
 
     private fun setupFabShare() {
         binding.fabShare.setOnClickListener {
@@ -348,11 +319,10 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
                 Toast.makeText(requireContext(), R.string.bliss_input_empty, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            ExportBottomSheetFragment.newInstance(text).show(parentFragmentManager, "bliss_export_sheet")
+            ExportBottomSheetFragment.newInstance(text)
+                .show(parentFragmentManager, "bliss_export_sheet")
         }
     }
-
-    // ── Helpers share/copy/export ────────────────────────────────────────────
 
     private fun copyToClipboard(label: String, text: String) {
         val cm = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -361,9 +331,8 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     }
 
     private fun speak(text: String) {
-        if (ttsReady && text.isNotBlank()) {
+        if (ttsReady && text.isNotBlank())
             tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "bliss-$text")
-        }
     }
 
     private fun setupToolbarBackHandling() {
@@ -372,15 +341,11 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         }
     }
 
-    // ── Factory ──────────────────────────────────────────────────────────────
+    // ── Factory ───────────────────────────────────────────────────────────────
 
     companion object {
         private const val ARG_LANG = "arg_lang"
 
-        /**
-         * Crea una nuova istanza del fragment con la lingua iniziale.
-         * @param lang codice BCP-47 a 2 caratteri (es. "it", "en"), default "it".
-         */
         fun newInstance(lang: String = "it"): BlissTranslateFragment =
             BlissTranslateFragment().apply {
                 arguments = Bundle().apply { putString(ARG_LANG, lang) }

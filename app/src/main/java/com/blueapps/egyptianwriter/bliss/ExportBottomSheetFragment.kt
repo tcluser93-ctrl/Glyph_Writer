@@ -16,13 +16,15 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 /**
  * BottomSheet per le azioni di export/share del testo tradotto (Blocco D).
  *
- * Accetta il testo di input via [newInstance] e propone:
- * - **Condividi testo** — Intent.ACTION_SEND
- * - **Copia testo** — ClipboardManager
+ * Layout: bottom_sheet_export.xml
+ * Pulsanti presenti: btn_export_svg, btn_export_png, btn_export_pdf
  *
- * Le azioni PNG/PDF (H-01/H-02) sono delegate a [BlissExportHelper]
- * e possono essere aggiunte ai listener sottostanti quando il helper
- * sarà pronto a fornire un Bitmap/File.
+ * - btn_export_svg → Intent.ACTION_SEND (condividi come testo)
+ * - btn_export_png → copia testo negli appunti (H-01 stub)
+ * - btn_export_pdf → copia testo negli appunti (H-02 stub)
+ *
+ * Le azioni PNG/PDF complete saranno cablate a [BlissExportHelper]
+ * quando il helper sarà pronto a fornire Bitmap/File.
  */
 class ExportBottomSheetFragment : BottomSheetDialogFragment() {
 
@@ -56,8 +58,8 @@ class ExportBottomSheetFragment : BottomSheetDialogFragment() {
     // ── Listeners ────────────────────────────────────────────────────────────
 
     private fun setupClickListeners() {
-        // Condividi testo
-        binding.btnShareText.setOnClickListener {
+        // Condividi come testo (SVG share stub — in attesa renderer)
+        binding.btnExportSvg.setOnClickListener {
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, inputText)
@@ -66,20 +68,28 @@ class ExportBottomSheetFragment : BottomSheetDialogFragment() {
             dismiss()
         }
 
-        // Copia negli appunti
-        binding.btnCopyText.setOnClickListener {
-            val cm = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            cm.setPrimaryClip(ClipData.newPlainText("bliss", inputText))
-            Toast.makeText(requireContext(), R.string.bliss_copied, Toast.LENGTH_SHORT).show()
-            dismiss()
+        // Esporta PNG — copia testo come stub (H-01)
+        binding.btnExportPng.setOnClickListener {
+            copyAndToast()
+        }
+
+        // Esporta PDF — copia testo come stub (H-02)
+        binding.btnExportPdf.setOnClickListener {
+            copyAndToast()
         }
     }
 
-    // ── Factory ──────────────────────────────────────────────────────────────
+    private fun copyAndToast() {
+        val cm = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        cm.setPrimaryClip(ClipData.newPlainText("bliss", inputText))
+        Toast.makeText(requireContext(), R.string.bliss_copied, Toast.LENGTH_SHORT).show()
+        dismiss()
+    }
+
+    // ── Factory ───────────────────────────────────────────────────────────────
 
     companion object {
         private const val ARG_TEXT = "arg_text"
-        private const val TAG = "ExportBottomSheetFragment"
 
         /**
          * Crea una nuova istanza del bottom sheet con il testo da esportare.
