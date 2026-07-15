@@ -365,12 +365,11 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
      * The Fragment must call this from `afterTextChanged` regardless of trigger mode.
      */
     fun onInputChanged(text: String) {
-        _uiState.update { state ->
-            state.copy(
-                currentInputText = text,
-                isDirtyInput     = text != state.lastSubmittedText
-            )
-        }
+        val current = _uiState.value
+        _uiState.value = current.copy(
+            currentInputText = text,
+            isDirtyInput     = text != current.lastSubmittedText
+        )
     }
 
     /**
@@ -380,13 +379,11 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
      * Should be called **only** by btnTranslate in [TranslationTriggerMode.MANUAL_SENTENCE].
      */
     fun submitManualTranslation(text: String) {
-        _uiState.update { state ->
-            state.copy(
-                currentInputText  = text,
-                lastSubmittedText = text,
-                isDirtyInput      = false
-            )
-        }
+        _uiState.value = _uiState.value.copy(
+            currentInputText  = text,
+            lastSubmittedText = text,
+            isDirtyInput      = false
+        )
         translate(text)
     }
 
@@ -397,12 +394,11 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
      * submitted text, so the Fragment can decide whether to re-translate.
      */
     fun setTranslationTriggerMode(mode: TranslationTriggerMode) {
-        _uiState.update { state ->
-            state.copy(
-                translationTriggerMode = mode,
-                isDirtyInput           = state.currentInputText != state.lastSubmittedText
-            )
-        }
+        val current = _uiState.value
+        _uiState.value = current.copy(
+            translationTriggerMode = mode,
+            isDirtyInput           = current.currentInputText != current.lastSubmittedText
+        )
     }
 
     // ── typeahead suggestions ───────────────────────────────────────────────────
