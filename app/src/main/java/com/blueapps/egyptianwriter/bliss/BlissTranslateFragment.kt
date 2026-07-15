@@ -42,6 +42,22 @@ import kotlinx.coroutines.withTimeoutOrNull
  * - **N-01/N-02/N-03** — MixedBlissRowView + fallback semantico;
  * - **O-01/O-02** — storico traduzioni e pin recenti.
  *
+ * ## Patch 9 — TranslationTriggerMode
+ *
+ * `setupInput()` now reads [BlissViewModel.UiState.translationTriggerMode] from
+ * the ViewModel state before deciding whether to fire the debounce-translate:
+ * - [BlissViewModel.TranslationTriggerMode.AUTO_PROGRESSIVE] — legacy debounce;
+ * - [BlissViewModel.TranslationTriggerMode.MANUAL_SENTENCE] — typing only updates
+ *   the ViewModel input state; translation fires only via btnTranslate.
+ *
+ * `btnTranslate` now calls [BlissViewModel.submitManualTranslation] instead of
+ * [BlissViewModel.translate], making it the sole authoritative CTA for the
+ * manual mode.  This resolves the "bottone senza funzione" issue.
+ *
+ * `btnViewMixed` visibility is gated on [BlissViewModel.UiState.composedWords]
+ * having at least one non-null entry, so MIXED is not offered when it has no
+ * structural advantage over CARDS.
+ *
  * ## Debug log panel
  * Il campo `etDebugLog` mostra a schermo i passaggi chiave del flusso
  * di traduzione (click → ViewModel → stato → rendering).
@@ -121,37 +137,51 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         appendDebugLog("[TTS] init status=$status ttsReady=$ttsReady")
     }
 
-    // ── Blocco B ─────────────────────────────────────────────────────────────
+    // ── Blocco B — Patch 9: trigger-mode aware input ─────────────────────────
 
     private fun setupInput() = with(binding) {
         etInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+
             override fun afterTextChanged(s: Editable?) {
                 val text = s?.toString().orEmpty()
                 debounceJob?.cancel()
-                debounceJob = viewLifecycleOwner.lifecycleScope.launch {
-                    delay(350)
-                    if (text.isNotBlank()) {
-                        appendDebugLog("[DEBOUNCE] translate='$text'")
-                        viewModel.translate(text)
-                    } else {
-                        appendDebugLog("[DEBOUNCE] testo vuoto → clearTranslation")
-                        viewModel.clearTranslation()
+
+                // Always update ViewModel input state (for isDirtyInput tracking)
+                viewModel.onInputChanged(text)
+
+                val triggerMode = viewModel.uiState.value.translationTriggerMode
+                if (triggerMode == BlissViewModel.TranslationTriggerMode.AUTO_PROGRESSIVE) {
+                    debounceJob = viewLifecycleOwner.lifecycleScope.launch {
+                        delay(350)
+                        if (text.isNotBlank()) {
+                            appendDebugLog("[DEBOUNCE] auto-translate='$text'")
+                            viewModel.translate(text)
+                        } else {
+                            appendDebugLog("[DEBOUNCE] testo vuoto → clearTranslation")
+                            viewModel.clearTranslation()
+                        }
                     }
+                } else {
+                    // MANUAL_SENTENCE: typing only tracks state, no translation fired
+                    appendDebugLog("[INPUT] updated input='$text'; waiting manual submit")
                 }
             }
         })
 
+        // btnTranslate is the sole translation CTA in MANUAL_SENTENCE mode.
+        // In AUTO_PROGRESSIVE mode it still works as an explicit submit.
         btnTranslate.setOnClickListener {
             val text = etInput.text?.toString().orEmpty().trim()
             appendDebugLog("[BTN] translate clicked; input='$text'")
+
             if (text.isBlank()) {
                 appendDebugLog("[BTN] input vuoto — nessuna traduzione")
                 Toast.makeText(requireContext(), R.string.bliss_input_empty, Toast.LENGTH_SHORT).show()
             } else {
-                appendDebugLog("[BTN] invio a ViewModel.translate")
-                viewModel.translate(text)
+                appendDebugLog("[BTN] submitManualTranslation")
+                viewModel.submitManualTranslation(text)
             }
         }
 
@@ -159,6 +189,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
             appendDebugLog("[BTN] clear clicked")
             debounceJob?.cancel()
             etInput.setText("")
+            viewModel.onInputChanged("")
             viewModel.clearTranslation()
         }
     }
@@ -201,7 +232,8 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
                     appendDebugLog(
                         "[STATE] loading=${state.isLoading} " +
                         "symbols=${state.symbols.size} " +
-                        "mode=${state.viewMode}"
+                        "mode=${state.viewMode} " +
+                        "trigger=${state.translationTriggerMode}"
                     )
                     renderState(state)
                 }
@@ -229,6 +261,10 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     private fun renderState(state: BlissViewModel.UiState) = with(binding) {
         progressBar.isVisible = state.isLoading
         tvEmpty.isVisible = !state.isLoading && state.symbols.isEmpty()
+
+        // MIXED is only meaningful when there are structured composed words.
+        // Gate its button visibility to avoid offering an empty-value view.
+        btnViewMixed.isVisible = state.composedWords.any { it != null }
 
         when (state.viewMode) {
             BlissViewModel.ViewMode.CHIPS -> {
