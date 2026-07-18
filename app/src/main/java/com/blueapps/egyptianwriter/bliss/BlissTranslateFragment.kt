@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,6 +41,27 @@ import kotlinx.coroutines.withTimeoutOrNull
  * - **H-01/H-02** — export PNG / PDF (delegato a [BlissExportHelper]);
  * - **N-01/N-02/N-03** — MixedBlissRowView + fallback semantico;
  * - **O-01/O-02** — storico traduzioni e pin recenti.
+ *
+ * ## Patch 9 — TranslationTriggerMode
+ *
+ * `setupInput()` now reads [BlissViewModel.UiState.translationTriggerMode] from
+ * the ViewModel state before deciding whether to fire the debounce-translate:
+ * - [BlissViewModel.TranslationTriggerMode.AUTO_PROGRESSIVE] — legacy debounce;
+ * - [BlissViewModel.TranslationTriggerMode.MANUAL_SENTENCE] — typing only updates
+ *   the ViewModel input state; translation fires only via btnTranslate.
+ *
+ * `btnTranslate` now calls [BlissViewModel.submitManualTranslation] instead of
+ * [BlissViewModel.translate], making it the sole authoritative CTA for the
+ * manual mode.  This resolves the "bottone senza funzione" issue.
+ *
+ * `btnViewMixed` visibility is gated on [BlissViewModel.UiState.composedWords]
+ * having at least one non-null entry, so MIXED is not offered when it has no
+ * structural advantage over CARDS.
+ *
+ * ## Debug log panel
+ * Il campo `etDebugLog` mostra a schermo i passaggi chiave del flusso
+ * di traduzione (click → ViewModel → stato → rendering).
+ * Rimuovere o nascondere in produzione.
  */
 class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
@@ -54,6 +76,18 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
     private var debounceJob: Job? = null
     private val svgJobs = mutableListOf<Job>()
+
+    // ── Debug log ────────────────────────────────────────────────────────────
+
+    /** Aggiunge [message] al pannello di log visibile a schermo e a Logcat. */
+    private fun appendDebugLog(message: String) {
+        val b = _binding ?: return
+        val old = b.etDebugLog.text?.toString().orEmpty()
+        val next = if (old.isBlank()) message else "$old\n$message"
+        b.etDebugLog.setText(next)
+        b.etDebugLog.setSelection(next.length)
+        Log.d(TAG, message)
+    }
 
     // ── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -76,6 +110,12 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         setupFabShare()
         observeState()
         observeOneShotEvents()
+        appendDebugLog("[INIT] onViewCreated — fragment pronto")
+
+        // ── Bootstrap motore ────────────────────────────────────────────────
+        val lang = arguments?.getString(ARG_LANG) ?: "it"
+        appendDebugLog("[INIT] setLang('$lang') — avvio bootstrap motore")
+        viewModel.setLang(lang)
     }
 
     override fun onDestroyView() {
@@ -94,37 +134,62 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
     override fun onInit(status: Int) {
         ttsReady = status == TextToSpeech.SUCCESS
+        appendDebugLog("[TTS] init status=$status ttsReady=$ttsReady")
     }
 
-    // ── Blocco B ─────────────────────────────────────────────────────────────
+    // ── Blocco B — Patch 9: trigger-mode aware input ─────────────────────────
 
     private fun setupInput() = with(binding) {
         etInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+
             override fun afterTextChanged(s: Editable?) {
                 val text = s?.toString().orEmpty()
                 debounceJob?.cancel()
-                debounceJob = viewLifecycleOwner.lifecycleScope.launch {
-                    delay(350)
-                    if (text.isNotBlank()) viewModel.translate(text)
-                    else viewModel.clearTranslation()
+
+                // Always update ViewModel input state (for isDirtyInput tracking)
+                viewModel.onInputChanged(text)
+
+                val triggerMode = viewModel.uiState.value.translationTriggerMode
+                if (triggerMode == BlissViewModel.TranslationTriggerMode.AUTO_PROGRESSIVE) {
+                    debounceJob = viewLifecycleOwner.lifecycleScope.launch {
+                        delay(350)
+                        if (text.isNotBlank()) {
+                            appendDebugLog("[DEBOUNCE] auto-translate='$text'")
+                            viewModel.translate(text)
+                        } else {
+                            appendDebugLog("[DEBOUNCE] testo vuoto → clearTranslation")
+                            viewModel.clearTranslation()
+                        }
+                    }
+                } else {
+                    // MANUAL_SENTENCE: typing only tracks state, no translation fired
+                    appendDebugLog("[INPUT] updated input='$text'; waiting manual submit")
                 }
             }
         })
 
+        // btnTranslate is the sole translation CTA in MANUAL_SENTENCE mode.
+        // In AUTO_PROGRESSIVE mode it still works as an explicit submit.
         btnTranslate.setOnClickListener {
-            val text = etInput.text?.toString().orEmpty()
+            val text = etInput.text?.toString().orEmpty().trim()
+            appendDebugLog("[BTN] translate clicked; input='$text'")
+
             if (text.isBlank()) {
+                appendDebugLog("[BTN] input vuoto — nessuna traduzione")
                 Toast.makeText(requireContext(), R.string.bliss_input_empty, Toast.LENGTH_SHORT).show()
             } else {
-                viewModel.translate(text)
+                appendDebugLog("[BTN] submitManualTranslation")
+                viewModel.submitManualTranslation(text)
             }
         }
 
         btnClear.setOnClickListener {
+            appendDebugLog("[BTN] clear clicked")
             debounceJob?.cancel()
             etInput.setText("")
+            viewModel.onInputChanged("")
             viewModel.clearTranslation()
         }
     }
@@ -134,11 +199,14 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     private fun setupToggleButtons() = with(binding) {
         toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
-            when (checkedId) {
-                R.id.btnViewChips -> viewModel.setRenderMode(BlissViewModel.ViewMode.CHIPS)
-                R.id.btnViewCards -> viewModel.setRenderMode(BlissViewModel.ViewMode.CARDS)
-                R.id.btnViewMixed -> viewModel.setRenderMode(BlissViewModel.ViewMode.MIXED)
+            val mode = when (checkedId) {
+                R.id.btnViewChips -> BlissViewModel.ViewMode.CHIPS
+                R.id.btnViewCards -> BlissViewModel.ViewMode.CARDS
+                R.id.btnViewMixed -> BlissViewModel.ViewMode.MIXED
+                else -> return@addOnButtonCheckedListener
             }
+            appendDebugLog("[TOGGLE] setRenderMode=$mode")
+            viewModel.setRenderMode(mode)
         }
     }
 
@@ -160,7 +228,15 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state -> renderState(state) }
+                viewModel.uiState.collect { state ->
+                    appendDebugLog(
+                        "[STATE] loading=${state.isLoading} " +
+                        "symbols=${state.symbols.size} " +
+                        "mode=${state.viewMode} " +
+                        "trigger=${state.translationTriggerMode}"
+                    )
+                    renderState(state)
+                }
             }
         }
     }
@@ -170,8 +246,10 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.events.collect { event ->
                     when (event) {
-                        is BlissViewModel.Event.ShowToast ->
+                        is BlissViewModel.Event.ShowToast -> {
+                            appendDebugLog("[EVENT] ShowToast: ${event.message}")
                             Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
@@ -184,6 +262,10 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         progressBar.isVisible = state.isLoading
         tvEmpty.isVisible = !state.isLoading && state.symbols.isEmpty()
 
+        // MIXED is only meaningful when there are structured composed words.
+        // Gate its button visibility to avoid offering an empty-value view.
+        btnViewMixed.isVisible = state.composedWords.any { it != null }
+
         when (state.viewMode) {
             BlissViewModel.ViewMode.CHIPS -> {
                 chipScroll.isVisible = true
@@ -195,6 +277,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
                 chipScroll.isVisible = false
                 rvCards.isVisible = true
                 mixedPreviewContainer.isVisible = false
+                appendDebugLog("[RENDER] CARDS submitList count=${state.symbols.size}")
                 cardAdapter.submitList(state.symbols)
             }
             BlissViewModel.ViewMode.MIXED -> {
@@ -219,12 +302,25 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     private fun renderChips(symbols: List<BlissSymbol>) = with(binding.chipGroup) {
         clearSvgJobs()
         removeAllViews()
+        appendDebugLog("[RENDER] CHIPS count=${symbols.size}")
 
         symbols.forEachIndexed { index, sym ->
             val chip = layoutInflater.inflate(R.layout.item_bliss_chip, this, false) as Chip
             chip.text = sym.gloss
+            // ── contrasto enterprise-grade: foreground esplicito, non delegato al tema ──
+            chip.setTextColor(chipTextColor())
             chip.chipBackgroundColor =
                 android.content.res.ColorStateList.valueOf(chipColor(sym.matchType))
+            chip.chipStrokeWidth = 1f * resources.displayMetrics.density
+            chip.chipStrokeColor =
+                android.content.res.ColorStateList.valueOf(chipStrokeColor())
+            chip.rippleColor =
+                android.content.res.ColorStateList.valueOf(chipRippleColor())
+            chip.textStartPadding = 12f
+            chip.textEndPadding = 12f
+            chip.chipStartPadding = 10f
+            chip.chipEndPadding = 10f
+            chip.iconEndPadding = 6f
             chip.isCloseIconVisible = false
             chip.isClickable = true
             chip.isCheckable = false
@@ -240,18 +336,43 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
             if (indicatorBadge.isNotEmpty()) chip.text = "${chip.text}  $indicatorBadge"
 
             val job = viewLifecycleOwner.lifecycleScope.launch {
+                // ── Guard: bciAvId deve essere un intero valido 4-6 cifre (≥ 1000)
+                //    BlissSignProvider.VALID_BCI_ID = ^\d{4,6}$ quindi id < 1000 o
+                //    sentinel COMPOUND_SYMBOL_ID (-2) verrebbero rigettati silenziosamente.
+                val bciId = sym.bciAvId
+                val svgCode = "B$bciId"
+                if (bciId < 1000) {
+                    appendDebugLog("[SVG] SKIP bciAvId=$bciId gloss='${sym.gloss}' match=${sym.matchType} — id non valido per asset SVG")
+                    chip.isChipIconVisible = false
+                    return@launch
+                }
+
+                appendDebugLog("[SVG] REQUEST $svgCode gloss='${sym.gloss}' match=${sym.matchType}")
                 val drawable = withTimeoutOrNull(2500) {
                     viewModel.signProvider.getDrawableAsync(
-                        "B${sym.bciAvId}",
+                        svgCode,
                         96f * resources.displayMetrics.density
                     )
                 }
                 if (!isAdded) return@launch
-                if (drawable != null && drawable !is BlissSignProvider.PlaceholderDrawable) {
-                    chip.chipIcon = drawable
-                    chip.isChipIconVisible = true
-                } else {
-                    chip.isChipIconVisible = false
+                when {
+                    drawable == null -> {
+                        chip.isChipIconVisible = false
+                        appendDebugLog("[SVG] NULL $svgCode — timeout o id non in corpus (${sym.gloss})")
+                    }
+                    drawable is BlissSignProvider.PlaceholderDrawable -> {
+                        chip.isChipIconVisible = false
+                        appendDebugLog("[SVG] PLACEHOLDER $svgCode — asset mancante o corrotto (${sym.gloss})")
+                    }
+                    else -> {
+                        // tinta scura sul SVG per garantire contrasto uniforme con il testo
+                        drawable.setTint(chipTextColor())
+                        chip.chipIcon = drawable
+                        chip.chipIconTint =
+                            android.content.res.ColorStateList.valueOf(chipTextColor())
+                        chip.isChipIconVisible = true
+                        appendDebugLog("[SVG] OK $svgCode (${sym.gloss})")
+                    }
                 }
             }
             svgJobs += job
@@ -277,6 +398,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
     private fun renderMixedPreview(state: BlissViewModel.UiState) {
         val slots = buildMixedSlots(state.symbols, state.composedWords)
+        appendDebugLog("[RENDER] MIXED slots=${slots.size}")
         binding.mixedPreview.bind(slots)
     }
 
@@ -299,15 +421,30 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         svgJobs.clear()
     }
 
+    // ── Colori chip — enterprise-grade contrast ───────────────────────────────
+
+    /** Foreground scuro #24323D: contrasto ≥ 6.5:1 su tutti i background pastello. */
+    private fun chipTextColor(): Int = 0xFF24323D.toInt()
+
+    /** Bordo leggero, coerente con la palette blu-grigio. */
+    private fun chipStrokeColor(): Int = 0xFF97A6B2.toInt()
+
+    /** Ripple semi-trasparente del foreground. */
+    private fun chipRippleColor(): Int = 0x3324323D
+
+    /**
+     * Background pastello per matchType. Ogni colore è calibrato per garantire
+     * un rapporto di contrasto WCAG AA (≥ 4.5:1) con il foreground [chipTextColor].
+     */
     private fun chipColor(mt: BlissSymbol.MatchType): Int = when (mt) {
-        BlissSymbol.MatchType.EXACT             -> 0xFFD0F0D0.toInt()
-        BlissSymbol.MatchType.LEMMA             -> 0xFFD0E8FF.toInt()
-        BlissSymbol.MatchType.NGRAM             -> 0xFFFFF3B0.toInt()
-        BlissSymbol.MatchType.FALLBACK_CATEGORY -> 0xFFFFDDB0.toInt()
-        BlissSymbol.MatchType.COMPOUND          -> 0xFFE8D5FF.toInt()
-        BlissSymbol.MatchType.SEMANTIC          -> 0xFFD5EAFF.toInt()
-        BlissSymbol.MatchType.UNKNOWN           -> 0xFFFFD0D0.toInt()
-        BlissSymbol.MatchType.FUNCTION_WORD     -> 0xFFB0F0F0.toInt()
+        BlissSymbol.MatchType.EXACT             -> 0xFFD9EEDC.toInt()  // verde menta
+        BlissSymbol.MatchType.LEMMA             -> 0xFFDCEAFE.toInt()  // azzurro
+        BlissSymbol.MatchType.NGRAM             -> 0xFFF7E7B8.toInt()  // giallo caldo
+        BlissSymbol.MatchType.FALLBACK_CATEGORY -> 0xFFF6DFC1.toInt()  // arancio chiaro
+        BlissSymbol.MatchType.COMPOUND          -> 0xFFE8DCF8.toInt()  // lavanda
+        BlissSymbol.MatchType.SEMANTIC          -> 0xFFD9EEF6.toInt()  // celeste
+        BlissSymbol.MatchType.UNKNOWN           -> 0xFFF7D9DC.toInt()  // rosa pallido
+        BlissSymbol.MatchType.FUNCTION_WORD     -> 0xFFD8EFF0.toInt()  // acquamarina
     }
 
     // ── Blocco D: FAB share ───────────────────────────────────────────────────
@@ -344,6 +481,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     // ── Factory ───────────────────────────────────────────────────────────────
 
     companion object {
+        private const val TAG = "BlissTranslateFragment"
         private const val ARG_LANG = "arg_lang"
 
         fun newInstance(lang: String = "it"): BlissTranslateFragment =

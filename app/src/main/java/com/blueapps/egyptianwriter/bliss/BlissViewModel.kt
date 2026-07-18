@@ -47,20 +47,19 @@ import com.blueapps.egyptianwriter.R
  * - [UiState.renderMode] — [RenderMode.STRUCTURED] when at least one entry in
  *   [composedWords] is non-null; [RenderMode.CLASSIC] otherwise.
  *
- * The Fragment must check [UiState.renderMode] and call:
- * - [BlissRenderer.renderWithAttachments] for the first non-null `ComposedBlissWord`
- *   when `renderMode == STRUCTURED`.
- * - [BlissRenderer.render] with [UiState.glyphXDoc] otherwise (classic path).
+ * ## Patch 9 — TranslationTriggerMode (final spec)
  *
- * [TranslationStats] now includes a [TranslationStats.semantic] counter.
+ * Two orthogonal axes are now explicitly modelled:
+ * - [TranslationTriggerMode] — *when* to translate:
+ *   [TranslationTriggerMode.MANUAL_SENTENCE] (default): translation starts only
+ *   on explicit [submitManualTranslation] call (btnTranslate).
+ *   [TranslationTriggerMode.AUTO_PROGRESSIVE]: debounce-on-typing behaviour
+ *   (legacy default, still fully supported).
+ * - [ViewMode] — *how* to render the result: [ViewMode.CARDS] (default),
+ *   [ViewMode.CHIPS] (compact), [ViewMode.MIXED] (advanced / contextual).
  *
- * ## Concurrency model
- * | Job | Dispatcher | Cancellation |
- * |---|---|---|
- * | [translateJob]  | Default (CPU)  | Cancelled on each new [translate] call |
- * | [suggestJob]    | IO (FTS4 DB)   | Cancelled on each [onSuggestionQuery] call |
- * | [historyJob]    | Main (Flow)    | Cancelled when lang changes |
- * | [searchJob]     | Main (Flow)    | Cancelled on each [setHistorySearch] call |
+ * The Fragment must gate the TextWatcher debounce on [UiState.translationTriggerMode]
+ * and must only call [submitManualTranslation] from btnTranslate.
  *
  * @constructor Created by the framework via [AndroidViewModel].
  */
@@ -82,11 +81,22 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Controls which output view the Fragment renders in the result area.
      * Orthogonal to [RenderMode] (which drives the SVG renderer path):
-     * - [CHIPS]  — Horizontal chip-strip (E-01) — default.
-     * - [CARDS]  — CAA mini-card grid ([BlissSymbolCardAdapter]).
-     * - [MIXED]  — [MixedBlissRowView] composited preview.
+     * - [CHIPS]  — Horizontal chip-strip (compact, secondary).
+     * - [CARDS]  — CAA mini-card grid ([BlissSymbolCardAdapter]) — **default**.
+     * - [MIXED]  — [MixedBlissRowView] composited preview (advanced/contextual).
      */
     enum class ViewMode { CHIPS, CARDS, MIXED }
+
+    /**
+     * Controls *when* the translation pipeline is triggered.
+     *
+     * - [MANUAL_SENTENCE]  — Translation starts only via [submitManualTranslation]
+     *   (btnTranslate CTA). No automatic debounce during typing. **Default.**
+     * - [AUTO_PROGRESSIVE] — Legacy debounce-on-typing behaviour:
+     *   the Fragment's TextWatcher fires [translate] after 350 ms.
+     *   Useful for lexical debugging and incremental review.
+     */
+    enum class TranslationTriggerMode { MANUAL_SENTENCE, AUTO_PROGRESSIVE }
 
     /**
      * One-shot UI events emitted via [events].
@@ -102,41 +112,49 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Immutable snapshot of all UI state for the Bliss translation screen.
      *
-     * @param symbols            Translated [BlissSymbol] list (all tiers).
-     * @param glyphXDoc          GlyphX DOM document for [BlissRenderer.render];
-     *                           null when [renderMode] is [RenderMode.STRUCTURED].
-     * @param composedWords      Per-token [ComposedBlissWord] from tier 3g;
-     *                           null entries = token resolved by an earlier tier.
-     *                           Non-empty only when [renderMode] == [RenderMode.STRUCTURED].
-     * @param renderMode         Dispatch hint for the Fragment renderer call.
-     * @param stats              Coverage breakdown of the current translation.
-     * @param langCode           Active ISO-639-1 language code.
-     * @param isLoading          `true` while a translation is in progress.
-     * @param error              Non-null when a terminal error has occurred.
-     * @param suggestions        Typeahead suggestion labels.
-     * @param history            Full (unfiltered) history list.
-     * @param filteredHistory    Subset of [history] matching [historySearchQuery].
-     * @param historySearchQuery Current text in the history search field.
-     * @param recentInputs       Distinct recent input texts (autocomplete chips).
-     * @param historyVisible     Whether the history panel is open.
-     * @param viewMode           Which output view the Fragment is rendering.
+     * @param symbols                Translated [BlissSymbol] list (all tiers).
+     * @param glyphXDoc              GlyphX DOM document for [BlissRenderer.render];
+     *                               null when [renderMode] is [RenderMode.STRUCTURED].
+     * @param composedWords          Per-token [ComposedBlissWord] from tier 3g;
+     *                               null entries = token resolved by an earlier tier.
+     *                               Non-empty only when [renderMode] == [RenderMode.STRUCTURED].
+     * @param renderMode             Dispatch hint for the Fragment renderer call.
+     * @param stats                  Coverage breakdown of the current translation.
+     * @param langCode               Active ISO-639-1 language code.
+     * @param isLoading              `true` while a translation is in progress.
+     * @param error                  Non-null when a terminal error has occurred.
+     * @param suggestions            Typeahead suggestion labels.
+     * @param history                Full (unfiltered) history list.
+     * @param filteredHistory        Subset of [history] matching [historySearchQuery].
+     * @param historySearchQuery     Current text in the history search field.
+     * @param recentInputs           Distinct recent input texts (autocomplete chips).
+     * @param historyVisible         Whether the history panel is open.
+     * @param viewMode               Which output view the Fragment is rendering.
+     * @param translationTriggerMode When to translate: manual (default) or auto.
+     * @param currentInputText       Text currently in the input field (not yet submitted).
+     * @param lastSubmittedText      Text of the last translation actually submitted.
+     * @param isDirtyInput           True when [currentInputText] differs from [lastSubmittedText].
      */
     data class UiState(
-        val symbols:             List<BlissSymbol>          = emptyList(),
-        val glyphXDoc:           Document?                  = null,
-        val composedWords:       List<ComposedBlissWord?>   = emptyList(),
-        val renderMode:          RenderMode                 = RenderMode.CLASSIC,
-        val stats:               TranslationStats?          = null,
-        val langCode:            String                     = DEFAULT_LANG,
-        val isLoading:           Boolean                    = false,
-        val error:               String?                    = null,
-        val suggestions:         List<String>               = emptyList(),
-        val history:             List<BlissHistoryEntry>    = emptyList(),
-        val filteredHistory:     List<BlissHistoryEntry>    = emptyList(),
-        val historySearchQuery:  String                     = "",
-        val recentInputs:        List<String>               = emptyList(),
-        val historyVisible:      Boolean                    = false,
-        val viewMode:            ViewMode                   = ViewMode.CHIPS
+        val symbols:                 List<BlissSymbol>          = emptyList(),
+        val glyphXDoc:               Document?                  = null,
+        val composedWords:           List<ComposedBlissWord?>   = emptyList(),
+        val renderMode:              RenderMode                 = RenderMode.CLASSIC,
+        val stats:                   TranslationStats?          = null,
+        val langCode:                String                     = DEFAULT_LANG,
+        val isLoading:               Boolean                    = false,
+        val error:                   String?                    = null,
+        val suggestions:             List<String>               = emptyList(),
+        val history:                 List<BlissHistoryEntry>    = emptyList(),
+        val filteredHistory:         List<BlissHistoryEntry>    = emptyList(),
+        val historySearchQuery:      String                     = "",
+        val recentInputs:            List<String>               = emptyList(),
+        val historyVisible:          Boolean                    = false,
+        val viewMode:                ViewMode                   = ViewMode.CARDS,
+        val translationTriggerMode:  TranslationTriggerMode     = TranslationTriggerMode.MANUAL_SENTENCE,
+        val currentInputText:        String                     = "",
+        val lastSubmittedText:       String                     = "",
+        val isDirtyInput:            Boolean                    = false
     )
 
     /** Extension alias: [UiState.isLoading] → [UiState.loading] for Fragment convenience. */
@@ -263,14 +281,18 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
      * based on [UiState.renderMode].
      */
     fun translate(text: String) {
+        Log.d(TAG, "[VM] translate called input='$text'")
         val t = translator ?: run {
+            Log.e(TAG, "[VM] translator is null — engine not ready")
             _uiState.value = _uiState.value.copy(
                 error = getApplication<Application>().getString(R.string.bliss_error_engine_not_ready)
             )
+            viewModelScope.launch { _events.emit(Event.ShowToast("Motore non pronto. Attendi e riprova.")) }
             return
         }
         translateJob?.cancel()
         translateJob = viewModelScope.launch {
+            Log.d(TAG, "[VM] set loading=true")
             _uiState.value = _uiState.value.copy(
                 isLoading    = true,
                 error        = null,
@@ -278,12 +300,16 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
             )
             try {
                 val lang = _uiState.value.langCode
+                Log.d(TAG, "[VM] lang='$lang' before translateAsync")
 
                 val symbols = withContext(Dispatchers.Default) {
                     t.translateAsync(text)
                 }
+                Log.d(TAG, "[VM] translateAsync returned symbols=${symbols.size}")
+                if (symbols.isEmpty()) {
+                    Log.w(TAG, "[VM] WARNING: symbols is empty — lookup may not be ready or text unmatched")
+                }
 
-                // Patch 8: resolve ComposedBlissWord for each SEMANTIC symbol
                 val composedWords: List<ComposedBlissWord?> = withContext(Dispatchers.Default) {
                     symbols.map { sym ->
                         if (sym.matchType == BlissSymbol.MatchType.SEMANTIC) {
@@ -294,13 +320,14 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
 
                 val hasStructured = composedWords.any { it != null }
                 val renderMode    = if (hasStructured) RenderMode.STRUCTURED else RenderMode.CLASSIC
+                Log.d(TAG, "[VM] renderMode=$renderMode hasStructured=$hasStructured")
 
-                // Build GlyphX doc only for the classic path (avoids wasted work)
                 val doc = if (renderMode == RenderMode.CLASSIC) {
                     withContext(Dispatchers.Default) { builder?.build(symbols) }
                 } else null
 
                 val stats = TranslationStats.from(symbols)
+                Log.d(TAG, "[VM] stats exact=${stats.exact} lemma=${stats.lemma} ngram=${stats.ngram} semantic=${stats.semantic} unknown=${stats.unknown}")
 
                 _uiState.value = _uiState.value.copy(
                     symbols       = symbols,
@@ -310,6 +337,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
                     stats         = stats,
                     isLoading     = false
                 )
+                Log.d(TAG, "[VM] state published — translation complete")
 
                 viewModelScope.launch(Dispatchers.IO) {
                     repository.saveTranslation(
@@ -319,13 +347,58 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 }
             } catch (e: Exception) {
+                Log.e(TAG, "[VM] translate failed: ${e.javaClass.simpleName} — ${e.message}", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error     = e.message
                 )
-                Log.e(TAG, "Translation error", e)
+                _events.emit(Event.ShowToast("Errore traduzione: ${e.message ?: "sconosciuto"}"))
             }
         }
+    }
+
+    // ── Patch 9: trigger mode management ─────────────────────────────────────
+
+    /**
+     * Updates [UiState.currentInputText] and [UiState.isDirtyInput] when the
+     * user types in the input field.  Does NOT trigger a translation.
+     * The Fragment must call this from `afterTextChanged` regardless of trigger mode.
+     */
+    fun onInputChanged(text: String) {
+        val current = _uiState.value
+        _uiState.value = current.copy(
+            currentInputText = text,
+            isDirtyInput     = text != current.lastSubmittedText
+        )
+    }
+
+    /**
+     * Submits [text] as a manual full-sentence translation request.
+     * Updates [UiState.lastSubmittedText] and clears [UiState.isDirtyInput],
+     * then delegates to [translate].
+     * Should be called **only** by btnTranslate in [TranslationTriggerMode.MANUAL_SENTENCE].
+     */
+    fun submitManualTranslation(text: String) {
+        _uiState.value = _uiState.value.copy(
+            currentInputText  = text,
+            lastSubmittedText = text,
+            isDirtyInput      = false
+        )
+        translate(text)
+    }
+
+    /**
+     * Changes the active [TranslationTriggerMode].
+     * When switching to [TranslationTriggerMode.AUTO_PROGRESSIVE], marks
+     * [UiState.isDirtyInput] if the current input differs from the last
+     * submitted text, so the Fragment can decide whether to re-translate.
+     */
+    fun setTranslationTriggerMode(mode: TranslationTriggerMode) {
+        val current = _uiState.value
+        _uiState.value = current.copy(
+            translationTriggerMode = mode,
+            isDirtyInput           = current.currentInputText != current.lastSubmittedText
+        )
     }
 
     // ── typeahead suggestions ───────────────────────────────────────────────────
@@ -435,6 +508,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Changes the active output [ViewMode] (chip-strip / CAA cards / mixed preview).
      * Called by the Fragment's [MaterialButtonToggleGroup] listener.
+     * Does NOT re-trigger translation.
      */
     fun setRenderMode(mode: ViewMode) {
         _uiState.value = _uiState.value.copy(viewMode = mode)
@@ -447,13 +521,15 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     fun clearTranslation() {
         translateJob?.cancel()
         _uiState.value = _uiState.value.copy(
-            symbols       = emptyList(),
-            glyphXDoc     = null,
-            composedWords = emptyList(),
-            renderMode    = RenderMode.CLASSIC,
-            stats         = null,
-            error         = null,
-            isLoading     = false
+            symbols           = emptyList(),
+            glyphXDoc         = null,
+            composedWords     = emptyList(),
+            renderMode        = RenderMode.CLASSIC,
+            stats             = null,
+            error             = null,
+            isLoading         = false,
+            lastSubmittedText = "",
+            isDirtyInput      = _uiState.value.currentInputText.isNotEmpty()
         )
     }
 

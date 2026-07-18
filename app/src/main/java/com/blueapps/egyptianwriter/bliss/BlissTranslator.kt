@@ -94,16 +94,24 @@ class BlissTranslator(
      */
     suspend fun translateAsync(text: String): List<BlissSymbol> {
         if (!lookup.isReady) {
-            Log.w(TAG, "translateAsync() called before lookup is ready")
+            Log.w(TAG, "[TR] translateAsync() called before lookup.isReady — returning empty")
             return emptyList()
         }
         if (text.isBlank()) return emptyList()
         val normalised = normalise(text)
+        Log.d(TAG, "[TR] translateAsync input='$text' normalised='$normalised'")
         val tokens     = normalised.split(" ").filter { it.isNotBlank() }
         val lang       = lookup.currentLang ?: "en"
+        Log.d(TAG, "[TR] tokens=${tokens.size} lang='$lang'")
         val symbols    = resolveNgramsAndTokensSuspend(normalised, lang)
+        Log.d(TAG, "[TR] resolveNgrams returned ${symbols.size} symbols")
+        symbols.forEach { sym ->
+            Log.d(TAG, "[TR] token='${sym.sourceWord}' lemma='${sym.lemma}' match=${sym.matchType}")
+        }
         val sentenceIndicators = detectIndicators(tokens)
-        return attachIndicators(symbols, sentenceIndicators)
+        val result = attachIndicators(symbols, sentenceIndicators)
+        Log.d(TAG, "[TR] translateAsync done — final symbols=${result.size}")
+        return result
     }
 
     // ── step 1 : normalise ────────────────────────────────────────────────────

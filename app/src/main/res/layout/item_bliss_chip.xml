@@ -4,10 +4,15 @@
     Chip template per la vista CHIPS del BlissTranslateFragment (blocco E-01).
     Inflated da renderChips() in un ChipGroup; nessun android:id (creazione dinamica).
     Il Fragment imposta:
-      chip.text              → BlissSymbol.gloss
-      chip.chipBackgroundColor → colore per matchType
-      chip.chipIcon          → drawable SVG via BlissSignProvider
-      chip.contentDescription→ a11y label
+      chip.text               → BlissSymbol.gloss
+      chip.chipBackgroundColor→ colore per matchType (via chipColor())
+      chip.chipIcon           → drawable SVG via BlissSignProvider
+      chip.contentDescription → a11y label
+
+    NOTA CONTRASTO: textColor, chipIconTint e chipStrokeColor sono fissati
+    esplicitamente su @color/bliss_chip_text (#24323D) per garantire un rapporto
+    di contrasto ≥ 6.5:1 su tutti i background pastello usati da chipColor(),
+    indipendentemente dal tema Material attivo (giorno/notte).
 -->
 <com.google.android.material.chip.Chip
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -15,12 +20,24 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     style="@style/Widget.MaterialComponents.Chip.Action"
-    android:textAppearance="?attr/textAppearanceLabelMedium"
+    android:textColor="@color/bliss_chip_text"
+    android:textStyle="bold"
+    android:textSize="14sp"
+    android:fontFamily="sans-serif-medium"
     android:ellipsize="end"
     android:maxLines="1"
+    app:chipMinHeight="44dp"
+    app:chipCornerRadius="20dp"
+    app:chipStrokeWidth="1dp"
+    app:chipStrokeColor="@color/bliss_chip_stroke"
+    app:chipIconTint="@color/bliss_chip_icon"
+    app:rippleColor="@color/bliss_chip_ripple"
     app:chipIconVisible="false"
     app:chipIconSize="28dp"
-    app:chipStartPadding="8dp"
-    app:chipEndPadding="8dp"
+    app:chipStartPadding="10dp"
+    app:chipEndPadding="10dp"
     app:iconStartPadding="4dp"
+    app:iconEndPadding="6dp"
+    app:textStartPadding="12dp"
+    app:textEndPadding="12dp"
     app:ensureMinTouchTargetSize="true" />

@@ -20,6 +20,8 @@
       rvCards               — RecyclerView (card CAA)
       mixedPreviewContainer — FrameLayout (wrapper MixedBlissRowView)
         mixedPreview        — com.blueapps.egyptianwriter.bliss.MixedBlissRowView
+      tilDebugLog           — TextInputLayout  (pannello log debug)
+        etDebugLog          — TextInputEditText (log visibile a schermo)
       fabShare              — FloatingActionButton
 -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -182,6 +184,33 @@
                     android:layout_height="wrap_content" />
 
             </FrameLayout>
+
+            <!-- ── DEBUG LOG: pannello debug visibile a schermo ─────── -->
+            <!-- Rimuovere o impostare visibility="gone" in produzione.    -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilDebugLog"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="Debug log Bliss"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDebugLog"
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine|textNoSuggestions"
+                    android:minLines="5"
+                    android:maxLines="10"
+                    android:overScrollMode="ifContentScrolls"
+                    android:scrollbars="vertical"
+                    android:textIsSelectable="true"
+                    android:textSize="11sp"
+                    android:fontFamily="monospace"
+                    android:contentDescription="Debug log del flusso di traduzione Bliss" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
 
