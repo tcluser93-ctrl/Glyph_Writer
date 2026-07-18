@@ -21,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.blueapps.egyptianwriter.AppPreferences
 import com.blueapps.egyptianwriter.R
 import com.blueapps.egyptianwriter.databinding.FragmentBlissTranslateBinding
 import com.google.android.material.chip.Chip
@@ -35,7 +36,7 @@ import kotlinx.coroutines.withTimeoutOrNull
  * Fragment principale della modalità Bliss translator. Gestisce:
  *
  * - **B-01/B-02** — input libero con traduzione debounce/manuale;
- * - **C-01…C-04** — doppia vista chip ↔ mini-card CAA;
+ * - **C-01…C-05** — doppia vista chip ↔ mini-card CAA con spanCount configurabile;
  * - **D-01…D-05** — share bottom sheet e copia contenuto;
  * - **E-01…E-04** — rendering SVG inline e accessibilità TalkBack;
  * - **H-01/H-02** — export PNG / PDF (delegato a [BlissExportHelper]);
@@ -57,6 +58,13 @@ import kotlinx.coroutines.withTimeoutOrNull
  * `btnViewMixed` visibility is gated on [BlissViewModel.UiState.composedWords]
  * having at least one non-null entry, so MIXED is not offered when it has no
  * structural advantage over CARDS.
+ *
+ * ## Patch 10 — bliss_cards_per_row (C-05)
+ *
+ * `setupRecyclerView()` reads [AppPreferences.getBlissCardsPerRow] to initialise
+ * the [GridLayoutManager] spanCount instead of the previous hard-coded value 2.
+ * `onResume()` refreshes the spanCount whenever the user returns from Settings,
+ * so the change takes effect immediately without restarting the Fragment.
  *
  * ## Debug log panel
  * Il campo `etDebugLog` mostra a schermo i passaggi chiave del flusso
@@ -116,6 +124,22 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         val lang = arguments?.getString(ARG_LANG) ?: "it"
         appendDebugLog("[INIT] setLang('$lang') — avvio bootstrap motore")
         viewModel.setLang(lang)
+    }
+
+    /**
+     * C-05: aggiorna lo spanCount del GridLayoutManager ogni volta che
+     * l'utente torna dalle Impostazioni, così la modifica alla preferenza
+     * [AppPreferences.KEY_BLISS_CARDS_PER_ROW] ha effetto immediato.
+     */
+    override fun onResume() {
+        super.onResume()
+        val lm = binding.rvCards.layoutManager as? GridLayoutManager ?: return
+        val columns = AppPreferences.getBlissCardsPerRow(requireContext())
+        if (lm.spanCount != columns) {
+            lm.spanCount = columns
+            binding.rvCards.requestLayout()
+            appendDebugLog("[C-05] spanCount aggiornato a $columns (da onResume)")
+        }
     }
 
     override fun onDestroyView() {
@@ -210,10 +234,18 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         }
     }
 
-    // ── Blocco C: RecyclerView card CAA ──────────────────────────────────────
+    // ── Blocco C: RecyclerView card CAA (C-05) ────────────────────────────────
 
+    /**
+     * Inizializza la [RecyclerView] delle card Bliss.
+     * Lo [spanCount] del [GridLayoutManager] è letto da [AppPreferences.getBlissCardsPerRow]
+     * invece di essere hard-coded a 2: range 2–8, default 4.
+     * Il valore viene aggiornato senza ricreare il Fragment in [onResume].
+     */
     private fun setupRecyclerView() = with(binding.rvCards) {
-        layoutManager = GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
+        val columns = AppPreferences.getBlissCardsPerRow(requireContext())
+        layoutManager = GridLayoutManager(requireContext(), columns, RecyclerView.VERTICAL, false)
+        appendDebugLog("[C-05] setupRecyclerView spanCount=$columns")
         cardAdapter = BlissSymbolCardAdapter(
             signProvider = viewModel.signProvider,
             adapterScope = viewLifecycleOwner.lifecycleScope,

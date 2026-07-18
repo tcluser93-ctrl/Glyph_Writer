@@ -81,5 +81,67 @@
             android:textColor="@color/l_textColorPrimary"
             android:paddingBottom="16dp" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/l_backgroundDarker"
+            android:layout_marginBottom="16dp" />
+
+        <!-- ─────────────────────────────────────────────────────────────── -->
+        <!-- Titolo sezione Vista Bliss (C-05) -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_section_bliss_view"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:textColor="@color/l_colorPrimaryDark"
+            android:paddingBottom="8dp"
+            android:paddingTop="4dp" />
+
+        <!-- C-05: Numero card Bliss per riga -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_bliss_cards_per_row_label"
+            android:textColor="@color/l_textColor"
+            android:textSize="15sp"
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp" />
+
+        <!-- Slider Material 3: valueFrom=2, valueTo=8, stepSize=1, default letto da AppPreferences -->
+        <com.google.android.material.slider.Slider
+            android:id="@+id/slider_bliss_cards_per_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="2"
+            android:valueTo="8"
+            android:stepSize="1"
+            android:value="4"
+            android:contentDescription="@string/settings_bliss_cards_per_row_label"
+            app:thumbColor="@color/l_colorPrimaryDark"
+            app:trackColorActive="@color/l_colorPrimary"
+            app:trackColorInactive="@color/l_backgroundDarker"
+            app:labelBehavior="floating" />
+
+        <TextView
+            android:id="@+id/tv_bliss_cards_per_row_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_bliss_cards_per_row_desc"
+            android:textSize="12sp"
+            android:textColor="@color/l_textColorPrimary"
+            android:paddingBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tv_bliss_cards_per_row_current"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="4"
+            android:textSize="12sp"
+            android:textColor="@color/l_colorPrimaryDark"
+            android:textStyle="bold"
+            android:paddingBottom="16dp" />
+
     </LinearLayout>
 </ScrollView>
