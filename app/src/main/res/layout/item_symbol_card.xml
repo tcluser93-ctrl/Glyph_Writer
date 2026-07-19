@@ -1,12 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    item_symbol_card.xml
+    Card responsiva per la griglia simboli Bliss.
+
+    Layout strategy:
+      - MaterialCardView usa match_parent in larghezza (gestito da GridLayoutManager)
+        e wrap_content in altezza → l'altezza della card segue automaticamente
+        la larghezza assegnata dalla colonna.
+      - Il contenitore del simbolo SVG è un ConstraintLayout con larghezza 0dp
+        (= match_constraint) e dimensionRatio "1:1" → quadrato perfetto proporzionale
+        alla colonna, qualunque sia lo spanCount (2, 3, 4…).
+      - Margine card ridotto a 4dp e padding interno a 6dp per massimizzare
+        lo spazio disponibile in colonne strette.
+      - Testi ridotti (gloss 12sp, source_word 10sp) per non eccedere la larghezza.
+-->
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="12dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="4dp"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"
     app:strokeColor="@color/l_backgroundDark"
     app:strokeWidth="1dp">
 
@@ -14,7 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp"
+        android:padding="6dp"
         android:gravity="center_horizontal">
 
         <!-- Contatore posizione (es. "2 / 5") -->
@@ -23,52 +38,58 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="end"
-            android:textSize="12sp"
+            android:textSize="9sp"
             android:textColor="@color/l_textColor"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="2dp" />
 
         <!--
             E-01/E-03: SVG reale + spinner sovrapposti.
 
-            ImageView (card_symbol_svg_image)
-              - layerType=software: obbligatorio per PictureDrawable (API < 28)
-              - contentDescription: NON impostata qui, viene gestita dinamicamente
-                dall'adapter in tre stati (E-03):
-                  * caricamento  → bliss_caa_svg_loading
-                  * SVG trovato  → bliss_caa_svg_ready  (%s = gloss)
-                  * SVG mancante → bliss_caa_svg_missing (%s = bciAvId)
+            ConstraintLayout con dimensionRatio="1:1" e larghezza 0dp:
+              → il blocco è sempre quadrato e scala con la larghezza della colonna.
+              → fitCenter sull'ImageView garantisce che il simbolo SVG resti
+                completamente visibile dentro il quadrato.
 
-            ProgressBar (card_symbol_svg_progress)
-              - importantForAccessibility=no: TalkBack salta lo spinner;
-                l'utente è già informato dalla contentDescription dell'ImageView.
-
-            tvMatchBadge
-              - importantForAccessibility=no: info tecnica secondaria,
-                non rilevante per la comunicazione aumentativa.
+            Accessibility:
+              ImageView – contentDescription gestita dinamicamente dall'adapter
+                (loading / ready / missing state come da E-03).
+              ProgressBar – importantForAccessibility=no, TalkBack salta lo spinner.
         -->
-        <FrameLayout
-            android:layout_width="180dp"
-            android:layout_height="180dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="20dp">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintWidth_percent="1.0"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="4dp">
 
             <ImageView
                 android:id="@+id/card_symbol_svg_image"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:scaleType="fitCenter"
                 android:layerType="software"
-                android:background="@color/l_backgroundDarker" />
+                android:background="@color/l_backgroundDarker"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <ProgressBar
                 android:id="@+id/card_symbol_svg_progress"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:layout_gravity="center"
                 android:visibility="visible"
-                android:importantForAccessibility="no" />
+                android:importantForAccessibility="no"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
-        </FrameLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Gloss canonico BCI-AV -->
         <TextView
@@ -76,10 +97,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textSize="28sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:textColor="@color/l_textColorPrimary"
-            android:layout_marginBottom="8dp" />
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:layout_marginBottom="2dp" />
 
         <!-- Parola sorgente digitata dall'utente -->
         <TextView
@@ -87,18 +110,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textSize="16sp"
+            android:textSize="10sp"
             android:textColor="@color/l_textColor"
-            android:layout_marginBottom="12dp" />
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_marginBottom="4dp" />
 
         <!-- Badge tipo di match: info tecnica, TalkBack la salta -->
         <TextView
             android:id="@+id/card_match_badge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="4dp"
-            android:textSize="11sp"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:textSize="9sp"
             android:textAllCaps="true"
             android:textColor="@color/l_textColorPrimary"
             android:importantForAccessibility="no" />
