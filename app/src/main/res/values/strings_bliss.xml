@@ -13,4 +13,9 @@
     <string name="bliss_input_empty">Inserisci del testo prima di tradurre</string>
     <string name="bliss_copied">Testo copiato negli appunti</string>
     <string name="bliss_share_title">Condividi traduzione Bliss</string>
+
+    <!-- SettingsFragment — sezione Vista Bliss (C-05) -->
+    <string name="settings_section_bliss_view">Vista Bliss</string>
+    <string name="settings_bliss_cards_per_row_label">Card Bliss per riga</string>
+    <string name="settings_bliss_cards_per_row_desc">Scegli quanti simboli mostrare per riga nella vista CARD (2–8, default 4)</string>
 </resources>
