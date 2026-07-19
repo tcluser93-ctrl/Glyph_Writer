@@ -1,6 +1,6 @@
 # BlissTranslator — Integration Guide
 
-> Last updated: **Patch 14 — fix cast FrameLayout in renderMixedRow** (2026-07-10)
+> Last updated: **Patch bliss-ui — bliss_cards_per_row configurabile (PR #7)** (2026-07-19)
 
 ---
 
@@ -38,6 +38,11 @@ BlissViewModel: resolve ComposedBlissWord? per ogni SEMANTIC symbol
   renderMode == STRUCTURED (multi)   →  MixedBlissRowView.bind() + svgContainerFor() ✅ P11/P14
     ↓
 FlexboxLayout (classic) / MixedBlissRowView (multi structured) / CAA RecyclerView
+
+CAA RecyclerView (vista CARDS)
+  └─ spanCount da AppPreferences.getBlissCardsPerRow()  [bliss-ui / PR #7]
+       range 2–8, default 4
+       aggiornamento dinamico in BlissTranslateFragment.onResume()
 ```
 
 ---
@@ -59,6 +64,42 @@ FlexboxLayout (classic) / MixedBlissRowView (multi structured) / CAA RecyclerVie
 | Fragment integrazione MixedBlissRowView | renderMixedRow sostituisce renderStructuredMultiToken | ✅ CLOSED (P11) |
 | MixedBlissRowView nel layout XML | fragment_translate.xml mixed_bliss_row_view | ✅ CLOSED (P12) |
 | cast FrameLayout in renderMixedRow | svgContainerFor() as? FrameLayout (era LinearLayout) | ✅ CLOSED (P14) |
+
+---
+
+## Patch bliss-ui — bliss_cards_per_row (PR #7)
+
+Branch: `feat/bliss-cards-per-row`
+PR: [#7](https://github.com/tcluser93-ctrl/Glyph_Writer/pull/7)
+Commit: `1234e68`
+Merge: squash su `main` (2026-07-19)
+
+### Obiettivo
+
+Rendere configurabile il numero di card Bliss per riga nella vista `CARDS`, eliminando lo `spanCount` fisso `2`.
+
+### File modificati
+
+| File | Modifica |
+|---|---|
+| `AppPreferences.kt` | `KEY_BLISS_CARDS_PER_ROW`, `getBlissCardsPerRow()`, `setBlissCardsPerRow()` con `.coerceIn(2, 8)`, default `4` |
+| `fragment_settings.xml` | Nuova sezione **Vista Bliss**: `Slider` Material 3 + `TextView` valore corrente |
+| `strings_bliss.xml` | `settings_section_bliss_view`, `settings_bliss_cards_per_row_label`, `settings_bliss_cards_per_row_desc` |
+| `SettingsFragment.kt` | Binding `Slider`, lettura/scrittura `AppPreferences`, aggiornamento `TextView` live |
+| `BlissTranslateFragment.kt` | `setupRecyclerView()`: spanCount da preferenza + log `[C-05]`; nuovo `onResume()` aggiorna `lm.spanCount` solo se cambiato |
+
+### Impatto architetturale
+
+La patch agisce **solo sul livello di presentazione** della vista `CARDS` — non tocca la logica di traduzione, il motore NLP, né la pipeline Bliss. Mantiene separati:
+
+- logica di traduzione e stato UI (`BlissViewModel`)
+- preferenze utente persistenti (`AppPreferences`)
+- rendering `RecyclerView` (`BlissTranslateFragment`)
+
+### Garanzie runtime
+
+- `.coerceIn(2, 8)` su lettura **e** scrittura impedisce che `GridLayoutManager` riceva `spanCount ≤ 0` (crash a runtime)
+- `onResume()` è idempotente: esegue `requestLayout()` solo se il valore è effettivamente cambiato
 
 ---
 
@@ -198,10 +239,11 @@ mixedRowView.svgContainerFor(sourceWord: String): FrameLayout?
 | `MixedBlissRowView` nel layout XML | 100% | ✅ P12 |
 | Fix alias/campi (sourceToken, label) | 100% | ✅ P13 |
 | Cast FrameLayout in renderMixedRow | 100% | ✅ P14 |
+| `bliss_cards_per_row` configurabile | 100% | ✅ bliss-ui (PR #7) |
 
 ---
 
-## Roadmap post-Patch 14
+## Roadmap post-Patch 14 / bliss-ui
 
 | Priorità | Task | Note |
 |---|---|---|
