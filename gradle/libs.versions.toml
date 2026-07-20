@@ -11,14 +11,10 @@ material = "1.13.0"
 activity = "1.13.0"
 constraintlayout = "2.2.1"
 gridlayout = "1.1.0"
-signprovider = "1.0.2"
-thoth = "2.0.4"
-glyphconverter = "1.7.0"
 expandablelayout = "2.9.2"
 recyclerview = "1.4.0"
 fragment = "1.8.9"
 viewpager2 = "1.1.0"
-maat = "1.5.1"
 zoomlayout = "1.9.0"
 morfologik = "2.1.9"
 room = "2.7.1"
@@ -43,10 +39,6 @@ material = { group = "com.google.android.material", name = "material", version.r
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 gridlayout = { group = "androidx.gridlayout", name = "gridlayout", version.ref = "gridlayout" }
-signprovider = { group = "com.github.ThothDroid", name = "SignProvider", version.ref = "signprovider" }
-thoth = { group = "com.github.ThothDroid", name = "THOTH", version.ref = "thoth" }
-maat = { group = "com.github.ThothDroid", name = "MAAT", version.ref = "maat"}
-glyphconverter = { group = "com.github.ThothDroid", name = "GlyphConverter", version.ref = "glyphconverter" }
 expandable-layout = { group = "com.github.cachapa", name = "ExpandableLayout", version.ref = "expandablelayout" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }

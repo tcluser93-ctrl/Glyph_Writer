@@ -58,136 +58,20 @@ Made by Douglas Tian, No license provided
 Uses the `Eclipse Public License - v 2.0` \
 (see [GitHub.com](https://github.com/junit-team/junit-framework/tree/main?tab=EPL-2.0-1-ov-file))
 
-## GlyphConverter library
+## Removed dependencies
 
-### `com.android.library`
-Uses the `Apache Software License, Version 2.0` \
-(see [Maven Repository](https://mvnrepository.com/artifact/com.android.library/com.android.library.gradle.plugin))
-
-### other libraries
-
-Some libraries are also used in the app.\
-These are:
-
-- `org.apache.commons`
-
-## GlyphConverter
-
-### other libraries
-
-Some libraries are also used in the app.\
-These are:
-
-- `com.apache.commons`
-
-## GlyphConverterExampleApp
-
-### other libraries
-
-Some libraries are also used in the app.\
-These are:
-
-- `androidx`
-- `com.google.android.material`
-- `junit`
-
-## MAAT-Library
-
-### `org.jetbrains.kotlin.android`
-
-Uses the `Apache Software License, Version 2.0` \
-(see [Maven Repository](https://mvnrepository.com/artifact/org.jetbrains.kotlin.android/org.jetbrains.kotlin.android.gradle.plugin))
-
-### other libraries
-
-Some libraries are also used in the app.\
-These are:
-
-- `com.android.application`
-- `com.android.library`
-- `androidx`
-- `junit`
-
-
-## MAAT-Example-App
-
-### `org.jetbrains.kotlin.plugin.compose`
-
-Uses the `Apache Software License, Version 2.0` \
-(see [Maven Repository](https://mvnrepository.com/artifact/org.jetbrains.kotlin.plugin.compose/org.jetbrains.kotlin.plugin.compose.gradle.plugin))
-
-### `com.opencsv`
-
-Uses the `Apache Software License, Version 2.0` \
-(see [Maven Repository](https://mvnrepository.com/artifact/com.opencsv/opencsv/5.11))
-
-### `com.github.madrapps`
-
-Uses the `Apache Software License, Version 2.0` \
-(see [GitHub.com](https://github.com/Madrapps/Pikolo))
-
-### other libraries
-
-Some libraries are also used in the app.\
-These are:
-
-- `com.android.application`
-- `androidx`
-- `junit`
-- `com.android.library`
-- `org.jetbrains.kotlin.android`
-
-## SignProvider
-
-### other libraries
-
-Some libraries are also used in the app.\
-These are:
-
-- `com.android.library`
-- `com.opencsv`
-- `androidx`
-- `com.google.android.material`
-- `junit`
-
-## SignProviderExampleApp
-
-Some libraries are also used in the app.\
-These are:
-
-- `androidx`
-- `com.google.android.material`
-- `junit`
-
-## THOTH-Library
-
-### other libraries
-
-Some libraries are also used in the app.\
-These are:
-
-- `com.android.library`
-- `androidx`
-- `com.google.android.material`
-- `junit`
-
-## THOTH-Example-App
-
-### `com.github.ravindu1024`
-
-Uses the `Apache Software License, Version 2.0` \
-(see [GitHub.com](https://github.com/ravindu1024/android-keyboardlistener))
-
-### other libraries
-
-Some libraries are also used in the app.\
-These are:
-
-- `com.android.application`
-- `com.android.library`
-- `androidx`
-- `com.google.android.material`
-- `junit`
+`GlyphConverter`, `MAAT`, `SignProvider` and `THOTH` (all `com.github.ThothDroid`,
+resolved via `jitpack.io`) were used in an earlier, pre-Bliss version of this
+app (see git history around commit "Migrated to SignProvider-Library",
+2026-02-17). The current sign-rendering pipeline (`BlissSignProvider` +
+`androidsvg`, see `INTEGRATION.md`) replaced them entirely, but the
+dependency declarations were never cleaned up from `build.gradle.kts` /
+`gradle/libs.versions.toml` until 2026-07-20, when they were confirmed
+unused (zero references anywhere in `app/src/`) and removed, along with the
+now-unnecessary `jitpack.io` repository. Their license-compatibility notes
+(previously several sections here, one per library plus their upstream
+"ExampleApp" modules) no longer apply to this app's actual dependency graph
+and have been dropped from this file.
 
 ## Other content
 

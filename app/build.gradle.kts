@@ -56,15 +56,11 @@ tasks.withType<Test> {
 tasks.register("testClasses")
 
 dependencies {
-    implementation(libs.signprovider)
     implementation(libs.documentfile)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-
-    // implementation(libs.thoth)
-    implementation(libs.maat)
 
     implementation(libs.recyclerview)
     implementation(libs.fragment)
