@@ -84,17 +84,35 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
     private var debounceJob: Job? = null
     private val svgJobs = mutableListOf<Job>()
+    private val mixedRenderJobs = mutableListOf<Job>()
 
     // ── Debug log ────────────────────────────────────────────────────────────
 
-    /** Aggiunge [message] al pannello di log visibile a schermo e a Logcat. */
+    /**
+     * Aggiunge [message] al pannello di log visibile a schermo e a Logcat.
+     *
+     * ## Fix (enterprise-grade audit, 2026-07-20)
+     * Prima, [message] veniva concatenato su una stringa che cresceva senza
+     * limiti per l'intera durata della sessione (una entry per ogni
+     * traduzione, ogni SVG, ogni cambio di stato) — crescita di memoria
+     * illimitata più un costo O(n) ad ogni append via [old]+[message]. Ora
+     * il log è troncato alle ultime [MAX_DEBUG_LOG_LINES] righe.
+     */
     private fun appendDebugLog(message: String) {
         val b = _binding ?: return
         val old = b.etDebugLog.text?.toString().orEmpty()
-        val next = if (old.isBlank()) message else "$old\n$message"
+        val combined = if (old.isBlank()) message else "$old\n$message"
+        val next = capDebugLog(combined)
         b.etDebugLog.setText(next)
         b.etDebugLog.setSelection(next.length)
         Log.d(TAG, message)
+    }
+
+    /** Mantiene solo le ultime [MAX_DEBUG_LOG_LINES] righe di [text]. */
+    private fun capDebugLog(text: String): String {
+        val lines = text.split('\n')
+        if (lines.size <= MAX_DEBUG_LOG_LINES) return text
+        return lines.takeLast(MAX_DEBUG_LOG_LINES).joinToString("\n")
     }
 
     // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -146,12 +164,15 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         super.onDestroyView()
         debounceJob?.cancel()
         clearSvgJobs()
-        _binding = null
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
+        clearMixedRenderJobs()
+        // Fix (enterprise-grade audit, 2026-07-20): TTS is created in
+        // onViewCreated(), which — unlike onDestroy() — can run multiple
+        // times per Fragment instance (view recreation on rotation,
+        // navigating away and back, etc). Shutting it down here, in the
+        // lifecycle callback that mirrors onViewCreated() 1:1, prevents
+        // leaking one native TextToSpeech engine binding per view recreation.
         if (::tts.isInitialized) { tts.stop(); tts.shutdown() }
+        _binding = null
     }
 
     // ── TTS ──────────────────────────────────────────────────────────────────
@@ -428,10 +449,52 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
     // ── Blocco N: MixedBlissRowView ──────────────────────────────────────────
 
+    /**
+     * ## Fix (enterprise-grade audit, 2026-07-20)
+     * Previously this only called `bind(slots)`: [MixedBlissRowView] built an
+     * empty [android.widget.FrameLayout] placeholder for every
+     * [MixedTokenSlot.SvgSlot] (see [MixedBlissRowView] KDoc — its own
+     * integration contract says the caller must invoke
+     * [BlissRenderer.renderWithAttachments] afterwards) but nothing in the
+     * app ever did, and [BlissRenderer] itself was never even instantiated.
+     * Net effect: every time a user opened the MIXED view for a sentence
+     * with semantic composition, structured tokens rendered as empty boxes
+     * — a silent functional failure in an AAC app, worse than a crash.
+     *
+     * Each [MixedTokenSlot.SvgSlot] gets its own short-lived [BlissRenderer]
+     * instance rather than one shared across the row: [BlissRenderer] keeps
+     * a single `renderJob` field and cancels it at the start of every
+     * [BlissRenderer.renderWithAttachments] call, so reusing one instance
+     * across multiple slots in a loop would cancel each previous slot's
+     * in-flight render as soon as the next one starts — only the last slot
+     * would ever finish rendering.
+     */
     private fun renderMixedPreview(state: BlissViewModel.UiState) {
+        clearMixedRenderJobs()
         val slots = buildMixedSlots(state.symbols, state.composedWords)
         appendDebugLog("[RENDER] MIXED slots=${slots.size}")
         binding.mixedPreview.bind(slots)
+
+        slots.filterIsInstance<MixedTokenSlot.SvgSlot>().forEach { slot ->
+            val container = binding.mixedPreview.svgContainerFor(slot.index) ?: run {
+                appendDebugLog("[MIXED] container mancante per index=${slot.index} — skip")
+                return@forEach
+            }
+            val renderer = BlissRenderer(
+                context  = requireContext(),
+                provider = viewModel.signProvider,
+                scope    = viewLifecycleOwner.lifecycleScope
+            )
+            val job = viewLifecycleOwner.lifecycleScope.launch {
+                try {
+                    renderer.renderWithAttachments(container, slot.composedWord)
+                    appendDebugLog("[MIXED] renderizzato index=${slot.index} word='${slot.composedWord.sourceWord}'")
+                } catch (e: Exception) {
+                    appendDebugLog("[MIXED] errore rendering index=${slot.index}: ${e.message}")
+                }
+            }
+            mixedRenderJobs += job
+        }
     }
 
     /**
@@ -451,6 +514,11 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     private fun clearSvgJobs() {
         svgJobs.forEach { it.cancel() }
         svgJobs.clear()
+    }
+
+    private fun clearMixedRenderJobs() {
+        mixedRenderJobs.forEach { it.cancel() }
+        mixedRenderJobs.clear()
     }
 
     // ── Colori chip — enterprise-grade contrast ───────────────────────────────
@@ -481,14 +549,22 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
     // ── Blocco D: FAB share ───────────────────────────────────────────────────
 
+    /**
+     * ## Fix (enterprise-grade audit, 2026-07-20)
+     * Il gate controllava solo che il testo di input non fosse vuoto, non
+     * che una traduzione fosse stata effettivamente completata — in
+     * modalità MANUAL_SENTENCE l'utente può digitare testo e premere subito
+     * il FAB share prima di premere "Traduci", ottenendo una bottom sheet
+     * per esportare zero simboli. Ora si controlla `UiState.symbols`, che è
+     * anche ciò che [ExportBottomSheetFragment] userà davvero per l'export.
+     */
     private fun setupFabShare() {
         binding.fabShare.setOnClickListener {
-            val text = binding.etInput.text?.toString().orEmpty()
-            if (text.isBlank()) {
+            if (viewModel.uiState.value.symbols.isEmpty()) {
                 Toast.makeText(requireContext(), R.string.bliss_input_empty, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            ExportBottomSheetFragment.newInstance(text)
+            ExportBottomSheetFragment.newInstance()
                 .show(parentFragmentManager, "bliss_export_sheet")
         }
     }
@@ -515,6 +591,9 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     companion object {
         private const val TAG = "BlissTranslateFragment"
         private const val ARG_LANG = "arg_lang"
+
+        /** Fix (2026-07-20): tetto massimo di righe tenute nel pannello di debug log. */
+        private const val MAX_DEBUG_LOG_LINES = 300
 
         fun newInstance(lang: String = "it"): BlissTranslateFragment =
             BlissTranslateFragment().apply {

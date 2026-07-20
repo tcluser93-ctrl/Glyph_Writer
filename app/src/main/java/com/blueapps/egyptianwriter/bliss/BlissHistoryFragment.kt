@@ -207,8 +207,36 @@ class BlissHistoryFragment : Fragment() {
             target: RecyclerView.ViewHolder
         ) = false
 
+        /**
+         * ## Fix (enterprise-grade audit, 2026-07-20)
+         * `adapter.submitList()` diffs asynchronously in the background
+         * (driven by the reactive Room [kotlinx.coroutines.flow.Flow] in
+         * [BlissHistoryRepository.recentHistory]/`searchHistory`), and can
+         * complete — invalidating this [viewHolder]'s bound position —
+         * while a swipe gesture on it is still resolving, e.g. after
+         * another row was just deleted (which itself triggers a new list
+         * emission). When that happens, `adapterPosition`/
+         * `bindingAdapterPosition` returns [RecyclerView.NO_POSITION] (-1),
+         * and `adapter.currentList[-1]` used to throw
+         * [IndexOutOfBoundsException] — an intermittent, timing-dependent
+         * crash, most reliably triggered by rapid multi-row swiping.
+         * `bindingAdapterPosition` (the non-deprecated replacement for
+         * `adapterPosition`) is used, with an explicit bounds check before
+         * indexing into [HistoryAdapter.currentList].
+         */
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            onSwiped(viewHolder.adapterPosition)
+            val pos = viewHolder.bindingAdapterPosition
+            if (pos == RecyclerView.NO_POSITION || pos !in adapter.currentList.indices) {
+                // Stale/invalidated position: the underlying list already
+                // changed concurrently (e.g. another row was just deleted,
+                // which is exactly what makes this position stale). The
+                // in-flight submitList() from that change will re-lay-out
+                // this row correctly on its own; forcing a
+                // notifyDataSetChanged() here would only fight ListAdapter's
+                // own diffing for no benefit.
+                return
+            }
+            onSwiped(pos)
         }
     }
 

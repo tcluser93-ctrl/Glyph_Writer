@@ -1,7 +1,9 @@
 package com.blueapps.egyptianwriter
 
+import android.content.ComponentCallbacks2
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -9,6 +11,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.blueapps.egyptianwriter.bliss.BlissHistoryFragment
 import com.blueapps.egyptianwriter.bliss.BlissTranslateFragment
+import com.blueapps.egyptianwriter.bliss.BlissViewModel
 import com.blueapps.egyptianwriter.ui.SettingsFragment
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
@@ -38,6 +41,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navView:      NavigationView
     private lateinit var toolbar:      MaterialToolbar
+
+    /**
+     * Same ViewModelStore-scoped instance the Fragments obtain via
+     * `activityViewModels()`. Only used here to reach
+     * [BlissViewModel.signProvider] from [onTrimMemory] — see its KDoc.
+     */
+    private val blissViewModel: BlissViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // E-05: applica tema dark prima del layout
@@ -84,6 +94,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         else
             AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         AppCompatDelegate.setDefaultNightMode(mode)
+    }
+
+    /**
+     * ## Fix (enterprise-grade audit, 2026-07-20)
+     * [com.blueapps.egyptianwriter.bliss.BlissSignProvider.clearCache] existed
+     * (a well-designed byte-bounded LRU + per-key Mutex, up to 8 MB of
+     * decoded SVG `PictureDrawable`s) but was never called from anywhere —
+     * no `onTrimMemory`/`onLowMemory` hook existed in the app, so the cache
+     * stayed fully resident regardless of system memory-pressure signals.
+     * `blissViewModel` uses the lazy `by viewModels()` delegate: if no
+     * Fragment has requested the ViewModel yet, first access happens here
+     * and simply constructs it (cheap — no asset loading happens until
+     * `setLang()` is called), so this is safe to call at any point in the
+     * Activity's lifecycle.
+     */
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW) {
+            blissViewModel.signProvider.clearCache()
+        }
     }
 
     // ── NavigationView listener ──────────────────────────────────────

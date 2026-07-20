@@ -103,19 +103,42 @@ class BlissHistoryRepository(private val db: BlissDatabase) {
      * Re-inserts a previously deleted [BlissHistoryEntry] (e.g. undo
      * swipe-to-delete or undo clear-all).
      *
-     * The entry is inserted with its original primary key so the UI list
-     * restores the item at the correct position after Room re-emits the Flow.
+     * ## Fix (enterprise-grade audit, 2026-07-20)
+     * Previously the entry was re-inserted with its **original** primary
+     * key, and [BlissHistoryDao.insert] uses
+     * [androidx.room.OnConflictStrategy.REPLACE]. `BlissHistoryEntry` uses
+     * `@PrimaryKey(autoGenerate = true)` without the SQLite `AUTOINCREMENT`
+     * keyword, so a rowid can be reused by a later insert once the row that
+     * held it is deleted (most reachable when the deleted row held the
+     * current highest id — e.g. the user just deleted their most recent
+     * translation). Sequence that used to silently destroy data:
+     *  1. User swipes away entry id=42 (the most recent one) → Snackbar
+     *     with "Undo" appears, holding a reference to the deleted entry.
+     *  2. Before tapping Undo, the user performs another translation, which
+     *     auto-saves via [saveTranslation] — SQLite may reuse the now-free
+     *     id 42 for this brand-new, unrelated row.
+     *  3. The user taps "Undo" on the (now stale) Snackbar → `insertEntry`
+     *     re-inserts the OLD entry with id=42 → REPLACE silently overwrites
+     *     the NEW translation that happens to occupy id=42, permanently
+     *     losing it with no error, crash, or user-visible signal.
      *
-     * @param entry  The entry to restore; its [BlissHistoryEntry.id] is preserved.
+     * Fixed by always stripping the id (forcing Room to autogenerate a
+     * fresh, guaranteed-unused one) before restoring. This has no visible
+     * UX effect — the history list is ordered by `timestamp_ms DESC`
+     * ([BlissHistoryDao.observeAll]), never by id — while eliminating the
+     * whole class of rowid-reuse collisions.
+     *
+     * @param entry  The entry to restore. Its original [BlissHistoryEntry.id]
+     *               is intentionally discarded; Room assigns a new one.
      * @return       The Room row-ID, or -1 on error.
      */
     suspend fun insertEntry(entry: BlissHistoryEntry): Long = withContext(Dispatchers.IO) {
         return@withContext try {
-            val rowId = dao.insert(entry)
-            Log.d(TAG, "History entry restored: id=${entry.id}")
+            val rowId = dao.insert(entry.copy(id = 0L))
+            Log.d(TAG, "History entry restored as new id=$rowId (was id=${entry.id})")
             rowId
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to restore history entry id=${entry.id}", e)
+            Log.e(TAG, "Failed to restore history entry (was id=${entry.id})", e)
             -1L
         }
     }

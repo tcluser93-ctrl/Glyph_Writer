@@ -44,7 +44,7 @@ import com.google.android.material.chip.Chip
  * 2. Chiamare `bind(slots)` una volta.
  * 3. Per ogni [MixedTokenSlot.SvgSlot], lanciare
  *    `BlissRenderer.renderWithAttachments()` passando il FrameLayout
- *    recuperato via `findViewWithTag("svg_slot_<sourceWord>")`.
+ *    recuperato via `svgContainerFor(slot.index)`.
  *
  * @see MixedTokenSlot
  * @see BlissRenderer
@@ -108,20 +108,28 @@ class MixedBlissRowView @JvmOverloads constructor(
     }
 
     /**
-     * Restituisce il [FrameLayout] container del token SVG identificato da [sourceWord],
+     * Restituisce il [FrameLayout] container del token SVG all'[index] dato,
      * oppure `null` se lo slot non è presente o non è un [MixedTokenSlot.SvgSlot].
      *
      * Il Fragment lo usa per passare il container a
      * `BlissRenderer.renderWithAttachments(container, composedWord)`.
+     *
+     * ## Fix (enterprise-grade audit, 2026-07-20)
+     * Precedentemente il tag era costruito da `sourceWord`: se la stessa
+     * parola compariva due volte nella frase (es. "casa" ripetuta),
+     * `findViewWithTag` restituiva sempre il **primo** match, e il secondo
+     * token SVG veniva renderizzato nel container sbagliato (o non veniva
+     * mai risolto). [MixedTokenSlot.index] è invece garantito univoco per
+     * ogni `bind()`, quindi è la chiave corretta.
      */
-    fun svgContainerFor(sourceWord: String): FrameLayout? =
-        findViewWithTag(svgTag(sourceWord))
+    fun svgContainerFor(index: Int): FrameLayout? =
+        findViewWithTag(svgTag(index))
 
     // ── Costruzione view ───────────────────────────────────────────────
 
     private fun buildSlotView(slot: MixedTokenSlot): android.view.View = when (slot) {
         is MixedTokenSlot.ChipSlot    -> buildChip(slot.symbol)
-        is MixedTokenSlot.SvgSlot     -> buildSvgContainer(slot.composedWord)
+        is MixedTokenSlot.SvgSlot     -> buildSvgContainer(slot.composedWord, slot.index)
         is MixedTokenSlot.PendingSlot -> buildPendingPlaceholder()
     }
 
@@ -149,16 +157,17 @@ class MixedBlissRowView @JvmOverloads constructor(
 
     /**
      * FrameLayout container per il rendering SVG asincrono.
-     * Il tag `svg_slot_<sourceWord>` consente al Fragment di recuperare
-     * il container via [svgContainerFor] o `findViewWithTag`.
+     * Il tag `svg_slot_<index>` (per-indice, non per-parola: vedi
+     * [svgContainerFor]) consente al Fragment di recuperare il container
+     * via [svgContainerFor] o `findViewWithTag`.
      *
      * La dimensione minima garantisce che il placeholder non collassi a 0
      * prima che il renderer abbia prodotto il drawable.
      */
-    private fun buildSvgContainer(composedWord: ComposedBlissWord): FrameLayout {
+    private fun buildSvgContainer(composedWord: ComposedBlissWord, index: Int): FrameLayout {
         val minSizePx = with(DpUtil) { 48.dpToPx(resources) }
         return FrameLayout(context).apply {
-            tag = svgTag(composedWord.sourceWord)
+            tag = svgTag(index)
             minimumWidth  = minSizePx
             minimumHeight = minSizePx
             contentDescription = composedWord.components
@@ -232,7 +241,7 @@ class MixedBlissRowView @JvmOverloads constructor(
 
     // ── Helpers ────────────────────────────────────────────────────────
 
-    private fun svgTag(sourceWord: String) = "svg_slot_$sourceWord"
+    private fun svgTag(index: Int) = "svg_slot_$index"
 }
 
 // ── MixedTokenSlot — sealed hierarchy ────────────────────────────────────────

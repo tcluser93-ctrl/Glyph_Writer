@@ -191,7 +191,26 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
      */
     private var composer:     BlissSemanticComposer? = null
     private var translator:   BlissTranslator?       = null
-    private var builder:      BlissGlyphXBuilder?    = null
+
+    /**
+     * GlyphX document builder, used by [translate] (CLASSIC render mode) and
+     * by the export flow ([getBuilder]) to turn a [List] of [BlissSymbol]
+     * into a [org.w3c.dom.Document].
+     *
+     * ## Fix (enterprise-grade audit, 2026-07-20)
+     * Previously nullable and populated only via [setBuilder], which no
+     * caller in the app ever actually invoked — so `builder` was always
+     * `null` in production, meaning `UiState.glyphXDoc` was always `null`
+     * regardless of render mode, and the export flow had nothing to render.
+     * [BlissGlyphXBuilder] needs no external dependency (no Context), so it
+     * is now owned directly by the ViewModel with sensible defaults
+     * ([BlissGlyphXBuilder.AUTO_SYMBOLS_PER_LINE], auto-computed per call
+     * from the `screenWidthPx` argument to [BlissGlyphXBuilder.build]).
+     * [setBuilder] is kept for callers that want to inject a differently
+     * configured instance (e.g. a fixed `symbolsPerLine`), but is no longer
+     * required for the builder to exist.
+     */
+    private var builder: BlissGlyphXBuilder = BlissGlyphXBuilder()
 
     private var translateJob: Job? = null
     private var suggestJob:   Job? = null
@@ -248,13 +267,13 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
-    /** Injects an adaptive [BlissGlyphXBuilder] built by the Fragment. */
+    /** Injects an adaptive [BlissGlyphXBuilder], overriding the default instance. */
     fun setBuilder(glyphXBuilder: BlissGlyphXBuilder) {
         builder = glyphXBuilder
     }
 
-    /** Returns the current [BlissGlyphXBuilder], or null if not yet initialised. */
-    fun getBuilder(): BlissGlyphXBuilder? = builder
+    /** Returns the current [BlissGlyphXBuilder] — always available, never null. */
+    fun getBuilder(): BlissGlyphXBuilder = builder
 
     // ── translation ──────────────────────────────────────────────────────────────
 
@@ -323,7 +342,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
                 Log.d(TAG, "[VM] renderMode=$renderMode hasStructured=$hasStructured")
 
                 val doc = if (renderMode == RenderMode.CLASSIC) {
-                    withContext(Dispatchers.Default) { builder?.build(symbols) }
+                    withContext(Dispatchers.Default) { builder.build(symbols) }
                 } else null
 
                 val stats = TranslationStats.from(symbols)
