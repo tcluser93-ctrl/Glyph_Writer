@@ -452,16 +452,25 @@ class BlissGlyphXBuilder(
         .replace("'",  "&apos;")
 }
 
-// ---- BlissSymbol indicator extensions --------------------------------------
-
-fun BlissSymbol.withIndicators(list: List<String>): BlissSymbol {
-    BlissSymbolIndicators.map[this] = list
-    return this
-}
-
-val BlissSymbol.indicators: List<String>
-    get() = BlissSymbolIndicators.map[this] ?: emptyList()
-
-internal object BlissSymbolIndicators {
-    val map = java.util.WeakHashMap<BlissSymbol, List<String>>()
-}
+// NOTE (fix 2026-07-20, enterprise-grade audit):
+// This file used to also declare `fun BlissSymbol.withIndicators(...)` and
+// `val BlissSymbol.indicators` as EXTENSIONS backed by a global, non-thread-safe
+// `WeakHashMap<BlissSymbol, List<String>>` keyed on structural equality.
+//
+// That extension code was 100% dead: BlissSymbol.kt already declares
+// `indicators` as a constructor property and `withIndicators()` as a member
+// function (immutable, `copy()`-based). In Kotlin a member ALWAYS wins over an
+// extension with the same signature, so the WeakHashMap path could never
+// actually execute — but it silently compiled and sat here as a latent trap.
+// Had anyone ever removed the member fields from BlissSymbol (e.g. thinking
+// the "duplicate" extension was the live implementation), this dead code would
+// have reactivated instantly, reintroducing:
+//   - a data race (WeakHashMap is not thread-safe; it would have been written
+//     from background translation coroutines on multiple dispatchers), and
+//   - cross-translation "ghost state": two structurally-equal BlissSymbol
+//     instances (e.g. the same word repeated in one sentence, or the same
+//     word resolved in two unrelated translations) collide on the same map
+//     entry, silently leaking indicators between them, non-deterministically
+//     depending on GC timing (WeakHashMap purge semantics).
+// It has been removed entirely. Use BlissSymbol.withIndicators()/.indicators
+// (the real, immutable, thread-safe members) instead.

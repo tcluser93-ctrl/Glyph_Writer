@@ -5,7 +5,8 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 /**
- * Unit tests for [BlissSymbol] data class + [withIndicators] / [indicators] extensions.
+ * Unit tests for [BlissSymbol] data class, including its [withIndicators] /
+ * [indicators] members (immutable, copy()-based).
  */
 @DisplayName("BlissSymbol — data class and indicator extensions")
 class BlissSymbolTest {
@@ -25,7 +26,7 @@ class BlissSymbolTest {
     }
 
     @Test
-    @DisplayName("withIndicators() stores and retrieves via extension property")
+    @DisplayName("withIndicators() stores and retrieves via the copy()-based member")
     fun withIndicatorsRoundTrip() {
         val s = sym().withIndicators(listOf("plural", "past"))
         assertEquals(listOf("plural", "past"), s.indicators)
@@ -41,9 +42,18 @@ class BlissSymbolTest {
     }
 
     @Test
-    @DisplayName("withIndicators() returns same instance (fluent API)")
-    fun withIndicatorsReturnsSelf() {
+    @DisplayName("withIndicators() returns a NEW immutable copy, original unchanged")
+    fun withIndicatorsReturnsNewCopyAndKeepsOriginalImmutable() {
+        // BlissSymbol.withIndicators() is the real member (copy()-based, immutable).
+        // A now-removed extension in BlissGlyphXBuilder.kt (backed by a global,
+        // non-thread-safe WeakHashMap) was always shadowed by this member and
+        // could never actually run — this test previously asserted that dead
+        // extension's "same instance" semantics, which never matched the real
+        // (correct) behaviour below.
         val s = sym()
-        assertSame(s, s.withIndicators(listOf("future")))
+        val modified = s.withIndicators(listOf("future"))
+        assertNotSame(s, modified, "withIndicators() must return a different instance")
+        assertTrue(s.indicators.isEmpty(), "original instance must remain unmodified")
+        assertEquals(listOf("future"), modified.indicators)
     }
 }

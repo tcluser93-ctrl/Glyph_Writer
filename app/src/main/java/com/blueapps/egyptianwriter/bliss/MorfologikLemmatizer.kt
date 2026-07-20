@@ -28,7 +28,38 @@ import java.util.Locale
  */
 class MorfologikLemmatizer(private val context: Context) {
 
-    private val cache    = HashMap<String, IStemmer?>(8)
+    /**
+     * Non-null wrapper around a possibly-null [IStemmer].
+     *
+     * [cache] must distinguish "not yet attempted" (absent key) from
+     * "attempted and unavailable" (present key, null stemmer — e.g. missing
+     * or corrupt dictionary asset) so a failed load is not retried on every
+     * call. [java.util.concurrent.ConcurrentHashMap] does not permit null
+     * values, so the null case is represented by [StemmerSlot.stemmer] being
+     * null inside a non-null wrapper instance instead.
+     */
+    private class StemmerSlot(val stemmer: IStemmer?)
+
+    /**
+     * Thread-safe cache of loaded stemmers, one slot per language.
+     *
+     * ## Fix (enterprise-grade audit, 2026-07-20)
+     * Previously backed by a plain `HashMap`, read via an unsynchronized
+     * fast-path (`cache.containsKey(lang)` / `cache[lang]`) *outside* the
+     * per-language [mutexMap] lock, while writes happened *inside* that lock.
+     * Because every language shares the same backing map, loading two
+     * different languages concurrently (different mutexes → genuinely
+     * parallel execution) raced a writer against a reader/writer on the same
+     * non-thread-safe `HashMap` instance — undefined behaviour per the JVM
+     * memory model (from silently stale reads causing redundant dictionary
+     * reloads, up to internal bucket-array corruption during a concurrent
+     * resize). `ConcurrentHashMap` fixes both the visibility guarantee and
+     * the structural-corruption risk; the per-language [Mutex] is kept to
+     * still serialise the (expensive) load-and-populate step per language.
+     */
+    private val cache: java.util.concurrent.ConcurrentHashMap<String, StemmerSlot> =
+        java.util.concurrent.ConcurrentHashMap(8)
+
     private val mutexMap = HashMap<String, Mutex>(8).apply {
         DICT_LANGS.forEach { lang -> put(lang, Mutex()) }
     }
@@ -96,12 +127,17 @@ class MorfologikLemmatizer(private val context: Context) {
     // ── Internal helpers ─────────────────────────────────────────────────────
 
     private suspend fun getStemmer(lang: String): IStemmer? {
-        if (cache.containsKey(lang)) return cache[lang]
+        // Fast path: safe now that `cache` is a ConcurrentHashMap — a slot
+        // observed here either doesn't exist yet, or was fully constructed
+        // and published by a `put()` that happens-before this `get()`.
+        cache[lang]?.let { return it.stemmer }
         val mutex = mutexMap[lang] ?: return null
         return mutex.withLock {
-            if (cache.containsKey(lang)) return@withLock cache[lang]
+            // Re-check inside the lock: another coroutine may have populated
+            // the slot for this language while we were waiting on the mutex.
+            cache[lang]?.let { return@withLock it.stemmer }
             val stemmer = withContext(Dispatchers.IO) { loadDictionary(lang) }
-            cache[lang] = stemmer
+            cache[lang] = StemmerSlot(stemmer)
             stemmer
         }
     }

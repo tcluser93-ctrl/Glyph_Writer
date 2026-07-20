@@ -5,6 +5,8 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -97,6 +99,43 @@ class BlissLookup private constructor(private val context: Context) {
     /** Room FTS4 database instance (lazy-initialised after first load). */
     @Volatile private var _db: BlissDatabase? = null
 
+    /**
+     * Serialises the whole "check current state → load assets → publish"
+     * transaction in [loadAsync] / [loadIfNeeded].
+     *
+     * ## Fix (enterprise-grade audit, 2026-07-20)
+     * Each backing field above is individually `@Volatile`, which only
+     * guarantees that a single field read/write is visible across threads —
+     * it does **not** make the group of six field writes performed by [load]
+     * atomic as a whole, and it does **not** make the
+     * `isReady && currentLang == lang` check in [loadIfNeeded] atomic with
+     * respect to a concurrently-running [load].
+     *
+     * `BlissLookup` is a process-wide singleton ([getInstance]) and
+     * [loadIfNeeded] is re-invoked every time a new `BlissTranslateFragment`
+     * is created (e.g. `MainActivity.navigateTo()` always builds a fresh
+     * instance for `nav_translate`). Navigating away from and back to the
+     * translator screen while the very first cold-start asset load is still
+     * in flight — a normal, reachable user action, not a contrived edge
+     * case — used to launch a **second**, fully concurrent [load] on this
+     * singleton. For the same language that was merely wasted CPU/IO; the
+     * moment two *different* languages race here (e.g. once a language
+     * switcher is wired up, or the system locale changes mid-session), the
+     * six field writes from both calls can interleave field-by-field,
+     * leaving `_lexicon` from one language paired with `_ngramIndex` from
+     * another under a single `currentLang` — a silently inconsistent lookup
+     * table that produces wrong translations or downstream crashes, and is
+     * effectively impossible to reproduce on demand.
+     *
+     * Guarding the full transaction with this [Mutex] makes concurrent
+     * callers either (a) become genuinely sequential — the second caller's
+     * re-check inside the lock sees the first caller's now-published,
+     * fully-consistent state and skips redundant work — or (b) fully
+     * serialised loads when the language actually differs, so no partial/
+     * mixed state is ever observable.
+     */
+    private val loadMutex = Mutex()
+
     // ── custom exception ─────────────────────────────────────────────────────
 
     class LoadException(message: String, cause: Throwable? = null) :
@@ -106,6 +145,17 @@ class BlissLookup private constructor(private val context: Context) {
 
     /**
      * Idempotent load.  No-op when [lang] equals [currentLang] **and** [isReady].
+     *
+     * This unlocked pre-check is a pure optimisation: it lets the extremely
+     * common case (language already loaded — true on essentially every
+     * Fragment recreation after the first) return immediately without
+     * launching a coroutine or touching [loadMutex] at all. Its outcome does
+     * not need to be perfectly up to date, because every path — whether this
+     * check hits or misses — funnels through [loadAsync], which re-validates
+     * the very same condition *inside* [loadMutex] before doing any real
+     * work. A stale "not ready" here just costs one redundant (harmless)
+     * mutex acquisition; it can never cause a redundant *load*, let alone a
+     * corrupted one.
      */
     fun loadIfNeeded(
         lang:    String,
@@ -121,15 +171,37 @@ class BlissLookup private constructor(private val context: Context) {
         loadAsync(normalised, scope, onReady, onError)
     }
 
+    /**
+     * Loads [lang] on [scope] (`Dispatchers.IO`), then dispatches [onReady] /
+     * [onError] on `Dispatchers.Main`.
+     *
+     * The actual [load] call happens inside [loadMutex], with the
+     * ready/language check repeated *inside* the lock. This guarantees that
+     * concurrent invocations — from [loadIfNeeded] racing on Fragment
+     * recreation, from a direct [loadAsync] call, or both — can never run
+     * [load] in parallel with each other: they either serialise onto
+     * genuinely different loads, or the loser of the race simply observes
+     * the winner's already-published, fully-consistent state and skips its
+     * own [load] call entirely.
+     */
     fun loadAsync(
         lang:    String,
         scope:   CoroutineScope,
         onReady: () -> Unit = {},
         onError: (Throwable) -> Unit = { Log.e(TAG, "Load error", it) }
     ) {
+        val normalised = normaliseLang(lang)
         scope.launch(Dispatchers.IO) {
             try {
-                load(lang)
+                loadMutex.withLock {
+                    // Re-check inside the lock: another coroutine may have
+                    // already loaded this exact language while we were
+                    // waiting to acquire the mutex — in that case skip the
+                    // redundant (and potentially racy) reload entirely.
+                    if (!(isReady && currentLang == normalised)) {
+                        load(normalised)
+                    }
+                }
                 withContext(Dispatchers.Main) { onReady() }
             } catch (t: Throwable) {
                 withContext(Dispatchers.Main) { onError(t) }
