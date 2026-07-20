@@ -380,12 +380,22 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
             chip.contentDescription = buildChipContentDescription(sym, index, symbols.size)
             chip.setOnClickListener { speak(sym.gloss) }
 
-            val indicatorBadge = buildString {
-                val inds = sym.indicators
-                if (BlissTranslator.INDICATOR_PLURAL in inds) append("× ")
-                if (BlissTranslator.INDICATOR_PAST   in inds) append("↩ ")
-                if (BlissTranslator.INDICATOR_FUTURE in inds) append("→ ")
-            }.trim()
+            // Fix (enterprise-grade audit, 2026-07-20): previously only
+            // plural/past/future were shown, matching the app's previous
+            // 3-indicator coverage. Now iterates BlissSymbol.indicators
+            // directly so any of the 28 indicators in BlissIndicator's
+            // registry gets a visible badge — the original 3 keep their
+            // pictographic icon, the rest fall back to the short text code
+            // from BlissIndicator.badge() (see its KDoc on why no new icons
+            // were invented for them).
+            val indicatorBadge = sym.indicators.joinToString(" ") { ind ->
+                when (ind) {
+                    BlissTranslator.INDICATOR_PLURAL -> "×"
+                    BlissTranslator.INDICATOR_PAST   -> "↩"
+                    BlissTranslator.INDICATOR_FUTURE -> "→"
+                    else -> BlissIndicator.badge(ind) ?: ind
+                }
+            }
             if (indicatorBadge.isNotEmpty()) chip.text = "${chip.text}  $indicatorBadge"
 
             val job = viewLifecycleOwner.lifecycleScope.launch {

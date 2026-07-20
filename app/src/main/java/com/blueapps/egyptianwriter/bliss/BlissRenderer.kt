@@ -429,12 +429,16 @@ class BlissRenderer(
         return ((available / count) - 4.dpToPx(context)).coerceIn(minPx, maxPx)
     }
 
-    private fun bciIdToIndicatorName(bciIndicatorId: Int): String? = when (bciIndicatorId) {
-        9011 -> "plural"
-        9007 -> "past"
-        9008 -> "future"
-        else -> null
-    }
+    /**
+     * Fix (enterprise-grade audit, 2026-07-20): delegates to
+     * [BlissIndicator.nameOf] (single source of truth) instead of a second,
+     * independently-hardcoded copy of the id→name map that used to exist
+     * here — see [BlissIndicator]'s KDoc for the real bug that duplication
+     * caused (this copy and [BlissTranslator]'s had both hardcoded the same
+     * wrong ids for "past"/"future").
+     */
+    private fun bciIdToIndicatorName(bciIndicatorId: Int): String? =
+        BlissIndicator.nameOf(bciIndicatorId)
 
     private fun Int.dpToPx(ctx: Context): Int =
         (this * ctx.resources.displayMetrics.density).toInt()

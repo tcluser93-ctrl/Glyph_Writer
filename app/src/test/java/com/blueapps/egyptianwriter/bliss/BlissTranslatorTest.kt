@@ -1,17 +1,38 @@
 package com.blueapps.egyptianwriter.bliss
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 
 /**
  * BlissTranslatorTest — Patch 16
  *
- * 15 test JVM puri. BlissLookup e MorfologikLemmatizer sono stubbed con
- * Mockito-Kotlin 5.4.0 — zero dipendenze da Room / assets / Android SDK.
+ * 15 test JVM puri. [BlissLookup] e [MorfologikLemmatizer] sono stubbed con
+ * Mockito-Kotlin — zero dipendenze da Room / assets / Android SDK.
+ *
+ * ## Fix (enterprise-grade audit, 2026-07-20)
+ * Questo file non compilava affatto contro l'API reale di [BlissTranslator]:
+ * - `BlissSymbol`/`BlissRenderAttachment` erano costruiti con un parametro
+ *   `gloss` che non esiste (vedi [BlissSymbol] — `gloss` è una proprietà
+ *   derivata da `name`, non un campo del costruttore).
+ * - Il costruttore veniva chiamato con `lemmatizer = ...`, ma il parametro
+ *   reale si chiama `morfologik`.
+ * - `lookup.lookupSurface()`/`lookupLemma()` venivano mockati per
+ *   restituire un `BlissSymbol?` intero, ma la firma reale restituisce
+ *   `Int?` (il solo BCI-AV id) — la costruzione del `BlissSymbol` avviene
+ *   dopo, via `lookup.toSymbol(id, source, lemma, matchType)`.
+ * - `lemmatizer.lemmatize(word)` veniva mockato con un solo argomento e
+ *   senza contesto coroutine, ma è `suspend fun lemmatize(word, lang)`;
+ *   inoltre la pipeline reale (tier 3b) usa `analyzeWithTags(word, lang)`,
+ *   non `lemmatize()`.
+ * Riscritto per rispecchiare la pipeline reale a più livelli descritta nel
+ * KDoc di [BlissTranslator] (tier 0 function-word → 3a exact → 3b Morfologik
+ * → 3c lemma → 3d POS-aware → 3e de-affissazione → 3f Room FTS4 →
+ * 3g composizione semantica → 3h UNKNOWN).
  *
  * Esecuzione:
  *   ./gradlew :app:test --tests "com.blueapps.egyptianwriter.bliss.BlissTranslatorTest"
@@ -20,66 +41,89 @@ import org.mockito.kotlin.*
 class BlissTranslatorTest {
 
     // ── dipendenze stubbed ────────────────────────────────────────────────────
-    private lateinit var lookup: BlissLookup
+    private lateinit var lookup:     BlissLookup
     private lateinit var lemmatizer: MorfologikLemmatizer
     private lateinit var translator: BlissTranslator
 
-    // Simbolo campione EXACT
-    private val symHouse = BlissSymbol(
-        bciAvId    = 12001,
-        name       = "house",
-        gloss      = "house",
-        sourceWord = "house",
-        matchType  = BlissSymbol.MatchType.EXACT,
-        indicators = emptyList(),
-        componentIds = emptyList()
+    /**
+     * Mappa id BCI-AV → nome, usata dallo stub di [BlissLookup.toSymbol] per
+     * costruire lo stesso identico [BlissSymbol] che costruirebbe la vera
+     * implementazione (che internamente chiama `nameOf(id)`). Un mock() non
+     * esegue mai il corpo reale del metodo mockato, quindi questa mappa è la
+     * "fonte di verità" locale del test per ciascun id usato.
+     */
+    private val symbolNames = mapOf(
+        12001 to "house",
+        12002 to "run",
+        12005 to "jump",
+        12010 to "cat",
+        12020 to "go",
+        12030 to "walk",
+        12040 to "dog",
+        12050 to "hello",
+        12060 to "eat",
+        12070 to "ice cream"
     )
 
-    // Simbolo campione LEMMA
-    private val symRun = BlissSymbol(
-        bciAvId    = 12002,
-        name       = "run",
-        gloss      = "run",
-        sourceWord = "running",
-        matchType  = BlissSymbol.MatchType.LEMMA,
-        indicators = emptyList(),
-        componentIds = emptyList()
-    )
-
-    @Before
+    @BeforeEach
     fun setUp() {
         lookup     = mock()
         lemmatizer = mock()
 
-        // Default: lookup pronto, nessun risultato
+        // Default: lookup pronto, nessun risultato su nessun tier.
         whenever(lookup.isReady).thenReturn(true)
+        whenever(lookup.currentLang).thenReturn("en")
         whenever(lookup.lookupSurface(any())).thenReturn(null)
         whenever(lookup.lookupLemma(any())).thenReturn(null)
+        whenever(lookup.lookupLemmaPos(any(), any())).thenReturn(null)
         whenever(lookup.lookupNgram(any())).thenReturn(null)
-        whenever(lemmatizer.lemmatize(any())).thenReturn(emptyList())
+        runBlocking { whenever(lookup.lookupSurfaceDb(any())).thenReturn(null) }
+        runBlocking { whenever(lemmatizer.analyzeWithTags(any(), any())).thenReturn(emptyList()) }
 
-        translator = BlissTranslator(lookup = lookup, lemmatizer = lemmatizer)
+        // toSymbol() è un metodo concreto (non suspend) di BlissLookup: dato
+        // che `lookup` è un mock() e non uno spy(), il suo corpo reale non
+        // viene mai eseguito — va stubbato esplicitamente per riprodurre lo
+        // stesso comportamento (bciAvId=id, name=nameOf(id), sourceWord,
+        // lemma, matchType passati attraverso invariati).
+        whenever(lookup.toSymbol(any(), any(), any(), any())).thenAnswer { inv ->
+            val id     = inv.getArgument<Int>(0)
+            val source = inv.getArgument<String>(1)
+            val lemma  = inv.getArgument<String>(2)
+            val mt     = inv.getArgument<BlissSymbol.MatchType>(3)
+            BlissSymbol(
+                bciAvId    = id,
+                name       = symbolNames[id] ?: "sym$id",
+                sourceWord = source,
+                lemma      = lemma,
+                matchType  = mt
+            )
+        }
+
+        translator = BlissTranslator(lookup = lookup, morfologik = lemmatizer)
     }
 
     // ── T-01 ─────────────────────────────────────────────────────────────────
     /** Input vuoto deve restituire lista vuota senza crash. */
-    @Test fun t01_emptyInput_returnsEmptyList() = runTest {
+    @Test
+    fun t01_emptyInput_returnsEmptyList() = runTest {
         val result = translator.translateAsync("")
-        assertTrue("Expected empty list for empty input", result.isEmpty())
+        assertTrue(result.isEmpty(), "Expected empty list for empty input")
     }
 
     // ── T-02 ─────────────────────────────────────────────────────────────────
     /** Se lookup.isReady è false, la traduzione si interrompe. */
-    @Test fun t02_lookupNotReady_returnsEmptyList() = runTest {
+    @Test
+    fun t02_lookupNotReady_returnsEmptyList() = runTest {
         whenever(lookup.isReady).thenReturn(false)
         val result = translator.translateAsync("hello world")
-        assertTrue("Expected empty list when lookup not ready", result.isEmpty())
+        assertTrue(result.isEmpty(), "Expected empty list when lookup not ready")
     }
 
     // ── T-03 ─────────────────────────────────────────────────────────────────
-    /** Token trovato via lookupSurface → MatchType.EXACT. */
-    @Test fun t03_singleToken_exactMatch() = runTest {
-        whenever(lookup.lookupSurface("house")).thenReturn(symHouse)
+    /** Tier 3a: token trovato via lookupSurface → MatchType.EXACT. */
+    @Test
+    fun t03_singleToken_exactMatch() = runTest {
+        whenever(lookup.lookupSurface("house")).thenReturn(12001)
         val result = translator.translateAsync("house")
         assertEquals(1, result.size)
         assertEquals(BlissSymbol.MatchType.EXACT, result[0].matchType)
@@ -87,34 +131,33 @@ class BlissTranslatorTest {
     }
 
     // ── T-04 ─────────────────────────────────────────────────────────────────
-    /** Surface miss → LEMMA via lookupLemma. */
-    @Test fun t04_singleToken_lemmaMatch() = runTest {
+    /** Tier 3c: surface miss → plain lemma lookup sulla forma grezza. */
+    @Test
+    fun t04_singleToken_lemmaMatch() = runTest {
         whenever(lookup.lookupSurface("running")).thenReturn(null)
-        whenever(lemmatizer.lemmatize("running")).thenReturn(listOf("run"))
-        whenever(lookup.lookupLemma("run")).thenReturn(symRun)
+        whenever(lookup.lookupLemma("running")).thenReturn(12002)
         val result = translator.translateAsync("running")
         assertEquals(1, result.size)
         assertEquals(BlissSymbol.MatchType.LEMMA, result[0].matchType)
+        assertEquals("run", result[0].name)
     }
 
     // ── T-05 ─────────────────────────────────────────────────────────────────
-    /** De-affixazione suffix -ing: "jumping" → candidato "jump" cercato. */
-    @Test fun t05_deAffix_ing_suffix() = runTest {
-        val symJump = symHouse.copy(bciAvId = 12005, name = "jump", gloss = "jump",
-            sourceWord = "jumping")
+    /** Tier 3e: de-affissazione suffix "-ing" → candidato "jump" trovato. */
+    @Test
+    fun t05_deAffix_ing_suffix() = runTest {
         whenever(lookup.lookupSurface("jumping")).thenReturn(null)
-        whenever(lemmatizer.lemmatize("jumping")).thenReturn(emptyList())
-        whenever(lookup.lookupLemma("jump")).thenReturn(symJump)
+        whenever(lookup.lookupLemma("jump")).thenReturn(12005)
         val result = translator.translateAsync("jumping")
-        // Se il translator implementa de-affixazione, deve trovare symJump.
-        // Se non lo fa ancora, il risultato è UNKNOWN — il test documenta il comportamento.
-        assertNotNull("Result must not be null", result)
-        assertTrue("Result must have exactly 1 element", result.size == 1)
+        assertEquals(1, result.size, "Result must have exactly 1 element")
+        assertEquals(BlissSymbol.MatchType.LEMMA, result[0].matchType)
+        assertEquals("jump", result[0].name)
     }
 
     // ── T-06 ─────────────────────────────────────────────────────────────────
-    /** Token sconosciuto → UNKNOWN con bciAvId == BlissSymbol.UNKNOWN_SYMBOL_ID. */
-    @Test fun t06_unknownToken_fallsBackToUnknown() = runTest {
+    /** Tier 3h: token sconosciuto → UNKNOWN con bciAvId == UNKNOWN_SYMBOL_ID. */
+    @Test
+    fun t06_unknownToken_fallsBackToUnknown() = runTest {
         val result = translator.translateAsync("xyzzy")
         assertEquals(1, result.size)
         assertEquals(BlissSymbol.MatchType.UNKNOWN, result[0].matchType)
@@ -122,122 +165,121 @@ class BlissTranslatorTest {
     }
 
     // ── T-07 ─────────────────────────────────────────────────────────────────
-    /** detectIndicators: keyword "many" → INDICATOR_PLURAL. */
-    @Test fun t07_detectIndicators_many_plural() = runTest {
-        val symCat = symHouse.copy(bciAvId = 12010, name = "cat", gloss = "cat",
-            sourceWord = "cats")
-        whenever(lookup.lookupSurface("many")).thenReturn(null)
-        whenever(lookup.lookupSurface("cats")).thenReturn(symCat)
+    /** detectIndicators: keyword "many" → BlissIndicator.PLURAL a livello frase. */
+    @Test
+    fun t07_detectIndicators_many_plural() = runTest {
+        whenever(lookup.lookupSurface("cats")).thenReturn(12010)
         val result = translator.translateAsync("many cats")
-        // Il simbolo "cats" deve avere INDICATOR_PLURAL nei suoi indicatori
         val catSymbol = result.firstOrNull { it.name == "cat" }
-        assertNotNull("Symbol 'cat' not found in result", catSymbol)
+        assertNotNull(catSymbol, "Symbol 'cat' not found in result")
         assertTrue(
-            "Expected INDICATOR_PLURAL in indicators",
-            catSymbol!!.indicators.any { it == BlissIndicator.PLURAL }
+            catSymbol!!.indicators.any { it == BlissIndicator.PLURAL },
+            "Expected BlissIndicator.PLURAL in indicators"
         )
     }
 
     // ── T-08 ─────────────────────────────────────────────────────────────────
-    /** detectIndicators: "will" → INDICATOR_FUTURE. */
-    @Test fun t08_detectIndicators_will_future() = runTest {
-        val symGo = symHouse.copy(bciAvId = 12020, name = "go", gloss = "go",
-            sourceWord = "go")
-        whenever(lookup.lookupSurface("will")).thenReturn(null)
-        whenever(lookup.lookupSurface("go")).thenReturn(symGo)
+    /** detectIndicators: "will" → BlissIndicator.FUTURE a livello frase. */
+    @Test
+    fun t08_detectIndicators_will_future() = runTest {
+        whenever(lookup.lookupSurface("go")).thenReturn(12020)
         val result = translator.translateAsync("will go")
         val goSymbol = result.firstOrNull { it.name == "go" }
-        assertNotNull("Symbol 'go' not found", goSymbol)
+        assertNotNull(goSymbol, "Symbol 'go' not found")
         assertTrue(
-            "Expected INDICATOR_FUTURE",
-            goSymbol!!.indicators.any { it == BlissIndicator.FUTURE }
+            goSymbol!!.indicators.any { it == BlissIndicator.FUTURE },
+            "Expected BlissIndicator.FUTURE"
         )
     }
 
     // ── T-09 ─────────────────────────────────────────────────────────────────
-    /** detectIndicators: "had walked" → INDICATOR_PAST. */
-    @Test fun t09_detectIndicators_had_past() = runTest {
-        val symWalk = symHouse.copy(bciAvId = 12030, name = "walk", gloss = "walk",
-            sourceWord = "walked")
-        whenever(lookup.lookupSurface("had")).thenReturn(null)
-        whenever(lookup.lookupSurface("walked")).thenReturn(symWalk)
+    /** detectIndicators: "had walked" → BlissIndicator.PAST a livello frase. */
+    @Test
+    fun t09_detectIndicators_had_past() = runTest {
+        whenever(lookup.lookupSurface("walked")).thenReturn(12030)
         val result = translator.translateAsync("had walked")
         val walkSymbol = result.firstOrNull { it.name == "walk" }
-        assertNotNull("Symbol 'walk' not found", walkSymbol)
+        assertNotNull(walkSymbol, "Symbol 'walk' not found")
         assertTrue(
-            "Expected INDICATOR_PAST",
-            walkSymbol!!.indicators.any { it == BlissIndicator.PAST }
+            walkSymbol!!.indicators.any { it == BlissIndicator.PAST },
+            "Expected BlissIndicator.PAST"
         )
     }
 
     // ── T-10 ─────────────────────────────────────────────────────────────────
-    /** attachIndicators non attacca a simboli UNKNOWN. */
-    @Test fun t10_attachIndicators_skipsUnknown() = runTest {
+    /** attachIndicators non attacca indicatori a simboli UNKNOWN. */
+    @Test
+    fun t10_attachIndicators_skipsUnknown() = runTest {
         val result = translator.translateAsync("many zfoobar")
         val unknown = result.firstOrNull { it.matchType == BlissSymbol.MatchType.UNKNOWN }
-        assertNotNull("Expected an UNKNOWN symbol", unknown)
+        assertNotNull(unknown, "Expected an UNKNOWN symbol")
         assertTrue(
-            "UNKNOWN symbols must not receive indicators",
-            unknown!!.indicators.isEmpty()
+            unknown!!.indicators.isEmpty(),
+            "UNKNOWN symbols must not receive indicators"
         )
     }
 
     // ── T-11 ─────────────────────────────────────────────────────────────────
-    /** attachIndicators non ri-attacca se indicators già non vuoti. */
-    @Test fun t11_attachIndicators_doesNotDoubleAttach() = runTest {
-        // Simbolo che arriva già con un indicatore preimpostato
-        val symAlreadyTagged = symHouse.copy(
-            indicators = listOf(BlissIndicator.PLURAL)
-        )
-        whenever(lookup.lookupSurface("many")).thenReturn(null)
-        whenever(lookup.lookupSurface("houses")).thenReturn(symAlreadyTagged)
+    /**
+     * attachIndicators non ri-attacca se il simbolo arriva già con indicatori
+     * non vuoti. Scenario realistico: tier 3b (Morfologik) rileva già PLURAL
+     * dal tag morfologico e lo attacca subito via [BlissSymbol.withIndicators];
+     * il pass a livello frase (regex-based, "many" → PLURAL) non deve
+     * duplicarlo.
+     */
+    @Test
+    fun t11_attachIndicators_doesNotDoubleAttach() = runTest {
+        whenever(lookup.lookupSurface("house")).thenReturn(12001)
+        runBlocking {
+            whenever(lemmatizer.analyzeWithTags("houses", "en")).thenReturn(listOf(
+                LemmaAnalysis(lemma = "house", blissIndicators = listOf(BlissIndicator.PLURAL))
+            ))
+        }
         val result = translator.translateAsync("many houses")
         val sym = result.firstOrNull { it.name == "house" }
         assertNotNull(sym)
-        // Deve contenere PLURAL una sola volta
         assertEquals(
-            "Indicators must not be duplicated",
             1,
-            sym!!.indicators.count { it == BlissIndicator.PLURAL }
+            sym!!.indicators.count { it == BlissIndicator.PLURAL },
+            "Indicators must not be duplicated"
         )
     }
 
     // ── T-12 ─────────────────────────────────────────────────────────────────
     /** attachIndicators attacca correttamente a un EXACT con indicators vuoti. */
-    @Test fun t12_attachIndicators_attachesToExact() = runTest {
-        val symDog = symHouse.copy(bciAvId = 12040, name = "dog", gloss = "dog",
-            sourceWord = "dogs", indicators = emptyList())
-        whenever(lookup.lookupSurface("many")).thenReturn(null)
-        whenever(lookup.lookupSurface("dogs")).thenReturn(symDog)
+    @Test
+    fun t12_attachIndicators_attachesToExact() = runTest {
+        whenever(lookup.lookupSurface("dogs")).thenReturn(12040)
         val result = translator.translateAsync("many dogs")
         val sym = result.firstOrNull { it.name == "dog" }
         assertNotNull(sym)
         assertTrue(
-            "Expected INDICATOR_PLURAL on EXACT symbol",
-            sym!!.indicators.any { it == BlissIndicator.PLURAL }
+            sym!!.indicators.any { it == BlissIndicator.PLURAL },
+            "Expected BlissIndicator.PLURAL on EXACT symbol"
         )
     }
 
     // ── T-13 ─────────────────────────────────────────────────────────────────
     /** Normalise: punteggiatura rimossa, lowercase, trim. */
-    @Test fun t13_normalise_stripsAndLowers() = runTest {
-        whenever(lookup.lookupSurface("hello")).thenReturn(
-            symHouse.copy(bciAvId = 12050, name = "hello", gloss = "hello",
-                sourceWord = "hello")
-        )
+    @Test
+    fun t13_normalise_stripsAndLowers() = runTest {
+        whenever(lookup.lookupSurface("hello")).thenReturn(12050)
         val result = translator.translateAsync("  Hello!  ")
         assertEquals(1, result.size)
         assertEquals("hello", result[0].name)
     }
 
     // ── T-14 ─────────────────────────────────────────────────────────────────
-    /** translateAsync tier 3b: Morfologik mock risolve forma flessa. */
-    @Test fun t14_translateAsync_morfologikResolves() = runTest {
+    /** Tier 3b: Morfologik mock risolve forma flessa → lemma "eat". */
+    @Test
+    fun t14_translateAsync_morfologikResolves() = runTest {
         whenever(lookup.lookupSurface("ate")).thenReturn(null)
-        whenever(lemmatizer.lemmatize("ate")).thenReturn(listOf("eat"))
-        val symEat = symHouse.copy(bciAvId = 12060, name = "eat", gloss = "eat",
-            sourceWord = "ate", matchType = BlissSymbol.MatchType.LEMMA)
-        whenever(lookup.lookupLemma("eat")).thenReturn(symEat)
+        runBlocking {
+            whenever(lemmatizer.analyzeWithTags("ate", "en")).thenReturn(listOf(
+                LemmaAnalysis(lemma = "eat")
+            ))
+        }
+        whenever(lookup.lookupSurface("eat")).thenReturn(12060)
         val result = translator.translateAsync("ate")
         assertEquals(1, result.size)
         assertEquals(BlissSymbol.MatchType.LEMMA, result[0].matchType)
@@ -245,23 +287,14 @@ class BlissTranslatorTest {
     }
 
     // ── T-15 ─────────────────────────────────────────────────────────────────
-    /** N-gram bi-token risolto via lookupNgram. */
-    @Test fun t15_biToken_ngram() = runTest {
-        val symIceCream = BlissSymbol(
-            bciAvId    = 12070,
-            name       = "ice cream",
-            gloss      = "ice cream",
-            sourceWord = "ice cream",
-            matchType  = BlissSymbol.MatchType.NGRAM,
-            indicators = emptyList(),
-            componentIds = emptyList()
-        )
-        whenever(lookup.lookupNgram("ice cream")).thenReturn(symIceCream)
-        // I singoli token non devono essere risolti se il bi-gram ha priorità
+    /** N-gram bi-token risolto via lookupNgram (priorità sui singoli token). */
+    @Test
+    fun t15_biToken_ngram() = runTest {
+        whenever(lookup.lookupNgram("ice cream")).thenReturn(12070)
         val result = translator.translateAsync("ice cream")
         assertTrue(
-            "Expected at least one NGRAM result",
-            result.any { it.matchType == BlissSymbol.MatchType.NGRAM }
+            result.any { it.matchType == BlissSymbol.MatchType.NGRAM },
+            "Expected at least one NGRAM result"
         )
     }
 }

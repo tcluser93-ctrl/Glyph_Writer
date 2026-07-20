@@ -1,7 +1,7 @@
 package com.blueapps.egyptianwriter.bliss
 
-import org.junit.Assert.*
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 
 /**
  * BlissRendererTest — Patch 16
@@ -18,7 +18,6 @@ class BlissRendererTest {
     private val baseSymbol = BlissSymbol(
         bciAvId      = 12001,
         name         = "house",
-        gloss        = "house",
         sourceWord   = "house",
         matchType    = BlissSymbol.MatchType.EXACT,
         indicators   = emptyList(),
@@ -26,22 +25,22 @@ class BlissRendererTest {
     )
 
     private val baseAttachment = BlissRenderAttachment(
-        bciAvId   = 99001,
-        gloss     = "action indicator",
-        isOverlay = false
+        indicatorName  = "action indicator",
+        bciIndicatorId = 99001,
+        isOverlay      = false
     )
 
     // ── R-01 ─────────────────────────────────────────────────────────────────
     /** isOverlay == true per attachment BCI overlay. */
     @Test fun r01_attachment_isOverlay_true() {
         val overlay = baseAttachment.copy(isOverlay = true)
-        assertTrue("Expected isOverlay == true", overlay.isOverlay)
+        assertTrue(overlay.isOverlay, "Expected isOverlay == true")
     }
 
     // ── R-02 ─────────────────────────────────────────────────────────────────
     /** isOverlay == false per attachment non-overlay. */
     @Test fun r02_attachment_isOverlay_false() {
-        assertFalse("Expected isOverlay == false", baseAttachment.isOverlay)
+        assertFalse(baseAttachment.isOverlay, "Expected isOverlay == false")
     }
 
     // ── R-03 ─────────────────────────────────────────────────────────────────
@@ -50,8 +49,8 @@ class BlissRendererTest {
         val newIndicators = listOf(BlissIndicator.PLURAL, BlissIndicator.PAST)
         val copy = baseSymbol.withIndicators(newIndicators)
         assertEquals(newIndicators, copy.indicators)
-        assertTrue("Original must remain with empty indicators", baseSymbol.indicators.isEmpty())
-        assertNotSame("withIndicators must return a different instance", baseSymbol, copy)
+        assertTrue(baseSymbol.indicators.isEmpty(), "Original must remain with empty indicators")
+        assertNotSame(baseSymbol, copy, "withIndicators must return a different instance")
     }
 
     // ── R-04 ─────────────────────────────────────────────────────────────────
@@ -61,8 +60,8 @@ class BlissRendererTest {
             bciAvId   = BlissSymbol.UNKNOWN_SYMBOL_ID,
             matchType = BlissSymbol.MatchType.UNKNOWN
         )
-        assertTrue("isUnknown must be true for UNKNOWN", unknown.isUnknown)
-        assertFalse("isUnknown must be false for EXACT", baseSymbol.isUnknown)
+        assertTrue(unknown.isUnknown, "isUnknown must be true for UNKNOWN")
+        assertFalse(baseSymbol.isUnknown, "isUnknown must be false for EXACT")
     }
 
     // ── R-05 ─────────────────────────────────────────────────────────────────
@@ -73,8 +72,8 @@ class BlissRendererTest {
             matchType    = BlissSymbol.MatchType.COMPOUND,
             componentIds = listOf(12001, 12002)
         )
-        assertTrue("isCompound must be true for COMPOUND", compound.isCompound)
-        assertFalse("isCompound must be false for EXACT", baseSymbol.isCompound)
+        assertTrue(compound.isCompound, "isCompound must be true for COMPOUND")
+        assertFalse(baseSymbol.isCompound, "isCompound must be false for EXACT")
     }
 
     // ── R-06 ─────────────────────────────────────────────────────────────────
@@ -84,8 +83,8 @@ class BlissRendererTest {
             bciAvId   = BlissSymbol.COMPOUND_SYMBOL_ID,
             matchType = BlissSymbol.MatchType.SEMANTIC
         )
-        assertTrue("isSemanticComposition must be true for SEMANTIC", semantic.isSemanticComposition)
-        assertFalse("isSemanticComposition must be false for EXACT", baseSymbol.isSemanticComposition)
+        assertTrue(semantic.isSemanticComposition, "isSemanticComposition must be true for SEMANTIC")
+        assertFalse(baseSymbol.isSemanticComposition, "isSemanticComposition must be false for EXACT")
     }
 
     // ── R-07 ─────────────────────────────────────────────────────────────────
@@ -95,8 +94,8 @@ class BlissRendererTest {
         val sym = baseSymbol.copy(name = longName)
         val maxLen = 10
         val g = sym.gloss(maxLen)
-        assertTrue("Truncated gloss must end with ellipsis", g.endsWith("…"))
-        assertTrue("Truncated gloss must not exceed maxLen chars", g.length <= maxLen + 1)
+        assertTrue(g.endsWith("…"), "Truncated gloss must end with ellipsis")
+        assertTrue(g.length <= maxLen + 1, "Truncated gloss must not exceed maxLen chars")
     }
 
     // ── R-08 ─────────────────────────────────────────────────────────────────
@@ -105,37 +104,39 @@ class BlissRendererTest {
         val sym = baseSymbol.copy(name = "cat")
         val g = sym.gloss(100)
         assertEquals("cat", g)
-        assertFalse("No ellipsis expected when name fits", g.contains("…"))
+        assertFalse(g.contains("…"), "No ellipsis expected when name fits")
     }
 
     // ── R-09 ─────────────────────────────────────────────────────────────────
     /** init lancia IllegalArgumentException per bciAvId == 0 su EXACT. */
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun r09_init_throwsForZeroBciId() {
-        BlissSymbol(
-            bciAvId      = 0,
-            name         = "bad",
-            gloss        = "bad",
-            sourceWord   = "bad",
-            matchType    = BlissSymbol.MatchType.EXACT,
-            indicators   = emptyList(),
-            componentIds = emptyList()
-        )
+        assertThrows(IllegalArgumentException::class.java) {
+            BlissSymbol(
+                bciAvId      = 0,
+                name         = "bad",
+                sourceWord   = "bad",
+                matchType    = BlissSymbol.MatchType.EXACT,
+                indicators   = emptyList(),
+                componentIds = emptyList()
+            )
+        }
     }
 
     // ── R-10 ─────────────────────────────────────────────────────────────────
     /** init lancia IllegalArgumentException per name blank. */
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun r10_init_throwsForBlankName() {
-        BlissSymbol(
-            bciAvId      = 12001,
-            name         = "   ",
-            gloss        = "?",
-            sourceWord   = "?",
-            matchType    = BlissSymbol.MatchType.EXACT,
-            indicators   = emptyList(),
-            componentIds = emptyList()
-        )
+        assertThrows(IllegalArgumentException::class.java) {
+            BlissSymbol(
+                bciAvId      = 12001,
+                name         = "   ",
+                sourceWord   = "?",
+                matchType    = BlissSymbol.MatchType.EXACT,
+                indicators   = emptyList(),
+                componentIds = emptyList()
+            )
+        }
     }
 
     // ── R-11 ─────────────────────────────────────────────────────────────────
@@ -144,7 +145,6 @@ class BlissRendererTest {
         val sym = BlissSymbol(
             bciAvId      = BlissSymbol.UNKNOWN_SYMBOL_ID,
             name         = "???",
-            gloss        = "???",
             sourceWord   = "xyzzy",
             matchType    = BlissSymbol.MatchType.UNKNOWN,
             indicators   = emptyList(),
@@ -159,7 +159,6 @@ class BlissRendererTest {
         val sym = BlissSymbol(
             bciAvId      = BlissSymbol.COMPOUND_SYMBOL_ID,
             name         = "ice+cream",
-            gloss        = "ice cream",
             sourceWord   = "ice cream",
             matchType    = BlissSymbol.MatchType.COMPOUND,
             indicators   = emptyList(),
@@ -174,7 +173,6 @@ class BlissRendererTest {
         val sym = BlissSymbol(
             bciAvId      = BlissSymbol.COMPOUND_SYMBOL_ID,
             name         = "happiness",
-            gloss        = "happiness",
             sourceWord   = "happiness",
             matchType    = BlissSymbol.MatchType.SEMANTIC,
             indicators   = emptyList(),
@@ -199,9 +197,9 @@ class BlissRendererTest {
     // ── R-15 ─────────────────────────────────────────────────────────────────
     /** indicators vuoti di default; withIndicators non muta originale. */
     @Test fun r15_indicators_defaultEmpty_withIndicatorsImmutable() {
-        assertTrue("Default indicators must be empty", baseSymbol.indicators.isEmpty())
+        assertTrue(baseSymbol.indicators.isEmpty(), "Default indicators must be empty")
         val modified = baseSymbol.withIndicators(listOf(BlissIndicator.FUTURE))
-        assertTrue("Original indicators must remain empty", baseSymbol.indicators.isEmpty())
+        assertTrue(baseSymbol.indicators.isEmpty(), "Original indicators must remain empty")
         assertEquals(1, modified.indicators.size)
         assertEquals(BlissIndicator.FUTURE, modified.indicators[0])
     }

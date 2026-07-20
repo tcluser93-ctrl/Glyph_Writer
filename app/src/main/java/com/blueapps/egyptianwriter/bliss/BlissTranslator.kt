@@ -458,13 +458,13 @@ class BlissTranslator(
     /**
      * Maps a BCI combining-indicator id to the Bliss indicator name used by
      * [attachIndicators].  Returns null for unknown ids.
+     *
+     * Delegates to [BlissIndicator.nameOf] (single source of truth) instead
+     * of a locally hardcoded map — see [BlissIndicator]'s KDoc for why that
+     * used to be a real bug (wrong ids for "past"/"future").
      */
-    private fun indicatorIdToName(bciIndicatorId: Int): String? = when (bciIndicatorId) {
-        BCI_INDICATOR_PLURAL -> INDICATOR_PLURAL
-        BCI_INDICATOR_PAST   -> INDICATOR_PAST
-        BCI_INDICATOR_FUTURE -> INDICATOR_FUTURE
-        else                 -> null
-    }
+    private fun indicatorIdToName(bciIndicatorId: Int): String? =
+        BlissIndicator.nameOf(bciIndicatorId)
 
     private fun unknownSymbol(word: String) = BlissSymbol(
         bciAvId          = BlissSymbol.UNKNOWN_SYMBOL_ID,
@@ -584,13 +584,14 @@ class BlissTranslator(
         private const val TAG          = "BlissTranslator"
         private const val MAX_NGRAM_LEN = 4
 
-        const val INDICATOR_PLURAL = "plural"
-        const val INDICATOR_PAST   = "past"
-        const val INDICATOR_FUTURE = "future"
-
-        private const val BCI_INDICATOR_PLURAL = 9011
-        private const val BCI_INDICATOR_PAST   = 9007
-        private const val BCI_INDICATOR_FUTURE = 9008
+        // Fix (enterprise-grade audit, 2026-07-20): these now delegate to the
+        // single-source-of-truth registry in BlissIndicator instead of
+        // duplicating the string/id mapping locally — see BlissIndicator's
+        // KDoc for the real bug that duplication used to cause (wrong BCI-AV
+        // ids for "past"/"future", silently rendering the wrong SVG).
+        const val INDICATOR_PLURAL = BlissIndicator.PLURAL
+        const val INDICATOR_PAST   = BlissIndicator.PAST
+        const val INDICATOR_FUTURE = BlissIndicator.FUTURE
 
         private val PUNCT_RE = Regex("[^\\w'àáâãäåæçèéêëìíîïðñòóôõöùúûüýþÿ\\-]")
         private val SPACE_RE = Regex("\\s+")

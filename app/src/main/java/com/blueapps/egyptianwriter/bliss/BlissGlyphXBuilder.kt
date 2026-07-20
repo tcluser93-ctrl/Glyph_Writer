@@ -74,11 +74,15 @@ class BlissGlyphXBuilder(
         )
         private const val MATCH_FILL_DEFAULT = "#E8E8E8"
 
-        private val INDICATOR_BADGE = mapOf(
-            BlissTranslator.INDICATOR_PLURAL to "x",
-            BlissTranslator.INDICATOR_PAST   to "<",
-            BlissTranslator.INDICATOR_FUTURE to ">"
-        )
+        /**
+         * Fix (enterprise-grade audit, 2026-07-20): derived from
+         * [BlissIndicator]'s registry instead of a separately hand-maintained
+         * 3-entry map, so every indicator the app knows how to render also
+         * gets a chip badge automatically — no more per-indicator manual
+         * wiring in three different places (see [BlissIndicator] KDoc).
+         */
+        private val INDICATOR_BADGE: Map<String, String> =
+            BlissIndicator.all().associateWith { BlissIndicator.badge(it)!! }
 
         fun parseBciAvId(code: String): Int =
             if (code.startsWith(BLISS_PREFIX))
