@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -365,6 +366,19 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
                         symbols   = symbols
                     )
                 }
+            } catch (e: CancellationException) {
+                // translate() viene rilanciato ad ogni chiamata via translateJob?.cancel()
+                // (doppio tap rapido su "Traduci" o cambio lingua durante una traduzione
+                // in corso). La cancellazione della coroutine emerge qui come
+                // CancellationException dai punti di sospensione in translateAsync/withContext.
+                // Se veniva inghiottita dal catch (e: Exception) sotto, la coroutine
+                // *cancellata* pubblicava comunque un UiState con error/isLoading=false:
+                // uno stato fantasma che poteva sovrascrivere quello della nuova
+                // traduzione ancora in corso. Il rethrow lascia che la cancellazione
+                // sia gestita normalmente dalla struttura delle coroutine (viewModelScope
+                // vede il job come cancellato, non come fallito): nessuna mutazione di
+                // UiState, nessun toast d'errore fantasma.
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "[VM] translate failed: ${e.javaClass.simpleName} — ${e.message}", e)
                 _uiState.value = _uiState.value.copy(
