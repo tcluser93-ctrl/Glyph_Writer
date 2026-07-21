@@ -7,6 +7,8 @@ import androidx.room.FtsOptions
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
@@ -81,6 +83,28 @@ interface BciDao {
     /** Row count — used to detect an empty / unpopulated database. */
     @Query("SELECT COUNT(*) FROM bci_fts")
     suspend fun count(): Long
+
+    /**
+     * Row count scoped to a single [lang].
+     *
+     * ## Fix (audit EG, 2026-07-21)
+     * [populateIfEmpty] used to gate on the *global* [count] across all
+     * languages. `bci_fts` is a shared, multi-language table (every
+     * language's rows are tagged via [BciFtsEntry.lang] and coexist in the
+     * same virtual table), so once the first language populated it, `count()`
+     * was permanently > 0 and every subsequent language switch silently
+     * skipped population entirely — the FTS-backed tiers 4/5
+     * ([BlissLookup.lookupSurfaceDb] / [lookupPrefixDb]) would then always
+     * miss for every language except the very first one ever loaded on that
+     * install, while the in-memory HashMap tiers 1-3 kept working normally
+     * (they are correctly per-language, loaded fresh by [BlissLookup.load]).
+     * The bug was invisible in casual testing because a fresh install/tier
+     * 1-3 miss + tier 4/5 hit is rare for common words, and single-language
+     * usage never exercises it. [countForLang] makes the emptiness check
+     * language-scoped, matching the actual per-language write pattern.
+     */
+    @Query("SELECT COUNT(*) FROM bci_fts WHERE lang = :lang")
+    suspend fun countForLang(lang: String): Long
 }
 
 // ── Migrations ────────────────────────────────────────────────────────────────
@@ -154,6 +178,27 @@ abstract class BlissDatabase : RoomDatabase() {
         @Volatile private var INSTANCE: BlissDatabase? = null
 
         /**
+         * Serialises [populateIfEmpty]'s "check count for lang → bulk insert"
+         * transaction.
+         *
+         * ## Fix (audit EG, 2026-07-21)
+         * Without this, two concurrent [populateIfEmpty] calls for the same
+         * language (e.g. a fast language-switch-and-back while the first
+         * population is still chunk-inserting) would both observe
+         * `countForLang(lang) == 0`, both proceed, and both insert the full
+         * batch — harmless for correctness ([BciDao.insertAll] uses
+         * `OnConflictStrategy.IGNORE`, and `keyword`+`lang` collisions are
+         * silently dropped) but wasteful, doubling FTS insert I/O on every
+         * such race. More importantly, serialising here also means the
+         * per-language check-then-insert is atomic with respect to *any*
+         * other language's concurrent population, which keeps `Log.i`
+         * row-count reporting below accurate and avoids overlapping bulk
+         * inserts contending for the same underlying SQLite write lock from
+         * two different coroutines at once.
+         */
+        private val populateMutex = Mutex()
+
+        /**
          * Returns the process-wide singleton Room database.
          * Always pass [applicationContext].
          */
@@ -173,13 +218,21 @@ abstract class BlissDatabase : RoomDatabase() {
             }
 
         /**
-         * Populates the FTS table from [lexicon] if the table is empty.
-         * Called once per language change from [BlissLookup.initDb].
+         * Populates the FTS table from [lexicon] if it is empty **for
+         * [lang]**. Called once per language change from [BlissLookup.initDb].
+         *
+         * `bci_fts` is a single shared table across all supported languages
+         * (rows are tagged via [BciFtsEntry.lang]), so the emptiness check
+         * must be scoped per language via [BciDao.countForLang] — see its
+         * KDoc for the multi-language bug this fixes. The whole
+         * check-then-insert transaction is additionally guarded by
+         * [populateMutex] to keep it atomic across concurrent callers.
          *
          * @param db      Open [BlissDatabase] instance.
          * @param lexicon Surface-word → BCI-AV ID map (from [BlissLookup._lexicon]).
          * @param lemmas  Lemma → BCI-AV ID map (from [BlissLookup._lemmaIndex]).
-         * @param lang    ISO-639-1 code, used to tag every inserted row.
+         * @param lang    ISO-639-1 code, used to tag every inserted row and to
+         *                scope the emptiness check.
          */
         suspend fun populateIfEmpty(
             db:      BlissDatabase,
@@ -187,24 +240,26 @@ abstract class BlissDatabase : RoomDatabase() {
             lemmas:  Map<String, Int>,
             lang:    String
         ) = withContext(Dispatchers.IO) {
-            val dao = db.bciDao()
-            if (dao.count() > 0L) {
-                Log.d(TAG, "DB already populated — skip")
-                return@withContext
-            }
-            val batch = ArrayList<BciFtsEntry>(lexicon.size + lemmas.size)
-            lexicon.forEach { (word, id) ->
-                batch += BciFtsEntry(keyword = word, lang = lang, bciId = id)
-            }
-            lemmas.forEach { (lemma, id) ->
-                // avoid duplicating keys already in lexicon
-                if (lemma !in lexicon) {
-                    batch += BciFtsEntry(keyword = lemma, lang = lang, bciId = id)
+            populateMutex.withLock {
+                val dao = db.bciDao()
+                if (dao.countForLang(lang) > 0L) {
+                    Log.d(TAG, "DB already populated for lang=$lang — skip")
+                    return@withLock
                 }
+                val batch = ArrayList<BciFtsEntry>(lexicon.size + lemmas.size)
+                lexicon.forEach { (word, id) ->
+                    batch += BciFtsEntry(keyword = word, lang = lang, bciId = id)
+                }
+                lemmas.forEach { (lemma, id) ->
+                    // avoid duplicating keys already in lexicon
+                    if (lemma !in lexicon) {
+                        batch += BciFtsEntry(keyword = lemma, lang = lang, bciId = id)
+                    }
+                }
+                // Insert in chunks of 500 to avoid SQLite bind-parameter limit
+                batch.chunked(500).forEach { chunk -> dao.insertAll(chunk) }
+                Log.i(TAG, "DB populated: ${batch.size} entries for lang=$lang")
             }
-            // Insert in chunks of 500 to avoid SQLite bind-parameter limit
-            batch.chunked(500).forEach { chunk -> dao.insertAll(chunk) }
-            Log.i(TAG, "DB populated: ${batch.size} entries for lang=$lang")
         }
     }
 }
