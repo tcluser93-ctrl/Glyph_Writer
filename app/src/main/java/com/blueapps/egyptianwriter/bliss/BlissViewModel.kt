@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.w3c.dom.Document
@@ -217,7 +218,31 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     private var suggestJob:   Job? = null
     private var historyJob:   Job? = null
     private var inputsJob:    Job? = null
-    private var searchJob:    Job? = null
+
+    /**
+     * Single-threaded dispatcher for every history-table *mutation*
+     * (insert / delete / clear).
+     *
+     * ## Fix (audit EG, 2026-07-21)
+     * `deleteHistoryEntry`, `restoreHistoryEntry`, `restoreHistoryEntries`,
+     * `clearHistory`, and the history insert inside [translate] each used to
+     * launch their own coroutine on the plain `Dispatchers.IO` pool. Sibling
+     * coroutines on a multi-threaded dispatcher have no ordering guarantee
+     * relative to each other — only *structured concurrency* (parent/child)
+     * is guaranteed by `viewModelScope`, not submission order. A concrete,
+     * reachable sequence this allowed: the user taps "cancella tutto"
+     * (`clearHistory` → `repository.clearLang`) and immediately taps the
+     * Snackbar's "Annulla" (`restoreHistoryEntries` → repeated
+     * `repository.insertEntry`); if the restore's inserts happened to run on
+     * an IO thread that reached the database *before* the clear's delete did,
+     * the clear would then wipe the just-undone rows right back out —
+     * silently, with no error, from the user's perspective an "Annulla" that
+     * sometimes does nothing. Routing every history mutation through this
+     * `Dispatchers.IO.limitedParallelism(1)` dispatcher makes them a strict
+     * FIFO queue: whichever call the user made second always genuinely runs
+     * second.
+     */
+    private val historyWriteDispatcher = Dispatchers.IO.limitedParallelism(1)
 
     // ── language management ───────────────────────────────────────────────────
 
@@ -359,7 +384,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
                 )
                 Log.d(TAG, "[VM] state published — translation complete")
 
-                viewModelScope.launch(Dispatchers.IO) {
+                viewModelScope.launch(historyWriteDispatcher) {
                     repository.saveTranslation(
                         inputText = text.trim(),
                         langCode  = lang,
@@ -468,7 +493,7 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun deleteHistoryEntry(id: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(historyWriteDispatcher) {
             repository.deleteEntry(id)
         }
     }
@@ -499,16 +524,16 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun restoreHistoryEntry(entry: BlissHistoryEntry) {
-        viewModelScope.launch(Dispatchers.IO) { repository.insertEntry(entry) }
+        viewModelScope.launch(historyWriteDispatcher) { repository.insertEntry(entry) }
     }
 
     fun restoreHistoryEntries(entries: List<BlissHistoryEntry>) {
-        viewModelScope.launch(Dispatchers.IO) { entries.forEach { repository.insertEntry(it) } }
+        viewModelScope.launch(historyWriteDispatcher) { entries.forEach { repository.insertEntry(it) } }
     }
 
     fun clearHistory() {
         val lang = _uiState.value.langCode
-        viewModelScope.launch(Dispatchers.IO) { repository.clearLang(lang) }
+        viewModelScope.launch(historyWriteDispatcher) { repository.clearLang(lang) }
     }
 
     // ── history search (E-04) ────────────────────────────────────────────────
@@ -516,24 +541,24 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Updates the history search query.
      * The Fragment must debounce calls (≥ 300 ms) before invoking this.
+     *
+     * ## Fix (audit EG, 2026-07-21)
+     * This used to also own a second, independent writer of
+     * [UiState.filteredHistory] (its own `searchJob` collecting
+     * `repository.searchHistory`), racing against the writer inside
+     * [startObservingHistory] (which recomputed `filteredHistory` via an
+     * in-memory substring filter over `history` — a *different* result set
+     * than the DB-level search, since `history` is capped to the 50 most
+     * recent entries). Whichever writer's `_uiState.value = …` happened to
+     * land last won, non-deterministically. This method now only publishes
+     * the query itself; [startObservingHistory] is the single writer of
+     * both [UiState.history] and [UiState.filteredHistory], reactively
+     * recomputed via `combine` whenever either the query or the underlying
+     * data changes.
      */
     fun setHistorySearch(query: String) {
         _historySearchQuery.value = query
         _uiState.value = _uiState.value.copy(historySearchQuery = query)
-        searchJob?.cancel()
-        if (query.isBlank()) {
-            _uiState.value = _uiState.value.copy(
-                filteredHistory = _uiState.value.history
-            )
-            return
-        }
-        val lang = _uiState.value.langCode
-        searchJob = viewModelScope.launch {
-            repository.searchHistory(query = query, langCode = lang)
-                .collectLatest { results ->
-                    _uiState.value = _uiState.value.copy(filteredHistory = results)
-                }
-        }
     }
 
     // ── view mode ────────────────────────────────────────────────────────────────
@@ -568,18 +593,34 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
 
     // ── private: reactive observers ────────────────────────────────────────────
 
+    /**
+     * Single writer of both [UiState.history] and [UiState.filteredHistory].
+     *
+     * ## Fix (audit EG, 2026-07-21)
+     * See [setHistorySearch] KDoc for the dual-writer race this replaces.
+     * [recentFlow] (always the 50 most recent entries for [lang]) and
+     * [_historySearchQuery] are combined: [flatMapLatest] re-subscribes to
+     * either [recentFlow] itself (blank query) or the DB-level
+     * `repository.searchHistory` flow (non-blank query) whenever the query
+     * changes, and [combine] pairs that filtered result with the always-
+     * current [recentFlow] emission so both `UiState` fields are published
+     * together, atomically, from one `collectLatest` — never from two
+     * independent jobs racing to publish the same field.
+     */
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private fun startObservingHistory(lang: String) {
         historyJob?.cancel()
         historyJob = viewModelScope.launch {
-            repository.recentHistory(langCode = lang, limit = 50)
-                .collectLatest { entries ->
-                    val query = _historySearchQuery.value
+            val recentFlow = repository.recentHistory(langCode = lang, limit = 50)
+            val filteredFlow = _historySearchQuery.flatMapLatest { query ->
+                if (query.isBlank()) recentFlow
+                else repository.searchHistory(query = query, langCode = lang, limit = 50)
+            }
+            combine(recentFlow, filteredFlow) { entries, filtered -> entries to filtered }
+                .collectLatest { (entries, filtered) ->
                     _uiState.value = _uiState.value.copy(
                         history         = entries,
-                        filteredHistory = if (query.isBlank()) entries
-                                          else entries.filter {
-                                              it.inputText.contains(query, ignoreCase = true)
-                                          }
+                        filteredHistory = filtered
                     )
                 }
         }
@@ -611,7 +652,6 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
         suggestJob?.cancel()
         historyJob?.cancel()
         inputsJob?.cancel()
-        searchJob?.cancel()
     }
 
     companion object {
