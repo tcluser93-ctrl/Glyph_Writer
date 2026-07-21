@@ -78,7 +78,16 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
     private val viewModel: BlissViewModel by activityViewModels()
 
     private lateinit var cardAdapter: BlissSymbolCardAdapter
-    private lateinit var tts: TextToSpeech
+
+    /**
+     * ## Fix (audit EG, 2026-07-21)
+     * Nullable instead of `lateinit`: makes the "may not exist yet / may
+     * already be shut down" lifecycle explicit at every call site (`tts?.…`)
+     * instead of relying on the separate `::tts.isInitialized` guard that
+     * used to gate [onDestroyView], which is easy to forget at a new call
+     * site and gives no compile-time signal that the check is required.
+     */
+    private var tts: TextToSpeech? = null
     private var ttsReady = false
 
     private var debounceJob: Job? = null
@@ -127,7 +136,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tts = TextToSpeech(requireContext(), this)
+        tts = TextToSpeech(requireContext().applicationContext, this)
         setupInput()
         setupToggleButtons()
         setupRecyclerView()
@@ -169,7 +178,15 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         // navigating away and back, etc). Shutting it down here, in the
         // lifecycle callback that mirrors onViewCreated() 1:1, prevents
         // leaking one native TextToSpeech engine binding per view recreation.
-        if (::tts.isInitialized) { tts.stop(); tts.shutdown() }
+        //
+        // Fix (audit EG, 2026-07-21): tts is now nullable — stop()/shutdown()
+        // are called via a safe local val, then the field is cleared and
+        // ttsReady reset, so a straggler onInit() callback that fires after
+        // this point (or a call to speak() from a lingering coroutine) can
+        // never operate on an already-shutdown engine instance.
+        tts?.let { it.stop(); it.shutdown() }
+        tts = null
+        ttsReady = false
         _binding = null
     }
 
@@ -585,7 +602,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
     private fun speak(text: String) {
         if (ttsReady && text.isNotBlank())
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "bliss-$text")
+            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "bliss-$text")
     }
 
     // ── Factory ───────────────────────────────────────────────────────────────
