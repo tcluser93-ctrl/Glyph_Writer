@@ -3,6 +3,7 @@ package com.blueapps.egyptianwriter
 import android.content.ComponentCallbacks2
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -71,6 +72,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
 
         navView.setNavigationItemSelectedListener(this)
+
+        // ── Back handling ──────────────────────────────────────────────
+        // Fix (audit EG, 2026-07-21): back handling used to be split between
+        // this Activity's deprecated onBackPressed() override (invoked
+        // directly by the framework on API < 33, bypassing the dispatcher
+        // entirely) and a second, independent OnBackPressedCallback
+        // registered by BlissTranslateFragment itself (the only path
+        // actually exercised on API 33+, since predictive-back dispatches
+        // through the OnBackPressedDispatcher rather than calling
+        // Activity.onBackPressed()). The fragment's callback unconditionally
+        // called parentFragmentManager.popBackStack() with no check of
+        // whether there was anything to pop — on the root nav_translate
+        // destination (empty back stack) this was a silent no-op, so on
+        // API 33+ the system back gesture/button did *nothing* from the
+        // root screen instead of exiting the app, while pre-33 devices
+        // (routed through the Activity override) behaved correctly. A single
+        // callback registered here, on the Activity's own dispatcher, is now
+        // the one and only back-handling path on every API level, and
+        // BlissTranslateFragment.setupToolbarBackHandling() has been removed.
+        onBackPressedDispatcher.addCallback(this, backCallback)
 
         // Destinazione iniziale
         if (savedInstanceState == null) {
@@ -144,6 +165,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun navigateTo(tag: String, factory: () -> androidx.fragment.app.Fragment) {
         val fm = supportFragmentManager
 
+        // Fix (audit EG, 2026-07-21): navigateTo() is reachable from a
+        // NavigationView item click, which the drawer's own close animation
+        // can defer just long enough to land after onSaveInstanceState() —
+        // e.g. tapping a drawer destination in the moment the user hits
+        // Home/recents. FragmentManager throws IllegalStateException ("Can
+        // not perform this action after onSaveInstanceState") from both
+        // popBackStack() and commit() once state is saved. There is no
+        // useful recovery here (the Activity is being backgrounded/
+        // recreated regardless), so this is a no-op guard rather than a
+        // deferred retry: the same destination is still selectable once the
+        // Activity is interactive again.
+        if (fm.isStateSaved) return
+
         if (tag == TAG_TRANSLATE) {
             fm.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
             if (fm.findFragmentByTag(TAG_TRANSLATE) == null) {
@@ -167,14 +201,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     // ── Back button ─────────────────────────────────────────────
 
-    @Deprecated("Using onBackPressedDispatcher via legacy override for API < 33 compat")
-    override fun onBackPressed() {
-        when {
-            drawerLayout.isDrawerOpen(GravityCompat.START) ->
-                drawerLayout.closeDrawer(GravityCompat.START)
-            supportFragmentManager.backStackEntryCount > 0 ->
-                supportFragmentManager.popBackStack()
-            else -> @Suppress("DEPRECATION") super.onBackPressed()
+    /**
+     * Single, unified back-handling path for every API level. See the
+     * "Back handling" comment in [onCreate] for why this replaced both the
+     * deprecated `onBackPressed()` override and
+     * `BlissTranslateFragment.setupToolbarBackHandling()`.
+     *
+     * When neither the drawer nor the fragment back stack claims the event,
+     * this callback disables itself for one dispatch and re-invokes
+     * [onBackPressedDispatcher] so the *next* callback/default handler
+     * (finishing the Activity) runs, then re-enables itself.
+     */
+    private val backCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            when {
+                drawerLayout.isDrawerOpen(GravityCompat.START) ->
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                supportFragmentManager.backStackEntryCount > 0 ->
+                    supportFragmentManager.popBackStack()
+                else -> {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                    isEnabled = true
+                }
+            }
         }
     }
 
