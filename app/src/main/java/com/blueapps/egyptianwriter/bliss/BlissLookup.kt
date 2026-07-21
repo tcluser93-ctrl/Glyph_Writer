@@ -29,9 +29,13 @@ import java.util.Locale
  * available to callers via [lookupSurfaceDb] / [lookupPrefixDb].
  *
  * ## Thread-safety
- * Every backing field is `@Volatile`.  Each field is written exactly once
- * from a single background coroutine, so the JVM memory model guarantees
- * that any subsequent read on any thread sees the fully constructed map.
+ * All six lookup maps are consolidated into one immutable [Tables] snapshot,
+ * published via a single `@Volatile` reference ([_tables]). [load] builds a
+ * complete new [Tables] instance from local variables and publishes it with
+ * one assignment, so any reader on any thread — with no locking required on
+ * the read side — always sees either the previous or the new snapshot in
+ * full, never a partially-updated mix of the two. Writers (i.e. concurrent
+ * [load] calls) are additionally serialised by [loadMutex].
  *
  * ## Usage
  * ```kotlin
@@ -61,23 +65,55 @@ import java.util.Locale
  */
 class BlissLookup private constructor(private val context: Context) {
 
+    /**
+     * Immutable snapshot of all six lookup maps, published as a single unit.
+     *
+     * ## Fix (audit EG, 2026-07-21)
+     * Prior to this, each map lived in its own `@Volatile` field. `@Volatile`
+     * only guarantees that *a single field's* read/write is visible across
+     * threads — it does **not** make a group of field writes atomic as a
+     * whole. [load] wrote all six fields one after another; a reader on
+     * another thread (any [lookupSurface] / [lookupLemma] / [lookupNgram] /
+     * … call made from the UI or a translation coroutine while [load] for a
+     * *new* language is concurrently in flight) could observe a torn,
+     * half-updated state — e.g. `lexicon` already replaced for the new
+     * language while `ngramIndex` still holds the old one — even though
+     * [loadMutex] already serialises concurrent *writers* against each
+     * other, because it does nothing to protect readers that never take the
+     * lock (and correctly shouldn't have to, for a hot lookup path).
+     *
+     * Consolidating all six maps into one [Tables] value class and
+     * publishing it via a single `@Volatile` reference restores per-call
+     * atomicity for readers: any single read of [_tables] always yields a
+     * fully self-consistent set of maps from exactly one [load] invocation,
+     * never a mix of two.
+     */
+    private data class Tables(
+        val names:         Map<Int, String>  = emptyMap(),
+        val synsets:       Map<Int, Long>    = emptyMap(),
+        val lexicon:       Map<String, Int>  = emptyMap(),
+        val lemmaIndex:    Map<String, Int>  = emptyMap(),
+        val lemmaPoSIndex: Map<String, Int>  = emptyMap(),
+        val ngramIndex:    Map<String, Int>  = emptyMap()
+    )
+
     // ── public read-only views ───────────────────────────────────────────────
 
     /** BCI-AV ID → canonical English name. */
-    val names:        Map<Int, String>  get() = _names
+    val names:        Map<Int, String>  get() = _tables.names
     /** BCI-AV ID → WordNet synset offset (-1 if absent). */
-    val synsets:      Map<Int, Long>    get() = _synsets
+    val synsets:      Map<Int, Long>    get() = _tables.synsets
     /** Surface word → BCI-AV ID (language-specific, lower-cased). */
-    val lexicon:      Map<String, Int>  get() = _lexicon
+    val lexicon:      Map<String, Int>  get() = _tables.lexicon
     /** Lemma → BCI-AV ID (language-specific, lower-cased). */
-    val lemmaIndex:   Map<String, Int>  get() = _lemmaIndex
+    val lemmaIndex:   Map<String, Int>  get() = _tables.lemmaIndex
     /**
      * POS-aware lemma index.  Key = `"lemma|POS"` (e.g. `"camminare|V"`).
      * POS codes: `N V A R P D C I X`.
      */
-    val lemmaPoSIndex: Map<String, Int> get() = _lemmaPoSIndex
+    val lemmaPoSIndex: Map<String, Int> get() = _tables.lemmaPoSIndex
     /** N-gram phrase → BCI-AV ID (language-specific, lower-cased). */
-    val ngramIndex:    Map<String, Int> get() = _ngramIndex
+    val ngramIndex:    Map<String, Int> get() = _tables.ngramIndex
 
     /** ISO-639-1 code of the last successfully loaded language. */
     @Volatile var currentLang: String? = null
@@ -89,12 +125,8 @@ class BlissLookup private constructor(private val context: Context) {
 
     // ── private backing fields ───────────────────────────────────────────────
 
-    @Volatile private var _names         = emptyMap<Int, String>()
-    @Volatile private var _synsets       = emptyMap<Int, Long>()
-    @Volatile private var _lexicon       = emptyMap<String, Int>()
-    @Volatile private var _lemmaIndex    = emptyMap<String, Int>()
-    @Volatile private var _lemmaPoSIndex = emptyMap<String, Int>()
-    @Volatile private var _ngramIndex    = emptyMap<String, Int>()
+    /** Single atomically-published snapshot of all six lookup maps. See [Tables]. */
+    @Volatile private var _tables = Tables()
 
     /** Room FTS4 database instance (lazy-initialised after first load). */
     @Volatile private var _db: BlissDatabase? = null
@@ -213,23 +245,36 @@ class BlissLookup private constructor(private val context: Context) {
     fun load(langCode: String) {
         val lang = normaliseLang(langCode)
         Log.i(TAG, "Loading Bliss assets for lang=$lang")
+        val newTables: Tables
         try {
-            _names        = loadNames()
-            _synsets      = loadSynsets()
-            _lexicon      = loadLexicon(lang)
+            val names   = loadNames()
+            val synsets = loadSynsets()
+            val lexicon = loadLexicon(lang)
             val (plain, pos) = loadLemmas(lang)
-            _lemmaIndex    = plain
-            _lemmaPoSIndex = pos
-            _ngramIndex    = loadNgrams(lang)
+            val ngrams  = loadNgrams(lang)
+            // Built entirely from local vals — nothing is published to
+            // readers until the single assignment below.
+            newTables = Tables(
+                names         = names,
+                synsets       = synsets,
+                lexicon       = lexicon,
+                lemmaIndex    = plain,
+                lemmaPoSIndex = pos,
+                ngramIndex    = ngrams
+            )
         } catch (io: IOException) {
             isReady     = false
             currentLang = null
             throw LoadException("Failed to load Bliss assets for lang=$lang", io)
         }
+        // Single @Volatile write: any concurrent reader sees either the
+        // previous, fully-consistent Tables or this new one — never a mix.
+        _tables     = newTables
         currentLang = lang
         isReady     = true
-        Log.i(TAG, "Bliss assets loaded: names=${_names.size}, lexicon=${_lexicon.size}, " +
-                "lemmas=${_lemmaIndex.size}, ngrams=${_ngramIndex.size}")
+        Log.i(TAG, "Bliss assets loaded: names=${newTables.names.size}, " +
+                "lexicon=${newTables.lexicon.size}, lemmas=${newTables.lemmaIndex.size}, " +
+                "ngrams=${newTables.ngramIndex.size}")
     }
 
     /**
@@ -243,35 +288,34 @@ class BlissLookup private constructor(private val context: Context) {
         val lang = currentLang ?: return
         val db = BlissDatabase.getInstance(context)
         _db = db
-        BlissDatabase.populateIfEmpty(db, _lexicon, _lemmaIndex, lang)
+        val snapshot = _tables
+        BlissDatabase.populateIfEmpty(db, snapshot.lexicon, snapshot.lemmaIndex, lang)
     }
 
     fun reset() {
-        _names         = emptyMap()
-        _synsets       = emptyMap()
-        _lexicon       = emptyMap()
-        _lemmaIndex    = emptyMap()
-        _lemmaPoSIndex = emptyMap()
-        _ngramIndex    = emptyMap()
-        currentLang    = null
-        isReady        = false
+        _tables     = Tables()
+        currentLang = null
+        isReady     = false
         Log.d(TAG, "BlissLookup reset")
     }
 
     // ── HashMap lookup helpers (sync, tiers 1-3) ─────────────────────────────
 
-    fun nameOf(id: Int): String = _names[id] ?: id.toString()
-    fun synsetOf(id: Int): Long = _synsets[id] ?: -1L
+    fun nameOf(id: Int): String = _tables.names[id] ?: id.toString()
+    fun synsetOf(id: Int): Long = _tables.synsets[id] ?: -1L
 
-    fun lookupSurface(word: String): Int? = _lexicon[word.lowercase(Locale.ROOT)]
-    fun lookupLemma(lemma: String): Int?  = _lemmaIndex[lemma.lowercase(Locale.ROOT)]
+    fun lookupSurface(word: String): Int? = _tables.lexicon[word.lowercase(Locale.ROOT)]
+    fun lookupLemma(lemma: String): Int?  = _tables.lemmaIndex[lemma.lowercase(Locale.ROOT)]
 
     fun lookupLemmaPos(lemma: String, pos: String): Int? {
+        // Single snapshot read so both lookups below are guaranteed to come
+        // from the same Tables instance (see [Tables] KDoc).
+        val snapshot = _tables
         val key = "${lemma.lowercase(Locale.ROOT)}|${pos.uppercase(Locale.ROOT)}"
-        return _lemmaPoSIndex[key] ?: _lemmaIndex[lemma.lowercase(Locale.ROOT)]
+        return snapshot.lemmaPoSIndex[key] ?: snapshot.lemmaIndex[lemma.lowercase(Locale.ROOT)]
     }
 
-    fun lookupNgram(phrase: String): Int? = _ngramIndex[phrase.lowercase(Locale.ROOT)]
+    fun lookupNgram(phrase: String): Int? = _tables.ngramIndex[phrase.lowercase(Locale.ROOT)]
 
     // ── Room FTS4 lookup helpers (suspend, tiers 4-5) ────────────────────────
 

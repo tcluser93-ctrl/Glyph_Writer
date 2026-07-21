@@ -54,10 +54,37 @@ class BlissLookupTest {
         return m.invoke(lookup, code) as String
     }
 
-    private fun injectField(fieldName: String, value: Any) {
-        val f: Field = BlissLookup::class.java.getDeclaredField(fieldName)
+    /**
+     * Builds a `BlissLookup.Tables` instance via reflection and injects it
+     * into the private `_tables` field.
+     *
+     * ## Fix (audit EG, 2026-07-21)
+     * [BlissLookup] used to expose six independent `@Volatile` map fields
+     * (`_names`, `_lexicon`, …), which this test suite injected individually
+     * via [injectField]. They are now consolidated into one immutable
+     * `Tables` snapshot published through a single `_tables` field (see its
+     * KDoc in `BlissLookup.kt` for the atomicity fix this enables). This
+     * helper constructs that snapshot reflectively — `Tables` is a private
+     * nested data class, so its declared (not public) constructor is used.
+     */
+    private fun injectTables(
+        names:         Map<Int, String> = emptyMap(),
+        synsets:       Map<Int, Long>   = emptyMap(),
+        lexicon:       Map<String, Int> = emptyMap(),
+        lemmaIndex:    Map<String, Int> = emptyMap(),
+        lemmaPoSIndex: Map<String, Int> = emptyMap(),
+        ngramIndex:    Map<String, Int> = emptyMap()
+    ) {
+        val tablesClass = Class.forName("com.blueapps.egyptianwriter.bliss.BlissLookup\$Tables")
+        val ctor = tablesClass.getDeclaredConstructor(
+            Map::class.java, Map::class.java, Map::class.java,
+            Map::class.java, Map::class.java, Map::class.java
+        )
+        ctor.isAccessible = true
+        val tables = ctor.newInstance(names, synsets, lexicon, lemmaIndex, lemmaPoSIndex, ngramIndex)
+        val f: Field = BlissLookup::class.java.getDeclaredField("_tables")
         f.isAccessible = true
-        f.set(lookup, value)
+        f.set(lookup, tables)
     }
 
     /**
@@ -127,9 +154,11 @@ class BlissLookupTest {
 
         @Test @DisplayName("reset() empties all maps")
         fun resetEmptiesMaps() {
-            injectField("_lexicon",    mapOf("ciao" to 1))
-            injectField("_lemmaIndex", mapOf("andare" to 2))
-            injectField("_ngramIndex", mapOf("buon giorno" to 3))
+            injectTables(
+                lexicon    = mapOf("ciao" to 1),
+                lemmaIndex = mapOf("andare" to 2),
+                ngramIndex = mapOf("buon giorno" to 3)
+            )
             lookup.reset()
             assertTrue(lookup.lexicon.isEmpty(),    "lexicon should be empty")
             assertTrue(lookup.lemmaIndex.isEmpty(), "lemmaIndex should be empty")
@@ -144,12 +173,14 @@ class BlissLookupTest {
 
         @BeforeEach
         fun injectData() {
-            injectField("_names",         mapOf(12335 to "walk", 14990 to "run"))
-            injectField("_synsets",       mapOf(12335 to 202316L))
-            injectField("_lexicon",       mapOf("camminare" to 12335, "correre" to 14990))
-            injectField("_lemmaIndex",    mapOf("camminare" to 12335))
-            injectField("_lemmaPoSIndex", mapOf("camminare|V" to 12335))
-            injectField("_ngramIndex",    mapOf("buon giorno" to 99001))
+            injectTables(
+                names         = mapOf(12335 to "walk", 14990 to "run"),
+                synsets       = mapOf(12335 to 202316L),
+                lexicon       = mapOf("camminare" to 12335, "correre" to 14990),
+                lemmaIndex    = mapOf("camminare" to 12335),
+                lemmaPoSIndex = mapOf("camminare|V" to 12335),
+                ngramIndex    = mapOf("buon giorno" to 99001)
+            )
         }
 
         @Test @DisplayName("lookupSurface finds exact lower-case word")
