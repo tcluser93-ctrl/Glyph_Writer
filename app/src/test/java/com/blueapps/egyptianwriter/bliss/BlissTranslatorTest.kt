@@ -297,4 +297,44 @@ class BlissTranslatorTest {
             "Expected at least one NGRAM result"
         )
     }
+
+    // ── T-16 ─────────────────────────────────────────────────────────────────
+    /**
+     * Tier 3g — Stage B (classificatore + specificatore letterale, audit EG
+     * 2026-07-22): verifica che ciascun componente di un [ComposedBlissWord]
+     * mantenga il proprio [BlissSymbol.MatchType] quando viene appiattito in
+     * `symbols` — non più forzato a SEMANTIC per tutti i componenti (fix per
+     * il rendering corretto in Vista MIXED, vedi [BlissViewModel.translate]
+     * e `buildMixedSlots` in [BlissTranslateFragment]).
+     *
+     * Fixture indipendente da quella condivisa in [setUp]: costruisce un
+     * [BlissTranslator] locale con un [BlissSemanticComposer] reale (stesso
+     * `lookup` mockato, più un [WordNetIndex] seminato via
+     * [injectWordNetTables]) — "veliero" fallisce tutti i tier precedenti
+     * (ogni `lookupX` è stubbato a `null` in [setUp]) e arriva al tier 3g,
+     * dove non ha un sinonimo diretto (Stage A) ma ha un iperonimo con
+     * simbolo Bliss (Stage B, "boat").
+     */
+    @Test
+    fun t16_tier3g_stageB_preservesPerComponentMatchType() = runTest {
+        whenever(lookup.nameOf(200)).thenReturn("boat")
+
+        val wordNet = WordNetIndex(mock())
+        injectWordNetTables(
+            wordNet,
+            word2synsets = mapOf("veliero" to listOf("S_VELIERO")),
+            synset2bliss = mapOf("S_BOAT" to listOf(200)),
+            hypernyms    = mapOf("S_VELIERO" to listOf("S_BOAT"))
+        )
+        val composer = BlissSemanticComposer(lookup, wordNet)
+        val translatorWithComposer = BlissTranslator(lookup = lookup, morfologik = lemmatizer, composer = composer)
+
+        val result = translatorWithComposer.translateAsync("veliero")
+
+        assertEquals(2, result.size, "Expected classifier + literal specifier")
+        assertEquals(BlissSymbol.MatchType.SEMANTIC, result[0].matchType, "classifier must stay SEMANTIC")
+        assertEquals(200, result[0].bciAvId)
+        assertEquals(BlissSymbol.MatchType.UNKNOWN, result[1].matchType, "specifier must stay UNKNOWN, not be forced to SEMANTIC")
+        assertEquals("veliero", result[1].sourceWord)
+    }
 }

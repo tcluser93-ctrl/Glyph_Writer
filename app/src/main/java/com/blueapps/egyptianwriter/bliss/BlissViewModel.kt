@@ -107,6 +107,20 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     sealed class Event {
         /** Show a short [android.widget.Toast] with localised [message]. */
         data class ShowToast(val message: String) : Event()
+
+        /**
+         * ## Fix (audit EG, 2026-07-22)
+         * Emitted by [setLang] when the translation language actually
+         * changes. [UiState.currentInputText] is reset to `""` in the same
+         * state update, but the Fragment's `EditText` isn't reactively bound
+         * to it (a plain `TextWatcher`, one-directional EditText → state, to
+         * avoid feedback loops — see `setupInput`'s existing `btnClear`
+         * handler for the established pattern of explicitly clearing both).
+         * This one-shot event tells the Fragment to also clear the visible
+         * `EditText`, so switching language doesn't leave stale text from
+         * the previous language sitting in the input box.
+         */
+        object ClearInputField : Event()
     }
 
     // ── UI state ──────────────────────────────────────────────────────────────
@@ -263,10 +277,31 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
      * On [onReady], [BlissSemanticComposer] is instantiated with the ready
      * [lookup] and passed to [BlissTranslator] as the `composer` parameter,
      * activating tier 3g in the async pipeline.
+     *
+     * ## Fix (audit EG, 2026-07-22)
+     * Previously only cleared history/suggestions/search state — the actual
+     * translation ([UiState.symbols], [UiState.composedWords],
+     * [UiState.glyphXDoc], [UiState.stats]) and the input text
+     * ([UiState.currentInputText], [UiState.lastSubmittedText]) were left
+     * untouched. A translation is language-specific (its symbols come from
+     * that language's lexicon), so leaving it on screen after switching
+     * language showed stale, meaningless content — and, since the input
+     * text was untouched too, the input box still held text typed for the
+     * *previous* language, which would resolve to mostly UNKNOWN symbols if
+     * re-submitted. [translateJob] is also cancelled here: without it, a
+     * translation already in flight for the old language could complete
+     * *after* this reset and silently overwrite it with stale results —
+     * safe to cancel unconditionally now that translate()'s
+     * `CancellationException` handling (see its KDoc) makes cancellation a
+     * clean no-op rather than a phantom error state.
+     * [Event.ClearInputField] additionally tells the Fragment to clear the
+     * visible `EditText`, which the `currentInputText` reset alone doesn't
+     * reach (see that event's KDoc for why).
      */
     fun setLang(lang: String) {
         val normalised = lang.lowercase().take(2)
         if (lookup.isReady && lookup.currentLang == normalised) return
+        translateJob?.cancel()
         _uiState.value = _uiState.value.copy(
             isLoading           = true,
             error               = null,
@@ -275,9 +310,18 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
             history             = emptyList(),
             filteredHistory     = emptyList(),
             historySearchQuery  = "",
-            recentInputs        = emptyList()
+            recentInputs        = emptyList(),
+            symbols             = emptyList(),
+            glyphXDoc           = null,
+            composedWords       = emptyList(),
+            renderMode          = RenderMode.CLASSIC,
+            stats               = null,
+            currentInputText    = "",
+            lastSubmittedText   = "",
+            isDirtyInput        = false
         )
         _historySearchQuery.value = ""
+        viewModelScope.launch { _events.emit(Event.ClearInputField) }
         lookup.loadIfNeeded(
             lang    = normalised,
             scope   = viewModelScope,
@@ -336,11 +380,22 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
      * ## Patch 8 change — render dispatch
      *
      * After [BlissTranslator.translateAsync] returns, each `BlissSymbol` whose
-     * `matchType == SEMANTIC` indicates that tier 3g produced that symbol from
-     * a `ComposedBlissWord`.  For those tokens, [BlissSemanticComposer.composeStructured]
-     * is called again on the **original lemma** to re-obtain the full structured
-     * result (with `renderAttachments`), since [BlissTranslator] only stores
-     * the flat `BlissSymbol`.
+     * `matchType == SEMANTIC` marks the *first* component of a
+     * `ComposedBlissWord` tier 3g produced (see
+     * [BlissSemanticComposer]'s Stage A/B KDoc — the first component is
+     * always SEMANTIC; a Stage B result's second component, the literal
+     * specifier, is MatchType.UNKNOWN). For each such symbol,
+     * [BlissSemanticComposer.composeStructured] is called again — on
+     * [BlissSymbol.sourceWord] (the *original* word, identical across every
+     * component of the same group — not [BlissSymbol.lemma], which for a
+     * component is the *substitute's* name and would re-derive nothing or
+     * the wrong thing) — to re-obtain the full structured result (with
+     * `renderAttachments`), since [BlissTranslator] only stores the flat
+     * `BlissSymbol` list. [ComposedBlissWord.components]`.size` consecutive
+     * symbol positions are then skipped, since they're the *other*
+     * components of the same group already covered by this one entry —
+     * see [buildMixedSlots] for how the Fragment turns one non-null entry
+     * plus its skipped siblings into a single [MixedTokenSlot.SvgSlot].
      *
      * The resulting `List<ComposedBlissWord?>` is stored in [UiState.composedWords].
      * [UiState.renderMode] is set to:
@@ -381,11 +436,24 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 val composedWords: List<ComposedBlissWord?> = withContext(Dispatchers.Default) {
-                    symbols.map { sym ->
-                        if (sym.matchType == BlissSymbol.MatchType.SEMANTIC) {
-                            composer?.composeStructured(sym.lemma, lang)
-                        } else null
+                    val result = arrayOfNulls<ComposedBlissWord?>(symbols.size)
+                    var i = 0
+                    while (i < symbols.size) {
+                        val sym = symbols[i]
+                        val composed = if (sym.matchType == BlissSymbol.MatchType.SEMANTIC)
+                            composer?.composeStructured(sym.sourceWord, lang)
+                        else null
+                        if (composed != null) {
+                            result[i] = composed
+                            // Skip the rest of this group's components: they're
+                            // already represented by this single entry (see the
+                            // KDoc above translate() for why).
+                            i += composed.components.size.coerceAtLeast(1)
+                        } else {
+                            i++
+                        }
                     }
+                    result.toList()
                 }
 
                 val hasStructured = composedWords.any { it != null }

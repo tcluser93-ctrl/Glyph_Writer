@@ -439,7 +439,16 @@ class BlissTranslator(
                     name       = component.lemma,
                     sourceWord = word,
                     lemma      = component.lemma,
-                    matchType  = MatchType.SEMANTIC
+                    // Fix (audit EG, 2026-07-22): was hardcoded to SEMANTIC for
+                    // every component, discarding the per-component matchType
+                    // BlissSemanticComposer already assigns — e.g. Stage B's
+                    // literal specifier component (see its KDoc) is
+                    // MatchType.UNKNOWN on purpose, to distinguish "a real
+                    // Bliss symbol found via WordNet" from "the original word,
+                    // carried through unresolved". Flattening it to SEMANTIC
+                    // here mislabelled it (e.g. the CHIPS-view "≈" semantic-
+                    // substitution badge would incorrectly apply to it too).
+                    matchType  = component.symbol.matchType
                 ).let { sym ->
                     val indNames = component.renderAttachments
                         .filter { it.isOverlay }

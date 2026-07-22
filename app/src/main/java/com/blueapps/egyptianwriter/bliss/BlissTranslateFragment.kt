@@ -330,6 +330,11 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
                             appendDebugLog("[EVENT] ShowToast: ${event.message}")
                             Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
                         }
+                        is BlissViewModel.Event.ClearInputField -> {
+                            appendDebugLog("[EVENT] ClearInputField (cambio lingua)")
+                            debounceJob?.cancel()
+                            binding.etInput.setText("")
+                        }
                     }
                 }
             }
@@ -575,16 +580,41 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
 
     /**
      * Costruisce la lista di [MixedTokenSlot] da symbols + composedWords.
-     * - Se composedWords[i] != null → SvgSlot (token structured)
-     * - Altrimenti → ChipSlot (token classic)
+     * - Se composedWords[i] != null → SvgSlot (token structured), che
+     *   consuma [ComposedBlissWord.components].size posizioni consecutive
+     *   di `symbols` (i componenti dello stesso gruppo, es. classificatore +
+     *   specificatore letterale di Stage B) — quelle posizioni NON generano
+     *   un proprio ChipSlot separato, altrimenti lo stesso token comparirebbe
+     *   due volte (un tempo: una volta come SvgSlot completo, una volta come
+     *   ChipSlot col solo componente).
+     * - Altrimenti → ChipSlot (token classic), avanza di una posizione.
+     *
+     * ## Fix (audit EG, 2026-07-22)
+     * Prima usava `symbols.mapIndexed` (una posizione = uno slot sempre),
+     * assumendo implicitamente che ogni entry non-null di `composedWords`
+     * occupasse esattamente UNA posizione in `symbols` — falso per i
+     * risultati Stage B a più componenti, dove tier 3g appiattisce ogni
+     * componente in un `BlissSymbol` separato ma consecutivo. Il risultato
+     * visibile era un doppio rendering: uno SvgSlot con l'intero composto,
+     * seguito da un ChipSlot ridondante per il componente successivo.
      */
     private fun buildMixedSlots(
         symbols: List<BlissSymbol>,
         composedWords: List<ComposedBlissWord?>
-    ): List<MixedTokenSlot> = symbols.mapIndexed { i, sym ->
-        val composed = composedWords.getOrNull(i)
-        if (composed != null) MixedTokenSlot.SvgSlot(i, composed)
-        else MixedTokenSlot.ChipSlot(i, sym)
+    ): List<MixedTokenSlot> {
+        val slots = mutableListOf<MixedTokenSlot>()
+        var i = 0
+        while (i < symbols.size) {
+            val composed = composedWords.getOrNull(i)
+            if (composed != null) {
+                slots += MixedTokenSlot.SvgSlot(i, composed)
+                i += composed.components.size.coerceAtLeast(1)
+            } else {
+                slots += MixedTokenSlot.ChipSlot(i, symbols[i])
+                i++
+            }
+        }
+        return slots
     }
 
     private fun clearSvgJobs() {
