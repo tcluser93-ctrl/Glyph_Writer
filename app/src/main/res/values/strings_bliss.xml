@@ -14,6 +14,12 @@
     <string name="bliss_copied">Testo copiato negli appunti</string>
     <string name="bliss_share_title">Condividi traduzione Bliss</string>
 
+    <!-- Sostituzione semantica (Tier 3g — audit EG, Fase 1/2, 2026-07-22):
+         mostrata quando BlissSemanticComposer sostituisce una parola priva
+         di simbolo Bliss diretto con un sinonimo o iperonimo che ce l'ha. -->
+    <string name="bliss_semantic_substitution_cd">%1$s, sostituzione semantica per \"%2$s\", parola %3$d di %4$d</string>
+    <string name="bliss_semantic_substitution_toast">\"%1$s\" non ha un simbolo diretto — mostrato \"%2$s\" come sostituto semantico</string>
+
     <!-- SettingsFragment — sezione Vista Bliss (C-05) -->
     <string name="settings_section_bliss_view">Vista Bliss</string>
     <string name="settings_bliss_cards_per_row_label">Card Bliss per riga</string>

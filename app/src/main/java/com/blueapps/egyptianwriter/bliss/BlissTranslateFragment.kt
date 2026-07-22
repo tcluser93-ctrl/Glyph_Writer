@@ -395,6 +395,26 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
             chip.contentDescription = buildChipContentDescription(sym, index, symbols.size)
             chip.setOnClickListener { speak(sym.gloss) }
 
+            // Fix (audit EG, Fase 1/2 — 2026-07-22): visual badge for
+            // semantic substitutions (Tier 3g), now that it can actually
+            // fire — see the KDoc on buildChipContentDescription above.
+            // "≈" (approximately-equal) marks the chip as a substitute, not
+            // the literal typed word, mirroring the short-suffix pattern
+            // already used for indicator badges just below. A long-press
+            // surfaces the full "originale → sostituto" explanation as a
+            // Toast, since the chip itself has no room for two lines of text.
+            if (sym.matchType == BlissSymbol.MatchType.SEMANTIC && sym.sourceWord.isNotBlank()) {
+                chip.text = "${chip.text} ≈"
+                chip.setOnLongClickListener {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.bliss_semantic_substitution_toast, sym.sourceWord, sym.gloss),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    true
+                }
+            }
+
             // Fix (enterprise-grade audit, 2026-07-20): previously only
             // plural/past/future were shown, matching the app's previous
             // 3-indicator coverage. Now iterates BlissSymbol.indicators
@@ -458,7 +478,26 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         }
     }
 
+    /**
+     * ## Fix (audit EG, Fase 1/2 — 2026-07-22)
+     * Tier 3g's semantic composition (see [BlissSemanticComposer]) was
+     * permanently unreachable in production until this audit pass, so
+     * [BlissSymbol.MatchType.SEMANTIC] never actually reached this
+     * function before — the generic `"$gloss, parola N di M, semantico"`
+     * description gave no indication that the shown symbol *isn't* the
+     * word the user typed (e.g. "sea" shown in place of "oceano"). Now
+     * that Stage A/B can genuinely produce SEMANTIC results, a distinct,
+     * more informative description names both the substitute and the
+     * original word — this is the CHIPS-view equivalent of the CARDS
+     * view's `card_source_word` field, which already shows this.
+     */
     private fun buildChipContentDescription(sym: BlissSymbol, index: Int, total: Int): String {
+        if (sym.matchType == BlissSymbol.MatchType.SEMANTIC && sym.sourceWord.isNotBlank()) {
+            return getString(
+                R.string.bliss_semantic_substitution_cd,
+                sym.gloss, sym.sourceWord, index + 1, total
+            )
+        }
         val match = when (sym.matchType) {
             BlissSymbol.MatchType.EXACT            -> "corrispondenza esatta"
             BlissSymbol.MatchType.LEMMA            -> "lemma"
