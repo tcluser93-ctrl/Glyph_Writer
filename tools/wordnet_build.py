@@ -20,7 +20,12 @@ Read that first if anything here looks arbitrary.
   Each language file is released under its own open license (CC BY /
   CC BY-SA / public domain depending on the underlying project) -- see
   the generated ATTRIBUTIONS.md for the exact citation per language
-  actually bundled.
+  actually bundled. Covers it, en, fr, nl, pl, pt, es.
+- German (de) is not in omw-data 1.x -- OdeNet (Open German WordNet,
+  CC BY-SA 4.0) ships separately and is fetched directly via `wn`
+  (`wn.download('odenet')`), then cross-referenced to PWN 3.0 offsets
+  via the shared Interlingual Index (ILI). See
+  build_german_word2synsets()'s docstring for the details.
 - Princeton WordNet 3.0 hypernym graph, fetched via the `wn` Python
   library (`pip install wn`, then `wn.download('omw-en:1.4')` once).
   Synset ids are shared across all OMW languages (they're PWN 3.0
@@ -30,7 +35,8 @@ Read that first if anything here looks arbitrary.
 ## Usage
     pip install wn --break-system-packages   # first time only
     python3 -c "import wn; wn.download('omw-en:1.4')"   # first time only
-    python3 tools/wordnet_build.py --lang it --lang en
+    python3 -c "import wn; wn.download('odenet')"       # first time only, only needed for --lang de
+    python3 tools/wordnet_build.py --lang it --lang en --lang fr --lang es --lang nl --lang pl --lang pt --lang de
 
 ## Outputs (written into app/src/main/assets/wordnet/)
     word2synsets_<lang>.json   "word" -> ["13776971-n", ...]
@@ -100,19 +106,63 @@ OMW_TAG = {
     "fr": "fra",
     "nl": "nld",
     "pl": "pol",
-    "pt": "por",
+    "pt": None,  # bare "lemma", no language prefix (OpenWN-PT) — confirmed
+                 # by inspecting the raw tab file, not assumed from naming
     "es": "spa",
 }
-# German is not in omw-data 1.x (OdeNet ships separately in OMW 2.0 / `wn`);
-# left as a documented follow-up rather than silently skipped.
-UNSUPPORTED = {"de": "OdeNet not available via omw-data; needs a separate fetch path (see report, Fase 0 table)."}
-
 NOUN_VERB_SUFFIXES = ("-n", "-v")
 
 
+def build_german_word2synsets() -> tuple[dict[str, list[str]], dict[str, set[str]]]:
+    """Special-cased German extraction.
+
+    OdeNet (the Open German WordNet) isn't published in omw-data's per-
+    language tab-file format the other languages use — it ships as its own
+    lexicon, fetchable via the `wn` Python package (`wn.download('odenet')`,
+    same tool already used for the hypernym graph). This queries it
+    directly and cross-references its synsets to Princeton WordNet 3.0
+    offsets via the shared Interlingual Index (ILI) that both `odenet` and
+    `omw-en:1.4` synsets carry — landing German in the exact same
+    "offset-pos" id space (e.g. "13776971-n") every other language's
+    word2synsets already uses, so it needs no special handling downstream
+    (synset2bliss, hypernyms.json are id-space-agnostic).
+
+    OdeNet is licensed CC BY-SA 4.0 (github.com/hdaSprachtechnologie/odenet).
+    """
+    try:
+        import wn
+    except ImportError:
+        raise SystemExit(
+            "The 'wn' package is required for German.\n"
+            "  pip install wn --break-system-packages\n"
+            "  python3 -c \"import wn; wn.download('odenet')\""
+        )
+    en = wn.Wordnet("omw-en:1.4")
+    de = wn.Wordnet("odenet:1.4")
+
+    print("  building ILI -> PWN 3.0 offset map from omw-en:1.4 ...")
+    ili_to_offset: dict[str, str] = {
+        ss.ili: ss.id.replace("omw-en-", "") for ss in en.synsets() if ss.ili
+    }
+
+    word2syn: dict[str, list[str]] = collections.defaultdict(list)
+    syn2words: dict[str, set[str]] = collections.defaultdict(set)
+    unlinked = 0
+    for w in de.words():
+        lemma = w.lemma().lower()
+        for sense in w.senses():
+            offset = ili_to_offset.get(sense.synset().ili)
+            if offset is None:
+                unlinked += 1
+                continue
+            if offset not in word2syn[lemma]:
+                word2syn[lemma].append(offset)
+            syn2words[offset].add(lemma)
+    print(f"  {unlinked} OdeNet senses had no PWN 3.0 ILI link (skipped)")
+    return word2syn, syn2words
+
+
 def fetch_tab_file(lang: str) -> str:
-    if lang in UNSUPPORTED:
-        raise SystemExit(f"--lang {lang}: {UNSUPPORTED[lang]}")
     if lang not in OMW_LANG_DIR:
         raise SystemExit(f"--lang {lang}: unknown app language code")
     url = f"{OMW_DATA_RAW}/{OMW_LANG_DIR[lang]}/{OMW_TAB_FILE[lang]}"
@@ -226,6 +276,7 @@ ATTRIBUTION_TEXT = {
     "pl": "plWordNet — CC BY-SA — via Open Multilingual Wordnet",
     "pt": "OpenWN-PT — CC BY-SA — via Open Multilingual Wordnet",
     "es": "Multilingual Central Repository (Spanish) — CC BY 3.0 — via Open Multilingual Wordnet",
+    "de": "OdeNet (Open German WordNet) — hdaSprachtechnologie — CC BY-SA 4.0 — https://github.com/hdaSprachtechnologie/odenet",
 }
 
 
@@ -251,7 +302,7 @@ def update_attributions(langs_processed: list[str]) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--lang", action="append", required=True, dest="langs",
-                     help="app language code (it, en, fr, nl, pl, pt, es); repeatable")
+                     help="app language code (it, en, fr, nl, pl, pt, es, de); repeatable")
     args = ap.parse_args()
 
     all_synsets_for_hypernyms: set[str] = set()
@@ -265,8 +316,11 @@ def main() -> None:
     per_lang_synsets: dict[str, set[str]] = {}
     for lang in args.langs:
         print(f"\n=== {lang} ===")
-        tab_text = fetch_tab_file(lang)
-        word2syn, syn2words = parse_tab(tab_text, OMW_TAG[lang])
+        if lang == "de":
+            word2syn, syn2words = build_german_word2synsets()
+        else:
+            tab_text = fetch_tab_file(lang)
+            word2syn, syn2words = parse_tab(tab_text, OMW_TAG[lang])
         print(f"  {len(word2syn)} lemmas, {len(syn2words)} synsets")
 
         bliss_lexicon = load_bliss_lexicon(lang)

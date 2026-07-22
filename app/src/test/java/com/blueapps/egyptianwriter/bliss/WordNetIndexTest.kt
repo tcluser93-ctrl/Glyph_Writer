@@ -182,13 +182,15 @@ class WordNetIndexTest {
 
         @Test @DisplayName("missing per-language assets: load() leaves maps empty rather than throwing")
         fun missingAssetsDegradesGracefully() {
-            // Simulates a language with no wordnet_build.py output bundled:
-            // AssetManager.open() throws IOException for every path.
+            // "xx" isn't a real language code -- simulates any language
+            // tools/wordnet_build.py hasn't been run for (or hasn't been
+            // written a fetch path for). AssetManager.open() throws
+            // IOException for every path, same as the real absent-asset case.
             stubNoAssets()
-            index.load("de")
+            index.load("xx")
             assertTrue(index.isLoaded)
-            assertEquals("de", index.currentLang)
-            assertNull(index.findSubstitute("irgendein wort"))
+            assertEquals("xx", index.currentLang)
+            assertNull(index.findSubstitute("whatever"))
         }
 
         @Test @DisplayName("load() parses real word2synsets/synset2bliss/hypernyms JSON assets")

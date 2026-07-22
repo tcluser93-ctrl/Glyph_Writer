@@ -7,4 +7,10 @@ Multilingual Wordnet project (Bond & Paik 2012; Bond & Foster 2013).
 Hypernym relations are derived from Princeton WordNet 3.0.
 
 - MultiWordNet (Italian) — Fondazione Bruno Kessler — CC BY 3.0 — https://multiwordnet.fbk.eu/
+- Multilingual Central Repository (Spanish) — CC BY 3.0 — via Open Multilingual Wordnet
+- OdeNet (Open German WordNet) — hdaSprachtechnologie — CC BY-SA 4.0 — https://github.com/hdaSprachtechnologie/odenet
+- Open Dutch Wordnet — CC BY-SA — via Open Multilingual Wordnet
 - Open English Wordnet, derived from Princeton WordNet 3.0 — CC BY 4.0 — https://wordnet.princeton.edu/
+- OpenWN-PT — CC BY-SA — via Open Multilingual Wordnet
+- WOLF (Wordnet Libre du Français) — CC BY-SA 3.0 — via Open Multilingual Wordnet
+- plWordNet — CC BY-SA — via Open Multilingual Wordnet
