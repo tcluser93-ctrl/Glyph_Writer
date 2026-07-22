@@ -1,6 +1,7 @@
 package com.blueapps.egyptianwriter.bliss
 
 import android.content.Context
+import android.content.res.AssetManager
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -10,6 +11,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import java.io.ByteArrayInputStream
 import java.lang.reflect.Method
 
 /**
@@ -44,6 +46,25 @@ class BlissLookupTest {
             .getDeclaredMethod("normaliseLang", String::class.java)
         m.isAccessible = true
         return m.invoke(lookup, code) as String
+    }
+
+    /**
+     * Stubs `fakeContext.assets.open("bliss/bci_lexicon_<lang>.json")` to
+     * return [jsonContent], so [loadLexicon] can be exercised against
+     * synthetic asset data without touching the real bundled assets.
+     */
+    private fun stubLexiconAsset(lang: String, jsonContent: String) {
+        val assetManager = mock<AssetManager>()
+        whenever(assetManager.open("bliss/bci_lexicon_$lang.json"))
+            .thenReturn(ByteArrayInputStream(jsonContent.toByteArray(Charsets.UTF_8)))
+        whenever(fakeContext.assets).thenReturn(assetManager)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun loadLexicon(lang: String): Map<String, Int> {
+        val m: Method = BlissLookup::class.java.getDeclaredMethod("loadLexicon", String::class.java)
+        m.isAccessible = true
+        return m.invoke(lookup, lang) as Map<String, Int>
     }
 
     // ── normaliseLang ─────────────────────────────────────────────────────────
@@ -162,6 +183,69 @@ class BlissLookupTest {
 
         @Test @DisplayName("lookupLemmaPos falls back to plain lemma when POS key misses")
         fun lookupLemmaPosLemmaFallback() = assertEquals(12335, lookup.lookupLemmaPos("camminare", "N"))
+    }
+
+    // ── loadLexicon (JSON asset parsing) ─────────────────────────────────────
+
+    /**
+     * ## Fix (audit EG, 2026-07-22)
+     * `bci_lexicon_<lang>.json` entries have always been JSON arrays of
+     * candidate ids (e.g. `"punto": [8486, 13867]`), never a bare scalar —
+     * confirmed back to the commit that first populated these shards.
+     * `loadLexicon` used to call `JSONObject.optInt(key, -1)`, which returns
+     * the `-1` fallback for any non-numeric value including a `JSONArray`,
+     * so [BlissLookup.lexicon] was silently empty for every language and
+     * tier 3a (exact surface match) never matched anything. These tests
+     * exercise the real asset-parsing path (via a stubbed
+     * `Context.assets.open(...)`) instead of bypassing it through
+     * [injectBlissTables] like the rest of this file, since that is exactly
+     * the path the bug lived in and the reason it went uncaught.
+     */
+    @Nested @DisplayName("loadLexicon (JSON asset parsing)")
+    inner class LoadLexicon {
+
+        @Test @DisplayName("array-valued entry with a single candidate id is parsed")
+        fun singleCandidateArray() {
+            stubLexiconAsset("it", """{"virgola":[8487]}""")
+            assertEquals(8487, loadLexicon("it")["virgola"])
+        }
+
+        @Test @DisplayName("array-valued entry with multiple candidates uses the first as primary")
+        fun multiCandidateArrayUsesFirst() {
+            stubLexiconAsset("it", """{"punto":[8486,13867]}""")
+            assertEquals(8486, loadLexicon("it")["punto"])
+        }
+
+        @Test @DisplayName("keys are lower-cased")
+        fun keysAreLowerCased() {
+            stubLexiconAsset("it", """{"CIAO":[100]}""")
+            assertEquals(100, loadLexicon("it")["ciao"])
+        }
+
+        @Test @DisplayName("empty-array entries are skipped")
+        fun emptyArraySkipped() {
+            stubLexiconAsset("it", """{"vuoto":[]}""")
+            assertTrue(loadLexicon("it").isEmpty())
+        }
+
+        @Test @DisplayName("bare scalar entries are still accepted defensively")
+        fun bareScalarStillAccepted() {
+            stubLexiconAsset("it", """{"scalare":42}""")
+            assertEquals(42, loadLexicon("it")["scalare"])
+        }
+
+        @Test @DisplayName("multiple entries parse independently")
+        fun multipleEntries() {
+            stubLexiconAsset(
+                "it",
+                """{"virgola":[8487],"punto":[8486,13867],"due punti":[8488]}"""
+            )
+            val result = loadLexicon("it")
+            assertEquals(3, result.size)
+            assertEquals(8487, result["virgola"])
+            assertEquals(8486, result["punto"])
+            assertEquals(8488, result["due punti"])
+        }
     }
 
     // ── constants ─────────────────────────────────────────────────────────────

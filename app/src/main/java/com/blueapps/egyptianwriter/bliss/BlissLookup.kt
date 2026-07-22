@@ -395,11 +395,56 @@ class BlissLookup private constructor(private val context: Context) {
             val keys = json.keys()
             while (keys.hasNext()) {
                 val key = keys.next()
-                val id  = json.optInt(key, -1)
+                val id  = firstBciId(json.opt(key)) ?: continue
                 if (id > 0) map[key.lowercase(Locale.ROOT)] = id
             }
         } ?: Log.w(TAG, "bci_lexicon_$lang.json not found")
         return map
+    }
+
+    /**
+     * Extracts the primary BCI-AV id from a `bci_lexicon_<lang>.json` entry
+     * value.
+     *
+     * ## Fix (audit EG, 2026-07-22)
+     * Every entry in `bci_lexicon_<lang>.json` is, and has always been (going
+     * back to the commit that first populated these shards), a JSON array of
+     * candidate ids — e.g. `"punto": [8486, 13867]` for an ambiguous word
+     * with two possible symbols, `"virgola": [8487]` for an unambiguous one.
+     * [loadLexicon] previously called `JSONObject.optInt(key, -1)`, which
+     * org.json silently returns as the `-1` fallback for *any* non-numeric
+     * value — including a `JSONArray` (verified against the reference
+     * org.json implementation, which Android's runtime `org.json` package
+     * is sourced from and behaviourally matches for this method). This means
+     * `id > 0` was never true, `_lexicon`/[lexicon] was always empty
+     * regardless of language, and tier 3a (exact surface match, the most
+     * direct lookup in [BlissTranslator]'s pipeline) never matched anything.
+     * The bug was easy to miss end-to-end because tier 3c (plain lemma
+     * lookup, backed by `lemmas_<lang>.csv` — a different, correctly
+     * scalar-parsed asset) still resolves many words that happen to already
+     * be in base/lemma form, just with `MatchType.LEMMA` instead of
+     * `MatchType.EXACT`. What silently fell through were entries that exist
+     * *only* in the JSON lexicon: proper nouns, multi-word idioms (e.g.
+     * "punto esclamativo"), and inflected surface forms absent from the
+     * lemma CSV.
+     *
+     * When a lexicon entry lists multiple candidate ids, the first one is
+     * used as the primary surface match — consistent with how first-listed
+     * order is treated as a "most common sense" proxy for the WordNet-
+     * derived assets elsewhere in this codebase. Disambiguating by POS
+     * instead is a possible future improvement; not attempted here to keep
+     * this fix scoped to restoring the pre-existing single-id contract of
+     * [lexicon] (`Map<String, Int>`).
+     *
+     * Defensively also accepts a bare scalar number, in case a future data
+     * refresh reverts to that shape.
+     */
+    private fun firstBciId(value: Any?): Int? = when (value) {
+        is Int  -> value
+        is Long -> value.toInt()
+        is org.json.JSONArray ->
+            if (value.length() > 0) value.optInt(0, -1).takeIf { it > 0 } else null
+        else -> null
     }
 
     private fun loadLemmas(lang: String): Pair<Map<String, Int>, Map<String, Int>> {

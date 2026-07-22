@@ -27,6 +27,7 @@ archCoreTesting   = "2.2.0"
 mockitoKotlin     = "5.4.0"
 junitJupiter      = "5.11.4"
 junitPlatform     = "1.11.4"
+orgJson           = "20240303"
 
 [libraries]
 commons-lang = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commons-lang" }
@@ -55,6 +56,7 @@ lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-view
 lifecycle-runtime-ktx   = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx",   version.ref = "lifecycle" }
 # ── test libs ─────────────────────────────────────────────────────────────────────────
 kotlinx-coroutines-test  = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test",    version.ref = "coroutinesTest" }
+org-json                 = { group = "org.json", name = "json", version.ref = "orgJson" }
 arch-core-testing        = { group = "androidx.arch.core",    name = "core-testing",               version.ref = "archCoreTesting" }
 mockito-kotlin           = { group = "org.mockito.kotlin",    name = "mockito-kotlin",             version.ref = "mockitoKotlin" }
 junit-jupiter            = { group = "org.junit.jupiter",     name = "junit-jupiter",              version.ref = "junitJupiter" }

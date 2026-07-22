@@ -94,6 +94,16 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.arch.core.testing)
     testImplementation(libs.mockito.kotlin)
+    // Real org.json implementation for unit tests. AGP's unit-test runtime
+    // classpath resolves org.json.JSONObject/JSONArray from the mockable
+    // android.jar by default; with testOptions.unitTests.isReturnDefaultValues
+    // = true (set above) that stub silently no-ops every method (keys(),
+    // optInt(), etc. all return null/-1/false) instead of throwing "Stub!".
+    // Tests that actually need JSON parsing to happen — e.g. exercising
+    // BlissLookup.loadLexicon() against a stubbed asset — need this real
+    // implementation on the classpath, which Gradle resolves ahead of the
+    // platform stub for a plain JVM unit test.
+    testImplementation(libs.org.json)
     // Room annotation classes needed on the JVM test compile classpath because
     // BlissHistoryEntry is referenced transitively by BlissViewModel.UiState.
     testImplementation(libs.room.runtime)
