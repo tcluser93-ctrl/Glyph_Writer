@@ -22,23 +22,15 @@ import org.mockito.kotlin.whenever
  * package had already migrated to JUnit5. None of that matches the real,
  * current production types — see git history for the full story.
  *
- * ## Update (audit EG, 2026-07-22) — Stage A redesign
- * Stage A no longer re-queries [BlissLookup] (see [BlissSemanticComposer]'s
- * KDoc for why the original Patch 5 version of that was permanently
- * unreachable); it now queries a separate [WordNetIndex] for a synonym or
- * nearby hypernym that has a Bliss symbol. The Stage A fixture below was
- * rewritten accordingly, seeded via the shared [injectWordNetTables]
- * reflection helper (the [WordNetIndex] analogue of [injectBlissTables]).
- * Stage B and Stage C are untouched by this pass (Stage B's redesign is
- * tracked separately — see `Report_EG_Tier3g_Opzioni_A_D.md`, Fase 2) so
- * their fixtures and tests are unchanged. Note: the Stage B tests below
- * previously failed (the *old* Stage A self-matched unconditionally and
- * shadowed Stage B before it could ever run — see the removed
- * `synsetToBciIds` self-match logic in git history); they pass now purely
- * as a side effect of Stage A no longer touching [BlissLookup] at all, not
- * because Stage B's own logic changed. See the Stage B KDoc in
- * [BlissSemanticComposer] for why it is still effectively a no-op in real
- * production usage despite being reachable in this isolated test.
+ * ## Update (audit EG, 2026-07-22) — Stage A/B redesign
+ * Neither stage re-queries [BlissLookup] anymore (see [BlissSemanticComposer]'s
+ * KDoc for why the original Patch 5 versions of both were permanently
+ * unreachable, and Stage B additionally self-contradictory even in
+ * isolation). Both now query the same [WordNetIndex]: Stage A accepts only
+ * a direct-synonym (level 0) hit; Stage B accepts only a hypernym (level
+ * >= 1) hit and composes it with the literal word as a second, unresolved
+ * component. Fixtures below are seeded via the shared [injectWordNetTables]
+ * / [injectBlissTables] reflection helpers.
  */
 @DisplayName("BlissSemanticComposer")
 class BlissSemanticComposerTest {
@@ -56,44 +48,20 @@ class BlissSemanticComposerTest {
     fun setUp() {
         resetBlissLookupSingleton()
         lookup = BlissLookup.getInstance(fakeContext)
-        // Stage B fixture design (unchanged by the Stage A redesign):
-        // - "big_house" resolves to SPECIFIER_ID, whose synset (SPECIFIER_SYNSET)
-        //   falls in the NOUN bucket. CLASSIFIER_ID shares that *exact* synset
-        //   value and is declared *before* SPECIFIER_ID in the `synsets` map
-        //   (Kotlin's mapOf(...) preserves insertion order via LinkedHashMap).
-        //   Stage B's classifier search keeps the *first* entry with the
-        //   lowest |delta|; since both have delta 0 to the specifier's own
-        //   synset, CLASSIFIER_ID — encountered first — wins, and
-        //   SPECIFIER_ID's own (later, tied) delta does not overwrite it
-        //   (BlissSemanticComposer uses a strict "<" comparison). This
-        //   deterministically produces a 2-component [classifier, specifier]
-        //   result with distinct lemmas, exactly like two real BCI-AV entries
-        //   that happen to share a WordNet synset offset would in production.
         injectBlissTables(
             lookup,
             names = mapOf(
-                MARE_ID       to "sea",
-                BOAT_ID       to "boat",
-                CLASSIFIER_ID to "container",
-                SPECIFIER_ID  to "big_house"
-            ),
-            synsets = mapOf(
-                CLASSIFIER_ID to SPECIFIER_SYNSET,
-                SPECIFIER_ID  to SPECIFIER_SYNSET
-            ),
-            lexicon = mapOf(
-                "big_house" to SPECIFIER_ID
+                MARE_ID to "sea",
+                BOAT_ID to "boat"
             )
         )
 
         wordNet = WordNetIndex(fakeContext)
-        // Stage A fixture:
         // - "oceano" shares OCEANO_SYNSET directly with a Bliss-linked
-        //   synonym (MARE_ID) -> level-0 hit, no hypernym climbing needed.
+        //   synonym (MARE_ID) -> level-0 hit -> Stage A.
         // - "veliero" has its own synset (VELIERO_SYNSET) with NO Bliss hit,
-        //   but its direct hypernym (BOAT_SYNSET) does -> level-1 hit.
-        // - "xyzzy" is absent from word2synsets entirely -> WordNet lookup
-        //   itself misses, same as Stage C's fixture expects.
+        //   but its direct hypernym (BOAT_SYNSET) does -> level-1 hit -> Stage B.
+        // - "xyzzy" is absent from word2synsets entirely -> both stages miss.
         injectWordNetTables(
             wordNet,
             word2synsets = mapOf(
@@ -114,7 +82,7 @@ class BlissSemanticComposerTest {
 
     // ── Stage A ───────────────────────────────────────────────────────────────
 
-    @Nested @DisplayName("Stage A — WordNet synonym/hypernym substitution")
+    @Nested @DisplayName("Stage A — WordNet direct-synonym substitution")
     inner class StageA {
 
         @Test @DisplayName("direct synonym (level 0): returns a single-component ComposedBlissWord via SYNONYM_SYNSET")
@@ -133,19 +101,21 @@ class BlissSemanticComposerTest {
             assertEquals(MARE_ID, result.components.first().symbol.bciAvId)
         }
 
-        @Test @DisplayName("hypernym (level 1): resolves via the direct hypernym's Bliss symbol when no direct synonym has one")
-        fun hypernymLevel1Hit() {
-            val result = composer.composeStructured("veliero", "it")
-
-            assertNotNull(result, "Expected non-null ComposedBlissWord via hypernym climbing")
-            assertEquals(BOAT_ID, result!!.components.first().symbol.bciAvId)
-            assertEquals(CompositionPath.SYNONYM_SYNSET, result.compositionPath)
-        }
-
         @Test @DisplayName("component lemma is the substitute's canonical name, not the original word")
         fun componentLemmaIsSubstituteName() {
             val result = composer.composeStructured("oceano", "it")!!
             assertEquals("sea", result.components.first().lemma, "lookup.nameOf(MARE_ID) == \"sea\" in this fixture")
+        }
+
+        @Test @DisplayName("does NOT handle a hypernym-only (level >= 1) hit — that's Stage B's job")
+        fun hypernymOnlyHitIsNotHandledByStageA() {
+            // "veliero" has no level-0 synonym, only a level-1 hypernym
+            // (BOAT_SYNSET) — composeStructured() still returns non-null
+            // overall (Stage B picks it up), but via a *different* path
+            // than SYNONYM_SYNSET; see StageB.hypernymLevel1ReturnsTwoComponents.
+            val result = composer.composeStructured("veliero", "it")!!
+            assertEquals(CompositionPath.SEMANTIC_DECOMPOSITION, result.compositionPath,
+                "A hypernym-only hit must go through Stage B, not Stage A")
         }
 
         @Test @DisplayName("word absent from WordNet data returns null (no synonym/hypernym path exists to try)")
@@ -153,7 +123,7 @@ class BlissSemanticComposerTest {
             assertNull(composer.composeStructured("xyzzy", "it"))
         }
 
-        @Test @DisplayName("Stage A is a no-op when no WordNetIndex is supplied")
+        @Test @DisplayName("Stage A/B are a no-op when no WordNetIndex is supplied")
         fun noWordNetIndexIsNoOp() {
             val composerWithoutWordNet = BlissSemanticComposer(lookup)
             assertNull(composerWithoutWordNet.composeStructured("oceano", "it"))
@@ -162,31 +132,47 @@ class BlissSemanticComposerTest {
 
     // ── Stage B ───────────────────────────────────────────────────────────────
 
-    @Nested @DisplayName("Stage B — hypernym classifier bucket match")
+    @Nested @DisplayName("Stage B — hypernym classifier + literal specifier")
     inner class StageB {
 
-        @Test @DisplayName("returns a two-component ComposedBlissWord via SEMANTIC_DECOMPOSITION")
-        fun bucketMatchReturnsTwoComponents() {
-            val result = composer.composeStructured("big_house", "en")
+        @Test @DisplayName("hypernym (level 1): returns a two-component ComposedBlissWord via SEMANTIC_DECOMPOSITION")
+        fun hypernymLevel1ReturnsTwoComponents() {
+            val result = composer.composeStructured("veliero", "it")
 
-            assertNotNull(result, "Expected non-null ComposedBlissWord for Stage B word")
+            assertNotNull(result, "Expected non-null ComposedBlissWord via hypernym classifier + specifier")
             assertEquals(CompositionPath.SEMANTIC_DECOMPOSITION, result!!.compositionPath)
             assertEquals(2, result.components.size)
         }
 
-        @Test @DisplayName("classifier and specifier components have distinct lemmas")
-        fun componentsHaveDistinctLemmas() {
-            val result = composer.composeStructured("big_house", "en")!!
-            val lemmas = result.components.map { it.lemma }
-            assertEquals(2, lemmas.distinct().size, "Expected 2 distinct lemmas")
+        @Test @DisplayName("classifier component carries the hypernym's real Bliss id and SEMANTIC match type")
+        fun classifierComponentIsRealBlissSymbol() {
+            val result = composer.composeStructured("veliero", "it")!!
+            val classifier = result.components[0]
+            assertEquals(BOAT_ID, classifier.symbol.bciAvId)
+            assertEquals(MatchType.SEMANTIC, classifier.symbol.matchType)
+            assertEquals("boat", classifier.lemma, "lookup.nameOf(BOAT_ID) == \"boat\" in this fixture")
         }
 
-        @Test @DisplayName("classifier component resolves to CLASSIFIER_ID, not SPECIFIER_ID")
-        fun classifierComponentIsDistinctFromSpecifier() {
-            val result = composer.composeStructured("big_house", "en")!!
-            val ids = result.components.map { it.symbol.bciAvId }
-            assertTrue(CLASSIFIER_ID in ids, "Expected classifier BCI id $CLASSIFIER_ID among components")
-            assertTrue(SPECIFIER_ID in ids, "Expected specifier BCI id $SPECIFIER_ID among components")
+        @Test @DisplayName("specifier component carries the literal original word, unresolved (not a made-up Bliss id)")
+        fun specifierComponentIsLiteralWord() {
+            val result = composer.composeStructured("veliero", "it")!!
+            val specifier = result.components[1]
+            assertEquals(MatchType.UNKNOWN, specifier.symbol.matchType,
+                "The specifier must never claim a Bliss id that doesn't exist for this word")
+            assertEquals("veliero", specifier.symbol.sourceWord)
+            assertEquals("veliero", specifier.lemma)
+        }
+
+        @Test @DisplayName("does NOT handle a direct-synonym (level 0) hit — that's Stage A's job")
+        fun directSynonymHitIsNotHandledByStageB() {
+            val result = composer.composeStructured("oceano", "it")!!
+            assertEquals(1, result.components.size,
+                "A direct synonym must resolve via Stage A as a single component, not Stage B's two")
+        }
+
+        @Test @DisplayName("word absent from WordNet data returns null")
+        fun wordAbsentFromWordNetReturnsNull() {
+            assertNull(composer.composeStructured("xyzzy", "it"))
         }
     }
 
@@ -197,9 +183,9 @@ class BlissSemanticComposerTest {
 
         @Test @DisplayName("disabled by default: unresolvable word returns null")
         fun disabledByDefaultReturnsNull() {
-            // "xyzzy" is absent from both the lexicon and lemma index, and
-            // enableOrthographicFallback defaults to false, so Stage C never
-            // even runs — Stage A/B simply fail to resolve the token at all.
+            // "xyzzy" is absent from both the lexicon and the WordNet data,
+            // and enableOrthographicFallback defaults to false, so Stage C
+            // never even runs — Stage A/B simply fail to resolve the token.
             val result = composer.composeStructured("xyzzy", "en")
             assertNull(result, "Stage C must not activate when enableOrthographicFallback=false")
         }
@@ -229,17 +215,11 @@ class BlissSemanticComposerTest {
     }
 
     companion object {
-        // Stage A fixture
         private const val OCEANO_SYNSET  = "13776971-n" // shares this synset with "mare" (real PWN 3.0 offset)
         private const val VELIERO_SYNSET = "04194289-n" // "veliero"'s own synset, no direct Bliss hit
         private const val BOAT_SYNSET    = "02858304-n" // VELIERO_SYNSET's hypernym, has a Bliss hit
         private const val MARE_ID = 12335
         private const val BOAT_ID = 12336
-
-        // Stage B fixture — see the insertion-order comment in setUp() above.
-        private const val CLASSIFIER_ID     = 14001
-        private const val SPECIFIER_ID      = 14002
-        private const val SPECIFIER_SYNSET  = 100_000_050L // WordNet noun bucket
     }
 }
 

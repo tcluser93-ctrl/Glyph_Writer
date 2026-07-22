@@ -21,18 +21,16 @@ import java.util.Locale
  * [ComposedBlissWord.toFlatSymbol].  Callers should migrate to
  * [composeStructured] at their own pace.
  *
- * ## Stage A — WordNet synonym/hypernym substitution (EG audit redesign, 2026-07-22)
+ * ## Stage A — WordNet direct-synonym substitution (EG audit redesign, 2026-07-22)
  * When [word] has no direct Bliss symbol (it already failed tiers 3a-3f, the
  * exact-match/lemma tiers), Stage A looks the word up in a *separate*
  * WordNet-derived index ([wordNet]) rather than re-querying the same Bliss
  * lexicon those tiers just missed on. If a direct synonym (same WordNet
- * synset) has a Bliss symbol, that symbol is used directly — e.g. Italian
- * "oceano" has no Bliss entry, but shares a synset with "mare", which does.
- * Failing that, up to [WordNetIndex.MAX_HYPERNYM_LEVELS] hypernym hops are
- * climbed (broader and broader concepts) looking for the first one that
- * does have a Bliss symbol. See [WordNetIndex]'s KDoc and
- * `Report_EG_Tier3g_Opzioni_A_D.md` for the full rationale, data pipeline,
- * and measured coverage (60-73% of otherwise-unresolved words for Italian).
+ * synset, hop level 0) has a Bliss symbol, that symbol is used directly —
+ * e.g. Italian "oceano" has no Bliss entry, but shares a synset with
+ * "mare", which does: a pure semantic hit, no new composition. See
+ * [WordNetIndex]'s KDoc and `Report_EG_Tier3g_Opzioni_A_D.md` for the full
+ * rationale, data pipeline, and measured coverage.
  *
  * This replaces the original Stage A (Patch 5), which re-derived a BCI-AV
  * id via [BlissLookup.lookupSurface]/[BlissLookup.lookupLemma] on the same
@@ -42,26 +40,37 @@ import java.util.Locale
  * (or none loaded for the active language), Stage A is a silent no-op,
  * same as the rest of this tier was before this redesign.
  *
- * ## Stage B — Hypernym classifier (semantic bucket)
- * When Stage A misses, the synset offset of the resolved token is mapped to a
- * WordNet semantic bucket (noun coarse-range / verb coarse-range) and compared
- * against the synsets of all BCI IDs in that bucket.  The closest BCI symbol
- * (lowest |synset delta| within the bucket) is used as a **classifier** symbol
- * to build a two-element SEMANTIC composition: `[classifier, specifier]`, where
- * the specifier is the directly-resolved BCI ID if available, or null.
+ * Hypernym hits (level >= 1 — a broader, less specific concept than
+ * [word]) are deliberately *not* handled here: see Stage B below.
  *
- * Not yet redesigned (tracked as Fase 2 in the EG audit report). As a side
- * effect of the Stage A redesign above, Stage B is now *reachable* again
- * when Stage A misses — the original Stage A used to self-match and shadow
- * it unconditionally (see the removed `synsetToBciIds` self-match logic in
- * git history). In production it is still effectively a no-op, though: it's
- * gated on [BlissLookup.synsets], which is empty (`bci_blissnet.json` is an
- * unpopulated stub — see the report, §2), so `synsetOf(specifierId) < 0L`
- * makes it return `null` immediately regardless. Fase 2 needs to both
- * restore that data *and* address the deeper design issue the report flags:
- * the "classifier" should be derived from the missing word's own semantic
- * meaning (via [wordNet]), not from a Bliss id that, by construction,
- * doesn't exist for an unresolved word.
+ * ## Stage B — Hypernym classifier + literal specifier (EG audit redesign, 2026-07-22)
+ * When Stage A finds no *direct* synonym, Stage B asks the same
+ * [WordNetIndex] the same question Stage A did — but this time accepts a
+ * hypernym-level hit (a broader category, found by climbing up to
+ * [WordNetIndex.MAX_HYPERNYM_LEVELS] hops; e.g. Italian "veliero" has no
+ * Bliss entry and no direct synonym either, but its hypernym "boat" does).
+ * A single generic symbol for that broader category loses the specific
+ * meaning of [word], so Stage B composes **two** components instead of
+ * one: `[classifier, specifier]`, where the classifier is the hypernym
+ * symbol found via [wordNet] (genuinely derived from the word's own
+ * semantic meaning) and the specifier is [word] itself, carried through
+ * verbatim as an unresolved ([BlissSymbol.MatchType.UNKNOWN]) component —
+ * pairing a general pictogram with the literal typed word for specificity
+ * is itself an established AAC pattern, not a placeholder.
+ *
+ * This replaces the original Stage B (Patch 5), which derived its
+ * "classifier" by re-resolving [word] to a BCI-AV id via
+ * [BlissLookup.lookupSurface]/[BlissLookup.lookupLemma] (the exact same
+ * unreachable precondition Stage A had — see above) and then searching
+ * [BlissLookup.synsets] for the closest WordNet-offset match within a
+ * coarse POS bucket. Beyond being unreachable for the same reason as the
+ * old Stage A, that design was self-contradictory even in isolation: it
+ * required [word] to already have a resolved BCI-AV id with a known
+ * synset in order to find a classifier for a word that, by definition,
+ * doesn't have one. The new design fixes that at the root by deriving the
+ * classifier from [wordNet] — the same WordNet-based mechanism Stage A
+ * uses — rather than from a Bliss id that cannot exist for an unresolved
+ * word.
  *
  * ## Stage C — Orthographic pivot-split (legacy fallback, off by default)
  * The original exhaustive pivot-split over grapheme substrings.  Not BCI-
@@ -133,22 +142,22 @@ class BlissSemanticComposer(
     // ── Stage A (structured) ─────────────────────────────────────────────────
 
     /**
-     * Looks [word] up in [wordNet] (direct synonym, then up to
-     * [WordNetIndex.MAX_HYPERNYM_LEVELS] hypernym hops) and, on a hit,
-     * returns a [ComposedBlissWord] with a single [ResolvedBlissComponent]
-     * wrapping the substitute Bliss symbol.
+     * Looks [word] up in [wordNet] for a *direct synonym* (hop level 0
+     * only — see [WordNetIndex.findSubstitute]) and, on a hit, returns a
+     * [ComposedBlissWord] with a single [ResolvedBlissComponent] wrapping
+     * the substitute Bliss symbol. Hypernym-level hits (level >= 1) are
+     * left for [stageBStructured] to turn into a two-component
+     * classifier+specifier composition instead.
      *
      * The component's lemma is the substitute symbol's canonical name
-     * ([BlissLookup.nameOf]) rather than [word] itself — consistent with
-     * how Stage B's classifier component derives its lemma the same way —
-     * since [WordNetIndex.findSubstitute] only returns a BCI-AV id, not
-     * which specific lemma of the matched synset it came from.
+     * ([BlissLookup.nameOf]) rather than [word] itself, since
+     * [WordNetIndex.findSubstitute] only returns a BCI-AV id, not which
+     * specific lemma of the matched synset it came from.
      */
     private fun stageAStructured(word: String, lang: String): ComposedBlissWord? {
-        val substitute = wordNet?.findSubstitute(word) ?: return null
+        val substitute = wordNet?.findSubstitute(word)?.takeIf { it.level == 0 } ?: return null
 
-        Log.d(TAG, "stageAStructured: '$word' → BCI ${substitute.bciAvId} " +
-                "(synset=${substitute.synset}, hop level=${substitute.level})")
+        Log.d(TAG, "stageAStructured: '$word' → BCI ${substitute.bciAvId} (synset=${substitute.synset})")
         val substituteName = lookup.nameOf(substitute.bciAvId)
         val symbol = lookup.toSymbol(
             id     = substitute.bciAvId,
@@ -178,72 +187,49 @@ class BlissSemanticComposer(
     // ── Stage B (structured) ─────────────────────────────────────────────────
 
     /**
-     * Hypernym classifier via synset bucket proximity.
+     * Hypernym classifier + literal specifier, via the same [wordNet] Stage A
+     * uses.
      *
-     * Returns a [ComposedBlissWord] with either one component (classifier ==
-     * specifier) or two components (classifier + specifier) where each carries
-     * its own [ResolvedBlissComponent.lemma] and empty indicators ready for the
-     * indicator-attachment tier.
-     *
-     * WordNet offset buckets (Princeton WN 3.1):
-     * - Nouns:  100 000 000 – 113 999 999
-     * - Verbs:  200 000 000 – 202 999 999
-     * - Adj:    300 000 000 – 302 999 999
-     * - Adv:    400 000 000 – 402 999 999
+     * Only accepts a [WordNetIndex.Substitute] with `level >= 1` (a
+     * hypernym, not a direct synonym — [stageAStructured] already claimed
+     * `level == 0`). Composes `[classifier, specifier]`:
+     * - **classifier**: the hypernym's Bliss symbol, matching
+     *   [BlissSymbol.MatchType.SEMANTIC], lemma = its canonical name.
+     * - **specifier**: [word] itself, carried through as an unresolved
+     *   ([BlissSymbol.MatchType.UNKNOWN]) component rather than invented
+     *   from a nonexistent Bliss id — see this class's Stage B KDoc for why
+     *   pairing a general pictogram with the literal word is the correct
+     *   fallback here, not a placeholder.
      */
     private fun stageBStructured(word: String, lang: String): ComposedBlissWord? {
-        val (specifierId, resolvedLemma) = resolveSurfaceOrLemma(word) ?: return null
-        val specSynset = lookup.synsetOf(specifierId)
-        if (specSynset < 0L) return null
+        val substitute = wordNet?.findSubstitute(word)?.takeIf { it.level >= 1 } ?: return null
 
-        val bucket = wordnetBucket(specSynset)
+        Log.d(TAG, "stageBStructured: '$word' → classifier BCI ${substitute.bciAvId} " +
+                "(synset=${substitute.synset}, hop level=${substitute.level})")
 
-        var bestId    = -1
-        var bestDelta = Long.MAX_VALUE
-        for ((bciId, bciSynset) in lookup.synsets) {
-            if (wordnetBucket(bciSynset) != bucket) continue
-            val delta = kotlin.math.abs(bciSynset - specSynset)
-            if (delta < bestDelta) {
-                bestDelta = delta
-                bestId    = bciId
-            }
-        }
-        if (bestId < 0) return null
-
-        Log.d(TAG, "stageBStructured: '$word' → classifier BCI $bestId, specifier BCI $specifierId, delta=$bestDelta")
-
-        val components: List<ResolvedBlissComponent> = if (bestId != specifierId) {
-            val classifierSymbol = lookup.toSymbol(
-                id     = bestId,
-                source = word,
-                lemma  = lookup.nameOf(bestId),
-                mt     = BlissSymbol.MatchType.SEMANTIC
-            )
-            val specifierSymbol = lookup.toSymbol(
-                id     = specifierId,
-                source = word,
-                lemma  = resolvedLemma,
-                mt     = BlissSymbol.MatchType.SEMANTIC
-            )
-            listOf(
-                ResolvedBlissComponent(symbol = classifierSymbol, lemma = classifierSymbol.lemma),
-                ResolvedBlissComponent(symbol = specifierSymbol,  lemma = resolvedLemma)
-            )
-        } else {
-            val single = lookup.toSymbol(
-                id     = bestId,
-                source = word,
-                lemma  = resolvedLemma,
-                mt     = BlissSymbol.MatchType.SEMANTIC
-            )
-            listOf(ResolvedBlissComponent(symbol = single, lemma = resolvedLemma))
-        }
+        val classifierName = lookup.nameOf(substitute.bciAvId)
+        val classifierSymbol = lookup.toSymbol(
+            id     = substitute.bciAvId,
+            source = word,
+            lemma  = classifierName,
+            mt     = BlissSymbol.MatchType.SEMANTIC
+        )
+        val specifierSymbol = BlissSymbol(
+            bciAvId    = BlissSymbol.UNKNOWN_SYMBOL_ID,
+            name       = word,
+            sourceWord = word,
+            lemma      = word,
+            matchType  = BlissSymbol.MatchType.UNKNOWN
+        )
 
         return ComposedBlissWord(
             sourceWord      = word,
-            lemma           = resolvedLemma,
+            lemma           = word,
             sourceLang      = lang,
-            components      = components,
+            components      = listOf(
+                ResolvedBlissComponent(symbol = classifierSymbol, lemma = classifierName),
+                ResolvedBlissComponent(symbol = specifierSymbol,  lemma = word)
+            ),
             compositionPath = CompositionPath.SEMANTIC_DECOMPOSITION
         )
     }
@@ -291,43 +277,14 @@ class BlissSemanticComposer(
 
     // ── private helpers ───────────────────────────────────────────────────────
 
-    /**
-     * Returns a pair (bciAvId, resolvedLemma) trying surface lookup first,
-     * then lemma lookup.  Returns null if both miss.
-     */
-    private fun resolveSurfaceOrLemma(word: String): Pair<Int, String>? {
-        lookup.lookupSurface(word)?.let { return Pair(it, word) }
-        lookup.lookupLemma(word)?.let   { return Pair(it, word) }
-        return null
-    }
-
     private fun resolveFragment(fragment: String): Int? {
         if (fragment.length < MIN_FRAGMENT_LEN) return null
         return lookup.lookupSurface(fragment) ?: lookup.lookupLemma(fragment)
-    }
-
-    /**
-     * Returns a coarse bucket identifier for a WordNet synset offset.
-     * Used by Stage B to restrict the hypernym search to the same POS class.
-     */
-    private fun wordnetBucket(synset: Long): Int = when {
-        synset in 100_000_000L..113_999_999L -> BUCKET_NOUN
-        synset in 200_000_000L..202_999_999L -> BUCKET_VERB
-        synset in 300_000_000L..302_999_999L -> BUCKET_ADJ
-        synset in 400_000_000L..402_999_999L -> BUCKET_ADV
-        else                                 -> BUCKET_OTHER
     }
 
     companion object {
         private const val TAG              = "BlissSemanticComposer"
         private const val MIN_WORD_LEN     = 6
         private const val MIN_FRAGMENT_LEN = 3
-
-        // WordNet semantic bucket constants
-        private const val BUCKET_NOUN  = 1
-        private const val BUCKET_VERB  = 2
-        private const val BUCKET_ADJ   = 3
-        private const val BUCKET_ADV   = 4
-        private const val BUCKET_OTHER = 0
     }
 }
