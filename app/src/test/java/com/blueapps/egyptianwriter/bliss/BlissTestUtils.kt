@@ -50,6 +50,27 @@ internal fun injectBlissTables(
 }
 
 /**
+ * Reflectively constructs a `WordNetIndex.Tables` snapshot and injects it
+ * into [index]'s private `_tables` field — the [WordNetIndex] analogue of
+ * [injectBlissTables], for tests that need to seed Stage A's WordNet-based
+ * substitution data without touching real bundled assets or `WordNetIndex.load`.
+ */
+internal fun injectWordNetTables(
+    index:         WordNetIndex,
+    word2synsets: Map<String, List<String>> = emptyMap(),
+    synset2bliss: Map<String, List<Int>>    = emptyMap(),
+    hypernyms:    Map<String, List<String>> = emptyMap()
+) {
+    val tablesClass = Class.forName("com.blueapps.egyptianwriter.bliss.WordNetIndex\$Tables")
+    val ctor = tablesClass.getDeclaredConstructor(Map::class.java, Map::class.java, Map::class.java)
+    ctor.isAccessible = true
+    val tables = ctor.newInstance(word2synsets, synset2bliss, hypernyms)
+    val f: Field = WordNetIndex::class.java.getDeclaredField("_tables")
+    f.isAccessible = true
+    f.set(index, tables)
+}
+
+/**
  * Resets and clears [BlissLookup]'s process-wide singleton so each test
  * starts from a clean slate, regardless of what a previous test left behind.
  *
