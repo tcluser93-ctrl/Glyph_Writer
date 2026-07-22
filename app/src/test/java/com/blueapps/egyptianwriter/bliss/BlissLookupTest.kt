@@ -10,24 +10,16 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import java.lang.reflect.Field
 import java.lang.reflect.Method
 
 /**
  * Unit tests for [BlissLookup].
  *
  * Strategy: use reflection to (a) call private normaliseLang(), (b) inject
- * synthetic data into backing fields, and (c) reset the singleton between
- * tests.  No real Android assets are opened.
- *
- * ## Singleton reset — Kotlin companion object layout
- *
- * In Kotlin, a `companion object` with a `private var INSTANCE` is compiled so
- * that the JVM backing field lives as a *static* field on the **outer** class
- * (`BlissLookup`), not on the `Companion` inner class.  Therefore reflection
- * must target `BlissLookup::class.java`, not `BlissLookup.Companion::class.java`.
- *
- * Verified field name: `INSTANCE` (javap output on BlissLookup.class).
+ * synthetic data into the [BlissLookup.Tables] snapshot via the shared
+ * [injectBlissTables] helper, and (c) reset the singleton between tests via
+ * [resetBlissLookupSingleton] (see `BlissTestUtils.kt`). No real Android
+ * assets are opened.
  */
 @DisplayName("BlissLookup — logic and state management")
 class BlissLookupTest {
@@ -41,7 +33,7 @@ class BlissLookupTest {
 
     @BeforeEach
     fun setUp() {
-        resetSingleton()
+        resetBlissLookupSingleton()
         lookup = BlissLookup.getInstance(fakeContext)
     }
 
@@ -52,56 +44,6 @@ class BlissLookupTest {
             .getDeclaredMethod("normaliseLang", String::class.java)
         m.isAccessible = true
         return m.invoke(lookup, code) as String
-    }
-
-    /**
-     * Builds a `BlissLookup.Tables` instance via reflection and injects it
-     * into the private `_tables` field.
-     *
-     * ## Fix (audit EG, 2026-07-21)
-     * [BlissLookup] used to expose six independent `@Volatile` map fields
-     * (`_names`, `_lexicon`, …), which this test suite injected individually
-     * via [injectField]. They are now consolidated into one immutable
-     * `Tables` snapshot published through a single `_tables` field (see its
-     * KDoc in `BlissLookup.kt` for the atomicity fix this enables). This
-     * helper constructs that snapshot reflectively — `Tables` is a private
-     * nested data class, so its declared (not public) constructor is used.
-     */
-    private fun injectTables(
-        names:         Map<Int, String> = emptyMap(),
-        synsets:       Map<Int, Long>   = emptyMap(),
-        lexicon:       Map<String, Int> = emptyMap(),
-        lemmaIndex:    Map<String, Int> = emptyMap(),
-        lemmaPoSIndex: Map<String, Int> = emptyMap(),
-        ngramIndex:    Map<String, Int> = emptyMap()
-    ) {
-        val tablesClass = Class.forName("com.blueapps.egyptianwriter.bliss.BlissLookup\$Tables")
-        val ctor = tablesClass.getDeclaredConstructor(
-            Map::class.java, Map::class.java, Map::class.java,
-            Map::class.java, Map::class.java, Map::class.java
-        )
-        ctor.isAccessible = true
-        val tables = ctor.newInstance(names, synsets, lexicon, lemmaIndex, lemmaPoSIndex, ngramIndex)
-        val f: Field = BlissLookup::class.java.getDeclaredField("_tables")
-        f.isAccessible = true
-        f.set(lookup, tables)
-    }
-
-    /**
-     * Reset the singleton INSTANCE.
-     *
-     * Kotlin compiles `companion object { private var INSTANCE: BlissLookup? }`
-     * as a **static** field on the outer JVM class (`BlissLookup`), not on the
-     * `Companion` inner class.  We must therefore call
-     * `BlissLookup::class.java.getDeclaredField("INSTANCE")` — targeting the
-     * outer class — to find it.
-     */
-    private fun resetSingleton() {
-        val outerClass: Class<*> = BlissLookup::class.java
-        val f: Field = outerClass.getDeclaredField("INSTANCE")
-        f.isAccessible = true
-        (f.get(null) as? BlissLookup)?.reset()
-        f.set(null, null)
     }
 
     // ── normaliseLang ─────────────────────────────────────────────────────────
@@ -154,7 +96,8 @@ class BlissLookupTest {
 
         @Test @DisplayName("reset() empties all maps")
         fun resetEmptiesMaps() {
-            injectTables(
+            injectBlissTables(
+                lookup,
                 lexicon    = mapOf("ciao" to 1),
                 lemmaIndex = mapOf("andare" to 2),
                 ngramIndex = mapOf("buon giorno" to 3)
@@ -173,7 +116,8 @@ class BlissLookupTest {
 
         @BeforeEach
         fun injectData() {
-            injectTables(
+            injectBlissTables(
+                lookup,
                 names         = mapOf(12335 to "walk", 14990 to "run"),
                 synsets       = mapOf(12335 to 202316L),
                 lexicon       = mapOf("camminare" to 12335, "correre" to 14990),
