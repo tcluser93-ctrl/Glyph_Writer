@@ -382,11 +382,48 @@ class BlissLookup private constructor(private val context: Context) {
             while (keys.hasNext()) {
                 val key = keys.next()
                 val id  = key.toIntOrNull() ?: continue
-                val v   = json.optLong(key, -1L)
+                val v   = firstSynsetOffset(json.opt(key)) ?: continue
                 if (v >= 0L) map[id] = v
             }
         } ?: Log.w(TAG, "bci_blissnet.json not found")
         return map
+    }
+
+    /**
+     * Extracts the primary WordNet synset offset from a `bci_blissnet.json`
+     * entry value.
+     *
+     * ## Fix (audit EG, 2026-07-22)
+     * `bci_blissnet.json` was reduced to an empty stub (`{}`) by a later
+     * asset refresh (commit `914e0e3`, 2026-06-30) that overwrote a
+     * previously-populated file (5,091 real BCI-AV → WordNet 3.1 synset
+     * mappings, added 2026-06-29) because the refresh's xlsx source didn't
+     * carry synset data — see `Report_EG_Tier3g_Opzioni_A_D.md`, §2, for the
+     * full git-archaeology trail. Restoring that historical data (filtered
+     * to the 5,089 of 5,091 ids still present in the current BCI-AV id
+     * scheme) also surfaced a *second*, independent problem: each entry's
+     * value is a JSON array of zero-padded synset-offset **strings** (e.g.
+     * `"8485": ["06857090", "06856067", "07140666"]` — one BCI symbol can
+     * correspond to multiple related WordNet senses), never the single
+     * scalar number [loadSynsets] used to parse via `JSONObject.optLong`.
+     * Same failure mode as the `bci_lexicon_<lang>.json` bug fixed
+     * separately (see [firstBciId]): `optLong` silently falls back to `-1`
+     * for a non-numeric value including a `JSONArray`, so even a correctly
+     * restored file would have parsed to nothing.
+     *
+     * When multiple synset offsets are listed, the first is used as the
+     * primary one, consistent with [firstBciId]'s handling of multi-
+     * candidate lexicon entries — [BlissLookup.synsets] and [synsetOf] keep
+     * their existing single-`Long`-per-id contract rather than widening to
+     * a list, since nothing in the codebase currently needs more than one
+     * synset per symbol.
+     */
+    private fun firstSynsetOffset(value: Any?): Long? = when (value) {
+        is Int  -> value.toLong()
+        is Long -> value
+        is org.json.JSONArray ->
+            if (value.length() > 0) value.optString(0, null)?.toLongOrNull() else null
+        else -> null
     }
 
     private fun loadLexicon(lang: String): Map<String, Int> {

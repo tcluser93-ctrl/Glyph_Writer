@@ -67,6 +67,20 @@ class BlissLookupTest {
         return m.invoke(lookup, lang) as Map<String, Int>
     }
 
+    private fun stubBlissnetAsset(jsonContent: String) {
+        val assetManager = mock<AssetManager>()
+        whenever(assetManager.open("bliss/bci_blissnet.json"))
+            .thenReturn(ByteArrayInputStream(jsonContent.toByteArray(Charsets.UTF_8)))
+        whenever(fakeContext.assets).thenReturn(assetManager)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun loadSynsets(): Map<Int, Long> {
+        val m: Method = BlissLookup::class.java.getDeclaredMethod("loadSynsets")
+        m.isAccessible = true
+        return m.invoke(lookup) as Map<Int, Long>
+    }
+
     // ── normaliseLang ─────────────────────────────────────────────────────────
 
     @Nested @DisplayName("normaliseLang")
@@ -245,6 +259,61 @@ class BlissLookupTest {
             assertEquals(8487, result["virgola"])
             assertEquals(8486, result["punto"])
             assertEquals(8488, result["due punti"])
+        }
+    }
+
+    // ── loadSynsets (JSON asset parsing) ─────────────────────────────────────
+
+    /**
+     * ## Fix (audit EG, 2026-07-22)
+     * `bci_blissnet.json` entries are JSON arrays of zero-padded synset-
+     * offset strings (e.g. `"8485": ["06857090", "06856067"]` — one BCI
+     * symbol can have multiple related WordNet senses), never a bare
+     * scalar. `loadSynsets` used to call `JSONObject.optLong(key, -1L)`,
+     * which falls back to `-1` for any non-numeric value including a
+     * `JSONArray` — the same failure mode as the `bci_lexicon_<lang>.json`
+     * bug covered by [LoadLexicon] above. See [firstSynsetOffset]'s KDoc
+     * for the full story, including the separate data-loss regression
+     * (`bci_blissnet.json` had been reduced to an empty stub) this fix
+     * restores real data for.
+     */
+    @Nested @DisplayName("loadSynsets (JSON asset parsing)")
+    inner class LoadSynsets {
+
+        @Test @DisplayName("array-valued entry with a single offset is parsed")
+        fun singleOffsetArray() {
+            stubBlissnetAsset("""{"8483":["06856067"]}""")
+            assertEquals(6856067L, loadSynsets()[8483])
+        }
+
+        @Test @DisplayName("array-valued entry with multiple offsets uses the first as primary")
+        fun multiOffsetArrayUsesFirst() {
+            stubBlissnetAsset("""{"8485":["06857090","06856067","07140666"]}""")
+            assertEquals(6857090L, loadSynsets()[8485])
+        }
+
+        @Test @DisplayName("leading zeros in the offset string are parsed correctly")
+        fun leadingZerosParsed() {
+            stubBlissnetAsset("""{"1":["00019613"]}""")
+            assertEquals(19613L, loadSynsets()[1])
+        }
+
+        @Test @DisplayName("empty-array entries are skipped")
+        fun emptyArraySkipped() {
+            stubBlissnetAsset("""{"1":[]}""")
+            assertTrue(loadSynsets().isEmpty())
+        }
+
+        @Test @DisplayName("non-numeric key is skipped")
+        fun nonNumericKeySkipped() {
+            stubBlissnetAsset("""{"not-an-id":["06856067"]}""")
+            assertTrue(loadSynsets().isEmpty())
+        }
+
+        @Test @DisplayName("bare scalar entries are still accepted defensively")
+        fun bareScalarStillAccepted() {
+            stubBlissnetAsset("""{"1":6856067}""")
+            assertEquals(6856067L, loadSynsets()[1])
         }
     }
 
