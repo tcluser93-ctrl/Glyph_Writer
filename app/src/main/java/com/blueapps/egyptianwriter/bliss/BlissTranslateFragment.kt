@@ -146,7 +146,7 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
         appendDebugLog("[INIT] onViewCreated — fragment pronto")
 
         // ── Bootstrap motore ────────────────────────────────────────────────
-        val lang = arguments?.getString(ARG_LANG) ?: "it"
+        val lang = arguments?.getString(ARG_LANG) ?: AppPreferences.resolveBlissLang(requireContext())
         appendDebugLog("[INIT] setLang('$lang') — avvio bootstrap motore")
         viewModel.setLang(lang)
     }
@@ -158,6 +158,18 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
      */
     override fun onResume() {
         super.onResume()
+
+        // Fix (audit EG, 2026-07-22): re-applies AppPreferences.resolveBlissLang
+        // every time the user returns from Impostazioni, mirroring the existing
+        // C-05 cards-per-row live-reload pattern just below. setLang() is
+        // documented idempotent (no-op if already the current language), so
+        // this is safe to call unconditionally on every onResume.
+        val resolvedLang = AppPreferences.resolveBlissLang(requireContext())
+        if (resolvedLang != viewModel.uiState.value.langCode) {
+            appendDebugLog("[SETTINGS] lingua cambiata → setLang('$resolvedLang')")
+            viewModel.setLang(resolvedLang)
+        }
+
         val lm = binding.rvCards.layoutManager as? GridLayoutManager ?: return
         val columns = AppPreferences.getBlissCardsPerRow(requireContext())
         if (lm.spanCount != columns) {

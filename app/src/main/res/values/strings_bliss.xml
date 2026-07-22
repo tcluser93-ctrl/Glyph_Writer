@@ -24,4 +24,12 @@
     <string name="settings_section_bliss_view">Vista Bliss</string>
     <string name="settings_bliss_cards_per_row_label">Card Bliss per riga</string>
     <string name="settings_bliss_cards_per_row_desc">Scegli quanti simboli mostrare per riga nella vista CARD (2–8, default 4)</string>
+
+    <!-- SettingsFragment — sezione Lingua traduzione (audit EG, 2026-07-22).
+         Nessuna UI esisteva per scegliere la lingua di traduzione Bliss
+         indipendentemente dalla lingua di sistema del dispositivo. -->
+    <string name="settings_section_language">Lingua di traduzione</string>
+    <string name="settings_bliss_lang_label">Lingua Bliss</string>
+    <string name="settings_bliss_lang_desc">Lingua usata per tradurre il testo in simboli Bliss. Di default segue la lingua del dispositivo.</string>
+    <string name="settings_bliss_lang_system">Segui lingua di sistema (%1$s)</string>
 </resources>

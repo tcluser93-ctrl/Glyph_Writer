@@ -88,6 +88,60 @@
             android:layout_marginBottom="16dp" />
 
         <!-- ─────────────────────────────────────────────────────────────── -->
+        <!-- Titolo sezione Lingua di traduzione (audit EG, 2026-07-22) -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_section_language"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:textColor="@color/l_colorPrimaryDark"
+            android:paddingBottom="8dp"
+            android:paddingTop="4dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_bliss_lang_label"
+            android:textColor="@color/l_textColor"
+            android:textSize="15sp"
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp" />
+
+        <!-- Exposed Dropdown Menu Material3: sola selezione, nessun input libero.
+             Popolata in SettingsFragment con "Segui lingua di sistema" +
+             le 8 lingue in BlissLookup.SUPPORTED_LANGS (nome nella lingua stessa). -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_bliss_lang"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/dropdown_bliss_lang"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:contentDescription="@string/settings_bliss_lang_label" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_bliss_lang_desc"
+            android:textSize="12sp"
+            android:textColor="@color/l_textColorPrimary"
+            android:paddingTop="4dp"
+            android:paddingBottom="16dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/l_backgroundDarker"
+            android:layout_marginBottom="16dp" />
+
+        <!-- ─────────────────────────────────────────────────────────────── -->
         <!-- Titolo sezione Vista Bliss (C-05) -->
         <TextView
             android:layout_width="match_parent"

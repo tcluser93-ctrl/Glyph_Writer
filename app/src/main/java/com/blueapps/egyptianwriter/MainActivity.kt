@@ -16,7 +16,6 @@ import com.blueapps.egyptianwriter.bliss.BlissViewModel
 import com.blueapps.egyptianwriter.ui.SettingsFragment
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
-import java.util.Locale
 
 /**
  * MainActivity — Fase 6 Blocco A
@@ -95,7 +94,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // Destinazione iniziale
         if (savedInstanceState == null) {
-            val initLang = Locale.getDefault().language.take(2)
+            // Fix (audit EG, 2026-07-22): was always Locale.getDefault().language
+            // (device system locale) with no user-facing override — see
+            // AppPreferences.resolveBlissLang's KDoc.
+            val initLang = AppPreferences.resolveBlissLang(this)
             supportFragmentManager.beginTransaction()
                 .replace(
                     R.id.fragment_container,
@@ -142,7 +144,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.nav_translate -> navigateTo(TAG_TRANSLATE) {
-                val lang = Locale.getDefault().language.take(2)
+                val lang = AppPreferences.resolveBlissLang(this)
                 BlissTranslateFragment.newInstance(lang)
             }
             R.id.nav_history   -> navigateTo(TAG_HISTORY) {
