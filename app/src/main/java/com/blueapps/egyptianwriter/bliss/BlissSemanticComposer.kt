@@ -6,7 +6,7 @@ import java.util.Locale
 /**
  * Tier 3g — Semantic composition helper.
  *
- * Replaces the legacy orthographic pivot-split with a three-stage strategy
+ * Replaces the legacy orthographic pivot-split with a multi-stage strategy
  * that respects the BCI/Bliss compositional principles.
  *
  * ## Patch 6 additions
@@ -21,12 +21,26 @@ import java.util.Locale
  * [ComposedBlissWord.toFlatSymbol].  Callers should migrate to
  * [composeStructured] at their own pace.
  *
- * ## Stage A — Direct synset match (WordNet/BlissNet)
- * If the input token can be resolved to a BCI-AV ID (surface or lemma lookup)
- * and that ID has a known WordNet synset offset in `bci_blissnet.json`, the
- * inverted synset index is consulted to return a symbol whose synset directly
- * matches.  This is a pure semantic hit — no new composition, just a reliable
- * cross-lingual link via BlissNet.
+ * ## Stage A — WordNet synonym/hypernym substitution (EG audit redesign, 2026-07-22)
+ * When [word] has no direct Bliss symbol (it already failed tiers 3a-3f, the
+ * exact-match/lemma tiers), Stage A looks the word up in a *separate*
+ * WordNet-derived index ([wordNet]) rather than re-querying the same Bliss
+ * lexicon those tiers just missed on. If a direct synonym (same WordNet
+ * synset) has a Bliss symbol, that symbol is used directly — e.g. Italian
+ * "oceano" has no Bliss entry, but shares a synset with "mare", which does.
+ * Failing that, up to [WordNetIndex.MAX_HYPERNYM_LEVELS] hypernym hops are
+ * climbed (broader and broader concepts) looking for the first one that
+ * does have a Bliss symbol. See [WordNetIndex]'s KDoc and
+ * `Report_EG_Tier3g_Opzioni_A_D.md` for the full rationale, data pipeline,
+ * and measured coverage (60-73% of otherwise-unresolved words for Italian).
+ *
+ * This replaces the original Stage A (Patch 5), which re-derived a BCI-AV
+ * id via [BlissLookup.lookupSurface]/[BlissLookup.lookupLemma] on the same
+ * `word` tiers 3a/3c had already tried and failed on — a precondition that
+ * can never hold at the real call site, making it permanently unreachable
+ * in production. [wordNet] is `null`-safe: with no [WordNetIndex] supplied
+ * (or none loaded for the active language), Stage A is a silent no-op,
+ * same as the rest of this tier was before this redesign.
  *
  * ## Stage B — Hypernym classifier (semantic bucket)
  * When Stage A misses, the synset offset of the resolved token is mapped to a
@@ -36,6 +50,19 @@ import java.util.Locale
  * to build a two-element SEMANTIC composition: `[classifier, specifier]`, where
  * the specifier is the directly-resolved BCI ID if available, or null.
  *
+ * Not yet redesigned (tracked as Fase 2 in the EG audit report). As a side
+ * effect of the Stage A redesign above, Stage B is now *reachable* again
+ * when Stage A misses — the original Stage A used to self-match and shadow
+ * it unconditionally (see the removed `synsetToBciIds` self-match logic in
+ * git history). In production it is still effectively a no-op, though: it's
+ * gated on [BlissLookup.synsets], which is empty (`bci_blissnet.json` is an
+ * unpopulated stub — see the report, §2), so `synsetOf(specifierId) < 0L`
+ * makes it return `null` immediately regardless. Fase 2 needs to both
+ * restore that data *and* address the deeper design issue the report flags:
+ * the "classifier" should be derived from the missing word's own semantic
+ * meaning (via [wordNet]), not from a Bliss id that, by construction,
+ * doesn't exist for an unresolved word.
+ *
  * ## Stage C — Orthographic pivot-split (legacy fallback, off by default)
  * The original exhaustive pivot-split over grapheme substrings.  Not BCI-
  * conformant but useful for maximising coverage in practice.  Disabled by
@@ -44,30 +71,23 @@ import java.util.Locale
  * that carry [BlissSymbol.MatchType.SEMANTIC].
  *
  * ## Thread-safety
- * This class is stateless after construction (indices are lazy `val`).
- * Safe to share across coroutines.
+ * This class is stateless after construction. Safe to share across
+ * coroutines — [wordNet], if supplied, has its own thread-safety guarantee
+ * (see [WordNetIndex]'s KDoc).
  *
  * @param lookup                    A ready [BlissLookup] instance.
+ * @param wordNet                   Optional [WordNetIndex] powering the Stage A
+ *                                  substitution above; if `null` (or not yet
+ *                                  loaded for the active language), Stage A
+ *                                  is a no-op.
  * @param enableOrthographicFallback  When `true`, Stage C runs after A+B fail.
  *                                    Defaults to `false` (BCI-clean mode).
  */
 class BlissSemanticComposer(
     private val lookup: BlissLookup,
+    private val wordNet: WordNetIndex? = null,
     val enableOrthographicFallback: Boolean = false
 ) {
-
-    // ── inverted synset index: synsetOffset -> list of BCI-AV IDs ────────────
-
-    /**
-     * Built lazily from [BlissLookup.synsets].
-     * Maps WordNet synset offset → list of BCI-AV IDs that share it.
-     */
-    private val synsetToBciIds: Map<Long, List<Int>> by lazy {
-        lookup.synsets
-            .entries
-            .filter { it.value >= 0L }
-            .groupBy(keySelector = { it.value }, valueTransform = { it.key })
-    }
 
     // ── public entry points ───────────────────────────────────────────────────
 
@@ -113,38 +133,37 @@ class BlissSemanticComposer(
     // ── Stage A (structured) ─────────────────────────────────────────────────
 
     /**
-     * Resolves [word] to a BCI-AV ID and checks whether the inverted synset
-     * index contains that same synset offset.  Returns a [ComposedBlissWord]
-     * with a single [ResolvedBlissComponent] carrying [BlissSymbol.MatchType.SEMANTIC].
+     * Looks [word] up in [wordNet] (direct synonym, then up to
+     * [WordNetIndex.MAX_HYPERNYM_LEVELS] hypernym hops) and, on a hit,
+     * returns a [ComposedBlissWord] with a single [ResolvedBlissComponent]
+     * wrapping the substitute Bliss symbol.
      *
-     * Re-lemmatisation: if [BlissLookup.lookupSurface] misses but
-     * [BlissLookup.lookupLemma] hits, the component's [ResolvedBlissComponent.lemma]
-     * records the resolved lemma rather than the surface form.
+     * The component's lemma is the substitute symbol's canonical name
+     * ([BlissLookup.nameOf]) rather than [word] itself — consistent with
+     * how Stage B's classifier component derives its lemma the same way —
+     * since [WordNetIndex.findSubstitute] only returns a BCI-AV id, not
+     * which specific lemma of the matched synset it came from.
      */
     private fun stageAStructured(word: String, lang: String): ComposedBlissWord? {
-        val (candidateId, resolvedLemma) = resolveSurfaceOrLemma(word) ?: return null
-        val synset = lookup.synsetOf(candidateId)
-        if (synset < 0L) return null
+        val substitute = wordNet?.findSubstitute(word) ?: return null
 
-        val matchId = synsetToBciIds[synset]
-            ?.let { ids -> ids.firstOrNull { it == candidateId } ?: ids.firstOrNull() }
-            ?: return null
-
-        Log.d(TAG, "stageAStructured: '$word' → BCI $matchId (synset=$synset)")
+        Log.d(TAG, "stageAStructured: '$word' → BCI ${substitute.bciAvId} " +
+                "(synset=${substitute.synset}, hop level=${substitute.level})")
+        val substituteName = lookup.nameOf(substitute.bciAvId)
         val symbol = lookup.toSymbol(
-            id     = matchId,
+            id     = substitute.bciAvId,
             source = word,
-            lemma  = resolvedLemma,
+            lemma  = substituteName,
             mt     = BlissSymbol.MatchType.SEMANTIC
         )
         val component = ResolvedBlissComponent(
             symbol     = symbol,
-            lemma      = resolvedLemma,
+            lemma      = substituteName,
             indicators = symbol.indicators
         )
         return ComposedBlissWord(
             sourceWord      = word,
-            lemma           = resolvedLemma,
+            lemma           = substituteName,
             sourceLang      = lang,
             components      = listOf(component),
             compositionPath = CompositionPath.SYNONYM_SYNSET

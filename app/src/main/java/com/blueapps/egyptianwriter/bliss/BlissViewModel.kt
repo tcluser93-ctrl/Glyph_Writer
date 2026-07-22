@@ -195,6 +195,15 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
     private var translator:   BlissTranslator?       = null
 
     /**
+     * Powers [BlissSemanticComposer]'s Stage A synonym/hypernym substitution
+     * (EG audit, 2026-07-22 — see [WordNetIndex]'s KDoc). Owned here (rather
+     * than by [BlissSemanticComposer] itself) so [setLang] can (re)load it
+     * on [Dispatchers.IO] alongside [BlissLookup.load], the same pattern
+     * already used for [lookup.initDb].
+     */
+    private var wordNetIndex: WordNetIndex? = null
+
+    /**
      * GlyphX document builder, used by [translate] (CLASSIC render mode) and
      * by the export flow ([getBuilder]) to turn a [List] of [BlissSymbol]
      * into a [org.w3c.dom.Document].
@@ -274,9 +283,25 @@ class BlissViewModel(application: Application) : AndroidViewModel(application) {
             scope   = viewModelScope,
             onReady = {
                 // Patch 8: wire composer → translator so tier 3g is live
-                composer   = BlissSemanticComposer(lookup)
+                // EG audit (2026-07-22): WordNetIndex powers Stage A's
+                // synonym/hypernym substitution; loaded on IO alongside
+                // lookup.initDb() since both are blocking asset/DB I/O and
+                // onReady itself dispatches on Dispatchers.Main (see
+                // BlissLookup.loadAsync's KDoc). Constructing the composer
+                // with `wn` immediately (before its load() completes) is
+                // safe: WordNetIndex.findSubstitute() reads a @Volatile
+                // snapshot that's simply still-empty-maps until load()
+                // publishes it, so Stage A just stays a no-op for the (brief)
+                // window before the WordNet assets finish loading, rather
+                // than crashing or racing.
+                val wn = WordNetIndex(getApplication())
+                wordNetIndex = wn
+                composer   = BlissSemanticComposer(lookup, wn)
                 translator = BlissTranslator(lookup, morfologik, composer)
-                viewModelScope.launch(Dispatchers.IO) { lookup.initDb() }
+                viewModelScope.launch(Dispatchers.IO) {
+                    lookup.initDb()
+                    wn.load(normalised)
+                }
                 _uiState.value = _uiState.value.copy(isLoading = false)
                 startObservingHistory(normalised)
                 startObservingRecentInputs(normalised)
