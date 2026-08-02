@@ -6,9 +6,11 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Space
+import androidx.core.content.ContextCompat
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
+import com.blueapps.egyptianwriter.R
 import com.google.android.material.chip.Chip
 
 /**
@@ -137,6 +139,16 @@ class MixedBlissRowView @JvmOverloads constructor(
      * Chip BCI-classic: rispecchia la logica di `renderChips()` nel Fragment
      * (testo label, non-checkable, nessun background custom — il colore del
      * MatchType è responsabilità del Fragment che può post-processare la view).
+     *
+     * ## Fix (audit EG, 2026-07-22)
+     * Non impostava alcun colore esplicito, quindi ereditava il default di
+     * Material3 per `chipBackgroundColor`/testo — quasi nero in dark mode,
+     * stesso bug trovato in `item_symbol_card.xml` (vedi il suo commento per
+     * l'analisi completa: `Base.Theme.EgyptianWriter` non definisce uno
+     * schema colori custom, e il resto dell'app usa `@color/l_*`/
+     * `@color/bliss_chip_*` fissi che ignorano il day/night). Fix: stessi
+     * colori fissi già usati da `item_bliss_chip.xml` per la vista CHIPS
+     * principale, garantendo contrasto indipendentemente dal tema attivo.
      */
     private fun buildChip(symbol: BlissSymbol): Chip {
         val gapPx = with(DpUtil) { 4.dpToPx(resources) }
@@ -145,6 +157,10 @@ class MixedBlissRowView @JvmOverloads constructor(
             textSize          = 11f
             isCheckable       = false
             contentDescription = symbol.displayLabel()
+            setTextColor(ContextCompat.getColor(context, R.color.bliss_chip_text))
+            chipBackgroundColor = ContextCompat.getColorStateList(context, R.color.l_backgroundDark)
+            chipStrokeColor     = ContextCompat.getColorStateList(context, R.color.bliss_chip_stroke)
+            chipStrokeWidth     = with(DpUtil) { 1.dpToPx(resources) }.toFloat()
             layoutParams = MarginLayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT

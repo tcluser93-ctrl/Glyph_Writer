@@ -8,11 +8,25 @@
         e wrap_content in altezza → l'altezza della card segue automaticamente
         la larghezza assegnata dalla colonna.
       - Il contenitore del simbolo SVG è un ConstraintLayout con larghezza 0dp
-        (= match_constraint) e dimensionRatio "1:1" → quadrato perfetto proporzionale
-        alla colonna, qualunque sia lo spanCount (2, 3, 4…).
+        (= match_constraint) e dimensionRatio "1:1.5" → il blocco è alto il 50%
+        in più della larghezza di colonna, per dare più respiro al simbolo SVG
+        invece di uno stretto quadrato 1:1 (vedi fix EG sotto).
       - Margine card ridotto a 4dp e padding interno a 6dp per massimizzare
         lo spazio disponibile in colonne strette.
       - Testi ridotti (gloss 12sp, source_word 10sp) per non eccedere la larghezza.
+
+    ## Fix (audit EG, 2026-07-22) — card nere/simboli invisibili
+    Base.Theme.EgyptianWriter estende Theme.Material3.DayNight senza uno
+    schema colori custom (nessun colorSurface/colorPrimary in themes.xml),
+    mentre il resto dell'app usa colori @color/l_* hardcoded (nessuna
+    variante values-night) che ignorano il day/night. MaterialCardView non
+    specificava app:cardBackgroundColor, quindi ereditava il colorSurface
+    di default di Material3 — quasi nero in dark mode — mentre i testi
+    interni (l_textColor, l_textColorPrimary: marrone scurissimo, sempre
+    fissi) restavano scuri. Risultato: card nera con testo marrone-scuro-
+    su-nero, contrasto quasi nullo, esattamente il bug segnalato. Fix:
+    cardBackgroundColor esplicito da @color/l_*, coerente col resto
+    dell'app che non delega mai la propria palette al tema di sistema.
 -->
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -20,9 +34,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
+    app:cardBackgroundColor="@color/l_backgroundDark"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp"
-    app:strokeColor="@color/l_backgroundDark"
+    app:strokeColor="@color/l_colorPrimaryDark"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -45,10 +60,13 @@
         <!--
             E-01/E-03: SVG reale + spinner sovrapposti.
 
-            ConstraintLayout con dimensionRatio="1:1" e larghezza 0dp:
-              → il blocco è sempre quadrato e scala con la larghezza della colonna.
-              → fitCenter sull'ImageView garantisce che il simbolo SVG resti
-                completamente visibile dentro il quadrato.
+            ConstraintLayout con dimensionRatio="1:1.5" e larghezza 0dp:
+              → il blocco è alto 1.5x la larghezza di colonna (fix EG,
+                2026-07-22: prima era "1:1", quadrato stretto — vedi nota
+                sopra). fitCenter sull'ImageView garantisce che il simbolo
+                SVG resti completamente visibile e proporzionato dentro il
+                blocco, con più spazio verticale di respiro rispetto a un
+                quadrato stretto.
 
             Accessibility:
               ImageView – contentDescription gestita dinamicamente dall'adapter
@@ -58,7 +76,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintDimensionRatio="1:1.5"
             app:layout_constraintWidth_percent="1.0"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
