@@ -480,8 +480,20 @@ class BlissTranslateFragment : Fragment(), TextToSpeech.OnInitListener {
                         appendDebugLog("[SVG] PLACEHOLDER $svgCode — asset mancante o corrotto (${sym.gloss})")
                     }
                     else -> {
-                        // tinta scura sul SVG per garantire contrasto uniforme con il testo
-                        drawable.setTint(chipTextColor())
+                        // Fix (audit EG, 2026-07-22): was previously ALSO
+                        // calling drawable.setTint(chipTextColor()) here —
+                        // redundant with chip.chipIconTint below (which
+                        // alone already applies the tint at the *view*
+                        // level, at draw time) and actively harmful: signProvider's
+                        // drawable cache is shared across CHIPS/CARDS/MIXED
+                        // (all three read through the same viewModel.signProvider
+                        // instance), and Drawable.setTint() mutates the
+                        // cached PictureDrawable instance in place. A symbol
+                        // shown in CHIPS first, then in MIXED (which expects
+                        // — and never tints — the SVG's native black), would
+                        // silently inherit CHIPS' tint via the shared cache
+                        // entry. chip.chipIconTint achieves the identical
+                        // visible result without mutating anything shared.
                         chip.chipIcon = drawable
                         chip.chipIconTint =
                             android.content.res.ColorStateList.valueOf(chipTextColor())

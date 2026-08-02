@@ -116,6 +116,23 @@ class BlissSignProvider(
      * The actual I/O happens on the calling coroutine's dispatcher;
      * call this from `withContext(Dispatchers.IO)` in your ViewModel/UseCase.
      *
+     * ## ⚠️ Returned [Drawable] is a shared, cached instance — never mutate it
+     * The same [Drawable] instance is returned to *every* caller requesting
+     * the same [code], for as long as it stays in [cache] — including
+     * different consumers reading through the same [BlissViewModel.signProvider]
+     * (CHIPS' `renderChips()`, [BlissSymbolCardAdapter]'s CARDS grid, and
+     * [BlissRenderer]'s MIXED-view rendering all do). Calling
+     * `drawable.setTint(...)` (or any other in-place mutation) on the
+     * returned instance changes it for *every* other consumer that later
+     * pulls the same cached [code] — this was a real bug (audit EG,
+     * 2026-07-22): `renderChips()` used to tint the drawable directly, so a
+     * symbol shown in CHIPS first and then in MIXED (which never tints, and
+     * expects the SVG's native color) would silently inherit CHIPS' tint via
+     * the shared cache entry. Apply presentation-specific tinting at the
+     * *view* level instead — [android.widget.ImageView.setImageTintList] /
+     * `Chip.setChipIconTint()` — which affects only that one consuming view,
+     * never the shared instance.
+     *
      * @param code  Sign code, e.g. "B12335". Returns null for non-Bliss codes.
      * @param size  Render size hint in px.
      */

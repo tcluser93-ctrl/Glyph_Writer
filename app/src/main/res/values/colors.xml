@@ -38,4 +38,72 @@
     <color name="bliss_chip_ripple">#3324323D</color>
     <color name="bliss_chip_bg_default">#EAF2FB</color>
 
+    <!-- ══════════════════════════════════════════════════════════════════
+         Material3 color roles (audit EG, 2026-07-22)
+
+         `Base.Theme.EgyptianWriter` (Theme.Material3.DayNight) never defined
+         colorSurface/colorOnSurface/colorSurfaceVariant/colorOnSurfaceVariant/
+         colorOutline in EITHER values/themes.xml or values-night/themes.xml
+         (verified: neither file mentions any of the 5). Any widget that
+         doesn't explicitly override its own color — e.g. MaterialCardView's
+         cardBackgroundColor, unset in item_symbol_card.xml — silently fell
+         through to Material3's own generic baseline default for whichever
+         mode was active: a barely-visible near-white in light mode (easy to
+         miss in casual testing) and near-black in dark mode (the reported
+         bug: Bliss symbol cards rendering as solid black squares).
+
+         These 5 names are defined here (light values) and given matching
+         DARK values in values-night/colors.xml — see that file's own header
+         for why only these 5 got a real dark redesign, and not the
+         pre-existing d_* set (which has been present, but literally
+         identical to its l_* counterpart — i.e. non-functional — since
+         before this audit; completing it is a larger, separate, higher-risk
+         effort spanning many already-shipped screens this change does not
+         touch).
+
+         Scope: item_symbol_card.xml's MaterialCardView chrome (background,
+         border, position/gloss/source-word/badge text) is the only consumer
+         of these roles right now. NOT used for the Bliss symbol's own
+         *rendering surface* — see bliss_symbol_canvas below for why that
+         needs to stay theme-independent regardless of how well-designed a
+         dark colorSurface is.
+    ═══════════════════════════════════════════════════════════════════ -->
+    <color name="m3_colorSurface">#ede7de</color>
+    <color name="m3_colorOnSurface">#402a1f</color>
+    <color name="m3_colorSurfaceVariant">#dbcfbd</color>
+    <color name="m3_colorOnSurfaceVariant">#281e17</color>
+    <color name="m3_colorOutline">#bd9e80</color>
+
+    <!--
+        Fixed, theme-independent background for any surface that directly
+        renders a Bliss BCI-AV SVG symbol (card_symbol_svg_image, MIXED's SVG
+        container, CHIPS' chip icon slot).
+
+        ## Why this does NOT vary with day/night, unlike m3_colorSurface above
+        Every bundled Bliss SVG (assets/bliss/svg/*.svg) hardcodes its line
+        art as `stroke: rgb(0,0,0)` — pure black, baked into the asset file,
+        with no theme awareness of its own (verified across sampled assets).
+        If this surface followed the (correctly dark, in dark mode)
+        m3_colorSurface above, the fixed-black strokes would render
+        invisible against it — reproducing the exact bug this whole change
+        set out to fix, just via a different, "more correct-looking" cause.
+        A real fix needs one of: (a) dynamically re-tinting every SVG
+        drawable per theme at render time, or (b) keeping the rendering
+        surface itself always light, since the asset's color can't adapt on
+        its own. (b) is what CHIPS view already does (see
+        item_bliss_chip.xml's own header comment) and is the simpler,
+        lower-risk, already-proven choice — applied consistently to CARDS
+        and MIXED here too, alongside an explicit dark tint on the drawable
+        itself (bliss_symbol_tint below) for defence-in-depth.
+    -->
+    <color name="bliss_symbol_canvas">#dbcfbd</color>
+    <!-- Explicit dark tint applied to every Bliss SVG drawable, regardless
+         of theme — reuses bliss_chip_text so CARDS/MIXED match CHIPS'
+         already-established, contrast-verified tint exactly (8.55:1 on
+         bliss_symbol_canvas; the asset's own native rgb(0,0,0) already
+         provides 13.67:1, so this tint is a defensive normalisation, not a
+         contrast fix in itself — see BlissSymbolCardAdapter/MixedBlissRowView
+         for why explicit tinting is still worth doing regardless). -->
+    <color name="bliss_symbol_tint">@color/bliss_chip_text</color>
+
 </resources>

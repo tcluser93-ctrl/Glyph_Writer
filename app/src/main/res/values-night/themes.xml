@@ -8,6 +8,20 @@
         <item name="android:textColorPrimary">@color/d_textColorPrimary</item>
         <item name="android:textColor">@color/d_textColor</item>
         <item name="android:colorBackground">@color/d_windowBackground</item>
+        <!--
+            Material3 color roles (audit EG, 2026-07-22) — see
+            values/colors.xml's header comment on m3_colorSurface, and this
+            file's counterpart in values/themes.xml. Styles with the same
+            name in values/ vs values-night/ do NOT merge item-by-item — each
+            is a complete, independent definition against its own `parent` —
+            so these 5 items must be (and are) repeated here explicitly, not
+            just added once in the light-mode file.
+        -->
+        <item name="colorSurface">@color/m3_colorSurface</item>
+        <item name="colorOnSurface">@color/m3_colorOnSurface</item>
+        <item name="colorSurfaceVariant">@color/m3_colorSurfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/m3_colorOnSurfaceVariant</item>
+        <item name="colorOutline">@color/m3_colorOutline</item>
     </style>
 
     <style name="popup_window_animation">

@@ -10,23 +10,36 @@
       - Il contenitore del simbolo SVG è un ConstraintLayout con larghezza 0dp
         (= match_constraint) e dimensionRatio "1:1.5" → il blocco è alto il 50%
         in più della larghezza di colonna, per dare più respiro al simbolo SVG
-        invece di uno stretto quadrato 1:1 (vedi fix EG sotto).
+        invece di uno stretto quadrato 1:1.
       - Margine card ridotto a 4dp e padding interno a 6dp per massimizzare
         lo spazio disponibile in colonne strette.
       - Testi ridotti (gloss 12sp, source_word 10sp) per non eccedere la larghezza.
 
-    ## Fix (audit EG, 2026-07-22) — card nere/simboli invisibili
-    Base.Theme.EgyptianWriter estende Theme.Material3.DayNight senza uno
-    schema colori custom (nessun colorSurface/colorPrimary in themes.xml),
-    mentre il resto dell'app usa colori @color/l_* hardcoded (nessuna
-    variante values-night) che ignorano il day/night. MaterialCardView non
-    specificava app:cardBackgroundColor, quindi ereditava il colorSurface
-    di default di Material3 — quasi nero in dark mode — mentre i testi
-    interni (l_textColor, l_textColorPrimary: marrone scurissimo, sempre
-    fissi) restavano scuri. Risultato: card nera con testo marrone-scuro-
-    su-nero, contrasto quasi nullo, esattamente il bug segnalato. Fix:
-    cardBackgroundColor esplicito da @color/l_*, coerente col resto
-    dell'app che non delega mai la propria palette al tema di sistema.
+    ## Fix (audit EG, 2026-07-22) — card nere/simboli invisibili, Material3 vero
+    Base.Theme.EgyptianWriter (Theme.Material3.DayNight) non definiva mai
+    colorSurface/colorOnSurface/colorSurfaceVariant/colorOnSurfaceVariant/
+    colorOutline in nessuno dei due temi (chiaro/scuro). MaterialCardView non
+    specificava app:cardBackgroundColor, quindi ereditava il colorSurface di
+    default di Material3 — quasi nero in dark mode — mentre i testi interni
+    restavano fissi scuri. Card nera con testo scuro-su-nero, contrasto quasi
+    nullo: esattamente il bug segnalato.
+
+    Fix reale (non un cerotto): i 5 ruoli Material3 mancanti sono ora definiti
+    in values/themes.xml + values-night/themes.xml (vedi il commento su
+    m3_colorSurface in values/colors.xml per il dettaglio completo), quindi
+    qui si usano i veri attributi tema (?attr/colorSurface ecc.) — la card
+    ora si adatta correttamente al tema chiaro/scuro di sistema, invece di
+    colori fissi hardcoded.
+
+    ECCEZIONE DELIBERATA: l'area di rendering del simbolo SVG
+    (card_symbol_svg_image) NON segue il tema — usa @color/bliss_symbol_canvas,
+    fisso e sempre chiaro. Motivo: ogni SVG Bliss ha tratti colore fisso
+    (stroke nero, hardcoded nell'asset), senza alcuna consapevolezza del
+    tema. Se questa superficie diventasse scura in dark mode, i tratti neri
+    sparirebbero di nuovo — stesso bug, causa diversa. Vedi il commento su
+    bliss_symbol_canvas in values/colors.xml per l'analisi completa. Un tint
+    esplicito scuro (bliss_symbol_tint) è applicato al drawable in
+    BlissSymbolCardAdapter per difesa in profondità, indipendente dal tema.
 -->
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -34,10 +47,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
-    app:cardBackgroundColor="@color/l_backgroundDark"
+    app:cardBackgroundColor="?attr/colorSurface"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp"
-    app:strokeColor="@color/l_colorPrimaryDark"
+    app:strokeColor="?attr/colorOutline"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -54,19 +67,19 @@
             android:layout_height="wrap_content"
             android:gravity="end"
             android:textSize="9sp"
-            android:textColor="@color/l_textColor"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:layout_marginBottom="2dp" />
 
         <!--
             E-01/E-03: SVG reale + spinner sovrapposti.
 
             ConstraintLayout con dimensionRatio="1:1.5" e larghezza 0dp:
-              → il blocco è alto 1.5x la larghezza di colonna (fix EG,
-                2026-07-22: prima era "1:1", quadrato stretto — vedi nota
-                sopra). fitCenter sull'ImageView garantisce che il simbolo
-                SVG resti completamente visibile e proporzionato dentro il
-                blocco, con più spazio verticale di respiro rispetto a un
-                quadrato stretto.
+              → il blocco è alto 1.5x la larghezza di colonna. fitCenter
+                sull'ImageView garantisce che il simbolo SVG resti
+                completamente visibile e proporzionato dentro il blocco.
+
+            Il background dell'ImageView (bliss_symbol_canvas) NON segue il
+            tema — vedi il commento in cima al file per il perché.
 
             Accessibility:
               ImageView – contentDescription gestita dinamicamente dall'adapter
@@ -89,7 +102,7 @@
                 android:layout_height="0dp"
                 android:scaleType="fitCenter"
                 android:layerType="software"
-                android:background="@color/l_backgroundDarker"
+                android:background="@color/bliss_symbol_canvas"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -117,7 +130,7 @@
             android:gravity="center"
             android:textSize="12sp"
             android:textStyle="bold"
-            android:textColor="@color/l_textColorPrimary"
+            android:textColor="?attr/colorOnSurface"
             android:maxLines="2"
             android:ellipsize="end"
             android:layout_marginBottom="2dp" />
@@ -129,12 +142,20 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textSize="10sp"
-            android:textColor="@color/l_textColor"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:maxLines="1"
             android:ellipsize="end"
             android:layout_marginBottom="4dp" />
 
-        <!-- Badge tipo di match: info tecnica, TalkBack la salta -->
+        <!-- Badge tipo di match: info tecnica, TalkBack la salta.
+             textColor FISSO (bliss_chip_text), non theme-adaptive: lo sfondo
+             del badge (impostato via matchColor() nell'adapter) è un
+             pastello chiaro fisso indipendente dal tema — stesso approccio
+             di CHIPS (chipColor()/bliss_chip_text). Usare ?attr/colorOnSurface
+             qui sarebbe stato un secondo bug identico al primo: in dark mode
+             risolverebbe a un colore chiaro (#F0E6D8) su sfondo pastello
+             altrettanto chiaro — contrasto ~1:1, illeggibile. Verificato:
+             bliss_chip_text su tutti gli 8 pastelli di matchColor() >= 9.5:1. -->
         <TextView
             android:id="@+id/card_match_badge"
             android:layout_width="wrap_content"
@@ -143,7 +164,7 @@
             android:paddingVertical="2dp"
             android:textSize="9sp"
             android:textAllCaps="true"
-            android:textColor="@color/l_textColorPrimary"
+            android:textColor="@color/bliss_chip_text"
             android:importantForAccessibility="no" />
 
     </LinearLayout>

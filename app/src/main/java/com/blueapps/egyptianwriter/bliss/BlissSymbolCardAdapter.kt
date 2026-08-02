@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.recyclerview.widget.DiffUtil
@@ -115,7 +116,15 @@ class BlissSymbolCardAdapter(
             // Stato iniziale: immagine vuota, spinner visibile.
             // CD = "Caricamento simbolo in corso" — annunciata da TalkBack
             // non appena la card riceve il focus, prima ancora che l'SVG sia pronto.
+            //
+            // imageTintList resettato qui per lo stesso motivo (audit EG,
+            // 2026-07-22): il ViewHolder viene riciclato da RecyclerView, e
+            // senza questo reset un bind precedente potrebbe lasciare un
+            // tint applicato prima che la coroutine per il NUOVO simbolo
+            // completi. Innocuo a schermo (nessun drawable = nessun tint
+            // visibile), ma corretto per non fare affidamento su questo.
             ivSymbol.setImageDrawable(null)
+            ivSymbol.imageTintList = null
             ivSymbol.contentDescription = itemView.context.getString(
                 R.string.bliss_caa_svg_loading
             )
@@ -132,6 +141,41 @@ class BlissSymbolCardAdapter(
                 }
                 // Main thread — guard anti-late-binding
                 if (tvGloss.text == symbol.gloss) {
+                    // Fix (audit EG, 2026-07-22): explicit tint on real SVG
+                    // drawables, mirroring CHIPS' tint (renderChips() in
+                    // BlissTranslateFragment). Every bundled Bliss SVG
+                    // hardcodes pure-black strokes with no theme awareness
+                    // of its own — this pins them to a known-good, contrast-
+                    // verified dark color (bliss_symbol_tint) against the
+                    // always-light card_symbol_svg_image background
+                    // (bliss_symbol_canvas, deliberately NOT theme-adaptive —
+                    // see item_symbol_card.xml's header comment).
+                    //
+                    // Uses ImageView.imageTintList (a *view*-level property,
+                    // applied at draw time), NOT Drawable.setTint(). The
+                    // latter mutates the Drawable *instance* in place —
+                    // BlissSignProvider's cache is shared across CHIPS/
+                    // CARDS/MIXED (all three read through the same
+                    // viewModel.signProvider), so tinting the instance
+                    // directly would leak into every other consumer that
+                    // later pulls the same cached bciAvId, including
+                    // MixedBlissRowView/BlissRenderer, which never tints and
+                    // expects the SVG's native color. imageTintList avoids
+                    // this entirely: the same cached, untinted instance is
+                    // shared safely, and only this ImageView's own rendering
+                    // is affected. PlaceholderDrawable is excluded: it
+                    // already draws its own deliberate light-grey/dashed-
+                    // border/"?" styling (BlissSignProvider.PlaceholderDrawable),
+                    // and tinting it would flatten that to a single color.
+                    ivSymbol.imageTintList = if (
+                        drawable != null && drawable !is BlissSignProvider.PlaceholderDrawable
+                    ) {
+                        android.content.res.ColorStateList.valueOf(
+                            ContextCompat.getColor(itemView.context, R.color.bliss_symbol_tint)
+                        )
+                    } else {
+                        null
+                    }
                     ivSymbol.setImageDrawable(drawable)
                     pbLoading.visibility = View.GONE
 

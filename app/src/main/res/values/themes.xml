@@ -1,6 +1,21 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.EgyptianWriter" parent="Theme.Material3.DayNight.NoActionBar" />
+    <style name="Base.Theme.EgyptianWriter" parent="Theme.Material3.DayNight.NoActionBar">
+        <!--
+            Material3 color roles (audit EG, 2026-07-22) — see
+            values/colors.xml's header comment on m3_colorSurface for the
+            full rationale (undefined colorSurface was the root cause of
+            Bliss symbol cards rendering as solid black squares in dark
+            mode). Scoped to item_symbol_card.xml's MaterialCardView chrome
+            for now; the app's broader (pre-existing, still-incomplete) d_*
+            dark-theme color set is unaffected by this change.
+        -->
+        <item name="colorSurface">@color/m3_colorSurface</item>
+        <item name="colorOnSurface">@color/m3_colorOnSurface</item>
+        <item name="colorSurfaceVariant">@color/m3_colorSurfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/m3_colorOnSurfaceVariant</item>
+        <item name="colorOutline">@color/m3_colorOutline</item>
+    </style>
 
     <!-- here is the light theme !-->
 

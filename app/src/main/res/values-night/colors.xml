@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         Material3 color roles — DARK variant (audit EG, 2026-07-22)
+
+         See values/colors.xml's header comment on the same 5 names for the
+         full rationale. Values below are a genuinely-redesigned dark
+         palette (not a copy of the light values, unlike the pre-existing
+         d_* set elsewhere in this app) sharing the same warm brown/tan brand
+         hue family as the light theme rather than a generic Material grey/
+         purple dark scheme. Every text-on-background pairing verified
+         against WCAG 2.1 contrast ratios before being chosen:
+
+           onSurface (#F0E6D8) on surface (#2A2118):               12.80:1
+           onSurfaceVariant (#C9BBA3) on surfaceVariant (#3A2E20):   6.99:1
+           onSurfaceVariant (#C9BBA3) on surface (#2A2118):          8.37:1
+           outline (#8A7154) on surface (#2A2118):                   3.44:1
+
+         All comfortably clear WCAG AA (4.5:1 normal text / 3:1 large text
+         and UI components). Verification script + exact figures are in this
+         change's commit message.
+    ═══════════════════════════════════════════════════════════════════ -->
+    <color name="m3_colorSurface">#2A2118</color>
+    <color name="m3_colorOnSurface">#F0E6D8</color>
+    <color name="m3_colorSurfaceVariant">#3A2E20</color>
+    <color name="m3_colorOnSurfaceVariant">#C9BBA3</color>
+    <color name="m3_colorOutline">#8A7154</color>
+
+    <!-- Deliberately NOT overridden here — see values/colors.xml's header
+         comment on bliss_symbol_canvas for why the Bliss SVG rendering
+         surface stays theme-independent (always light) rather than
+         following dark mode like m3_colorSurface above does. -->
+
+</resources>
