@@ -50,7 +50,10 @@ package com.blueapps.egyptianwriter.bliss
  * @param bciAvId          Official BCI-AV identifier (> 0). E.g. 12335.
  *                         Sentinel values UNKNOWN_SYMBOL_ID and COMPOUND_SYMBOL_ID
  *                         are also accepted (init validates accordingly).
- * @param name             English canonical name from bci_names.json (non-blank).
+ * @param name             Canonical display name in the active translation
+ *                         language (audit EG, 2026-07-22: `bci_names_<lang>.json`
+ *                         via [BlissLookup.nameOf]; previously always English).
+ *                         Non-blank.
  * @param category         Semantic category tag (e.g. "action", "thing", "description").
  *                         Empty string if not present in dataset.
  * @param synsetId         WordNet 3.1 synset offset (from bci_blissnet.json), null if absent.

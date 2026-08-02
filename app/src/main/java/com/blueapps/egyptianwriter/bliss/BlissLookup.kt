@@ -51,9 +51,9 @@ import java.util.Locale
  * ## Asset files expected under `assets/bliss/`
  * | File | Format | Contents |
  * |---|---|---|
- * | `bci_names.json` | `{"12335":"action, to", …}` | BCI-AV ID → English name |
- * | `bci_blissnet.json` | `{"12335": 202316, …}` | BCI-AV ID → WordNet synset offset |
- * | `bci_lexicon_{lang}.json` | `{"walk": 12335, …}` | surface word → BCI-AV ID |
+ * | `bci_names_{lang}.json` | `{"12335":"camminare", …}` | BCI-AV ID → display name in `lang` (audit EG, 2026-07-22 — see [loadNames]'s KDoc; falls back to legacy English-only `bci_names.json` if missing) |
+ * | `bci_blissnet.json` | `{"12335": ["06856067", …], …}` | BCI-AV ID → WordNet synset offset(s) |
+ * | `bci_lexicon_{lang}.json` | `{"walk": [12335], …}` | surface word → BCI-AV ID |
  * | `lemmas_{lang}.csv` | `lemma,POS,bci_av_id` | lemma + POS → BCI-AV ID |
  * | `ngrams_multilang.csv` | `lang,ngram,bci_av_id` | n-gram phrase → BCI-AV ID |
  *
@@ -247,7 +247,7 @@ class BlissLookup private constructor(private val context: Context) {
         Log.i(TAG, "Loading Bliss assets for lang=$lang")
         val newTables: Tables
         try {
-            val names   = loadNames()
+            val names   = loadNames(lang)
             val synsets = loadSynsets()
             val lexicon = loadLexicon(lang)
             val (plain, pos) = loadLemmas(lang)
@@ -362,16 +362,49 @@ class BlissLookup private constructor(private val context: Context) {
 
     // ── private asset readers ────────────────────────────────────────────────
 
-    private fun loadNames(): Map<Int, String> {
+    /**
+     * Loads the BCI-AV id → display name map for [lang].
+     *
+     * ## Fix (audit EG, 2026-07-22)
+     * Previously always read `bci_names.json` — a single English-only
+     * id→name map — regardless of [lang], so every symbol's gloss (card
+     * text, chip text, TTS) was always English even when translating into
+     * Italian, German, etc. `bci_full.json` (3.75 MB, all 17 upstream
+     * languages) already carried the data needed to fix this, but was never
+     * wired up. Rather than parsing the full multi-language blob on every
+     * language switch (wasteful: 1/17th of it is used, every time),
+     * `tools/bci_names_split.py` pre-splits it at build time into compact
+     * `bci_names_<lang>.json` files — same pattern as the WordNet Stage A
+     * assets (`tools/wordnet_build.py`). Every id is guaranteed a non-blank
+     * name in every generated file (falls back to English at build time for
+     * ids missing a translation — see that script's docstring for exact
+     * coverage numbers per language and the Polish "po"-vs-"pl" data-quality
+     * note), so no per-lookup fallback is needed here.
+     *
+     * Defensively falls back to the legacy English-only `bci_names.json` if
+     * `bci_names_<lang>.json` isn't bundled for some reason (e.g. a future
+     * supported language added to [SUPPORTED_LANGS] before its names file is
+     * generated) — better to show English glosses than none at all.
+     */
+    private fun loadNames(lang: String): Map<Int, String> {
         val map = HashMap<Int, String>(7000)
-        readJsonObjectOrNull("bliss/bci_names.json")?.let { json ->
-            val keys = json.keys()
+        val primaryAsset = "bliss/bci_names_$lang.json"
+        val json = readJsonObjectOrNull(primaryAsset)
+            ?: readJsonObjectOrNull("bliss/bci_names.json").also {
+                if (it != null) {
+                    Log.w(TAG, "$primaryAsset not found — falling back to legacy English-only bci_names.json")
+                } else {
+                    Log.w(TAG, "$primaryAsset not found and no bci_names.json fallback either")
+                }
+            }
+        json?.let {
+            val keys = it.keys()
             while (keys.hasNext()) {
                 val key = keys.next()
                 val id  = key.toIntOrNull() ?: continue
-                map[id] = json.optString(key, "").takeIf { it.isNotEmpty() } ?: continue
+                map[id] = it.optString(key, "").takeIf { name -> name.isNotEmpty() } ?: continue
             }
-        } ?: Log.w(TAG, "bci_names.json not found")
+        }
         return map
     }
 
